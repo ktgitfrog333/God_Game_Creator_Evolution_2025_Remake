@@ -1,0 +1,16 @@
+{
+    "name": "Universal.Utilities",
+    "rootNamespace": "",
+    "references": [
+        "GUID:b9e9252c1a176944a8fa89e7db9bb673"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

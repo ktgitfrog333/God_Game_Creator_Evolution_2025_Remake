@@ -1,0 +1,18 @@
+{
+    "name": "Mains.Manager.Owners",
+    "rootNamespace": "",
+    "references": [
+        "GUID:fd7982f94a044c44c9822f63503581f7",
+        "GUID:b9e9252c1a176944a8fa89e7db9bb673",
+        "GUID:bca37bd24b4e9ce4688064ef3da8977d"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
