@@ -23,7 +23,6 @@ namespace Mains.Views
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
         [SerializeField] private InteractionPartTable 探索_シャウトチャンス_リズムパート情報管理テーブル;
-        //[SerializeField] private CueStuct[] CriAtomSourceのリスト;
         /// <summary>歩行SE</summary>
         private CriAtomSource _criAtomSourceFootStep;
         /// <summary>SEのトリガー制御</summary>
@@ -51,6 +50,12 @@ namespace Mains.Views
             PlayerViewModel playerViewModel = new(探索_シャウトチャンス_リズムパート情報管理テーブル);
             _criAtomSourceFootStep = GetComponentsInChildren<CriAtomSource>().FirstOrDefault(q => q.cueSheet.Equals("CueSheet_SFX") &&
                 q.cueName.Equals("FootStep"));
+            ReactiveCommand<float> moveAcceleration = new ReactiveCommand<float>();
+            moveAcceleration.Pairwise()
+                // プラスからマイナス（0へ近づいた）になった場合にSFXをStop
+                .Where(x => x.Current < x.Previous)
+                .Subscribe(x => StopFootstepSound())
+                .AddTo(ref _disposableBag);
             Observable.EveryUpdate()
                 .Subscribe(_ =>
                 {
@@ -72,9 +77,8 @@ namespace Mains.Views
                     float aimY = player.GetAxis("AimMoveVertical");
 
                     characterController.Move((move * 移動速度 + velocity) * Time.deltaTime);
-                    // TODO:ObservableでmoveのMagnitudeを監視
-                    // プラスからマイナス（0へ近づいた）になった場合にSFXをStop
                     animator.SetFloat("Walk", move.sqrMagnitude);
+                    moveAcceleration.Execute(move.sqrMagnitude);
                     // 視点変更 (角度を直接加算)
                     currentYaw += aimX * 視点速度補正 * Time.deltaTime;
                     currentPitch -= aimY * 視点速度補正 * Time.deltaTime;
