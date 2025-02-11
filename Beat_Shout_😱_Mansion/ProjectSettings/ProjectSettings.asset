@@ -910,7 +910,13 @@ PlayerSettings:
   XboxOneOverrideIdentityName: 
   XboxOneOverrideIdentityPublisher: 
   vrEditorSettings: {}
-  cloudServicesEnabled: {}
+  cloudServicesEnabled:
+    Build: 0
+    Game Performance: 0
+    Legacy Analytics: 0
+    Purchasing: 0
+    UDP: 0
+    Unity Ads: 0
   luminIcon:
     m_Name: 
     m_ModelFolderPath: 
@@ -932,11 +938,11 @@ PlayerSettings:
   captureStartupLogs: {}
   activeInputHandler: 2
   windowsGamepadBackendHint: 0
-  cloudProjectId: 1c393381-8433-42ea-8bc1-1795736ceceb
+  cloudProjectId: 71cc7224-beb4-4312-8d91-6fb2d42b616d
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
   projectName: "Beat_Shout_\U0001F631_Mansion"
-  organizationId: kazunin333
+  organizationId: xylo-gehanashi
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   hmiLoadingImage: {fileID: 0}
