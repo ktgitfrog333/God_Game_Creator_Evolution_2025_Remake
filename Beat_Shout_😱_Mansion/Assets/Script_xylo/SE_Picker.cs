@@ -25,12 +25,12 @@ public class SE_Picker : MonoBehaviour
     public int maxPlayers = 10; // 再生機の数。限度を超えると最初のものが止まる。CRIWARE側で最大数を設定していればある程度は回避される
 
     //ここから先は個別のSEの登録
-    public string SE_01;
+    public string FootStep;
 
 
     private void OnEnable()
     {
-        Invoke("Delay", 0.2f);
+        Invoke("Delay", 1.2f);
     }
 
     private void Delay()
@@ -112,9 +112,10 @@ public class SE_Picker : MonoBehaviour
 
     //ここから先にSEを登録していく。音量は明示的に指定する
 
-    public void PlaySE_01(float Vol)
+
+        public void PlayFootStep(float Vol)
     {
-        PlaySound(SE_01, Vol);
+        PlaySound(FootStep, Vol);
     }
 
 

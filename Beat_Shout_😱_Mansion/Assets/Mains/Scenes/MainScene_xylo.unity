@@ -851,15 +851,15 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 617780181}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 58115fc302b273949b67d9337cc6f774, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CueSheetName: 
-  AcbFilePath: 
+  CueSheetName: SE_System
+  AcbFilePath: SE_System.acb
   maxPlayers: 10
-  SE_01: 
+  FootStep: footstep
 --- !u!1 &635365403
 GameObject:
   m_ObjectHideFlags: 0
@@ -1133,6 +1133,53 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &894523588
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 894523589}
+  - component: {fileID: 894523590}
+  m_Layer: 0
+  m_Name: TestFootStep
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &894523589
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 894523588}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1542753932}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &894523590
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 894523588}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a54f6aa094d65ca42bf0c35e9c652548, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  minInterval: 0.9
+  maxInterval: 0.6
+  accelerationTime: 3
 --- !u!1 &951453394
 GameObject:
   m_ObjectHideFlags: 0
@@ -1300,7 +1347,7 @@ MonoBehaviour:
   _use3dPositioning: 0
   _freezeOrientation: 0
   _loop: 0
-  _volume: 1
+  _volume: 0.1
   _pitch: 0
   _androidUseLowLatencyVoicePool: 0
   need_to_player_update_all: 1
@@ -1565,11 +1612,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   acfFile: BSM_xylo.acf
   cueSheets:
-  - name: rhythm_pt_01
-    acbFile: rhythm_pt_01.acb
+  - name: SE_System
+    acbFile: BSM_xylo_250215/SE_System.acb
     awbFile: 
     loaderStatus: 0
-  - name: rhythm_pt_01
+  - name: rythm_pt01
     acbFile: BSM_xylo_250215/rhythm_pt_01.acb
     awbFile: 
     loaderStatus: 0
@@ -1750,6 +1797,7 @@ Transform:
   m_Children:
   - {fileID: 209826340}
   - {fileID: 1570613199}
+  - {fileID: 894523589}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1570613198

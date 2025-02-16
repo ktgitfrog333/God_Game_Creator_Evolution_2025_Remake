@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: CriAtomWindowPrefs
   m_EditorClassIdentifier: 
   searchPath: "C:/God_Game_Creator_Evolution_2025/Beat_Shout_\U0001F631_Mansion/Assets/StreamingAssets/BSM_xylo_250215"
-  outputAssetsRoot: "C:/Users/paray/OneDrive/\u30C9\u30AD\u30E5\u30E1\u30F3\u30C8/CRIWARE/CriAtomCraft/projects/SampleProject/Public/Assets"
+  outputAssetsRoot: "C:/God_Game_Creator_Evolution_2025/Beat_Shout_\U0001F631_Mansion/Assets/StreamingAssets/"
   showPrivateCue: 0
