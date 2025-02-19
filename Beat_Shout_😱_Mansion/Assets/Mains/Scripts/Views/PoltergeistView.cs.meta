@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 8363cce683eb62343ab75211e660d361
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  - poltergeistPrefab: {fileID: 1215156780124661367, guid: 3bfc5e33bb3d71e458ffa2b473959872, type: 3}
+  - shoutChanceRangePrefab: {fileID: 6264907657960383743, guid: ac893ebf0ca26e44ab98cda6abf7e9f4, type: 3}
+  - dustParticlePrefab: {instanceID: 0}
+  - sePoltergeist: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

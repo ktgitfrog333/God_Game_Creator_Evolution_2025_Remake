@@ -3,6 +3,8 @@ using Rewired;
 using R3;
 using Mains.Commons;
 using Mains.ViewModels;
+using CriWare;
+using System.Linq;
 
 namespace Mains.Views
 {
@@ -10,6 +12,7 @@ namespace Mains.Views
     /// プレイヤーのビュー
     /// </summary>
     [RequireComponent(typeof(CharacterController))]
+    [RequireComponent(typeof(Animator))]
     public class PlayerView : MonoBehaviour
     {
         /// <summary>キャラクター移動制御</summary>
@@ -20,11 +23,17 @@ namespace Mains.Views
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
         [SerializeField] private InteractionPartTable 探索_シャウトチャンス_リズムパート情報管理テーブル;
+        /// <summary>歩行SE</summary>
+        private CriAtomSource _criAtomSourceFootStep;
+        /// <summary>SEのトリガー制御</summary>
+        [SerializeField] private Animator animator;
 
         private void Reset()
         {
             if (characterController == null)
                 characterController = GetComponent<CharacterController>();
+            if (animator == null)
+                animator = GetComponent<Animator>();
         }
 
         private void Start()
@@ -39,6 +48,14 @@ namespace Mains.Views
             float currentPitch = trans.rotation.eulerAngles.x; // 現在のX軸回転角度 (上下回転)
             Vector3 velocity = Vector3.zero; // 現在の速度
             PlayerViewModel playerViewModel = new(探索_シャウトチャンス_リズムパート情報管理テーブル);
+            _criAtomSourceFootStep = GetComponentsInChildren<CriAtomSource>().FirstOrDefault(q => q.cueSheet.Equals("CueSheet_SFX") &&
+                q.cueName.Equals("FootStep"));
+            ReactiveCommand<float> moveAcceleration = new ReactiveCommand<float>();
+            moveAcceleration.Pairwise()
+                // プラスからマイナス（0へ近づいた）になった場合にSFXをStop
+                .Where(x => x.Current < x.Previous)
+                .Subscribe(x => StopFootstepSound())
+                .AddTo(ref _disposableBag);
             Observable.EveryUpdate()
                 .Subscribe(_ =>
                 {
@@ -60,6 +77,8 @@ namespace Mains.Views
                     float aimY = player.GetAxis("AimMoveVertical");
 
                     characterController.Move((move * 移動速度 + velocity) * Time.deltaTime);
+                    animator.SetFloat("Walk", move.sqrMagnitude);
+                    moveAcceleration.Execute(move.sqrMagnitude);
                     // 視点変更 (角度を直接加算)
                     currentYaw += aimX * 視点速度補正 * Time.deltaTime;
                     currentPitch -= aimY * 視点速度補正 * Time.deltaTime;
@@ -80,5 +99,29 @@ namespace Mains.Views
         {
             _disposableBag.Dispose();
         }
+
+        /// <summary>
+        /// 足音を鳴らすSEを再生する
+        /// </summary>
+        public void PlayFootstepSound()
+        {
+            if (_criAtomSourceFootStep != null)
+            {
+                _criAtomSourceFootStep.Play();
+            }
+        }
+
+        /// <summary>
+        /// 足音を鳴らすSEを停止する
+        /// </summary>
+        public void StopFootstepSound()
+        {
+            if (_criAtomSourceFootStep != null)
+            {
+                _criAtomSourceFootStep.Stop();
+            }
+        }
+
+        public void PlayDummy() { }
     }
 }
