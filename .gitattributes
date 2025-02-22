@@ -1,4 +1,1 @@
-C:/God_Game_Creator_Evolution_2025/Beat_Shout_😱_Mansion/Assets/Mains/Prefabs/Level/StaticObjects/DownloadAssets/**/*.png filter=lfs diff=lfs merge=lfs -text
-C:/God_Game_Creator_Evolution_2025/Beat_Shout_😱_Mansion/Assets/Mains/Prefabs/Level/StaticObjects/DownloadAssets/**/*.tga filter=lfs diff=lfs merge=lfs -text
-C:/God_Game_Creator_Evolution_2025/Beat_Shout_😱_Mansion/Assets/Mains/Prefabs/Level/StaticObjects/DownloadAssets/**/*.psd filter=lfs diff=lfs merge=lfs -text
-C:/God_Game_Creator_Evolution_2025/Beat_Shout_😱_Mansion/Assets/Mains/Prefabs/Level/StaticObjects/DownloadAssets/** filter=lfs diff=lfs merge=lfs -text
+*.png filter=lfs diff=lfs merge=lfs -text
