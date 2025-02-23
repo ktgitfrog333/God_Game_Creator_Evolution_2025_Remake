@@ -1,15 +1,9 @@
 {
-    "name": "Mains.Views",
+    "name": "Mains.Script_xylo",
     "rootNamespace": "",
     "references": [
-        "GUID:bca37bd24b4e9ce4688064ef3da8977d",
-        "GUID:69694b78817bce141a7bbf3c478cac53",
-        "GUID:b9e9252c1a176944a8fa89e7db9bb673",
-        "GUID:fd7982f94a044c44c9822f63503581f7",
-        "GUID:4307f53044263cf4b835bd812fc161a4",
-        "GUID:7a121885caf527f499b0ac11425dc06a",
         "GUID:800597811bcc5d848b15e12807d6de45",
-        "GUID:1b6da167e7ceab54198951fd2c78da0e"
+        "GUID:6055be8ebefd69e48b49212b09b47b2f"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

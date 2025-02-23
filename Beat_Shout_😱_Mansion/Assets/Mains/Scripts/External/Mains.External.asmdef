@@ -1,0 +1,16 @@
+{
+    "name": "Mains.External",
+    "rootNamespace": "",
+    "references": [
+        "GUID:4d2c0cd116fb9a34bbd4144496417b79"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
