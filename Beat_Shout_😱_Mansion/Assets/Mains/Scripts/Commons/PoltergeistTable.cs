@@ -1,10 +1,11 @@
+using ObservableCollections;
 using R3;
 using UnityEngine;
 
 namespace Mains.Commons
 {
     /// <summary>
-    /// ポルターガイストのアニメーション管理テーブル
+    /// ポルターガイストの管理テーブル
     /// </summary>
     [CreateAssetMenu(fileName = "PoltergeistTable", menuName = "Scriptable Objects/PoltergeistTable")]
     public class PoltergeistTable : ScriptableObject

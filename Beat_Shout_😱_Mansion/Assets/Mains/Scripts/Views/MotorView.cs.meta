@@ -1,12 +1,12 @@
 fileFormatVersion: 2
-guid: 8363cce683eb62343ab75211e660d361
+guid: 1997f582c81b50c4fa0e2ac5dd4e052d
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
   defaultReferences:
   - poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
-  - motorPrefab: {fileID: 1215156780124661367, guid: 3bfc5e33bb3d71e458ffa2b473959872, type: 3}
-  - shoutChanceRangePrefab: {fileID: 6264907657960383743, guid: ac893ebf0ca26e44ab98cda6abf7e9f4, type: 3}
+  - animator: {instanceID: 0}
+  - rigidbody: {instanceID: 0}
   - dustParticlePrefab: {fileID: 3559017266246024843, guid: 577e806dc04c6ea4ea260d421e997680, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}

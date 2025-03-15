@@ -1,8 +1,9 @@
-using CriWare;
-using DG.Tweening;
 using UnityEngine;
 using Mains.Commons;
+using R3;
+using ObservableCollections;
 using Mains.ViewModels;
+using System.Linq;
 
 namespace Mains.Views
 {
@@ -13,112 +14,199 @@ namespace Mains.Views
     {
         [Tooltip("Assets/Mains/Scripts/Commons/PoltergeistTable.assetをセットしておく。")]
         [SerializeField] private PoltergeistTable poltergeistTable;
-        [Tooltip("Assets/Mains/Prefabs/Level/Poltergeist.prefabをセットしておく。")]
-        [SerializeField] private GameObject poltergeistPrefab;
+        [Tooltip("Assets/Mains/Prefabs/Level/Motor.prefabをセットしておく。")]
+        [SerializeField] private GameObject motorPrefab;
         [Tooltip("Assets/Mains/Prefabs/Level/ShoutChanceRange.prefabをセットしておく。")]
         [SerializeField] private GameObject shoutChanceRangePrefab;
         // TODO:シャウトチャンスパートでポルターガイストが発生した時のエフェクト
         [SerializeField] private GameObject dustParticlePrefab;
-        // TODO:SE/MEの素材をUnityに導入して、調整する
-        private CriAtomSource _sePoltergeist;
-        /// <summary>生成されたPoltergeist.prefabのキャッシュ</summary>
-        private GameObject _poltergeistInstance;
-        // TODO:シャウトチャンスパートでポルターガイストが発生した時のエフェクト
-        private GameObject _dustParticleInstance;
-        private Transform _transform;
+        /// <summary>リズムパートポジション（プレイヤー位置をリズムパート用に移動させる）</summary>
+        private Transform _rhythmPartPosition;
+        /// <summary>リズムパートポジション（プレイヤー位置をリズムパート用に移動させる）</summary>
+        public Transform RhythmPartPosition => _rhythmPartPosition;
+        /// <summary>オバケの家具入居管理の構造体</summary>
+        [SerializeField] private GhostInStaticObjectStruct ghostInStaticObjectStruct;
+        /// <summary>オバケの家具入居管理の構造体</summary>
+        public GhostInStaticObjectStruct GhostInStaticObjectStruct
+        {
+            get
+            {
+                return ghostInStaticObjectStruct;
+            }
+            set
+            {
+                ghostInStaticObjectStruct = value;
+            }
+        }
         /// <summary>ポルターガイストのビューモデル</summary>
         private PoltergeistViewModel _poltergeistViewModel;
+        /// <summary>モーターのビュー</summary>
+        private MotorView _motorView;
+        /// <summary>R3のリソース管理</summary>
+        private DisposableBag _disposableBag = new DisposableBag();
 
-        void Start()
+        private void Reset()
         {
-            _transform = transform;
-            // TODO:SE/MEの素材をUnityに導入して、調整する
-            // _sePoltergeist = 
-            _poltergeistViewModel = new PoltergeistViewModel(poltergeistTable);
-            InstantiatePoltergeist();
-        }
-
-        /// <summary>
-        /// ポルターガイストのプレハブを生成
-        /// </summary>
-        /// <remarks>
-        /// ●Poltergeist：ポルターガイスト<br/>
-        /// ●ShoutChanceRange：シャウトチャンスレンジ
-        /// </remarks>
-        private void InstantiatePoltergeist()
-        {
-            // Poltergeistの生成
-            var originParent = _transform.parent;
-            _poltergeistInstance = Instantiate(poltergeistPrefab, _transform.position, Quaternion.identity);
-            _poltergeistInstance.transform.SetParent(originParent);
-            _transform.SetParent(_poltergeistInstance.transform);
-            RuntimeAnimatorController currentAnimCtrl = poltergeistTable.poltergeistAnimatorControllers[Random.Range(0, poltergeistTable.poltergeistAnimatorControllers.Length)];
-            _poltergeistInstance.GetComponent<Animator>().runtimeAnimatorController = currentAnimCtrl;
-
-            // ShoutChanceRangeの生成
-            var originParent_1 = _poltergeistInstance.transform.parent;
-            Transform shoutChanceInstance = Instantiate(shoutChanceRangePrefab, transform.position, Quaternion.identity).transform;
-            shoutChanceInstance.SetParent(originParent_1);
-            _poltergeistInstance.transform.SetParent(shoutChanceInstance);
-            _transform.SetParent(_poltergeistInstance.transform);
-        }
-
-        /// <summary>
-        /// AnimarionClipからトリガー（アクション）の受信
-        /// TODO:アニメーションクリップを作成
-        /// </summary>
-        /// <see cref=""/>
-        public void OnAction()
-        {
-            if (_poltergeistInstance != null)
+            // リズムパートポジション（プレイヤー位置をリズムパート用に移動させる）の生成
+            bool isFound = false;
+            foreach (Transform child in transform)
             {
-                ApplyPoltergeistEffect(_poltergeistInstance);
-                PlayDustParticle(_dustParticleInstance);
-                PlayPoltergeistSE(_sePoltergeist);
-                _poltergeistViewModel.SetIsOnActionPoltergeist(true);
+                if (child.name.Equals("RhythmPartPosition"))
+                {
+                    isFound = true;
+                    break;
+                }
+            }
+            if (!isFound)
+            {
+                var newObj = new GameObject("RhythmPartPosition");
+                newObj.transform.position = transform.position;
+                newObj.transform.SetParent(transform);
             }
         }
 
-        /// <summary>
-        /// ポルターガイストの挙動
-        /// </summary>
-        /// <param name="target">ポルターガイスト対象のオブジェクト</param>
-        private void ApplyPoltergeistEffect(GameObject target)
+        private void Start()
         {
-            float randomAngle = Random.Range(-15f, 15f);
-            float randomImpact = Random.Range(0.1f, 0.3f);
-            target.transform.DOLocalMoveY(randomImpact, 0.2f).SetLoops(2, LoopType.Yoyo);
-            target.transform.DOLocalRotate(new Vector3(randomAngle, 0, randomAngle), 0.2f).SetLoops(2, LoopType.Yoyo);
+            var trans = transform;
+            // Poltergeistの生成
+            var originParent = trans.parent;
+            // 初期化
+            var motorInstance = Instantiate(motorPrefab, trans.position, Quaternion.identity);
+            motorInstance.transform.SetParent(originParent);
+            trans.SetParent(motorInstance.transform);
+            trans.localPosition = Vector3.zero;
+            // ShoutChanceRangeの生成
+            var originParent_1 = motorInstance.transform.parent;
+            Transform shoutChanceInstance = Instantiate(shoutChanceRangePrefab, motorInstance.transform.position, Quaternion.identity).transform;
+            shoutChanceInstance.SetParent(originParent_1);
+            motorInstance.transform.SetParent(shoutChanceInstance);
+            motorInstance.transform.localPosition = Vector3.zero;
+            trans.SetParent(motorInstance.transform);
+            trans.localPosition = Vector3.zero;
+            foreach (Transform child in transform)
+            {
+                if (child.name.Equals("RhythmPartPosition"))
+                {
+                    _rhythmPartPosition = child;
+                    break;
+                }
+            }
+            _motorView = motorInstance.GetComponent<MotorView>();
+            _poltergeistViewModel = new PoltergeistViewModel(poltergeistTable);
+            // リストに追加される度にリストへ追加された要素のゴーストIDを見るのはコンポーネントが持つ要素と同じでは？
+            // 各コンポーネントのStartイベントにて要素をセットする。ViewModelを経由してModel内にリストを持っておいてそれにAddする。
+            // 配列が変更される度に、その要素がゴーストIDと一致するなら、その情報を元のコンポーネントのStructへも反映する
+            Observable.EveryUpdate()
+                .Select(_ => _poltergeistViewModel.GhostInStaticObjectStructs)
+                .Where(x => x != null)
+                .Take(1)
+                .Subscribe(x =>
+                {
+                    x.ObserveReplace()
+                        // poltergeistViewIDが一致する場合
+                        .Where(x => x.NewValue.poltergeistViewID == ghostInStaticObjectStruct.poltergeistViewID)
+                        .Subscribe(x =>
+                        {
+                            // ghostInStaticObjectStructの内容を変更された内容で更新する
+                            ghostInStaticObjectStruct.ghostTeamID = x.NewValue.ghostTeamID;
+                            ghostInStaticObjectStruct.useStatus = x.NewValue.useStatus;
+                            ghostInStaticObjectStruct.membersCount = x.NewValue.membersCount;
+                            // ghostTeamIDが空なら、motorInstanceへポルターガイストを無効に更新する
+                            // 空でないなら、有効に更新する
+                            _motorView.IsEnabledPoltergeist = !string.IsNullOrEmpty(x.NewValue.ghostTeamID.Value);
+                        })
+                        .AddTo(ref _disposableBag);
+                    // オブジェクトIDを割り振る
+                    ghostInStaticObjectStruct.poltergeistViewID = GetInstanceID();
+                    switch (ghostInStaticObjectStruct.useStatus)
+                    {
+                        case UseStatus.Using:
+                            // 使用中ならIDを割り振る
+                            ghostInStaticObjectStruct.ghostTeamID = new ReactiveProperty<string>();
+                            ghostInStaticObjectStruct.ghostTeamID.Value = System.Guid.NewGuid().ToString();
+                            Debug.Log($"guid: [{ghostInStaticObjectStruct.ghostTeamID.Value}]");
+                            _motorView.IsEnabledPoltergeist = true;
+
+                            break;
+                        default:
+                            ghostInStaticObjectStruct.ghostTeamID = new ReactiveProperty<string>();
+                            ghostInStaticObjectStruct.ghostTeamID.Value = string.Empty;
+
+                            break;
+                    }
+                    _poltergeistViewModel.AddGhostInStaticObjectStructs(ghostInStaticObjectStruct);
+                })
+                .AddTo(ref _disposableBag);
+        }
+
+        private void OnDestroy()
+        {
+            _disposableBag.Dispose();
         }
 
         /// <summary>
-        /// 砂埃パーティクルの再生
+        /// オバケの引っ越し
         /// </summary>
-        /// <param name="dustParticleInstance">対象のパーティクルオブジェクト</param>
-        private void PlayDustParticle(GameObject dustParticleInstance)
+        public void ShuffleNewStaticObject()
         {
-            if (dustParticleInstance == null)
+            var ghostStructs = _poltergeistViewModel.GhostInStaticObjectStructs.ToList();
+            // 空いているポルターガイストのインデックスを取得
+            var emptyGhostStructIndices = ghostStructs
+                .Select((p, i) => new { Content = p, Index = i })
+                .Where(x => x.Content.useStatus.Equals(UseStatus.Empty))
+                .Select(x => x.Index)
+                .ToList();
+
+            // 空きがある場合のみ処理を続行
+            if (0 < emptyGhostStructIndices.Count)
             {
-                dustParticleInstance = Instantiate(dustParticlePrefab, transform.position, Quaternion.identity);
-                dustParticleInstance.transform.SetParent(_poltergeistInstance.transform);
+                // インデックスをランダムで選択
+                int randomIndex = emptyGhostStructIndices[Random.Range(0, emptyGhostStructIndices.Count)];
+
+                // 移動先の家具へポルターガイスト情報を更新
+                var nextGhostInStaticObjectStruct = new GhostInStaticObjectStruct();
+                nextGhostInStaticObjectStruct.poltergeistViewID = _poltergeistViewModel.GhostInStaticObjectStructs[randomIndex].poltergeistViewID;
+                nextGhostInStaticObjectStruct.ghostTeamID = _poltergeistViewModel.GhostInStaticObjectStructs[randomIndex].ghostTeamID;
+                nextGhostInStaticObjectStruct.ghostTeamID.Value = ghostInStaticObjectStruct.ghostTeamID.Value;
+                nextGhostInStaticObjectStruct.useStatus = ghostInStaticObjectStruct.useStatus;
+                nextGhostInStaticObjectStruct.membersCount = ghostInStaticObjectStruct.membersCount;
+                _poltergeistViewModel.GhostInStaticObjectStructs[randomIndex] = nextGhostInStaticObjectStruct;
+
+                ResetStaticObject();
             }
             else
             {
-                dustParticleInstance.SetActive(false);
-                dustParticleInstance.SetActive(true);
+                Debug.Log("移動できる空きがありません。");
             }
         }
 
         /// <summary>
-        /// ポルターガイストのSE再生
+        /// 拠点を空室にする
         /// </summary>
-        /// <param name="sePoltergeist">対象のオーディオソース</param>
-        private void PlayPoltergeistSE(CriAtomSource sePoltergeist)
+        public void ExitGhost()
         {
-            if (sePoltergeist != null)
-            {
-                sePoltergeist.Play();
-            }
+            ResetStaticObject();
+        }
+
+        /// <summary>
+        /// 移動元の家具のポルターガイスト情報を初期化
+        /// </summary>
+        private void ResetStaticObject()
+        {
+            var ghostStructs = _poltergeistViewModel.GhostInStaticObjectStructs.ToList();
+
+            // 移動元の家具のポルターガイスト情報は初期化
+            var prevIndex = ghostStructs
+                .Select((p, i) => new { Content = p, Index = i })
+                .FirstOrDefault(x => x.Content.poltergeistViewID == ghostInStaticObjectStruct.poltergeistViewID)
+                .Index;
+            var prevGhostInStaticObjectStruct = new GhostInStaticObjectStruct();
+            prevGhostInStaticObjectStruct.poltergeistViewID = ghostInStaticObjectStruct.poltergeistViewID;
+            prevGhostInStaticObjectStruct.ghostTeamID = ghostInStaticObjectStruct.ghostTeamID;
+            prevGhostInStaticObjectStruct.ghostTeamID.Value = string.Empty;
+            prevGhostInStaticObjectStruct.useStatus = UseStatus.Empty;
+            prevGhostInStaticObjectStruct.membersCount = 0;
+            _poltergeistViewModel.GhostInStaticObjectStructs[prevIndex] = prevGhostInStaticObjectStruct;
         }
     }
 }

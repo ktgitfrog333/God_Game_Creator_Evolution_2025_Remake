@@ -1,0 +1,17 @@
+{
+    "name": "Mains.Tests",
+    "rootNamespace": "",
+    "references": [
+        "GUID:a4ce4f9f9f6a8ff48904a7f50c1abd48",
+        "GUID:bca37bd24b4e9ce4688064ef3da8977d"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

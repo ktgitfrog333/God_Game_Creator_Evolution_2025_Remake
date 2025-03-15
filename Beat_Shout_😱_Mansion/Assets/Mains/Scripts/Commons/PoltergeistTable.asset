@@ -12,4 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c23f725ef4d61484bbab9ab66f510913, type: 3}
   m_Name: PoltergeistTable
   m_EditorClassIdentifier: 
-  poltergeistAnimatorControllers: []
+  poltergeistAnimatorControllers:
+  - {fileID: 9100000, guid: e3e515ca1e66dfd48b38ff8be2958925, type: 2}

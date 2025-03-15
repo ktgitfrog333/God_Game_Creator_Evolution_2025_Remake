@@ -1,6 +1,7 @@
 using UnityEngine;
 using Mains.Commons;
 using Mains.Models;
+using ObservableCollections;
 
 namespace Mains.ViewModels
 {
@@ -11,6 +12,8 @@ namespace Mains.ViewModels
     {
         /// <summary>プレイヤーのモデル</summary>
         private PlayerModel _playerModel;
+        /// <summary>オバケの家具入居管理の構造体リスト</summary>
+        public ObservableList<GhostInStaticObjectStruct> GhostInStaticObjectStructs => _playerModel?.GhostInStaticObjectStructs ?? null;
 
         public PlayerViewModel(InteractionPartTable interactionPartTable)
         {
