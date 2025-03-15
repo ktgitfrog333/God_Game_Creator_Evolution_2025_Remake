@@ -1,6 +1,7 @@
 using UnityEngine;
 using Rewired;
 using R3;
+using R3.Triggers;
 using Mains.Commons;
 using Mains.ViewModels;
 using System.Linq;
@@ -25,6 +26,14 @@ namespace Mains.Views
         [SerializeField] private float ロー_切り替え時間_秒;
         [SerializeField] private float ロー_歩幅;
         [SerializeField] private float トップ_歩幅;
+        /// <summary>シャウトチャンスレンジ位置</summary>
+        private Transform _shoutChanceRange;
+        /// <summary>シャウト成功</summary>
+        private ReactiveProperty<bool> _isSuccessShout = new ReactiveProperty<bool>();
+        /// <summary>プレイヤーのビューモデル</summary>
+        private PlayerViewModel _playerViewModel;
+        /// <summary>フェードイメージのビュー</summary>
+        private FadeImageView _fadeImageView;
 
         private void Reset()
         {
@@ -90,7 +99,8 @@ namespace Mains.Views
             float lastFixedTime = 0f;
             Vector3 previousPosition = Vector3.zero;
             Observable.EveryUpdate()
-                .Where(_ => Time.time - lastFixedTime >= Time.fixedDeltaTime) // FixedUpdateと同じタイミング
+                .Where(_ => characterController.enabled &&
+                    Time.time - lastFixedTime >= Time.fixedDeltaTime) // FixedUpdateと同じタイミング
                 .Subscribe(_ =>
                 {
                     lastFixedTime = Time.time; // 次の実行タイミングを記録
@@ -120,10 +130,49 @@ namespace Mains.Views
             float currentYaw = trans.rotation.eulerAngles.y;
             // 現在のX軸回転角度 (上下回転)
             float currentPitch = trans.rotation.eulerAngles.x;
+            // リズムパートの位置まで移動する
+            _isSuccessShout.Where(x => x)
+                .Subscribe(x =>
+                {
+                    Observable.Create<bool>(observer =>
+                    {
+                        StartCoroutine(_fadeImageView.PlayFadeInDirection(observer));
+                        return Disposable.Empty;
+                    })
+                        .Subscribe(_ =>
+                        {
+                            // プレイヤー移動させる処理
+                            if (_shoutChanceRange != null)
+                            {
+                                var poltergeistView = _shoutChanceRange.GetComponentInChildren<PoltergeistView>();
+                                if (poltergeistView != null)
+                                {
+                                    characterController.enabled = false;
+                                    trans.position = poltergeistView.RhythmPartPosition.position;
+                                    trans.eulerAngles = poltergeistView.RhythmPartPosition.eulerAngles;
+                                    currentYaw = trans.eulerAngles.y;
+                                    characterController.enabled = true;
+                                }
+                            }
+                            Observable.Create<bool>(observer =>
+                            {
+                                StartCoroutine(_fadeImageView.PlayFadeOutDirection(observer));
+                                return Disposable.Empty;
+                            })
+                                .Subscribe(_ =>
+                                {
+                                    _isSuccessShout.Value = false;
+                                })
+                                .AddTo(ref _disposableBag);
+                        })
+                        .AddTo(ref _disposableBag);
+                })
+                .AddTo(ref _disposableBag);
             // 重力管理用のVelocity
             Vector3 velocity = Vector3.zero;
-            PlayerViewModel playerViewModel = new(探索_シャウトチャンス_リズムパート情報管理テーブル);
+            _playerViewModel = new(探索_シャウトチャンス_リズムパート情報管理テーブル);
             Observable.EveryUpdate()
+                .Where(_ => characterController.enabled)
                 .Subscribe(_ =>
                 {
                     // プレイヤーの移動入力
@@ -177,13 +226,34 @@ namespace Mains.Views
                     currentPitch -= aimY * 視点速度補正 * Time.deltaTime;
 
                     // ピッチ角度を制限 (-90度～90度)
+                    // TODO: 外的要因（シャウト成功による自動移動等）で取得角度がエッジケースに該当することがある
+                    //       currentPitchが0⇒359.3694⇒90（※Mathf.Clampの補間）⇒唐突にプレイヤーが土下座する
                     currentPitch = Mathf.Clamp(currentPitch, -90f, 90f);
 
                     // 回転を適用
                     trans.rotation = Quaternion.Euler(currentPitch, currentYaw, 0f);
 
                     bool isSwitchPart = player.GetButtonDown("SwitchPart");
-                    playerViewModel.SetIsSwitchPart(isSwitchPart);
+                    _playerViewModel.SetIsSwitchPart(isSwitchPart);
+                })
+                .AddTo(ref _disposableBag);
+            // シャウトチャンスレンジ検知
+            this.OnTriggerStayAsObservable()
+                .Where(x => x.name.StartsWith("ShoutChanceRange"))
+                .Select(x => x.transform)
+                .Subscribe(x => _shoutChanceRange = x)
+                .AddTo(ref _disposableBag);
+            this.OnTriggerExitAsObservable()
+                .Where(x => x.name.StartsWith("ShoutChanceRange"))
+                .Subscribe(x => _shoutChanceRange = null)
+                .AddTo(ref _disposableBag);
+            Observable.EveryUpdate()
+                .Select(_ => FindAnyObjectByType<FadeImageView>())
+                .Where(x => x != null)
+                .Take(1)
+                .Subscribe(x =>
+                {
+                    _fadeImageView = x;
                 })
                 .AddTo(ref _disposableBag);
         }
@@ -191,6 +261,58 @@ namespace Mains.Views
         private void OnDestroy()
         {
             _disposableBag.Dispose();
+        }
+
+        /// <summary>
+        /// リズムパートの位置まで移動する
+        /// </summary>
+        private void MoveToShoutChanceRange()
+        {
+            _isSuccessShout.Value = true;
+        }
+
+        /// <summary>
+        /// オバケの引っ越し
+        /// </summary>
+        /// <param name="ghostTeamID">オバケ団体ID</param>
+        private void DoShuffleNewStaticObject(string ghostTeamID)
+        {
+            var poltergeistView = SearchPoltergeistView(ghostTeamID);
+            poltergeistView.ShuffleNewStaticObject();
+        }
+
+        /// <summary>
+        /// 拠点を空室にする
+        /// </summary>
+        /// <param name="ghostTeamID">オバケ団体ID</param>
+        private void DoExitGhost(string ghostTeamID)
+        {
+            var poltergeistView = SearchPoltergeistView(ghostTeamID);
+            poltergeistView.ExitGhost();
+        }
+
+        /// <summary>
+        /// ポルターガイストのビューを検索
+        /// </summary>
+        /// <param name="ghostTeamID">オバケ団体ID</param>
+        /// <returns>ポルターガイストのビュー</returns>
+        private PoltergeistView SearchPoltergeistView(string ghostTeamID)
+        {
+            // ghostTeamIDからの逆引きでViewのIDを取得
+            int targetPoltergeistViewID = 0;
+            var ghostInStaticObjectStructs = _playerViewModel.GhostInStaticObjectStructs;
+            if (ghostInStaticObjectStructs != null &&
+                0 < ghostInStaticObjectStructs.Count)
+            {
+                var ghostInStaticObjectStruct = ghostInStaticObjectStructs.FirstOrDefault(q => q.ghostTeamID != null &&
+                        q.ghostTeamID.Value.Equals(ghostTeamID));
+                targetPoltergeistViewID = ghostInStaticObjectStruct.poltergeistViewID;
+            }
+            // 対象のポルターガイストを取得 
+            var poltergeistViews = FindObjectsByType<PoltergeistView>(FindObjectsSortMode.None);
+            // ViewのIDとpoltergeistViewsのGetInstanceIdを検索
+            var poltergeistView = poltergeistViews.FirstOrDefault(q => q.GhostInStaticObjectStruct.poltergeistViewID == targetPoltergeistViewID);
+            return poltergeistView;
         }
 
         /// <summary>

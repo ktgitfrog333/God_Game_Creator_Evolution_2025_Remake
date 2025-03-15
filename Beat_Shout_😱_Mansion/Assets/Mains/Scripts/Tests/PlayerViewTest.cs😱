@@ -1,0 +1,82 @@
+using Mains.Views;
+using UnityEngine;
+using System.Reflection;
+using Mains.Commons;
+using System.Linq;
+
+namespace Mains.Tests
+{
+    public class PlayerViewTest : MonoBehaviour
+    {
+        [SerializeField] private string targetInstanceID;
+        [SerializeField] private PoltergeistView[] poltergeistViews;
+        [SerializeField] private GhostInStaticObjectStruct[] ghostInStaticObjectStructs;
+
+        private void Update()
+        {
+            poltergeistViews = FindObjectsByType<PoltergeistView>(FindObjectsSortMode.None);
+            ghostInStaticObjectStructs = poltergeistViews.Select(q => q.GhostInStaticObjectStruct).ToArray();
+        }
+
+        private void OnGUI()
+        {
+            // ボタンの位置とサイズ (x, y, width, height)
+            Rect buttonRect = new Rect(10, 10, 150, 50);
+
+            // ボタンを描画
+            if (GUI.Button(buttonRect, "シャウト成功"))
+            {
+                Debug.Log("シャウト成功ボタンが押された！");
+                // ここにシャウト成功時の処理を追加
+                PlayerView playerView = FindAnyObjectByType<PlayerView>();
+                MethodInfo methodInfo = playerView.GetType().GetMethod("MoveToShoutChanceRange", BindingFlags.NonPublic | BindingFlags.Instance);
+
+                if (methodInfo != null)
+                {
+                    // メソッドを実行
+                    methodInfo.Invoke(playerView, null);
+                }
+                else
+                {
+                    Debug.LogWarning("StartFootsteps メソッドが見つかりません。");
+                }
+            }
+
+            //// ボタンを描画
+            //if (GUI.Button(buttonRect, "オバケの移動"))
+            //{
+            //    Debug.Log("オバケの移動ボタンが押された！");
+            //    PlayerView playerView = FindAnyObjectByType<PlayerView>();
+            //    MethodInfo methodInfo = playerView.GetType().GetMethod("DoShuffleNewStaticObject", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            //    if (methodInfo != null)
+            //    {
+            //        // メソッドを実行
+            //        methodInfo.Invoke(playerView, new object[] { targetInstanceID });
+            //    }
+            //    else
+            //    {
+            //        Debug.LogWarning("StartFootsteps メソッドが見つかりません。");
+            //    }
+            //}
+
+            //// ボタンを描画
+            //if (GUI.Button(buttonRect, "オバケの退去"))
+            //{
+            //    Debug.Log("オバケの退去ボタンが押された！");
+            //    PlayerView playerView = FindAnyObjectByType<PlayerView>();
+            //    MethodInfo methodInfo = playerView.GetType().GetMethod("DoExitGhost", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            //    if (methodInfo != null)
+            //    {
+            //        // メソッドを実行
+            //        methodInfo.Invoke(playerView, new object[] { targetInstanceID });
+            //    }
+            //    else
+            //    {
+            //        Debug.LogWarning("StartFootsteps メソッドが見つかりません。");
+            //    }
+            //}
+        }
+    }
+}

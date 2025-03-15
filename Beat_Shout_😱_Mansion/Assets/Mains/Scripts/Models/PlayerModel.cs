@@ -1,6 +1,7 @@
 using UnityEngine;
 using Mains.Commons;
 using R3;
+using ObservableCollections;
 
 namespace Mains.Models
 {
@@ -15,6 +16,10 @@ namespace Mains.Models
         public PoltergeistTable PoltergeistTable { get; set; }
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
+        /// <summary>オバケの家具入居管理の構造体リスト</summary>
+        private ObservableList<GhostInStaticObjectStruct> _ghostInStaticObjectStructs = new ObservableList<GhostInStaticObjectStruct>();
+        /// <summary>オバケの家具入居管理の構造体リスト</summary>
+        public ObservableList<GhostInStaticObjectStruct> GhostInStaticObjectStructs => _ghostInStaticObjectStructs;
 
         private void Start()
         {
@@ -38,7 +43,7 @@ namespace Mains.Models
                 {
                     q.isOnActionPoltergeist.Subscribe(q =>
                     {
-                        Debug.Log(q);
+                        //Debug.Log(q);
                         // 有効を無効へ戻す手段がないためここで無効に戻す
                         if (q)
                             PoltergeistTable.isOnActionPoltergeist.Value = false;
@@ -78,6 +83,11 @@ namespace Mains.Models
                 isOnActionPoltergeist)
                 PoltergeistTable.isOnActionPoltergeist.Value = isOnActionPoltergeist;
         }
+
+        public void AddGhostInStaticObjectStructs(GhostInStaticObjectStruct ghostInStaticObjectStruct)
+        {
+            _ghostInStaticObjectStructs.Add(ghostInStaticObjectStruct);
+        }
     }
 
     /// <summary>
@@ -102,5 +112,10 @@ namespace Mains.Models
         /// </summary>
         /// <param name="isOnActionPoltergeist">ポルターガイストが発生</param>
         public void SetIsOnActionPoltergeist(bool isOnActionPoltergeist);
+        /// <summary>
+        /// オバケの家具入居管理の構造体リストへ追加
+        /// </summary>
+        /// <param name="ghostInStaticObjectStruct">オバケの家具入居管理の構造体</param>
+        public void AddGhostInStaticObjectStructs(GhostInStaticObjectStruct ghostInStaticObjectStruct);
     }
 }
