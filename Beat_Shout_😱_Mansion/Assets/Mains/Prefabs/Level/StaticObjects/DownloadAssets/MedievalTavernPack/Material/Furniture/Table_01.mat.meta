@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 50a1abf55d731b84699250226ff25ce7
+timeCreated: 1517337442
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 112546
+  packageName: Medieval Tavern Pack
+  packageVersion: 1.0
+  assetPath: Assets/MedievalTavernPack/Material/Furniture/Table_01.mat
+  uploadId: 239853
