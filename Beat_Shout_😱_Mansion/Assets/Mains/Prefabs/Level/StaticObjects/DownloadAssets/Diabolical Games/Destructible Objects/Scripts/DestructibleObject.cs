@@ -68,7 +68,7 @@ public class DestructibleObject : MonoBehaviour
     private new Rigidbody rigidbody;
 
     public void Break(){
-        float velocityMagnitude = rigidbody.velocity.magnitude;
+        float velocityMagnitude = rigidbody.linearVelocity.magnitude;
 
         //Activates the debris object and sets its position and rotation to match the object's
         debris.transform.position = transform.position;
@@ -80,7 +80,7 @@ public class DestructibleObject : MonoBehaviour
         for(int i = 0; i < debris.transform.childCount; i++){
             Rigidbody debrisRigidbody = debris.transform.GetChild(i).GetComponent<Rigidbody>();
             Vector3 randomise = new Vector3(Random.Range(0f, velocityMagnitude), Random.Range(0f, velocityMagnitude), Random.Range(0f, velocityMagnitude)) / 2;
-            debrisRigidbody.velocity = rigidbody.velocity + randomise;
+            debrisRigidbody.linearVelocity = rigidbody.linearVelocity + randomise;
         }
 
         //Sends variable values to the debris
