@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: ecc534cbfa97e6d438a751227e900ead
+timeCreated: 1517252841
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 112546
+  packageName: Medieval Tavern Pack
+  packageVersion: 1.0
+  assetPath: Assets/MedievalTavernPack/Material/Architecture/Fireplace_01_stone.mat
+  uploadId: 239853

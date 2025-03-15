@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: eb922f2a530310b46ab2d572269f0f72
+timeCreated: 1518373505
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 112546
+  packageName: Medieval Tavern Pack
+  packageVersion: 1.0
+  assetPath: Assets/MedievalTavernPack/Prefabs/Architecture/Fireplace_01_stone.prefab
+  uploadId: 239853
