@@ -37,6 +37,17 @@ public class Test_Input : MonoBehaviour
                 lastInputTime = Time.time; // 入力時間を更新
             }
         }
+
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            // CRIWARE_conductorのインスタンスにアクセス
+            CRIWARE_conductor.Instance.ChangeBgmA(6); // 0は開始ティック位置
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            // CRIWARE_conductorのインスタンスにアクセス
+            CRIWARE_conductor.Instance.ChangeBgmB(3); // 0は開始ティック位置
+        }
     }
 
     private void CheckBeatAndChangeColor()

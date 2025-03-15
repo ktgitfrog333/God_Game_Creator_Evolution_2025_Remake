@@ -108,6 +108,7 @@ public class CRIWARE_conductor : MonoBehaviour
             currentSource = atomSourceA; // 初期状態でAを使用
             CRIWARE_AisacChange.Instance.SetSource(currentSource); // AISACの適用先を設定
             atomSourceA.player.OnBeatSyncCallback += OnBeatSync; // ビート同期イベントのコールバックを登録
+
             CRIWARE_AisacChange.Instance.PlayStart(); //スタートのAisacを再生
         }
         else
@@ -123,7 +124,8 @@ public class CRIWARE_conductor : MonoBehaviour
             currentSource = atomSourceA; // 初期状態でAを使用
             CRIWARE_AisacChange.Instance.SetSource(currentSource); // AISACの適用先を設定
             atomSourceA.player.OnBeatSyncCallback += OnBeatSync; // ビート同期イベントのコールバックを登録
-            Debug.Log("初期化完了");
+
+            Debug.Log("遅れて初期化完了");
             CRIWARE_AisacChange.Instance.PlayStart(); //スタートのAisacを再生
 
         }
@@ -179,7 +181,7 @@ public class CRIWARE_conductor : MonoBehaviour
         }
     }
 
-    public void ChangeBgmB(int TickNumber) //スキルゲット用BGM切り替え専用メソッド
+    public void ChangeBgmB(int TickNumber) //BGM切り替え専用メソッド
     {
         if (currentSource == atomSourceB)
         {
@@ -212,7 +214,7 @@ public class CRIWARE_conductor : MonoBehaviour
 
     }
 
-    public void ChangeBgmC(int TickNumber) //スキルゲット用BGM切り替え専用メソッド
+    public void ChangeBgmC(int TickNumber) //BGM切り替え専用メソッド
     {
         if (currentSource == atomSourceC)
         {
@@ -274,7 +276,7 @@ public class CRIWARE_conductor : MonoBehaviour
             BasicBeat = 60 / info.bpm;   // ４分音符の秒数を計算
             frameRate = info.bpm; //再生速度調整の為BPMの情報をそのまま渡す。BPMxx/1BPM120*xx%で速度調整
             TempoSet?.Invoke(); //他スクリプトにテンポ情報を送る
-
+            Debug.Log("テンポ情報を送信");
             // 初期化が終わったのでフラグをリセット
             isInitializedAfterChange = false;
         }
