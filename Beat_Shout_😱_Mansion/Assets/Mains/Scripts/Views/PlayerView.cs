@@ -237,6 +237,25 @@ namespace Mains.Views
                     _playerViewModel.SetIsSwitchPart(isSwitchPart);
                 })
                 .AddTo(ref _disposableBag);
+            // オバケが隠れている位置に接近した時に振動
+            VibrationView vibrationView = GetComponent<VibrationView>();
+            Observable.EveryUpdate()
+                .Select(_ => _playerViewModel.OnActionPoltergeistPosition)
+                .Where(x => x != null)
+                .Take(1)
+                .Subscribe(x =>
+                {
+                    x.Subscribe(x =>
+                    {
+                        // プレイヤーの現在位置を取得
+                        Vector3 playerPosition = trans.position;
+                        // 距離を計算
+                        float distance = Vector3.Distance(playerPosition, x);
+                        vibrationView.VibrateController(player, distance);
+                    })
+                    .AddTo(ref _disposableBag);
+                })
+                .AddTo(ref _disposableBag);
             // シャウトチャンスレンジ検知
             this.OnTriggerStayAsObservable()
                 .Where(x => x.name.StartsWith("ShoutChanceRange"))

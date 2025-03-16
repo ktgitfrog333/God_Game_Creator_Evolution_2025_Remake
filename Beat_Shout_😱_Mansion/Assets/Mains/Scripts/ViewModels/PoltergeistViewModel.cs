@@ -16,11 +16,11 @@ namespace Mains.ViewModels
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
         /// <summary>ポルターガイストが発生</summary>
-        public ReactiveProperty<bool> IsOnActionPoltergeist
+        public ReactiveProperty<Vector3> OnActionPoltergeistPosition
         {
             get
             {
-                return _playerModel?.PoltergeistTable?.isOnActionPoltergeist ?? null;
+                return _playerModel?.PoltergeistTable?.onActionPoltergeistPosition ?? null;
             }
         }
         /// <summary>【探索／シャウトチャンス／リズム】パート</summary>
@@ -50,10 +50,10 @@ namespace Mains.ViewModels
                 .AddTo(ref _disposableBag);
         }
 
-        public void SetIsOnActionPoltergeist(bool isOnActionPoltergeist)
+        public void SetOnActionPoltergeistPosition(Vector3 onActionPoltergeistPosition)
         {
             if (_playerModel != null)
-                _playerModel.SetIsOnActionPoltergeist(isOnActionPoltergeist);
+                _playerModel.SetOnActionPoltergeistPosition(onActionPoltergeistPosition);
         }
 
         public void AddGhostInStaticObjectStructs(GhostInStaticObjectStruct ghostInStaticObjectStruct)

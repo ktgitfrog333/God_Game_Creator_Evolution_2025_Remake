@@ -8,6 +8,7 @@ MonoImporter:
   - motorPrefab: {fileID: 1215156780124661367, guid: 3bfc5e33bb3d71e458ffa2b473959872, type: 3}
   - shoutChanceRangePrefab: {fileID: 6264907657960383743, guid: ac893ebf0ca26e44ab98cda6abf7e9f4, type: 3}
   - dustParticlePrefab: {fileID: 3559017266246024843, guid: 577e806dc04c6ea4ea260d421e997680, type: 3}
+  - vibrationPrefab: {fileID: 4661369846282716462, guid: 08f1c1c97d2e23d40a141e18ad1a0981, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

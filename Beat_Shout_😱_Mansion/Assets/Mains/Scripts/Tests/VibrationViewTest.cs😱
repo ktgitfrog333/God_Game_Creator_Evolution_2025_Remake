@@ -1,0 +1,36 @@
+using Mains.Views;
+using Rewired;
+using UnityEngine;
+
+namespace Mains.Tests
+{
+    public class VibrationViewTest : MonoBehaviour
+    {
+        private VibrationView _vibrationView;
+        private Player _player;
+        [SerializeField] private float distance;
+
+        private void Start()
+        {
+            _player = ReInput.players.GetPlayer(0);
+        }
+
+        private void Update()
+        {
+            if (_vibrationView == null)
+                _vibrationView = FindAnyObjectByType<VibrationView>();
+        }
+
+        private void OnGUI()
+        {
+            // ボタンの位置とサイズ (x, y, width, height)
+            Rect buttonRect = new Rect(10, 10, 150, 50);
+
+            // ボタンを描画
+            if (GUI.Button(buttonRect, "振動オン"))
+            {
+                _vibrationView.VibrateController(_player, distance);
+            }
+        }
+    }
+}

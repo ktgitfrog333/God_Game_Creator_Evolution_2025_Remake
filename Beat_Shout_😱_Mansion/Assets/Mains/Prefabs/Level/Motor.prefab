@@ -124,3 +124,4 @@ MonoBehaviour:
   forceVariation: 2
   torqueMagnitude: 3
   dustParticlePrefab: {fileID: 3559017266246024843, guid: 577e806dc04c6ea4ea260d421e997680, type: 3}
+  tiltThreshold: 0.1

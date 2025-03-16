@@ -2,6 +2,7 @@ using UnityEngine;
 using Mains.Commons;
 using Mains.Models;
 using ObservableCollections;
+using R3;
 
 namespace Mains.ViewModels
 {
@@ -14,6 +15,14 @@ namespace Mains.ViewModels
         private PlayerModel _playerModel;
         /// <summary>オバケの家具入居管理の構造体リスト</summary>
         public ObservableList<GhostInStaticObjectStruct> GhostInStaticObjectStructs => _playerModel?.GhostInStaticObjectStructs ?? null;
+        /// <summary>ポルターガイストの発生位置</summary>
+        public ReactiveProperty<Vector3> OnActionPoltergeistPosition
+        {
+            get
+            {
+                return _playerModel?.PoltergeistTable?.onActionPoltergeistPosition ?? null;
+            }
+        }
 
         public PlayerViewModel(InteractionPartTable interactionPartTable)
         {

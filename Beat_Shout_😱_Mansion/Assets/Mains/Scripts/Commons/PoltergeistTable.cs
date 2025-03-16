@@ -12,7 +12,7 @@ namespace Mains.Commons
     {
         [Tooltip("Assets/Mains/Animations/Poltergeists配下にあるAnimator.Controllerを全てセットしておく。ランダムでいずれかのアニメータが呼ばれる仕組み。")]
         public RuntimeAnimatorController[] poltergeistAnimatorControllers; // ポルターガイスト用アニメーション
-        /// <summary>ポルターガイストが発生</summary>
-        public ReactiveProperty<bool> isOnActionPoltergeist = new ReactiveProperty<bool>();
+        /// <summary>ポルターガイストの発生位置</summary>
+        public ReactiveProperty<Vector3> onActionPoltergeistPosition = new ReactiveProperty<Vector3>();
     }
 }

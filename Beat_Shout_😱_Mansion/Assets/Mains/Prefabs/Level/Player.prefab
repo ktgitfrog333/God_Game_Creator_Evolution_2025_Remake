@@ -122,6 +122,7 @@ GameObject:
   - component: {fileID: 4255177220735014657}
   - component: {fileID: 8536045231518824716}
   - component: {fileID: 1951662238061287546}
+  - component: {fileID: 5064284108532436956}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -158,16 +159,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   characterController: {fileID: 8536045231518824716}
-  "\u30ED\u30FC_\u79FB\u52D5\u901F\u5EA6": 2.5
   "\u30C8\u30C3\u30D7_\u79FB\u52D5\u901F\u5EA6": 4
   "\u8996\u70B9\u901F\u5EA6\u88DC\u6B63": 40
   "\u91CD\u529B": 9.81
   "\u63A2\u7D22_\u30B7\u30E3\u30A6\u30C8\u30C1\u30E3\u30F3\u30B9_\u30EA\u30BA\u30E0\u30D1\u30FC\u30C8\u60C5\u5831\u7BA1\u7406\u30C6\u30FC\u30D6\u30EB": {fileID: 11400000, guid: 29803e3e02d34024a99bd792e912398b, type: 2}
   "\u30ED\u30FC_\u5207\u308A\u66FF\u3048\u6642\u9593_\u79D2": 0.35
-  "\u30C8\u30C3\u30D7_\u5207\u308A\u66FF\u3048\u6642\u9593_\u79D2": 1.5
   "\u30ED\u30FC_\u6B69\u5E45": 0.05
   "\u30C8\u30C3\u30D7_\u6B69\u5E45": 0.1
-  angleRange: 30
 --- !u!143 &8536045231518824716
 CharacterController:
   m_ObjectHideFlags: 0
@@ -208,3 +206,21 @@ MonoBehaviour:
   minInterval: 0
   maxInterval: 0
   accelerationTime: 0
+--- !u!114 &5064284108532436956
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7022833718681058839}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6bf0dcf14a1c944b9d91927cfcf5e3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  motorLevel1: 0.2
+  motorLevel2: 0.5
+  duration: 0.1
+  maxDistance:
+  - 7
+  - 18
