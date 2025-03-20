@@ -33,6 +33,8 @@ namespace Mains.ViewModels
         }
         /// <summary>オバケの家具入居管理の構造体リスト</summary>
         public ObservableList<GhostInStaticObjectStruct> GhostInStaticObjectStructs => _playerModel?.GhostInStaticObjectStructs ?? null;
+        /// <summary>プレイヤーのトランスフォーム</summary>
+        public Transform PlayerTransform => _playerModel?.PlayerTransform ?? null;
 
         public PoltergeistViewModel(PoltergeistTable poltergeistTable)
         {

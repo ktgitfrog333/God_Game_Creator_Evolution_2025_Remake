@@ -36,5 +36,11 @@ namespace Mains.ViewModels
             if (_playerModel != null)
                 _playerModel.SetIsSwitchPart(isSwitchPart);
         }
+
+        public void SetPlayerTransform(Transform transform)
+        {
+            if (_playerModel != null)
+                _playerModel.SetPlayerTransform(transform);
+        }
     }
 }

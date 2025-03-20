@@ -13,7 +13,8 @@ GameObject:
   - component: {fileID: 6875928336886902139}
   - component: {fileID: 5218105343928440182}
   - component: {fileID: 3824122675417567148}
-  m_Layer: 0
+  - component: {fileID: 2104906501159058204}
+  m_Layer: 9
   m_Name: Motor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -125,3 +126,17 @@ MonoBehaviour:
   torqueMagnitude: 3
   dustParticlePrefab: {fileID: 3559017266246024843, guid: 577e806dc04c6ea4ea260d421e997680, type: 3}
   tiltThreshold: 0.1
+  objectsPoolViewPrefab: {fileID: 9047147154769791731, guid: 0fcd19e76e96f9b46add68c72347b690, type: 3}
+  maxDistance: 3
+--- !u!114 &2104906501159058204
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1215156780124661367}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f90e8bb5f5c39384c915cfdeb1ee0bbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

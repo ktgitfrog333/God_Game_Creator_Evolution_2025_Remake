@@ -20,6 +20,10 @@ namespace Mains.Models
         private ObservableList<GhostInStaticObjectStruct> _ghostInStaticObjectStructs = new ObservableList<GhostInStaticObjectStruct>();
         /// <summary>オバケの家具入居管理の構造体リスト</summary>
         public ObservableList<GhostInStaticObjectStruct> GhostInStaticObjectStructs => _ghostInStaticObjectStructs;
+        /// <summary>プレイヤーのトランスフォーム</summary>
+        private Transform _playerTransform;
+        /// <summary>プレイヤーのトランスフォーム</summary>
+        public Transform PlayerTransform => _playerTransform;
 
         private void Start()
         {
@@ -71,6 +75,11 @@ namespace Mains.Models
         {
             _ghostInStaticObjectStructs.Add(ghostInStaticObjectStruct);
         }
+
+        public void SetPlayerTransform(Transform transform)
+        {
+            _playerTransform = transform;
+        }
     }
 
     /// <summary>
@@ -83,6 +92,11 @@ namespace Mains.Models
         /// </summary>
         /// <param name="isSwitchPart">パート切り替え入力</param>
         public void SetIsSwitchPart(bool isSwitchPart);
+        /// <summary>
+        /// プレイヤーのトランスフォームをセット
+        /// </summary>
+        /// <param name="transform">プレイヤーのトランスフォーム</param>
+        public void SetPlayerTransform(Transform transform);
     }
 
     /// <summary>

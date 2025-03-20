@@ -171,6 +171,7 @@ namespace Mains.Views
             // 重力管理用のVelocity
             Vector3 velocity = Vector3.zero;
             _playerViewModel = new(探索_シャウトチャンス_リズムパート情報管理テーブル);
+            _playerViewModel.SetPlayerTransform(transform);
             Observable.EveryUpdate()
                 .Where(_ => characterController.enabled)
                 .Subscribe(_ =>
@@ -342,7 +343,7 @@ namespace Mains.Views
         {
             float radius = characterController.radius;
             float skinWidth = characterController.skinWidth;
-            float raycastDistance = characterController.height / 2f - radius + skinWidth + 0.1f + 0.35f; // 余裕を持たせる
+            float raycastDistance = characterController.height / 2f - radius + skinWidth + 0.1f + .83f; // 余裕を持たせる
             Vector3 rayOrigin = characterController.transform.position + Vector3.up * (radius - skinWidth);
 
             return Physics.SphereCast(rayOrigin, radius, Vector3.down, out RaycastHit hit, raycastDistance);

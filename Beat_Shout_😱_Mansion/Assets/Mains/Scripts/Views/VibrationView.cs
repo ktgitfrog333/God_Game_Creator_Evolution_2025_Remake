@@ -15,7 +15,7 @@ namespace Mains.Views
         /// <summary>終了時間</summary>
         [SerializeField] private float duration;
         /// <summary>振動を開始する最長距離</summary>
-        [SerializeField] private float[] maxDistance;
+        [SerializeField] private float[] maxDistances;
 
         /// <summary>
         /// コントローラーの振動
@@ -24,19 +24,19 @@ namespace Mains.Views
         /// <param name="distance">距離</param>
         public void VibrateController(Player player, float distance)
         {
-            // TODO: 一定距離に近づいたら振動させる
+            // 一定距離に近づいたら振動させる
             if (player == null ||
-                maxDistance[1] < distance) return;
+                maxDistances[1] < distance) return;
 
             // 近いほど振動が強くなる（遠いと0、近いと1）
-            float intensity = Mathf.Clamp01(1f - (distance / maxDistance[1]));
+            float intensity = Mathf.Clamp01(1f - (distance / maxDistances[1]));
             foreach (var joystick in player.controllers.Joysticks)
             {
                 if (joystick == null || !joystick.supportsVibration) continue;
 
                 try
                 {
-                    if (distance <= maxDistance[0] &&
+                    if (distance <= maxDistances[0] &&
                         joystick.vibrationMotorCount > 0)
                         player.SetVibration(0, motorLevel1 * intensity, duration); // モーター0を振動
 
@@ -46,6 +46,19 @@ namespace Mains.Views
                 catch (System.Exception e)
                 {
                     Debug.LogWarning($"コントローラーの振動に失敗: {e.Message}");
+                }
+            }
+        }
+
+        private void OnDrawGizmosSelected()
+        {
+            if (maxDistances != null &&
+                0 <  maxDistances.Length)
+            {
+                foreach (var maxDistance in maxDistances)
+                {
+                    Gizmos.color = Color.red;
+                    Gizmos.DrawWireSphere(transform.position, maxDistance);
                 }
             }
         }

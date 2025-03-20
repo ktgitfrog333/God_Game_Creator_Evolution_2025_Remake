@@ -40,6 +40,10 @@ namespace Mains.Views
         private Quaternion _initialRotation;
         /// <summary>角度しきい値（°）</summary>
         [SerializeField] private float tiltThreshold;
+        [Tooltip("Assets/Mains/Prefabs/Level/ObjectsPoolView.prefabをセットしておく。")]
+        [SerializeField] private GameObject objectsPoolViewPrefab;
+        /// <summary>振動を開始する最長距離</summary>
+        [SerializeField] private float maxDistance;
 
         private void Reset()
         {
@@ -57,19 +61,8 @@ namespace Mains.Views
             // オブジェクトプールビュー
             var objectsPoolView = GameObject.FindAnyObjectByType<ObjectsPoolView>();
             if (objectsPoolView == null)
-            {
-                GameObject gameObject = new GameObject($"{typeof(ObjectsPoolView).Name}");
-                objectsPoolView = gameObject.AddComponent<ObjectsPoolView>();
-            }
-            Transform t3DSoundPlayer = null;
-            try
-            {
-                t3DSoundPlayer = objectsPoolView.Get3DSoundPlayer();
-            }
-            catch (System.Exception e)
-            {
-                Debug.LogWarning(e);
-            }
+                objectsPoolView = Instantiate(objectsPoolViewPrefab).GetComponent<ObjectsPoolView>();
+            Se_3D_Picker t3DSoundPlayer = objectsPoolView.Get3DSoundPlayer();
             _onAction.Where(x => x)
                 .Subscribe(_ =>
                 {
@@ -83,8 +76,22 @@ namespace Mains.Views
                         dustParticleInstance.gameObject.SetActive(false);
                         dustParticleInstance.gameObject.SetActive(true);
                     }
-                    // 3D空間での音の出力
-                    //t3DSoundPlayer.Play?();
+                    if (_poltergeistViewModel.PlayerTransform != null)
+                    {
+                        // モーターの現在位置を取得
+                        Vector3 playerPosition = _transform.position;
+                        // 距離を計算
+                        float distance = Vector3.Distance(playerPosition, _poltergeistViewModel.PlayerTransform.position);
+                        // 一定距離に近づいたら振動させる
+                        if (distance <= maxDistance)
+                        {
+                            // 近いほど振動が強くなる（遠いと0、近いと1）
+                            float intensity = Mathf.Clamp01(1f - (distance / maxDistance));
+
+                            // 3D空間での音の出力
+                            t3DSoundPlayer.PlaySound("footstep", intensity);
+                        }
+                    }
                     // 実行後はリセットする
                     _onAction.Execute(false);
                 })
@@ -95,6 +102,12 @@ namespace Mains.Views
         private void OnDestroy()
         {
             _disposableBag.Dispose();
+        }
+
+        private void OnDrawGizmosSelected()
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(transform.position, maxDistance);
         }
 
         /// <summary>
