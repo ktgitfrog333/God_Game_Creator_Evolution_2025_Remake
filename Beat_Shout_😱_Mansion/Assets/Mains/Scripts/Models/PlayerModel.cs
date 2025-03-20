@@ -20,6 +20,10 @@ namespace Mains.Models
         private ObservableList<GhostInStaticObjectStruct> _ghostInStaticObjectStructs = new ObservableList<GhostInStaticObjectStruct>();
         /// <summary>オバケの家具入居管理の構造体リスト</summary>
         public ObservableList<GhostInStaticObjectStruct> GhostInStaticObjectStructs => _ghostInStaticObjectStructs;
+        /// <summary>プレイヤーのトランスフォーム</summary>
+        private Transform _playerTransform;
+        /// <summary>プレイヤーのトランスフォーム</summary>
+        public Transform PlayerTransform => _playerTransform;
 
         private void Start()
         {
@@ -33,22 +37,6 @@ namespace Mains.Models
                     InteractionPartTable.interactionPart.Subscribe(q => Debug.Log(q))
                         .AddTo(ref _disposableBag);
                     InteractionPartTable.interactionPart.Value = InteractionPart.Search;
-                })
-                .AddTo(ref _disposableBag);
-            Observable.EveryUpdate()
-                .Select(_ => PoltergeistTable)
-                .Where(q => q != null)
-                .Take(1)
-                .Subscribe(q =>
-                {
-                    q.isOnActionPoltergeist.Subscribe(q =>
-                    {
-                        //Debug.Log(q);
-                        // 有効を無効へ戻す手段がないためここで無効に戻す
-                        if (q)
-                            PoltergeistTable.isOnActionPoltergeist.Value = false;
-                    })
-                    .AddTo(ref _disposableBag);
                 })
                 .AddTo(ref _disposableBag);
         }
@@ -77,16 +65,20 @@ namespace Mains.Models
             }
         }
 
-        public void SetIsOnActionPoltergeist(bool isOnActionPoltergeist)
+        public void SetOnActionPoltergeistPosition(Vector3 onActionPoltergeistPosition)
         {
-            if (PoltergeistTable != null &&
-                isOnActionPoltergeist)
-                PoltergeistTable.isOnActionPoltergeist.Value = isOnActionPoltergeist;
+            if (PoltergeistTable != null)
+                PoltergeistTable.onActionPoltergeistPosition.Value = onActionPoltergeistPosition;
         }
 
         public void AddGhostInStaticObjectStructs(GhostInStaticObjectStruct ghostInStaticObjectStruct)
         {
             _ghostInStaticObjectStructs.Add(ghostInStaticObjectStruct);
+        }
+
+        public void SetPlayerTransform(Transform transform)
+        {
+            _playerTransform = transform;
         }
     }
 
@@ -100,6 +92,11 @@ namespace Mains.Models
         /// </summary>
         /// <param name="isSwitchPart">パート切り替え入力</param>
         public void SetIsSwitchPart(bool isSwitchPart);
+        /// <summary>
+        /// プレイヤーのトランスフォームをセット
+        /// </summary>
+        /// <param name="transform">プレイヤーのトランスフォーム</param>
+        public void SetPlayerTransform(Transform transform);
     }
 
     /// <summary>
@@ -108,10 +105,10 @@ namespace Mains.Models
     public interface IPoltergeistModel
     {
         /// <summary>
-        /// ポルターガイストが発生をセット
+        /// ポルターガイストの発生位置をセット
         /// </summary>
-        /// <param name="isOnActionPoltergeist">ポルターガイストが発生</param>
-        public void SetIsOnActionPoltergeist(bool isOnActionPoltergeist);
+        /// <param name="onActionPoltergeistPosition">ポルターガイストの発生位置</param>
+        public void SetOnActionPoltergeistPosition(Vector3 onActionPoltergeistPosition);
         /// <summary>
         /// オバケの家具入居管理の構造体リストへ追加
         /// </summary>

@@ -32,6 +32,18 @@ namespace Mains.Views
         private DisposableBag _disposableBag = new DisposableBag();
         /// <summary>ポルターガイストが有効か</summary>
         public bool IsEnabledPoltergeist { get; set; }
+        /// <summary>トランスフォーム</summary>
+        private Transform _transform;
+        /// <summary>アクション発火の監視</summary>
+        private ReactiveCommand<bool> _onAction = new ReactiveCommand<bool>();
+        /// <summary>初期回転値</summary>
+        private Quaternion _initialRotation;
+        /// <summary>角度しきい値（°）</summary>
+        [SerializeField] private float tiltThreshold;
+        [Tooltip("Assets/Mains/Prefabs/Level/ObjectsPoolView.prefabをセットしておく。")]
+        [SerializeField] private GameObject objectsPoolViewPrefab;
+        /// <summary>振動を開始する最長距離</summary>
+        [SerializeField] private float maxDistance;
 
         private void Reset()
         {
@@ -43,55 +55,59 @@ namespace Mains.Views
 
         private void Start()
         {
-            var tran = transform;
+            _transform = transform;
             Transform dustParticleInstance = null;
             _poltergeistViewModel = new PoltergeistViewModel(poltergeistTable);
             // オブジェクトプールビュー
             var objectsPoolView = GameObject.FindAnyObjectByType<ObjectsPoolView>();
             if (objectsPoolView == null)
-            {
-                GameObject gameObject = new GameObject($"{typeof(ObjectsPoolView).Name}");
-                objectsPoolView = gameObject.AddComponent<ObjectsPoolView>();
-            }
-            Transform t3DSoundPlayer = null;
-            try
-            {
-                t3DSoundPlayer = objectsPoolView.Get3DSoundPlayer();
-            }
-            catch (System.Exception e)
-            {
-                Debug.LogWarning(e);
-            }
-            Observable.EveryUpdate()
-                .Select(_ => _poltergeistViewModel.IsOnActionPoltergeist)
-                .Where(x => x != null)
-                .Take(1)
-                .Subscribe(x =>
+                objectsPoolView = Instantiate(objectsPoolViewPrefab).GetComponent<ObjectsPoolView>();
+            Se_3D_Picker t3DSoundPlayer = objectsPoolView.Get3DSoundPlayer();
+            _onAction.Where(x => x)
+                .Subscribe(_ =>
                 {
-                    x.Where(x => x)
-                        .Subscribe(_ =>
+                    if (dustParticleInstance == null)
+                    {
+                        dustParticleInstance = GameObject.Instantiate(dustParticlePrefab, _transform.position, Quaternion.identity).transform;
+                        dustParticleInstance.SetParent(_transform);
+                    }
+                    else
+                    {
+                        dustParticleInstance.gameObject.SetActive(false);
+                        dustParticleInstance.gameObject.SetActive(true);
+                    }
+                    if (_poltergeistViewModel.PlayerTransform != null)
+                    {
+                        // モーターの現在位置を取得
+                        Vector3 playerPosition = _transform.position;
+                        // 距離を計算
+                        float distance = Vector3.Distance(playerPosition, _poltergeistViewModel.PlayerTransform.position);
+                        // 一定距離に近づいたら振動させる
+                        if (distance <= maxDistance)
                         {
-                            if (dustParticleInstance == null)
-                            {
-                                dustParticleInstance = GameObject.Instantiate(dustParticlePrefab, tran.position, Quaternion.identity).transform;
-                                dustParticleInstance.SetParent(tran);
-                            }
-                            else
-                            {
-                                dustParticleInstance.gameObject.SetActive(false);
-                                dustParticleInstance.gameObject.SetActive(true);
-                            }
+                            // 近いほど振動が強くなる（遠いと0、近いと1）
+                            float intensity = Mathf.Clamp01(1f - (distance / maxDistance));
+
                             // 3D空間での音の出力
-                            //t3DSoundPlayer.Play?();
-                        })
-                        .AddTo(ref _disposableBag);
+                            t3DSoundPlayer.PlaySound("footstep", intensity);
+                        }
+                    }
+                    // 実行後はリセットする
+                    _onAction.Execute(false);
                 })
                 .AddTo(ref _disposableBag);
+            _initialRotation = _transform.rotation;
         }
 
         private void OnDestroy()
         {
             _disposableBag.Dispose();
+        }
+
+        private void OnDrawGizmosSelected()
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(transform.position, maxDistance);
         }
 
         /// <summary>
@@ -100,7 +116,8 @@ namespace Mains.Views
         /// <see cref="Assets/Mains/Animations/Poltergeists/Poltergeist.controller"/>
         public void OnAction()
         {
-            if (!IsEnabledPoltergeist)
+            if (!IsEnabledPoltergeist ||
+                _transform == null)
                 return;
 
             // ランダムな方向への力
@@ -116,7 +133,13 @@ namespace Mains.Views
             );
             rigidbody.AddTorque(randomTorque, ForceMode.Impulse);
 
-            _poltergeistViewModel.SetIsOnActionPoltergeist(true);
+            var angle = Quaternion.Angle(_initialRotation, _transform.rotation);
+            if (tiltThreshold < angle)
+            {
+                _poltergeistViewModel.SetOnActionPoltergeistPosition(_transform.position);
+                // アクション実行を通知
+                _onAction.Execute(true);
+            }
         }
 
         /// <summary>

@@ -13,11 +13,9 @@ namespace Mains.Views
         private Transform _transform;
         /// <summary>トランスフォーム</summary>
         public Transform Transform => _transform != null ? _transform : _transform = transform;
-        // TODO:トランスフォームでなくカスタムのスクリプトコンポーネントが存在するならそのデータ型に変更する
         [SerializeField] private Transform _３D空間で発音するprefab;
-        // TODO:トランスフォームでなくカスタムのスクリプトコンポーネントが存在するならそのデータ型に変更する
         /// <summary>３D空間で発音するスクリプトコンポーネント配列</summary>
-        private List<Transform> _3DSoundPlayers = new();
+        private List<Se_3D_Picker> _3DSoundPlayers = new();
 
         #region 実装例 ①プレハブの宣言 ②カスタムコンポーネントのリストの宣言
         //[Tooltip("魔力弾のプレハブ")]
@@ -30,11 +28,9 @@ namespace Mains.Views
         /// ３D空間で発音するクローンを取得
         /// </summary>
         /// <returns>３D空間で発音するクローン</returns>
-        /// <exception cref="System.NotImplementedException">TODO:トランスフォームでなくカスタムのスクリプトコンポーネントが存在するならそのデータ型に変更する</exception>
-        public Transform Get3DSoundPlayer()
+        public Se_3D_Picker Get3DSoundPlayer()
         {
-            throw new System.NotImplementedException("TODO:トランスフォームでなくカスタムのスクリプトコンポーネントが存在するならそのデータ型に変更する");
-            //return GetInactiveComponent(_3DSoundPlayers, _３D空間で発音するprefab, Transform);
+            return GetInactiveComponent(_3DSoundPlayers, _３D空間で発音するprefab, Transform);
         }
 
         #region 実装例 ③非アクティブなコンポーネントを取得

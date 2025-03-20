@@ -171,6 +171,7 @@ namespace Mains.Views
             // 重力管理用のVelocity
             Vector3 velocity = Vector3.zero;
             _playerViewModel = new(探索_シャウトチャンス_リズムパート情報管理テーブル);
+            _playerViewModel.SetPlayerTransform(transform);
             Observable.EveryUpdate()
                 .Where(_ => characterController.enabled)
                 .Subscribe(_ =>
@@ -235,6 +236,25 @@ namespace Mains.Views
 
                     bool isSwitchPart = player.GetButtonDown("SwitchPart");
                     _playerViewModel.SetIsSwitchPart(isSwitchPart);
+                })
+                .AddTo(ref _disposableBag);
+            // オバケが隠れている位置に接近した時に振動
+            VibrationView vibrationView = GetComponent<VibrationView>();
+            Observable.EveryUpdate()
+                .Select(_ => _playerViewModel.OnActionPoltergeistPosition)
+                .Where(x => x != null)
+                .Take(1)
+                .Subscribe(x =>
+                {
+                    x.Subscribe(x =>
+                    {
+                        // プレイヤーの現在位置を取得
+                        Vector3 playerPosition = trans.position;
+                        // 距離を計算
+                        float distance = Vector3.Distance(playerPosition, x);
+                        vibrationView.VibrateController(player, distance);
+                    })
+                    .AddTo(ref _disposableBag);
                 })
                 .AddTo(ref _disposableBag);
             // シャウトチャンスレンジ検知
@@ -323,7 +343,7 @@ namespace Mains.Views
         {
             float radius = characterController.radius;
             float skinWidth = characterController.skinWidth;
-            float raycastDistance = characterController.height / 2f - radius + skinWidth + 0.1f + 0.35f; // 余裕を持たせる
+            float raycastDistance = characterController.height / 2f - radius + skinWidth + 0.1f + .83f; // 余裕を持たせる
             Vector3 rayOrigin = characterController.transform.position + Vector3.up * (radius - skinWidth);
 
             return Physics.SphereCast(rayOrigin, radius, Vector3.down, out RaycastHit hit, raycastDistance);

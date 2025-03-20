@@ -72,12 +72,20 @@ namespace Mains.Views
             var originParent = trans.parent;
             // 初期化
             var motorInstance = Instantiate(motorPrefab, trans.position, Quaternion.identity);
+            // ベースとなるオブジェクトのコライダーのプロパティをMotorへコピー
+            motorInstance.GetComponent<BoxCollider>().center = trans.GetComponent<BoxCollider>().center;
+            motorInstance.GetComponent<BoxCollider>().size = trans.GetComponent<BoxCollider>().size;
+            motorInstance.transform.eulerAngles = trans.eulerAngles;
             motorInstance.transform.SetParent(originParent);
             trans.SetParent(motorInstance.transform);
             trans.localPosition = Vector3.zero;
             // ShoutChanceRangeの生成
             var originParent_1 = motorInstance.transform.parent;
             Transform shoutChanceInstance = Instantiate(shoutChanceRangePrefab, motorInstance.transform.position, Quaternion.identity).transform;
+            // ベースとなるオブジェクトのコライダーのプロパティをShoutChanceRangeへコピー
+            shoutChanceInstance.GetComponent<BoxCollider>().center = trans.GetComponent<BoxCollider>().center;
+            shoutChanceInstance.GetComponent<BoxCollider>().size = trans.GetComponent<BoxCollider>().size;
+            shoutChanceInstance.transform.eulerAngles = trans.eulerAngles;
             shoutChanceInstance.SetParent(originParent_1);
             motorInstance.transform.SetParent(shoutChanceInstance);
             motorInstance.transform.localPosition = Vector3.zero;
