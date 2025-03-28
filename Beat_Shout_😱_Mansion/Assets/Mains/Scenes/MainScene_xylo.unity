@@ -255,6 +255,54 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 45341028}
   m_CullTransparentMesh: 1
+--- !u!1 &130623480
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 130623481}
+  - component: {fileID: 130623482}
+  m_Layer: 0
+  m_Name: LongSE
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &130623481
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 130623480}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1151993986}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &130623482
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 130623480}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d8c703ee4040934dba45b374ccdb2b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CueSheetName: SE_Long
+  AcbFilePath: SE_Long.acb
+  maxPlayers: 5
+  IntroStage01: search-part_Aintro
 --- !u!1 &209826339
 GameObject:
   m_ObjectHideFlags: 0
@@ -1398,7 +1446,7 @@ MonoBehaviour:
   transitionDuration2: 0.05
   isAutoStart: 0
   bpm: 112
-  startBeat: 2
+  startBeat: 5
 --- !u!114 &951453397
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1488,7 +1536,7 @@ MonoBehaviour:
     - 0
     - 0
     - 0
-  _cueName: rhythm-part_A_BPM112
+  _cueName: search-part_A
   _cueSheet: BGM
 --- !u!1 &1004983039
 GameObject:
@@ -1748,6 +1796,10 @@ MonoBehaviour:
     acbFile: BSM_xylo_250215/BGM.acb
     awbFile: 
     loaderStatus: 0
+  - name: SE_Long
+    acbFile: BSM_xylo_250215/SE_Long.acb
+    awbFile: 
+    loaderStatus: 0
   dspBusSetting: 
   dontDestroyOnLoad: 0
   dontRemoveExistsCueSheet: 0
@@ -1766,6 +1818,7 @@ Transform:
   m_Children:
   - {fileID: 951453395}
   - {fileID: 617780182}
+  - {fileID: 130623481}
   - {fileID: 1004983040}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
