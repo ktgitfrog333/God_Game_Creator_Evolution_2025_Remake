@@ -24,7 +24,7 @@ namespace Mains.Views
         [SerializeField] private float forceVariation;
         /// <summary>回転の強さ</summary>
         [SerializeField] private float torqueMagnitude;
-        // TODO:シャウトチャンスパートでポルターガイストが発生した時のエフェクト
+        [Tooltip("Assets/Mains/Prefabs/Effects/DustParticle.prefabをセットしておく。")]
         [SerializeField] private GameObject dustParticlePrefab;
         /// <summary>ポルターガイストのビューモデル</summary>
         private PoltergeistViewModel _poltergeistViewModel;
@@ -63,6 +63,32 @@ namespace Mains.Views
             if (objectsPoolView == null)
                 objectsPoolView = Instantiate(objectsPoolViewPrefab).GetComponent<ObjectsPoolView>();
             Se_3D_Picker t3DSoundPlayer = objectsPoolView.Get3DSoundPlayer();
+            Observable.EveryUpdate()
+                .Select(_ => _poltergeistViewModel.InteractionPart)
+                .Where(x => x != null)
+                .Take(1)
+                .Subscribe(x =>
+                {
+                    x.Subscribe(x =>
+                    {
+                        switch (x)
+                        {
+                            case InteractionPart.Search:
+                            case InteractionPart.ShoutChance:
+                                // 探索パートとシャウトチャンスパートはタップを有効
+                                animator.SetBool("Tap", true);
+
+                                break;
+                            case InteractionPart.Rhythm:
+                                // リズムパートはタップを無効
+                                animator.SetBool("Tap", false);
+
+                                break;
+                        }
+                    })
+                    .AddTo(ref _disposableBag);
+                })
+                .AddTo(ref _disposableBag);
             _onAction.Where(x => x)
                 .Subscribe(_ =>
                 {
