@@ -62,5 +62,11 @@ namespace Mains.ViewModels
         {
             _playerModel.AddGhostInStaticObjectStructs(ghostInStaticObjectStruct);
         }
+
+        public void SetIsCompletedBurstGhosts(bool isCompletedBurstGhosts)
+        {
+            if (_playerModel != null)
+                _playerModel.SetIsCompletedBurstGhosts(isCompletedBurstGhosts);
+        }
     }
 }

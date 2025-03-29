@@ -6,6 +6,7 @@ using Mains.Commons;
 using Mains.ViewModels;
 using System.Linq;
 using Mains.External;
+using System.Collections.Generic;
 
 namespace Mains.Views
 {
@@ -26,10 +27,9 @@ namespace Mains.Views
         [SerializeField] private float ロー_切り替え時間_秒;
         [SerializeField] private float ロー_歩幅;
         [SerializeField] private float トップ_歩幅;
+        [SerializeField] private float シャウト達成デシベル;
         /// <summary>シャウトチャンスレンジ位置</summary>
         private Transform _shoutChanceRange;
-        /// <summary>シャウト成功</summary>
-        private ReactiveProperty<bool> _isSuccessShout = new ReactiveProperty<bool>();
         /// <summary>プレイヤーのビューモデル</summary>
         private PlayerViewModel _playerViewModel;
         /// <summary>フェードイメージのビュー</summary>
@@ -130,38 +130,49 @@ namespace Mains.Views
             float currentYaw = trans.rotation.eulerAngles.y;
             // 現在のX軸回転角度 (上下回転)
             float currentPitch = trans.rotation.eulerAngles.x;
+            // ターゲットとなるポルターガイストビュー
+            PoltergeistView poltergeistView = null;
             // リズムパートの位置まで移動する
-            _isSuccessShout.Where(x => x)
+            Observable.EveryUpdate()
+                .Select(_ => _playerViewModel.IsCompletedBurstGhosts)
+                .Where(x => x != null)
+                .Take(1)
                 .Subscribe(x =>
                 {
-                    Observable.Create<bool>(observer =>
-                    {
-                        StartCoroutine(_fadeImageView.PlayFadeInDirection(observer));
-                        return Disposable.Empty;
-                    })
-                        .Subscribe(_ =>
+                    x.Where(x => x)
+                        .Subscribe(x =>
                         {
-                            // プレイヤー移動させる処理
-                            if (_shoutChanceRange != null)
-                            {
-                                var poltergeistView = _shoutChanceRange.GetComponentInChildren<PoltergeistView>();
-                                if (poltergeistView != null)
-                                {
-                                    characterController.enabled = false;
-                                    trans.position = poltergeistView.RhythmPartPosition.position;
-                                    trans.eulerAngles = poltergeistView.RhythmPartPosition.eulerAngles;
-                                    currentYaw = trans.eulerAngles.y;
-                                    characterController.enabled = true;
-                                }
-                            }
                             Observable.Create<bool>(observer =>
                             {
-                                StartCoroutine(_fadeImageView.PlayFadeOutDirection(observer));
+                                StartCoroutine(_fadeImageView.PlayFadeInDirection(observer));
                                 return Disposable.Empty;
                             })
                                 .Subscribe(_ =>
                                 {
-                                    _isSuccessShout.Value = false;
+                                    // [シャウト成功インタラクション] 3. プレイヤー移動させる処理
+                                    if (poltergeistView != null)
+                                    {
+                                        if (poltergeistView != null)
+                                        {
+                                            characterController.enabled = false;
+                                            trans.position = poltergeistView.RhythmPartPosition.position;
+                                            trans.eulerAngles = poltergeistView.RhythmPartPosition.eulerAngles;
+                                            currentYaw = trans.eulerAngles.y;
+                                            characterController.enabled = true;
+                                        }
+                                    }
+                                    Observable.Create<bool>(observer =>
+                                    {
+                                        StartCoroutine(_fadeImageView.PlayFadeOutDirection(observer));
+                                        return Disposable.Empty;
+                                    })
+                                        .Subscribe(_ =>
+                                        {
+                                            // [シャウト成功インタラクション] 4. 後処理
+                                            _playerViewModel.SetIsCompletedBurstGhosts(false);
+                                            poltergeistView = null;
+                                        })
+                                        .AddTo(ref _disposableBag);
                                 })
                                 .AddTo(ref _disposableBag);
                         })
@@ -257,16 +268,6 @@ namespace Mains.Views
                     .AddTo(ref _disposableBag);
                 })
                 .AddTo(ref _disposableBag);
-            // シャウトチャンスレンジ検知
-            this.OnTriggerStayAsObservable()
-                .Where(x => x.name.StartsWith("ShoutChanceRange"))
-                .Select(x => x.transform)
-                .Subscribe(x => _shoutChanceRange = x)
-                .AddTo(ref _disposableBag);
-            this.OnTriggerExitAsObservable()
-                .Where(x => x.name.StartsWith("ShoutChanceRange"))
-                .Subscribe(x => _shoutChanceRange = null)
-                .AddTo(ref _disposableBag);
             Observable.EveryUpdate()
                 .Select(_ => FindAnyObjectByType<FadeImageView>())
                 .Where(x => x != null)
@@ -276,19 +277,168 @@ namespace Mains.Views
                     _fadeImageView = x;
                 })
                 .AddTo(ref _disposableBag);
+            // シャウトチャンスレンジ検知
+            List<Transform> shoutChanceRanges = new List<Transform>();
+            System.IDisposable disposableShoutChanceRangesSetter = null;
+            // シャウト成功となる条件設定処理の実装
+            // シャウトチャンスパート
+            // + コライダー内
+            // + マイク音量 or キーボード長押し⇒解放 or コントローラー長押し⇒解放
+            ReactiveProperty<float> dbLevel = new ReactiveProperty<float>();
+            System.IDisposable disposableDbLevel = null;
+            Observable.EveryUpdate()
+                .Select(_ => _playerViewModel.InteractionPart)
+                .Where(x => x != null)
+                .Take(1)
+                .Subscribe(x =>
+                {
+                    x.Subscribe(x =>
+                    {
+                        disposableShoutChanceRangesSetter?.Dispose();
+                        switch (x)
+                        {
+                            case InteractionPart.ShoutChance:
+                                float rayLength = 1f; // 正面に飛ばす長さ（必要に応じて調整）
+
+                                disposableShoutChanceRangesSetter = Observable.EveryUpdate()
+                                    .Subscribe(_ =>
+                                    {
+                                        shoutChanceRanges.Clear();
+
+                                        Vector3 origin = transform.position + Vector3.up * 0.5f; // 目線の高さ
+                                        Vector3 direction = transform.forward;
+                                        
+                                        // デバッグ：Sceneビューに赤線を描画
+                                        Debug.DrawRay(origin, direction * rayLength, Color.red);
+
+                                        RaycastHit[] hits = Physics.RaycastAll(origin, direction, rayLength);
+                                        foreach (RaycastHit hit in hits)
+                                        {
+                                            if (hit.collider != null && hit.collider.name.StartsWith("ShoutChanceRange"))
+                                            {
+                                                Transform t = hit.collider.transform;
+                                                if (!shoutChanceRanges.Contains(t))
+                                                {
+                                                    shoutChanceRanges.Add(t);
+                                                }
+                                            }
+                                        }
+                                    })
+                                    .AddTo(ref _disposableBag);
+
+                                disposableDbLevel?.Dispose();
+                                disposableDbLevel = dbLevel.Where(x => シャウト達成デシベル <= x &&
+                                    0 < shoutChanceRanges.Count)
+                                    .Subscribe(_ =>
+                                    {
+                                        // [シャウト成功インタラクション] 1. シャウトチャンスレンジの中でオバケが潜んでいる家具かつ、一番近いコライダーからポルターガイストビューを取得
+                                        poltergeistView = shoutChanceRanges
+                                            .Where(q => q.GetComponentInChildren<PoltergeistView>().GhostInStaticObjectStruct.useStatus.Equals(UseStatus.Using))
+                                            .OrderBy(t => Vector3.SqrMagnitude(t.position - transform.position))
+                                            .Select(q => q.GetComponentInChildren<PoltergeistView>())
+                                            .FirstOrDefault();
+
+                                        // [シャウト成功インタラクション] 2. オバケが飛び出すエフェクト生成
+                                        if (poltergeistView != null)
+                                        {
+                                            poltergeistView.AsyncDoBurstGhosts();
+                                            _playerViewModel.SetInteractionPart(InteractionPart.Rhythm);
+                                        }
+                                    })
+                                    .AddTo(ref _disposableBag);
+
+                                break;
+                        }
+                    })
+                    .AddTo(ref _disposableBag);
+                })
+                .AddTo(ref _disposableBag);
+
+            // 吸気入力監視用
+            bool isInhaling = false;
+            bool isDualInhaling = false;
+            float inhaleStartTime = 0f;
+            float inhaleDurationThreshold = 1.0f; // 例：1秒以上
+
+            Observable.EveryUpdate()
+                .Subscribe(_ =>
+                {
+                    bool inhaleHeld = player.GetButton("Inhale");
+                    bool inhaleLeftHeld = player.GetButton("InhaleHalfLeft");
+                    bool inhaleRightHeld = player.GetButton("InhaleHalfRight");
+
+                    // Inhale 単体の入力
+                    if (inhaleHeld &&
+                        !inhaleLeftHeld &&
+                        !inhaleRightHeld)
+                    {
+                        if (!isInhaling)
+                        {
+                            isInhaling = true;
+                            inhaleStartTime = Time.time;
+                        }
+                    }
+                    else
+                    {
+                        if (isInhaling)
+                        {
+                            float duration = Time.time - inhaleStartTime;
+                            if (duration >= inhaleDurationThreshold)
+                            {
+                                dbLevel.Value = 10f;
+                            }
+                            else
+                            {
+                                dbLevel.Value = 0f;
+                            }
+                            isInhaling = false;
+                        }
+                    }
+
+                    // 両方のHalfInhaleを長押し
+                    if (inhaleLeftHeld &&
+                        inhaleRightHeld &&
+                        !inhaleHeld)
+                    {
+                        if (!isDualInhaling)
+                        {
+                            isDualInhaling = true;
+                            inhaleStartTime = Time.time;
+                        }
+                    }
+                    else
+                    {
+                        if (isDualInhaling)
+                        {
+                            float duration = Time.time - inhaleStartTime;
+                            if (duration >= inhaleDurationThreshold)
+                            {
+                                dbLevel.Value = 10f;
+                            }
+                            else
+                            {
+                                dbLevel.Value = 0f;
+                            }
+                            isDualInhaling = false;
+                        }
+                    }
+
+                    _playerViewModel.SetDbLevel(dbLevel.Value);
+                    // どちらも押されていない場合も毎フレーム 0 に戻す（押し直しに備える）
+                    if (!inhaleHeld && !(inhaleLeftHeld && inhaleRightHeld))
+                    {
+                        if (!isInhaling && !isDualInhaling)
+                        {
+                            dbLevel.Value = 0f;
+                        }
+                    }
+                })
+                .AddTo(ref _disposableBag);
         }
 
         private void OnDestroy()
         {
             _disposableBag.Dispose();
-        }
-
-        /// <summary>
-        /// リズムパートの位置まで移動する
-        /// </summary>
-        private void MoveToShoutChanceRange()
-        {
-            _isSuccessShout.Value = true;
         }
 
         /// <summary>

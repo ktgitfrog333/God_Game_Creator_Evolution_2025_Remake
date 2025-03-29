@@ -34,7 +34,9 @@ namespace Mains.Models
                 .Subscribe(q =>
                 {
                     // TODO:探索パート⇔シャウトチャンスパート切り替えが視覚化されていない間は残す
-                    InteractionPartTable.interactionPart.Subscribe(q => Debug.Log(q))
+                    InteractionPartTable.interactionPart.Subscribe(x => Debug.Log($"interactionPart: [{x}]"))
+                        .AddTo(ref _disposableBag);
+                    InteractionPartTable.dbLevel.Subscribe(x => Debug.Log($"dbLevel: [{x}]"))
                         .AddTo(ref _disposableBag);
                     InteractionPartTable.interactionPart.Value = InteractionPart.Search;
                 })
@@ -80,6 +82,24 @@ namespace Mains.Models
         {
             _playerTransform = transform;
         }
+
+        public void SetIsCompletedBurstGhosts(bool isCompletedBurstGhosts)
+        {
+            if (InteractionPartTable != null)
+                InteractionPartTable.isCompletedBurstGhosts.Execute(isCompletedBurstGhosts);
+        }
+
+        public void SetDbLevel(float dbLevel)
+        {
+            if (InteractionPartTable != null)
+                InteractionPartTable.dbLevel.Execute(dbLevel);
+        }
+
+        public void SetInteractionPart(InteractionPart interactionPart)
+        {
+            if (InteractionPartTable != null)
+                InteractionPartTable.interactionPart.Value = interactionPart;
+        }
     }
 
     /// <summary>
@@ -93,10 +113,25 @@ namespace Mains.Models
         /// <param name="isSwitchPart">パート切り替え入力</param>
         public void SetIsSwitchPart(bool isSwitchPart);
         /// <summary>
+        /// パート切り替え入力をセット
+        /// </summary>
+        /// <param name="interactionPart">【探索／シャウトチャンス／リズム】パート</param>
+        public void SetInteractionPart(InteractionPart interactionPart);
+        /// <summary>
         /// プレイヤーのトランスフォームをセット
         /// </summary>
         /// <param name="transform">プレイヤーのトランスフォーム</param>
         public void SetPlayerTransform(Transform transform);
+        /// <summary>
+        /// ゴーストが飛び出してくる演出の完了をセット
+        /// </summary>
+        /// <param name="isCompletedBurstGhosts">ゴーストが飛び出してくる演出の完了</param>
+        public void SetIsCompletedBurstGhosts(bool isCompletedBurstGhosts);
+        /// <summary>
+        /// デシベルレベルをセット
+        /// </summary>
+        /// <param name="dbLevel">デシベルレベル</param>
+        public void SetDbLevel(float dbLevel);
     }
 
     /// <summary>
@@ -114,5 +149,10 @@ namespace Mains.Models
         /// </summary>
         /// <param name="ghostInStaticObjectStruct">オバケの家具入居管理の構造体</param>
         public void AddGhostInStaticObjectStructs(GhostInStaticObjectStruct ghostInStaticObjectStruct);
+        /// <summary>
+        /// ゴーストが飛び出してくる演出の完了をセット
+        /// </summary>
+        /// <param name="isCompletedBurstGhosts">ゴーストが飛び出してくる演出の完了</param>
+        public void SetIsCompletedBurstGhosts(bool isCompletedBurstGhosts);
     }
 }

@@ -4,6 +4,8 @@ using R3;
 using ObservableCollections;
 using Mains.ViewModels;
 using System.Linq;
+using System.Threading.Tasks;
+using UnityEngine.UIElements;
 
 namespace Mains.Views
 {
@@ -18,8 +20,6 @@ namespace Mains.Views
         [SerializeField] private GameObject motorPrefab;
         [Tooltip("Assets/Mains/Prefabs/Level/ShoutChanceRange.prefabをセットしておく。")]
         [SerializeField] private GameObject shoutChanceRangePrefab;
-        // TODO:シャウトチャンスパートでポルターガイストが発生した時のエフェクト
-        [SerializeField] private GameObject dustParticlePrefab;
         /// <summary>リズムパートポジション（プレイヤー位置をリズムパート用に移動させる）</summary>
         private Transform _rhythmPartPosition;
         /// <summary>リズムパートポジション（プレイヤー位置をリズムパート用に移動させる）</summary>
@@ -38,12 +38,18 @@ namespace Mains.Views
                 ghostInStaticObjectStruct = value;
             }
         }
+        [Tooltip("Assets/Mains/Prefabs/Effects/GhostBursts.prefabをセットしておく。")]
+        [SerializeField] private GameObject ghostBurstsPrefab;
+        /// <summary>オバケが飛び出すエフェクト</summary>
+        private Transform _ghostBurstsInstance;
         /// <summary>ポルターガイストのビューモデル</summary>
         private PoltergeistViewModel _poltergeistViewModel;
         /// <summary>モーターのビュー</summary>
         private MotorView _motorView;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
+        /// <summary>トランスフォーム</summary>
+        private Transform _transform;
 
         private void Reset()
         {
@@ -67,30 +73,30 @@ namespace Mains.Views
 
         private void Start()
         {
-            var trans = transform;
+            _transform = transform;
             // Poltergeistの生成
-            var originParent = trans.parent;
+            var originParent = _transform.parent;
             // 初期化
-            var motorInstance = Instantiate(motorPrefab, trans.position, Quaternion.identity);
+            var motorInstance = Instantiate(motorPrefab, _transform.position, Quaternion.identity);
             // ベースとなるオブジェクトのコライダーのプロパティをMotorへコピー
-            motorInstance.GetComponent<BoxCollider>().center = trans.GetComponent<BoxCollider>().center;
-            motorInstance.GetComponent<BoxCollider>().size = trans.GetComponent<BoxCollider>().size;
-            motorInstance.transform.eulerAngles = trans.eulerAngles;
+            motorInstance.GetComponent<BoxCollider>().center = _transform.GetComponent<BoxCollider>().center;
+            motorInstance.GetComponent<BoxCollider>().size = _transform.GetComponent<BoxCollider>().size;
+            motorInstance.transform.eulerAngles = _transform.eulerAngles;
             motorInstance.transform.SetParent(originParent);
-            trans.SetParent(motorInstance.transform);
-            trans.localPosition = Vector3.zero;
+            _transform.SetParent(motorInstance.transform);
+            _transform.localPosition = Vector3.zero;
             // ShoutChanceRangeの生成
             var originParent_1 = motorInstance.transform.parent;
             Transform shoutChanceInstance = Instantiate(shoutChanceRangePrefab, motorInstance.transform.position, Quaternion.identity).transform;
             // ベースとなるオブジェクトのコライダーのプロパティをShoutChanceRangeへコピー
-            shoutChanceInstance.GetComponent<BoxCollider>().center = trans.GetComponent<BoxCollider>().center;
-            shoutChanceInstance.GetComponent<BoxCollider>().size = trans.GetComponent<BoxCollider>().size;
-            shoutChanceInstance.transform.eulerAngles = trans.eulerAngles;
+            shoutChanceInstance.GetComponent<BoxCollider>().center = _transform.GetComponent<BoxCollider>().center;
+            shoutChanceInstance.GetComponent<BoxCollider>().size = _transform.GetComponent<BoxCollider>().size;
+            shoutChanceInstance.transform.eulerAngles = _transform.eulerAngles;
             shoutChanceInstance.SetParent(originParent_1);
             motorInstance.transform.SetParent(shoutChanceInstance);
             motorInstance.transform.localPosition = Vector3.zero;
-            trans.SetParent(motorInstance.transform);
-            trans.localPosition = Vector3.zero;
+            _transform.SetParent(motorInstance.transform);
+            _transform.localPosition = Vector3.zero;
             foreach (Transform child in transform)
             {
                 if (child.name.Equals("RhythmPartPosition"))
@@ -197,6 +203,17 @@ namespace Mains.Views
         }
 
         /// <summary>
+        /// ゴーストを飛び出させる処理を実行
+        /// </summary>
+        public async void AsyncDoBurstGhosts()
+        {
+            BurstGhosts(_ghostBurstsInstance, _transform);
+            await Task.Delay(1000);
+            if (_poltergeistViewModel != null)
+                _poltergeistViewModel.SetIsCompletedBurstGhosts(true);
+        }
+
+        /// <summary>
         /// 移動元の家具のポルターガイスト情報を初期化
         /// </summary>
         private void ResetStaticObject()
@@ -215,6 +232,27 @@ namespace Mains.Views
             prevGhostInStaticObjectStruct.useStatus = UseStatus.Empty;
             prevGhostInStaticObjectStruct.membersCount = 0;
             _poltergeistViewModel.GhostInStaticObjectStructs[prevIndex] = prevGhostInStaticObjectStruct;
+        }
+
+        /// <summary>
+        /// ゴーストを飛び出させる
+        /// </summary>
+        /// <param name="ghostBurstsInstance">オバケが飛び出すエフェクト</param>
+        /// <param name="transform">トランスフォーム</param>
+        private void BurstGhosts(Transform ghostBurstsInstance, Transform transform)
+        {
+            if (ghostBurstsInstance == null)
+            {
+                ghostBurstsInstance = Instantiate(ghostBurstsPrefab).transform;
+                // 親（ShoutChanceRange） > 親（Motor） > 家具
+                ghostBurstsInstance.SetParent(transform.parent.parent);
+                ghostBurstsInstance.localPosition = Vector3.zero;
+            }
+            else
+            {
+                ghostBurstsInstance.gameObject.SetActive(false);
+                ghostBurstsInstance.gameObject.SetActive(true);
+            }
         }
     }
 }

@@ -23,6 +23,22 @@ namespace Mains.ViewModels
                 return _playerModel?.PoltergeistTable?.onActionPoltergeistPosition ?? null;
             }
         }
+        /// <summary>ゴーストが飛び出してくる演出の完了</summary>
+        public ReactiveCommand<bool> IsCompletedBurstGhosts
+        {
+            get
+            {
+                return _playerModel?.InteractionPartTable?.isCompletedBurstGhosts ?? null;
+            }
+        }
+        /// <summary>【探索／シャウトチャンス／リズム】パート</summary>
+        public ReactiveProperty<InteractionPart> InteractionPart
+        {
+            get
+            {
+                return _playerModel?.InteractionPartTable?.interactionPart ?? null;
+            }
+        }
 
         public PlayerViewModel(InteractionPartTable interactionPartTable)
         {
@@ -41,6 +57,24 @@ namespace Mains.ViewModels
         {
             if (_playerModel != null)
                 _playerModel.SetPlayerTransform(transform);
+        }
+
+        public void SetIsCompletedBurstGhosts(bool isCompletedBurstGhosts)
+        {
+            if (_playerModel != null)
+                _playerModel.SetIsCompletedBurstGhosts(isCompletedBurstGhosts);
+        }
+
+        public void SetDbLevel(float dbLevel)
+        {
+            if (_playerModel != null)
+                _playerModel.SetDbLevel(dbLevel);
+        }
+
+        public void SetInteractionPart(InteractionPart interactionPart)
+        {
+            if (_playerModel != null)
+                _playerModel.SetInteractionPart(interactionPart);
         }
     }
 }

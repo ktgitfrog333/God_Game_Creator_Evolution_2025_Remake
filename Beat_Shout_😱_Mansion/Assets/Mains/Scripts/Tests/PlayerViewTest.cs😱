@@ -3,43 +3,32 @@ using UnityEngine;
 using System.Reflection;
 using Mains.Commons;
 using System.Linq;
+using Mains.ViewModels;
+using UnityEngine.SceneManagement;
 
 namespace Mains.Tests
 {
     public class PlayerViewTest : MonoBehaviour
     {
-        [SerializeField] private string targetInstanceID;
-        [SerializeField] private PoltergeistView[] poltergeistViews;
-        [SerializeField] private GhostInStaticObjectStruct[] ghostInStaticObjectStructs;
+        //[SerializeField] private string targetInstanceID;
+        //[SerializeField] private PoltergeistView[] poltergeistViews;
+        //[SerializeField] private GhostInStaticObjectStruct[] ghostInStaticObjectStructs;
 
-        private void Update()
-        {
-            poltergeistViews = FindObjectsByType<PoltergeistView>(FindObjectsSortMode.None);
-            ghostInStaticObjectStructs = poltergeistViews.Select(q => q.GhostInStaticObjectStruct).ToArray();
-        }
+        //private void Update()
+        //{
+        //    poltergeistViews = FindObjectsByType<PoltergeistView>(FindObjectsSortMode.None);
+        //    ghostInStaticObjectStructs = poltergeistViews.Select(q => q.GhostInStaticObjectStruct).ToArray();
+        //}
 
         private void OnGUI()
         {
             // ボタンの位置とサイズ (x, y, width, height)
             Rect buttonRect = new Rect(10, 10, 150, 50);
 
-            // ボタンを描画
-            if (GUI.Button(buttonRect, "シャウト成功"))
+            if (GUI.Button(buttonRect, "MainScene_Amagata をロード"))
             {
-                Debug.Log("シャウト成功ボタンが押された！");
-                // ここにシャウト成功時の処理を追加
-                PlayerView playerView = FindAnyObjectByType<PlayerView>();
-                MethodInfo methodInfo = playerView.GetType().GetMethod("MoveToShoutChanceRange", BindingFlags.NonPublic | BindingFlags.Instance);
-
-                if (methodInfo != null)
-                {
-                    // メソッドを実行
-                    methodInfo.Invoke(playerView, null);
-                }
-                else
-                {
-                    Debug.LogWarning("StartFootsteps メソッドが見つかりません。");
-                }
+                Debug.Log("MainScene_Amagata をロードします");
+                SceneManager.LoadScene("MainScene_Amagata");
             }
 
             //// ボタンを描画
@@ -75,6 +64,31 @@ namespace Mains.Tests
             //    else
             //    {
             //        Debug.LogWarning("StartFootsteps メソッドが見つかりません。");
+            //    }
+            //}
+            //if (GUI.Button(buttonRect, "シャウト成功"))
+            //{
+            //    Debug.Log("シャウト成功ボタンが押された！");
+
+            //    PlayerView playerView = FindAnyObjectByType<PlayerView>();
+            //    if (playerView != null)
+            //    {
+            //        // PlayerView の private フィールド "_playerViewModel" にアクセス
+            //        var playerViewType = typeof(PlayerView);
+            //        var vmField = playerViewType.GetField("_playerViewModel", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            //        if (vmField != null)
+            //        {
+            //            object viewModel = vmField.GetValue(playerView);
+            //            if (viewModel != null)
+            //            {
+            //                ((PlayerViewModel)viewModel).IsCompletedBurstGhosts.Execute(true);
+            //            }
+            //        }
+            //        else
+            //        {
+            //            Debug.LogWarning("_playerViewModel が見つかりません。");
+            //        }
             //    }
             //}
         }

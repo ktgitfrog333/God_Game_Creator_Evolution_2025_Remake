@@ -166,6 +166,8 @@ MonoBehaviour:
   "\u30ED\u30FC_\u5207\u308A\u66FF\u3048\u6642\u9593_\u79D2": 0.35
   "\u30ED\u30FC_\u6B69\u5E45": 0.05
   "\u30C8\u30C3\u30D7_\u6B69\u5E45": 0.1
+  "\u30B7\u30E3\u30A6\u30C8\u9054\u6210\u30C7\u30B7\u30D9\u30EB": 10
+  rayLength: 1
 --- !u!143 &8536045231518824716
 CharacterController:
   m_ObjectHideFlags: 0
