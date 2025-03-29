@@ -109,7 +109,7 @@ public class CRIWARE_conductor : MonoBehaviour
             CRIWARE_AisacChange.Instance.SetSource(currentSource); // AISACの適用先を設定
             atomSourceA.player.OnBeatSyncCallback += OnBeatSync; // ビート同期イベントのコールバックを登録
 
-            CRIWARE_AisacChange.Instance.PlayStart(); //スタートのAisacを再生
+            Invoke("DelayBGMLoopStart", 10.5f); //BGMのループ再生を遅らせる
         }
         else
         {
@@ -126,7 +126,7 @@ public class CRIWARE_conductor : MonoBehaviour
             atomSourceA.player.OnBeatSyncCallback += OnBeatSync; // ビート同期イベントのコールバックを登録
 
             Debug.Log("遅れて初期化完了");
-            CRIWARE_AisacChange.Instance.PlayStart(); //スタートのAisacを再生
+            Invoke("DelayBGMLoopStart", 10.5f); //BGMのループ再生を遅らせる
 
         }
         else
@@ -134,6 +134,11 @@ public class CRIWARE_conductor : MonoBehaviour
             Invoke("InitDelay", 0.05f);
             Debug.Log("初期化待ち");
         }
+    }
+
+    void DelayBGMLoopStart()
+    {
+        CRIWARE_AisacChange.Instance.PlayStart(); //スタートのAisacを再生
     }
 
     // このオブジェクトの破壊時にビート同期イベントのコールバックを削除
