@@ -366,11 +366,13 @@ namespace Mains.Views
                     bool inhaleHeld = player.GetButton("Inhale");
                     bool inhaleLeftHeld = player.GetButton("InhaleHalfLeft");
                     bool inhaleRightHeld = player.GetButton("InhaleHalfRight");
+                    bool isMicInput = script_XyloApi.IsMicInput();
 
                     // Inhale 単体の入力
                     if (inhaleHeld &&
                         !inhaleLeftHeld &&
-                        !inhaleRightHeld)
+                        !inhaleRightHeld &&
+                        !isMicInput)
                     {
                         if (!isInhaling)
                         {
@@ -385,7 +387,8 @@ namespace Mains.Views
                             float duration = Time.time - inhaleStartTime;
                             if (duration >= inhaleDurationThreshold)
                             {
-                                dbLevel.Value = 10f;
+                                // キー／トリガー入力のためそれっぽいMAX値をセット
+                                dbLevel.Value = シャウト達成デシベル;
                             }
                             else
                             {
@@ -398,7 +401,8 @@ namespace Mains.Views
                     // 両方のHalfInhaleを長押し
                     if (inhaleLeftHeld &&
                         inhaleRightHeld &&
-                        !inhaleHeld)
+                        !inhaleHeld &&
+                        !isMicInput)
                     {
                         if (!isDualInhaling)
                         {
@@ -413,7 +417,8 @@ namespace Mains.Views
                             float duration = Time.time - inhaleStartTime;
                             if (duration >= inhaleDurationThreshold)
                             {
-                                dbLevel.Value = 10f;
+                                // キー／トリガー入力のためそれっぽいMAX値をセット
+                                dbLevel.Value = シャウト達成デシベル;
                             }
                             else
                             {
@@ -423,9 +428,19 @@ namespace Mains.Views
                         }
                     }
 
+                    // マイク入力の取得
+                    if (!inhaleHeld &&
+                        !inhaleLeftHeld &&
+                        !inhaleRightHeld &&
+                        isMicInput)
+                    {
+                        dbLevel.Value = script_XyloApi.GetDBLevel();
+                    }
+
                     _playerViewModel.SetDbLevel(dbLevel.Value);
                     // どちらも押されていない場合も毎フレーム 0 に戻す（押し直しに備える）
-                    if (!inhaleHeld && !(inhaleLeftHeld && inhaleRightHeld))
+                    if (!inhaleHeld && !(inhaleLeftHeld && inhaleRightHeld) &&
+                        !isMicInput)
                     {
                         if (!isInhaling && !isDualInhaling)
                         {
