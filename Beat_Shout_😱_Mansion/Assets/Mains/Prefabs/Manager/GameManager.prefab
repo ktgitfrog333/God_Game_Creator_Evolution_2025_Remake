@@ -64,7 +64,7 @@ MonoBehaviour:
     "Stage_x\u3068\u66F8\u304B\u308C\u305F\u30D7\u30EC\u30CF\u30D6": {fileID: 1348431720815234926, guid: 81f59d4cdbdd59f46a224abdfddc4e86, type: 3}
   "\u30B9\u30C6\u30FC\u30B8\u3092\u52D5\u7684\u306B\u751F\u6210\u3059\u308B": 0
   "DirectionalLight\u3092\u7D99\u627F\u3057\u3066\u518D\u8A2D\u5B9A":
-    intensity: 0.2
+    intensity: 0
     shadowStrength: 0.7
     lightColor: {r: 0.17254902, g: 0.24313726, b: 0.3137255, a: 0}
     "Update\u3055\u308C\u308B\u5EA6\u306B\u66F4\u65B0": 1

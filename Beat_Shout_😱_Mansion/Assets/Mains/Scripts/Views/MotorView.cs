@@ -94,8 +94,9 @@ namespace Mains.Views
                 {
                     if (dustParticleInstance == null)
                     {
-                        dustParticleInstance = GameObject.Instantiate(dustParticlePrefab, _transform.position, Quaternion.identity).transform;
+                        dustParticleInstance = GameObject.Instantiate(dustParticlePrefab).transform;
                         dustParticleInstance.SetParent(_transform);
+                        dustParticleInstance.localPosition = Vector3.zero;
                     }
                     else
                     {
