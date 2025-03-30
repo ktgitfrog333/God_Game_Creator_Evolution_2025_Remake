@@ -21,13 +21,15 @@ namespace Mains.Views
         [SerializeField] private float トップ_移動速度;
         [SerializeField] private float 視点速度補正;
         [SerializeField] private float 重力 = 9.81f;
-        /// <summary>R3のリソース管理</summary>
-        private DisposableBag _disposableBag = new DisposableBag();
         [SerializeField] private InteractionPartTable 探索_シャウトチャンス_リズムパート情報管理テーブル;
         [SerializeField] private float ロー_切り替え時間_秒;
         [SerializeField] private float ロー_歩幅;
         [SerializeField] private float トップ_歩幅;
         [SerializeField] private float シャウト達成デシベル;
+        /// <summary>Player > Body > FlashLight > Spot Light のLightコンポーネント</summary>
+        [SerializeField] private Light spotLightLight;
+        /// <summary>R3のリソース管理</summary>
+        private DisposableBag _disposableBag = new DisposableBag();
         /// <summary>シャウトチャンスレンジ位置</summary>
         private Transform _shoutChanceRange;
         /// <summary>プレイヤーのビューモデル</summary>
@@ -39,6 +41,8 @@ namespace Mains.Views
         {
             if (characterController == null)
                 characterController = GetComponent<CharacterController>();
+            if (spotLightLight == null)
+                spotLightLight = GetComponentInChildren<Light>();
         }
 
         private void Start()
@@ -449,6 +453,8 @@ namespace Mains.Views
                     }
                 })
                 .AddTo(ref _disposableBag);
+            // ライトは一旦、消す
+            spotLightLight.enabled = false;
         }
 
         private void OnDestroy()
