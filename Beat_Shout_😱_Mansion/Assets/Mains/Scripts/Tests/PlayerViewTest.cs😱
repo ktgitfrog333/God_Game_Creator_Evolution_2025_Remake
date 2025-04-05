@@ -10,7 +10,7 @@ namespace Mains.Tests
 {
     public class PlayerViewTest : MonoBehaviour
     {
-        //[SerializeField] private string targetInstanceID;
+        [SerializeField] private string ghostTeamID;
         //[SerializeField] private PoltergeistView[] poltergeistViews;
         //[SerializeField] private GhostInStaticObjectStruct[] ghostInStaticObjectStructs;
 
@@ -25,11 +25,11 @@ namespace Mains.Tests
             // ボタンの位置とサイズ (x, y, width, height)
             Rect buttonRect = new Rect(10, 10, 150, 50);
 
-            if (GUI.Button(buttonRect, "MainScene_Amagata をロード"))
-            {
-                Debug.Log("MainScene_Amagata をロードします");
-                SceneManager.LoadScene("MainScene_Amagata");
-            }
+            //if (GUI.Button(buttonRect, "MainScene_Amagata をロード"))
+            //{
+            //    Debug.Log("MainScene_Amagata をロードします");
+            //    SceneManager.LoadScene("MainScene_Amagata");
+            //}
 
             //// ボタンを描画
             //if (GUI.Button(buttonRect, "オバケの移動"))
@@ -41,7 +41,7 @@ namespace Mains.Tests
             //    if (methodInfo != null)
             //    {
             //        // メソッドを実行
-            //        methodInfo.Invoke(playerView, new object[] { targetInstanceID });
+            //        methodInfo.Invoke(playerView, new object[] { ghostTeamID });
             //    }
             //    else
             //    {
@@ -59,13 +59,14 @@ namespace Mains.Tests
             //    if (methodInfo != null)
             //    {
             //        // メソッドを実行
-            //        methodInfo.Invoke(playerView, new object[] { targetInstanceID });
+            //        methodInfo.Invoke(playerView, new object[] { ghostTeamID });
             //    }
             //    else
             //    {
             //        Debug.LogWarning("StartFootsteps メソッドが見つかりません。");
             //    }
             //}
+
             //if (GUI.Button(buttonRect, "シャウト成功"))
             //{
             //    Debug.Log("シャウト成功ボタンが押された！");

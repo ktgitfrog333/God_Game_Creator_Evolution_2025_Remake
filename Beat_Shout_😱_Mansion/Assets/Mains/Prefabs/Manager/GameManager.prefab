@@ -62,6 +62,7 @@ MonoBehaviour:
   - "\u30EC\u30D9\u30EBID": 0
     "\u968E\u5C64": 0
     "Stage_x\u3068\u66F8\u304B\u308C\u305F\u30D7\u30EC\u30CF\u30D6": {fileID: 1348431720815234926, guid: 81f59d4cdbdd59f46a224abdfddc4e86, type: 3}
+    "\u958B\u59CB\u6642\u306E\u30D7\u30EC\u30A4\u30E4\u30FC\u306E\u6700\u5927\u4F53\u529B": 5
   "\u30B9\u30C6\u30FC\u30B8\u3092\u52D5\u7684\u306B\u751F\u6210\u3059\u308B": 0
   "DirectionalLight\u3092\u7D99\u627F\u3057\u3066\u518D\u8A2D\u5B9A":
     intensity: 0

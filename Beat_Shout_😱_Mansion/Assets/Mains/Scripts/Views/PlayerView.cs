@@ -7,6 +7,7 @@ using Mains.ViewModels;
 using System.Linq;
 using Mains.External;
 using System.Collections.Generic;
+using Mains.Manager;
 
 namespace Mains.Views
 {
@@ -455,6 +456,24 @@ namespace Mains.Views
                 .AddTo(ref _disposableBag);
             // ライトは一旦、消す
             spotLightLight.enabled = false;
+            // プレイヤーの体力初期設定
+            Observable.EveryUpdate()
+                .Select(_ => GameManager.Instance)
+                .Where(x => x != null)
+                .Take(1)
+                .Subscribe(manager =>
+                {
+                    Observable.EveryUpdate()
+                        .Select(_ => manager.LevelOwner.PlayerHealthPointMax)
+                        .Where(x => x != null)
+                        .Take(1)
+                        .Subscribe(hpMax =>
+                        {
+                            _playerViewModel.SetHealthPointMax(hpMax.Value);
+                        })
+                        .AddTo(ref _disposableBag);
+                })
+                .AddTo(ref _disposableBag);
         }
 
         private void OnDestroy()
