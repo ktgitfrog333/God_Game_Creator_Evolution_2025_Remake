@@ -2085,7 +2085,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7134437694976276645, guid: 8524c6731d2e5a24ea1b62e2d1968daf, type: 3}
       propertyPath: missileTypes.Array.size
-      value: 2
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 7134437694976276645, guid: 8524c6731d2e5a24ea1b62e2d1968daf, type: 3}
       propertyPath: missileTypes.Array.data[0].prefab
@@ -2094,6 +2094,18 @@ PrefabInstance:
     - target: {fileID: 7134437694976276645, guid: 8524c6731d2e5a24ea1b62e2d1968daf, type: 3}
       propertyPath: missileTypes.Array.data[1].prefab
       value: 
+      objectReference: {fileID: 1947344915237714615, guid: 891dd8055cd96fd40a091f7e70968e8c, type: 3}
+    - target: {fileID: 7134437694976276645, guid: 8524c6731d2e5a24ea1b62e2d1968daf, type: 3}
+      propertyPath: missileTypes.Array.data[2].prefab
+      value: 
+      objectReference: {fileID: 1947344915237714615, guid: 96b89b0d2448c56429a94d6a4afed1d9, type: 3}
+    - target: {fileID: 7134437694976276645, guid: 8524c6731d2e5a24ea1b62e2d1968daf, type: 3}
+      propertyPath: missileTypes.Array.data[3].prefab
+      value: 
+      objectReference: {fileID: 1947344915237714615, guid: c4bf94faa0d1eb84a89a7182c76ad75e, type: 3}
+    - target: {fileID: 7134437694976276645, guid: 8524c6731d2e5a24ea1b62e2d1968daf, type: 3}
+      propertyPath: missileTypes.Array.data[4].prefab
+      value: 
       objectReference: {fileID: 1947344915237714615, guid: 531ae0e13d3834c42a6540b2581d9a19, type: 3}
     - target: {fileID: 7134437694976276645, guid: 8524c6731d2e5a24ea1b62e2d1968daf, type: 3}
       propertyPath: missileTypes.Array.data[0].poolSize
@@ -2101,6 +2113,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7134437694976276645, guid: 8524c6731d2e5a24ea1b62e2d1968daf, type: 3}
       propertyPath: missileTypes.Array.data[1].poolSize
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7134437694976276645, guid: 8524c6731d2e5a24ea1b62e2d1968daf, type: 3}
+      propertyPath: missileTypes.Array.data[2].poolSize
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7134437694976276645, guid: 8524c6731d2e5a24ea1b62e2d1968daf, type: 3}
+      propertyPath: missileTypes.Array.data[3].poolSize
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7134437694976276645, guid: 8524c6731d2e5a24ea1b62e2d1968daf, type: 3}
+      propertyPath: missileTypes.Array.data[4].poolSize
       value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 8584265561197069907, guid: 8524c6731d2e5a24ea1b62e2d1968daf, type: 3}
@@ -2502,7 +2526,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e83f28a8c564c645a865b948e94ad16, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  missilePattern: 01010200
+  missilePattern: 01020030004000101020020030004000
   spawnDistance: 0
   maxRandomAngle: 45
   minAngleDifference: 30
