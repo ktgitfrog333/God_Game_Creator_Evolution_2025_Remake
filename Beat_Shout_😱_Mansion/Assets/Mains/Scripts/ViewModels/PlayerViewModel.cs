@@ -76,5 +76,17 @@ namespace Mains.ViewModels
             if (_playerModel != null)
                 _playerModel.SetInteractionPart(interactionPart);
         }
+
+        public void SetHealthPointMax(int healthPointMax)
+        {
+            if (_playerModel != null)
+                _playerModel.SetHealthPointMax(healthPointMax);
+        }
+
+        public void SetHealthPoint(int healthPoint)
+        {
+            if (_playerModel != null)
+                _playerModel.SetHealthPoint(healthPoint);
+        }
     }
 }

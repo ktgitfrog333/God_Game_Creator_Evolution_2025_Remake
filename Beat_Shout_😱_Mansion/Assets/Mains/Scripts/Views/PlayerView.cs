@@ -7,6 +7,7 @@ using Mains.ViewModels;
 using System.Linq;
 using Mains.External;
 using System.Collections.Generic;
+using Mains.Manager;
 
 namespace Mains.Views
 {
@@ -21,13 +22,15 @@ namespace Mains.Views
         [SerializeField] private float トップ_移動速度;
         [SerializeField] private float 視点速度補正;
         [SerializeField] private float 重力 = 9.81f;
-        /// <summary>R3のリソース管理</summary>
-        private DisposableBag _disposableBag = new DisposableBag();
         [SerializeField] private InteractionPartTable 探索_シャウトチャンス_リズムパート情報管理テーブル;
         [SerializeField] private float ロー_切り替え時間_秒;
         [SerializeField] private float ロー_歩幅;
         [SerializeField] private float トップ_歩幅;
         [SerializeField] private float シャウト達成デシベル;
+        /// <summary>Player > Body > FlashLight > Spot Light のLightコンポーネント</summary>
+        [SerializeField] private Light spotLightLight;
+        /// <summary>R3のリソース管理</summary>
+        private DisposableBag _disposableBag = new DisposableBag();
         /// <summary>シャウトチャンスレンジ位置</summary>
         private Transform _shoutChanceRange;
         /// <summary>プレイヤーのビューモデル</summary>
@@ -39,6 +42,8 @@ namespace Mains.Views
         {
             if (characterController == null)
                 characterController = GetComponent<CharacterController>();
+            if (spotLightLight == null)
+                spotLightLight = GetComponentInChildren<Light>();
         }
 
         private void Start()
@@ -366,11 +371,13 @@ namespace Mains.Views
                     bool inhaleHeld = player.GetButton("Inhale");
                     bool inhaleLeftHeld = player.GetButton("InhaleHalfLeft");
                     bool inhaleRightHeld = player.GetButton("InhaleHalfRight");
+                    bool isMicInput = script_XyloApi.IsMicInput();
 
                     // Inhale 単体の入力
                     if (inhaleHeld &&
                         !inhaleLeftHeld &&
-                        !inhaleRightHeld)
+                        !inhaleRightHeld &&
+                        !isMicInput)
                     {
                         if (!isInhaling)
                         {
@@ -385,7 +392,8 @@ namespace Mains.Views
                             float duration = Time.time - inhaleStartTime;
                             if (duration >= inhaleDurationThreshold)
                             {
-                                dbLevel.Value = 10f;
+                                // キー／トリガー入力のためそれっぽいMAX値をセット
+                                dbLevel.Value = シャウト達成デシベル;
                             }
                             else
                             {
@@ -398,7 +406,8 @@ namespace Mains.Views
                     // 両方のHalfInhaleを長押し
                     if (inhaleLeftHeld &&
                         inhaleRightHeld &&
-                        !inhaleHeld)
+                        !inhaleHeld &&
+                        !isMicInput)
                     {
                         if (!isDualInhaling)
                         {
@@ -413,7 +422,8 @@ namespace Mains.Views
                             float duration = Time.time - inhaleStartTime;
                             if (duration >= inhaleDurationThreshold)
                             {
-                                dbLevel.Value = 10f;
+                                // キー／トリガー入力のためそれっぽいMAX値をセット
+                                dbLevel.Value = シャウト達成デシベル;
                             }
                             else
                             {
@@ -423,15 +433,45 @@ namespace Mains.Views
                         }
                     }
 
+                    // マイク入力の取得
+                    if (!inhaleHeld &&
+                        !inhaleLeftHeld &&
+                        !inhaleRightHeld &&
+                        isMicInput)
+                    {
+                        dbLevel.Value = script_XyloApi.GetDBLevel();
+                    }
+
                     _playerViewModel.SetDbLevel(dbLevel.Value);
                     // どちらも押されていない場合も毎フレーム 0 に戻す（押し直しに備える）
-                    if (!inhaleHeld && !(inhaleLeftHeld && inhaleRightHeld))
+                    if (!inhaleHeld && !(inhaleLeftHeld && inhaleRightHeld) &&
+                        !isMicInput)
                     {
                         if (!isInhaling && !isDualInhaling)
                         {
                             dbLevel.Value = 0f;
                         }
                     }
+                })
+                .AddTo(ref _disposableBag);
+            // ライトは一旦、消す
+            spotLightLight.enabled = false;
+            // プレイヤーの体力初期設定
+            Observable.EveryUpdate()
+                .Select(_ => GameManager.Instance)
+                .Where(x => x != null)
+                .Take(1)
+                .Subscribe(manager =>
+                {
+                    Observable.EveryUpdate()
+                        .Select(_ => manager.LevelOwner.PlayerHealthPointMax)
+                        .Where(x => x != null)
+                        .Take(1)
+                        .Subscribe(hpMax =>
+                        {
+                            _playerViewModel.SetHealthPointMax(hpMax.Value);
+                        })
+                        .AddTo(ref _disposableBag);
                 })
                 .AddTo(ref _disposableBag);
         }

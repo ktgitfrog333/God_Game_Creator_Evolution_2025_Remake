@@ -20,10 +20,14 @@ namespace Mains.Models
         private ObservableList<GhostInStaticObjectStruct> _ghostInStaticObjectStructs = new ObservableList<GhostInStaticObjectStruct>();
         /// <summary>オバケの家具入居管理の構造体リスト</summary>
         public ObservableList<GhostInStaticObjectStruct> GhostInStaticObjectStructs => _ghostInStaticObjectStructs;
-        /// <summary>プレイヤーのトランスフォーム</summary>
-        private Transform _playerTransform;
-        /// <summary>プレイヤーのトランスフォーム</summary>
-        public Transform PlayerTransform => _playerTransform;
+        /// <summary>プレイヤープロパティの構造体</summary>
+        private PlayerPropertiesStruct _playerPropertiesStruct = new PlayerPropertiesStruct()
+        {
+            healthPointMax = new ReactiveCommand<int>(),
+            healthPoint = new ReactiveCommand<int>(),
+        };
+        /// <summary>プレイヤープロパティの構造体</summary>
+        public PlayerPropertiesStruct PlayerPropertiesStruct => _playerPropertiesStruct;
 
         private void Start()
         {
@@ -80,7 +84,7 @@ namespace Mains.Models
 
         public void SetPlayerTransform(Transform transform)
         {
-            _playerTransform = transform;
+            _playerPropertiesStruct.transform = transform;
         }
 
         public void SetIsCompletedBurstGhosts(bool isCompletedBurstGhosts)
@@ -99,6 +103,17 @@ namespace Mains.Models
         {
             if (InteractionPartTable != null)
                 InteractionPartTable.interactionPart.Value = interactionPart;
+        }
+
+        public void SetHealthPointMax(int healthPointMax)
+        {
+            _playerPropertiesStruct.healthPointMax.Execute(healthPointMax);
+            _playerPropertiesStruct.healthPoint.Execute(healthPointMax);
+        }
+
+        public void SetHealthPoint(int healthPoint)
+        {
+            _playerPropertiesStruct.healthPoint.Execute(healthPoint);
         }
     }
 
@@ -132,6 +147,16 @@ namespace Mains.Models
         /// </summary>
         /// <param name="dbLevel">デシベルレベル</param>
         public void SetDbLevel(float dbLevel);
+        /// <summary>
+        /// プレイヤーの最大HPをセット
+        /// </summary>
+        /// <param name="healthPointMax">プレイヤーの最大HP</param>
+        public void SetHealthPointMax(int healthPointMax);
+        /// <summary>
+        /// プレイヤーのHPをセット
+        /// </summary>
+        /// <param name="healthPoint">プレイヤーのHP</param>
+        public void SetHealthPoint(int healthPoint);
     }
 
     /// <summary>

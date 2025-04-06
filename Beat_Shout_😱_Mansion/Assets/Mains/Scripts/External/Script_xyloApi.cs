@@ -1,5 +1,6 @@
 using System.Reflection;
 using UnityEngine;
+using System.Text.RegularExpressions;
 
 namespace Mains.External
 {
@@ -9,6 +10,7 @@ namespace Mains.External
     public class Script_xyloApi
     {
         private Test_FootStep _test_FootStep;
+        private MicInput_Criware _micInput_Criware;
 
         public Script_xyloApi()
         {
@@ -17,6 +19,9 @@ namespace Mains.External
             {
                 _test_FootStep = test_FootStep;
             }
+            MicInput_Criware micInput_Criware = Component.FindAnyObjectByType<MicInput_Criware>();
+            if (micInput_Criware != null)
+                _micInput_Criware = micInput_Criware;
         }
 
         /// <summary>
@@ -82,6 +87,9 @@ namespace Mains.External
         /// <summary>
         /// 足音を再生
         /// </summary>
+        /// <remarks>TODO: Test_FootStep クラスにある PlayFootStep メソッドをパプリックにする
+        /// </remarks>
+        /// <see cref="Test_FootStep.PlayFootStep"/>
         public void PlayFootStep()
         {
             if (_test_FootStep == null)
@@ -106,6 +114,51 @@ namespace Mains.External
             {
                 Debug.LogWarning("PlayFootStep メソッドが見つかりません。");
             }
+        }
+
+        /// <summary>
+        /// マイク入力中か
+        /// </summary>
+        /// <returns>マイク入力中か</returns>
+        /// <remarks>TODO: MicInput_Criware クラス - CheckVolume メソッドにある if (volume > startThreshold) 判定をTrue／Falseで返す、<br/>
+        /// パプリックなゲッターのプロパティを MicInput_Criware クラスへ追加する
+        /// </remarks>
+        /// <see cref="MicInput_Criware.CheckVolume"/>
+        public bool IsMicInput()
+        {
+            return .2f < GetDBLevel();
+        }
+
+        /// <summary>
+        /// dBレベルを取得
+        /// </summary>
+        /// <returns>dBレベル</returns>
+        /// <remarks>TODO: MicInput_Criware クラスにある text フィールドにセットしている<br/>
+        /// Volの情報を取得可能なゲッタープロパティを MicInput_Criware クラスへ追加する
+        /// </remarks>
+        /// <see cref="MicInput_Criware.text"/>
+        public float GetDBLevel()
+        {
+            if (_micInput_Criware == null)
+                return 0f;
+
+            // text フィールドの取得（MicInput_Criwareの public TextMeshProUGUI text）
+            var textField = _micInput_Criware.GetType().GetField("text", BindingFlags.Public | BindingFlags.Instance);
+            if (textField == null)
+                return 0f;
+
+            var textMesh = textField.GetValue(_micInput_Criware) as TMPro.TextMeshProUGUI;
+            if (textMesh == null || string.IsNullOrEmpty(textMesh.text))
+                return 0f;
+
+            // 正規表現で "Vol: 数値" を抽出
+            var match = Regex.Match(textMesh.text, @"Vol:\s*([0-9.]+).*");
+            if (match.Success && float.TryParse(match.Groups[1].Value, out float volume))
+            {
+                return volume;
+            }
+
+            return 0f;
         }
     }
 }
