@@ -147,5 +147,10 @@ namespace Mains.Views
                 })
                 .AddTo(ref _disposableBag);
         }
+
+        private void OnDestroy()
+        {
+            _disposableBag.Dispose();
+        }
     }
 }

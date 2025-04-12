@@ -61,7 +61,8 @@ namespace Mains.Views
                                         {
                                             if (iconMicAlertLevel <= dbLevel)
                                             {
-                                                StartCoroutine(iconMicShoutImageView.PlayShoutEffect());
+                                                if (!iconMicShoutImageView.IsPlaying)
+                                                    StartCoroutine(iconMicShoutImageView.PlayShoutEffect());
                                             }
                                         })
                                         .AddTo(ref _disposableBag);
@@ -82,6 +83,11 @@ namespace Mains.Views
                     .AddTo(ref _disposableBag);
                 })
                 .AddTo(ref _disposableBag);
+        }
+
+        private void OnDestroy()
+        {
+            _disposableBag.Dispose();
         }
     }
 }

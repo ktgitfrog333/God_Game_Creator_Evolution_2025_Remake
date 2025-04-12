@@ -19,6 +19,8 @@ namespace Mains.Views
         private ShoutChancePartPanelViewModel _shoutChancePartPanelViewModel;
         /// <summary>実行中</summary>
         private bool _isPlaying = false;
+        /// <summary>実行中</summary>
+        public bool IsPlaying => _isPlaying;
 
         private void Reset()
         {

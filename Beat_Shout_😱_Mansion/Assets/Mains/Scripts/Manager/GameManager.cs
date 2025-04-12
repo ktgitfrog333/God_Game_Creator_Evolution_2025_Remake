@@ -17,11 +17,17 @@ namespace Mains.Manager
         [SerializeField] private LevelOwner levelOwner;
         /// <summary>レベルオーナー</summary>
         public LevelOwner LevelOwner => levelOwner;
+        /// <summary>UIオーナー</summary>
+        [SerializeField] private UIOwner uiOwner;
+        /// <summary>UIオーナー</summary>
+        public UIOwner UIOwner => uiOwner;
 
         private void Reset()
         {
             if (levelOwner == null)
                 levelOwner = GetComponent<LevelOwner>();
+            if (uiOwner == null)
+                uiOwner = GetComponent<UIOwner>();
         }
 
         private void Start()

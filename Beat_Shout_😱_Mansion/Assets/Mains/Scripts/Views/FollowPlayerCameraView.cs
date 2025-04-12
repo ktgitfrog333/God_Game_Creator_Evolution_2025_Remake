@@ -10,6 +10,8 @@ namespace Mains.Views
     public class FollowPlayerCameraView : MonoBehaviour
     {
         [SerializeField] private CinemachineCamera cinemachineCamera;
+        /// <summary>ターゲット</summary>
+        private Transform _target;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -27,9 +29,9 @@ namespace Mains.Views
                 .Take(1)
                 .Subscribe(q =>
                 {
-                    var target = q.transform;
-                    cinemachineCamera.Follow = target;
-                    cinemachineCamera.LookAt = target;
+                    _target = q.transform;
+                    cinemachineCamera.Follow = _target;
+                    cinemachineCamera.LookAt = _target;
                 })
                 .AddTo(ref _disposableBag);
         }
@@ -37,6 +39,24 @@ namespace Mains.Views
         private void OnDestroy()
         {
             _disposableBag.Dispose();
+        }
+
+        /// <summary>
+        /// CinemachineCameraのFollowとLookAtを削除
+        /// </summary>
+        public void DeleteFollowAndLookAt()
+        {
+            cinemachineCamera.Follow = null;
+            cinemachineCamera.LookAt = null;
+        }
+
+        /// <summary>
+        /// CinemachineCameraのFollowとLookAtを再びセット
+        /// </summary>
+        public void ResetFollowAndLookAt()
+        {
+            cinemachineCamera.Follow = _target;
+            cinemachineCamera.LookAt = _target;
         }
     }
 }

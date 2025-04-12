@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4215099875107566998}
   - component: {fileID: 5381933207904732410}
   - component: {fileID: 2661473656379051518}
+  - component: {fileID: 4932916828382532869}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -46,6 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   levelOwner: {fileID: 2661473656379051518}
+  uiOwner: {fileID: 4932916828382532869}
 --- !u!114 &2661473656379051518
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -73,3 +75,15 @@ MonoBehaviour:
     "PostProcessing\u7528\u306ELayer":
       serializedVersion: 2
       m_Bits: 64
+--- !u!114 &4932916828382532869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8010557071881129020}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0fbdb28b43ea96e4dba69ffb4830e217, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

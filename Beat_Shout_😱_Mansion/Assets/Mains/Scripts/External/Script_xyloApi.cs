@@ -1,6 +1,7 @@
 using System.Reflection;
 using UnityEngine;
 using System.Text.RegularExpressions;
+using R3;
 
 namespace Mains.External
 {
@@ -11,6 +12,10 @@ namespace Mains.External
     {
         private Test_FootStep _test_FootStep;
         private MicInput_Criware _micInput_Criware;
+        private readonly ReactiveCommand<float> _frameRate = new ReactiveCommand<float>();
+        public ReactiveCommand<float> FrameRate => _frameRate;
+        /// <summary>R3のリソース管理</summary>
+        private DisposableBag _disposableBag = new DisposableBag();
 
         public Script_xyloApi()
         {
@@ -22,6 +27,17 @@ namespace Mains.External
             MicInput_Criware micInput_Criware = Component.FindAnyObjectByType<MicInput_Criware>();
             if (micInput_Criware != null)
                 _micInput_Criware = micInput_Criware;
+            Observable.EveryUpdate()
+                .Select(_ => CRIWARE_conductor.Instance)
+                .Where(x => x != null)
+                .Select(x => x.frameRate)
+                .Pairwise()
+                .Where(frameRate => frameRate.Previous != frameRate.Current)
+                .Subscribe(frameRate =>
+                {
+                    _frameRate.Execute(frameRate.Current);
+                })
+                .AddTo(ref _disposableBag);
         }
 
         /// <summary>
@@ -159,6 +175,15 @@ namespace Mains.External
             }
 
             return 0f;
+        }
+
+        public void ChangeBgmB()
+        {
+            var conductor = CRIWARE_conductor.Instance;
+            if (conductor != null)
+            {
+                conductor.ChangeBgmB(3);
+            }
         }
     }
 }

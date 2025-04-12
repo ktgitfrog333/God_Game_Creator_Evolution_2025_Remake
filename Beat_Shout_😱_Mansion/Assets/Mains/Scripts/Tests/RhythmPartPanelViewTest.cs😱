@@ -1,0 +1,31 @@
+using Mains.ViewModels;
+using UnityEngine;
+
+namespace Mains.Tests
+{
+    public class RhythmPartPanelViewTest : MonoBehaviour
+    {
+        // Start is called once before the first execution of Update after the MonoBehaviour is created
+        void Start()
+        {
+
+        }
+
+        // Update is called once per frame
+        void Update()
+        {
+            Vector3 mousePos = Input.mousePosition;
+            Ray ray = Camera.main.ScreenPointToRay(mousePos);
+
+            if (Physics.Raycast(ray, out RaycastHit hit))
+            {
+                Vector3 hitPoint = hit.point;
+                //_rhythmPartPanelViewModel.SetTargetCrossPosition(hitPoint);
+
+                // デバッグ表示
+                Debug.DrawLine(ray.origin, hitPoint, Color.red);
+            }
+
+        }
+    }
+}

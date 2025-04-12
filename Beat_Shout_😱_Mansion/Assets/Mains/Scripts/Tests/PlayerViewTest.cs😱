@@ -5,25 +5,47 @@ using Mains.Commons;
 using System.Linq;
 using Mains.ViewModels;
 using UnityEngine.SceneManagement;
+using Mains.Models;
+using System.Threading.Tasks;
+using Rewired;
 
 namespace Mains.Tests
 {
     public class PlayerViewTest : MonoBehaviour
     {
-        [SerializeField] private string ghostTeamID;
+        //[SerializeField] private string ghostTeamID;
         //[SerializeField] private PoltergeistView[] poltergeistViews;
         //[SerializeField] private GhostInStaticObjectStruct[] ghostInStaticObjectStructs;
+        //private Player _player = null;
+        private Transform _spotLight;
 
-        //private void Update()
-        //{
-        //    poltergeistViews = FindObjectsByType<PoltergeistView>(FindObjectsSortMode.None);
-        //    ghostInStaticObjectStructs = poltergeistViews.Select(q => q.GhostInStaticObjectStruct).ToArray();
-        //}
+        private void Start()
+        {
+            //_player = ReInput.players.GetPlayer(0);
+        }
+
+        private void Update()
+        {
+            //poltergeistViews = FindObjectsByType<PoltergeistView>(FindObjectsSortMode.None);
+            //ghostInStaticObjectStructs = poltergeistViews.Select(q => q.GhostInStaticObjectStruct).ToArray();
+            //var isTapLight = _player.GetButtonDown("TapLight");
+            //Debug.Log($"isTapLight: [{isTapLight}]");
+            if (_spotLight == null)
+            {
+                PlayerView playerView = FindAnyObjectByType<PlayerView>();
+                _spotLight = playerView.transform.GetChild(0).GetChild(0).GetChild(0).GetChild(0).GetChild(0);
+            }
+            else
+            {
+                //Debug.DrawRay(_spotLight.position, _spotLight.forward * 5f, Color.green);
+            }
+        }
 
         private void OnGUI()
         {
             // ボタンの位置とサイズ (x, y, width, height)
             Rect buttonRect = new Rect(10, 10, 150, 50);
+            Rect buttonRect1 = new Rect(10, 10 + 50 / 2 + 10, 150, 50);
 
             //if (GUI.Button(buttonRect, "MainScene_Amagata をロード"))
             //{
@@ -91,6 +113,53 @@ namespace Mains.Tests
             //            Debug.LogWarning("_playerViewModel が見つかりません。");
             //        }
             //    }
+            //}
+
+            //if (GUI.Button(buttonRect, "リズムパート"))
+            //{
+            //    Debug.Log("リズムパートボタンが押された！");
+
+            //    PlayerView playerView = FindAnyObjectByType<PlayerView>();
+            //    FollowPlayerCameraView followPlayerCameraView = FindAnyObjectByType<FollowPlayerCameraView>();
+            //    // characterController をリフレクションで取得
+            //    var characterControllerField = typeof(PlayerView).GetField("characterController", BindingFlags.NonPublic | BindingFlags.Instance);
+            //    if (characterControllerField != null)
+            //    {
+            //        CharacterController controller = characterControllerField.GetValue(playerView) as CharacterController;
+            //        if (controller != null)
+            //        {
+            //            controller.enabled = false;
+            //            playerView.transform.eulerAngles = new Vector3(0f, -180f, 0f);
+            //            followPlayerCameraView.transform.eulerAngles = new Vector3(0f, -180f, 0f);
+            //            controller.enabled = true;
+
+            //            Debug.Log($"キャラクターコントローラーの位置: {controller.transform.position}");
+            //        }
+            //        else
+            //        {
+            //            Debug.LogWarning("characterController の取得に失敗しました。");
+            //        }
+            //    }
+
+            //    PlayerModel playerModel = FindAnyObjectByType<PlayerModel>();
+            //    //await Task.Delay(1000);
+            //    playerModel.InteractionPartTable.interactionPart.Value = InteractionPart.Rhythm;
+            //}
+
+            if (GUI.Button(buttonRect1, "探索パート"))
+            {
+                Debug.Log("探索パートボタンが押された！");
+
+                PlayerModel playerModel = FindAnyObjectByType<PlayerModel>();
+                playerModel.InteractionPartTable.interactionPart.Value = InteractionPart.Search;
+            }
+
+            //Rect buttonRectBgmB = new Rect(10, 70, 150, 50);
+
+            //if (GUI.Button(buttonRectBgmB, "BGM B 切替"))
+            //{
+            //    // CRIWARE_conductorのインスタンスにアクセス
+            //    CRIWARE_conductor.Instance.ChangeBgmB(3); // 0は開始ティック位置
             //}
         }
     }
