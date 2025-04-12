@@ -9,7 +9,7 @@ using UnityEngine;
 public class MissileTempoSpawner : MonoBehaviour
 {
     [Header("生成パターン")]
-    [Tooltip("8桁の数字でミサイルの生成パターンを指定（0=何も生成しない、1-9=ミサイルID）")]
+    [Tooltip("任意の長さの数字でミサイルの生成パターンを指定（0=何も生成しない、1-9=ミサイルID）")]
     [SerializeField] private string missilePattern = "12345678";
 
     [Header("距離設定")]
@@ -29,7 +29,7 @@ public class MissileTempoSpawner : MonoBehaviour
     // 内部変数
     private int currentBeatIndex = 0;
     private Vector3 originalScale;
-    private int[] patternArray = new int[8];
+    private List<int> patternList = new List<int>(); // 配列からリストに変更
     private Quaternion lastSpawnRotation; // 前回の射出角度を保存
     private bool hasSpawnedBefore = false; // 初回射出判定用
 
@@ -79,8 +79,6 @@ public class MissileTempoSpawner : MonoBehaviour
 
         // 射出角度の初期化
         hasSpawnedBefore = false;
-
-
     }
 
     private void OnDisable()
@@ -97,15 +95,12 @@ public class MissileTempoSpawner : MonoBehaviour
     }
 
     /// <summary>
-    /// パターン文字列を解析して整数配列に変換
+    /// パターン文字列を解析して整数リストに変換
     /// </summary>
     private void ParsePatternString()
     {
-        // パターン配列を初期化
-        for (int i = 0; i < patternArray.Length; i++)
-        {
-            patternArray[i] = 0;
-        }
+        // パターンリストをクリア
+        patternList.Clear();
 
         // 文字列が空または無効な場合
         if (string.IsNullOrEmpty(missilePattern))
@@ -115,27 +110,32 @@ public class MissileTempoSpawner : MonoBehaviour
         }
 
         // 文字列を解析
-        for (int i = 0; i < Mathf.Min(missilePattern.Length, patternArray.Length); i++)
+        foreach (char c in missilePattern)
         {
-            char c = missilePattern[i];
-
             // 数字かどうかチェック
             if (char.IsDigit(c))
             {
                 // 文字を数値に変換（'0'は48なので、'0'を引くと数値になる）
                 int value = c - '0';
-                patternArray[i] = value;
+                patternList.Add(value);
             }
             else
             {
                 Debug.LogWarning($"MissileTempoSpawner: パターンに無効な文字 '{c}' があります。0として扱います。");
-                patternArray[i] = 0;
+                patternList.Add(0);
             }
         }
 
+        // パターンが空の場合のデフォルト設定
+        if (patternList.Count == 0)
+        {
+            Debug.LogWarning("MissileTempoSpawner: 有効なパターンがありません。デフォルトパターン '12345678' を使用します。");
+            patternList.AddRange(new int[] { 1, 2, 3, 4, 5, 6, 7, 8 });
+        }
+
         // デバッグログ
-        string pattern = string.Join(", ", patternArray);
-      }
+        string pattern = string.Join(", ", patternList);
+    }
 
     /// <summary>
     /// テンポイベント発生時の処理
@@ -145,8 +145,11 @@ public class MissileTempoSpawner : MonoBehaviour
         // プーラーが見つからない場合は何もしない
         if (missilePooler == null) return;
 
+        // パターンリストが空の場合は何もしない
+        if (patternList.Count == 0) return;
+
         // 現在のビートに対応するミサイルを生成
-        int missileId = patternArray[currentBeatIndex];
+        int missileId = patternList[currentBeatIndex];
 
         // ミサイルIDが有効（1-9）なら生成
         if (missileId >= 1 && missileId <= 9)
@@ -155,7 +158,7 @@ public class MissileTempoSpawner : MonoBehaviour
         }
 
         // 次のビートインデックスに進む（循環）
-        currentBeatIndex = (currentBeatIndex + 1) % patternArray.Length;
+        currentBeatIndex = (currentBeatIndex + 1) % patternList.Count;
 
         // ビジュアルフィードバック（生成時に少し拡大する）
         StartCoroutine(PulseScale());
@@ -197,6 +200,7 @@ public class MissileTempoSpawner : MonoBehaviour
 
         return randomRotation;
     }
+
     /// <summary>
     /// 指定したミサイルIDのミサイルを生成
     /// </summary>
@@ -216,7 +220,7 @@ public class MissileTempoSpawner : MonoBehaviour
             spawnPosition = transform.position + transform.forward * spawnDistance;
         }
 
-        // ランダムな射出角度を生成（前回と30度以上異なる）
+        // ランダムな射出角度を生成
         Quaternion spawnRotation = GenerateRandomRotation();
 
         // ミサイルを生成（ランダムな回転を適用）
@@ -233,8 +237,12 @@ public class MissileTempoSpawner : MonoBehaviour
 
             // 生成に成功
             string missileName = missilePooler.GetMissileNameById(missileId);
+            Debug.Log($"MissileTempoSpawner: ミサイル {missileName} (ID:{missileId}) を生成しました (パターン位置: {currentBeatIndex + 1}/{patternList.Count})");
         }
-     
+        else
+        {
+            Debug.LogWarning($"MissileTempoSpawner: ミサイル ID {missileId} の生成に失敗しました。プールが空か、IDが無効です。");
+        }
     }
 
     /// <summary>
@@ -259,6 +267,32 @@ public class MissileTempoSpawner : MonoBehaviour
     {
         missilePattern = newPattern;
         ParsePatternString();
+        currentBeatIndex = 0;
+
+        Debug.Log($"MissileTempoSpawner: パターンを '{newPattern}' に変更しました。");
+    }
+
+    /// <summary>
+    /// 現在のパターンを取得
+    /// </summary>
+    public string GetCurrentPattern()
+    {
+        return missilePattern;
+    }
+
+    /// <summary>
+    /// パターンの長さを取得
+    /// </summary>
+    public int GetPatternLength()
+    {
+        return patternList.Count;
+    }
+
+    /// <summary>
+    /// 現在のビート位置をリセット
+    /// </summary>
+    public void ResetBeatPosition()
+    {
         currentBeatIndex = 0;
     }
 }

@@ -76,11 +76,16 @@ public class MissileObjectPooler : MonoBehaviour
             {
                 GameObject obj = Instantiate(missileType.prefab);
 
-                // MissileDirectAnimManagerコンポーネントの確認（アニメーション設定はプレハブ側に依存）
-                MissileDirectAnimManager animManager = obj.GetComponent<MissileDirectAnimManager>();
+                // MissileDirectAnimManagerBコンポーネントの確認（アニメーション設定はプレハブ側に依存）
+                MissileDirectAnimManagerB animManager = obj.GetComponent<MissileDirectAnimManagerB>();
                 if (animManager == null)
                 {
-                    Debug.LogWarning($"ミサイルプーラー: プレハブ「{missileType.Name}」に MissileDirectAnimManager コンポーネントがありません。");
+                    // 古いバージョンもチェック
+                    MissileDirectAnimManager oldAnimManager = obj.GetComponent<MissileDirectAnimManager>();
+                    if (oldAnimManager == null)
+                    {
+                        Debug.LogWarning($"ミサイルプーラー: プレハブ「{missileType.Name}」にアニメーションマネージャーコンポーネントがありません。");
+                    }
                 }
 
                 obj.SetActive(false);
@@ -88,8 +93,7 @@ public class MissileObjectPooler : MonoBehaviour
             }
 
             missilePoolDict.Add(missileType.missileId, objectPool);
-            Debug.Log($"ミサイルプーラー: ID {missileType.missileId} 「{missileType.Name}」のプールを初期化しました（サイズ: {missileType.poolSize}）");
-        }
+           }
     }
 
     /// <summary>
@@ -157,11 +161,13 @@ public class MissileObjectPooler : MonoBehaviour
                 {
                     GameObject obj = Instantiate(prefab);
 
-                    // MissileDirectAnimManagerコンポーネントの有無確認（設定はプレハブ側に依存）
-                    MissileDirectAnimManager animManagerC = obj.GetComponent<MissileDirectAnimManager>();
-                    if (animManagerC == null)
+                    // アニメーションマネージャーの有無確認
+                    MissileDirectAnimManagerB animManagerB_B = obj.GetComponent<MissileDirectAnimManagerB>();
+                    MissileDirectAnimManager animManager = obj.GetComponent<MissileDirectAnimManager>();
+
+                    if (animManagerB_B == null && animManager == null)
                     {
-                        Debug.LogWarning($"ミサイルプーラー: プレハブに MissileDirectAnimManager コンポーネントがありません。");
+                        Debug.LogWarning($"ミサイルプーラー: プレハブにアニメーションマネージャーコンポーネントがありません。");
                     }
 
                     obj.SetActive(false);
@@ -184,10 +190,20 @@ public class MissileObjectPooler : MonoBehaviour
         objectToSpawn.transform.rotation = rotation;
 
         // アニメーション状態をリセット（必要に応じて）
-        MissileDirectAnimManager animManager = objectToSpawn.GetComponent<MissileDirectAnimManager>();
-        if (animManager != null)
+        MissileDirectAnimManagerB animManagerB = objectToSpawn.GetComponent<MissileDirectAnimManagerB>();
+        if (animManagerB != null)
         {
-            animManager.ResetAnimation();
+            // 新しいバージョンのマネージャーを使用
+            animManagerB.ResetAnimation();
+        }
+        else
+        {
+            // 古いバージョンのマネージャーを使用
+            MissileDirectAnimManager animManager = objectToSpawn.GetComponent<MissileDirectAnimManager>();
+            if (animManager != null)
+            {
+                animManager.ResetAnimation();
+            }
         }
 
         // オブジェクトをアクティブ化
@@ -203,16 +219,50 @@ public class MissileObjectPooler : MonoBehaviour
     /// <summary>
     /// オブジェクトがプールに戻るのを監視するコルーチン
     /// </summary>
+    // オブジェクトがプールに戻るのを監視するコルーチン（改良版）
     private IEnumerator ReturnToPoolWhenInactive(GameObject obj, int missileId)
     {
+        Debug.Log($"ミサイルプーラー: {obj.name} (ID:{missileId}) の監視を開始しました");
+
         // オブジェクトがアクティブでなくなるまで待機
-        yield return new WaitUntil(() => !obj.activeInHierarchy);
+        // WaitUntilの代わりにポーリングを使用して確実に検出
+        while (obj.activeInHierarchy)
+        {
+            yield return new WaitForSeconds(0.1f); // 100ミリ秒ごとにチェック
+        }
 
         // プールに戻す
         if (missilePoolDict.ContainsKey(missileId))
         {
+            Debug.Log($"ミサイルプーラー: {obj.name} (ID:{missileId}) を確実にプールに返却します");
             missilePoolDict[missileId].Enqueue(obj);
             activeObjectCount--;
+        }
+        else
+        {
+            Debug.LogWarning($"ミサイルプーラー: {obj.name} の返却に失敗しました。ID {missileId} のプールが存在しません。");
+        }
+    }
+
+    // ミサイルを直接プールに返却するパブリックメソッドを追加（緊急用）
+    public void ReturnMissileToPool(GameObject missile, int missileId)
+    {
+        if (missile == null) return;
+
+        Debug.Log($"ミサイルプーラー: {missile.name} (ID:{missileId}) を直接プールに返却します");
+
+        // 先にオブジェクトを非アクティブにする
+        missile.SetActive(false);
+
+        // プールに戻す
+        if (missilePoolDict.ContainsKey(missileId))
+        {
+            missilePoolDict[missileId].Enqueue(missile);
+            activeObjectCount--;
+        }
+        else
+        {
+            Debug.LogWarning($"ミサイルプーラー: {missile.name} の返却に失敗しました。ID {missileId} のプールが存在しません。");
         }
     }
 
@@ -293,5 +343,75 @@ public class MissileObjectPooler : MonoBehaviour
     public int GetActiveObjectCount()
     {
         return activeObjectCount;
+    }
+
+    /// <summary>
+    /// 特定のIDのミサイルタイプが空いているか確認
+    /// </summary>
+    public bool HasAvailableMissiles(int missileId)
+    {
+        if (!missilePoolDict.ContainsKey(missileId))
+        {
+            return false;
+        }
+
+        return missilePoolDict[missileId].Count > 0;
+    }
+
+    /// <summary>
+    /// すべてのアクティブなミサイルを強制的にプールに返却
+    /// </summary>
+    public void ReturnAllMissilesToPool()
+    {
+        foreach (var idPair in missilePoolDict)
+        {
+            int missileId = idPair.Key;
+
+            // 該当するミサイルタイプを検索してプレハブ名を取得
+            string missileTag = GetMissileNameById(missileId);
+
+            // タグで検索
+            GameObject[] activeObjects = GameObject.FindGameObjectsWithTag(missileTag);
+
+            // タグが設定されていない場合は名前ベースで検索
+            if (activeObjects.Length == 0)
+            {
+                // 全ミサイルをシーンから検索
+                foreach (var type in missileTypes)
+                {
+                    if (type.missileId == missileId && type.prefab != null)
+                    {
+                        string prefabName = type.prefab.name;
+
+                        // すべてのアクティブなミサイルを検索
+                        GameObject[] allMissiles = FindObjectsByType<GameObject>(FindObjectsSortMode.None);
+
+                        List<GameObject> matchingMissiles = new List<GameObject>();
+                        foreach (var obj in allMissiles)
+                        {
+                            if (obj.name.Contains(prefabName) && obj.activeInHierarchy)
+                            {
+                                matchingMissiles.Add(obj);
+                            }
+                        }
+
+                        activeObjects = matchingMissiles.ToArray();
+                        break;
+                    }
+                }
+            }
+
+            // アクティブなオブジェクトを非アクティブ化
+            foreach (var obj in activeObjects)
+            {
+                if (obj.activeInHierarchy)
+                {
+                    obj.SetActive(false);
+                }
+            }
+        }
+
+        // カウンターをリセット
+        activeObjectCount = 0;
     }
 }

@@ -862,7 +862,7 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
   CustomBlends: {fileID: 0}
---- !u!1 &1029219638
+--- !u!1 &1184253446
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -870,51 +870,146 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1029219640}
-  - component: {fileID: 1029219641}
+  - component: {fileID: 1184253447}
+  - component: {fileID: 1184253451}
+  - component: {fileID: 1184253450}
+  - component: {fileID: 1184253449}
+  - component: {fileID: 1184253448}
   m_Layer: 0
-  m_Name: CRIWARE
+  m_Name: BGM
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1029219640
+--- !u!4 &1184253447
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1029219638}
+  m_GameObject: {fileID: 1184253446}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1608056469}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1029219641
+--- !u!114 &1184253448
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1029219638}
+  m_GameObject: {fileID: 1184253446}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 91f529aa944b914449d62b8c40f188fe, type: 3}
+  m_Script: {fileID: 11500000, guid: d1e631c3b9947b54c823c6853a05529c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  acfFile: BSM_xylo.acf
-  cueSheets:
-  - name: SE_System
-    acbFile: BSM_xylo_250215/SE_System.acb
-    awbFile: 
-    loaderStatus: 0
-  dspBusSetting: 
-  dontDestroyOnLoad: 0
-  dontRemoveExistsCueSheet: 0
+  _playOnStart: 0
+  _regionOnStart: {fileID: 0}
+  _listenerOnStart: {fileID: 0}
+  _use3dPositioning: 0
+  _freezeOrientation: 0
+  _loop: 0
+  _volume: 1
+  _pitch: 0
+  _androidUseLowLatencyVoicePool: 0
+  need_to_player_update_all: 1
+  _use3dRandomization: 0
+  _randomPositionListMaxLength: 0
+  randomize3dConfig:
+    followsOriginalSource: 0
+    calculationType: 0
+    calculationParameters:
+    - 0
+    - 0
+    - 0
+  _cueName: rhythm-part_B_BPM155
+  _cueSheet: BGM
+--- !u!114 &1184253449
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1184253446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1e631c3b9947b54c823c6853a05529c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _playOnStart: 0
+  _regionOnStart: {fileID: 0}
+  _listenerOnStart: {fileID: 0}
+  _use3dPositioning: 0
+  _freezeOrientation: 0
+  _loop: 0
+  _volume: 1
+  _pitch: 0
+  _androidUseLowLatencyVoicePool: 0
+  need_to_player_update_all: 1
+  _use3dRandomization: 0
+  _randomPositionListMaxLength: 0
+  randomize3dConfig:
+    followsOriginalSource: 0
+    calculationType: 0
+    calculationParameters:
+    - 0
+    - 0
+    - 0
+  _cueName: search-part_A
+  _cueSheet: BGM
+--- !u!114 &1184253450
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1184253446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 071537e8dfb41c246b3817c753894f20, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  AisacControl_00: Aisac_0
+  AisacControl_01: Aisac_1
+  AisacControl_02: Aisac_2
+  AisacControl_03: Aisac_3
+  OnNoBgm: 0
+  transitionDuration: 3
+  transitionDuration2: 0.05
+  isAutoStart: 0
+  bpm: 112
+  startBeat: 5
+--- !u!114 &1184253451
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1184253446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4bf18f941a3e57541980b8f80b2001c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ThisStageNumber: 0
+  atomSourceA: {fileID: 1184253449}
+  atomSourceB: {fileID: 1184253448}
+  atomSourceC: {fileID: 1184253448}
+  currentSource: {fileID: 0}
+  lastBeatSyncTime: -1
+  BeatFuzzy: 18
+  BeatOffSet: -0.07
+  BasicBeat: 0
+  frameRate: 0
+  BGM_A_Sw: 0
+  BGM_B_Sw: 0
+  BGM_C_Sw: 0
 --- !u!1 &1237731671
 GameObject:
   m_ObjectHideFlags: 0
@@ -1117,6 +1212,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1608056469}
+  - component: {fileID: 1608056470}
   m_Layer: 0
   m_Name: Sound
   m_TagString: Untagged
@@ -1137,10 +1233,41 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1184253447}
   - {fileID: 776247472}
+  - {fileID: 1814697458}
   - {fileID: 128998715}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1608056470
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1608056468}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91f529aa944b914449d62b8c40f188fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  acfFile: BSM_xylo.acf
+  cueSheets:
+  - name: SE_System
+    acbFile: BSM_xylo_250215/SE_System.acb
+    awbFile: 
+    loaderStatus: 0
+  - name: BGM
+    acbFile: BSM_xylo_250215/BGM.acb
+    awbFile: 
+    loaderStatus: 0
+  - name: SE_Long
+    acbFile: BSM_xylo_250215/SE_Long.acb
+    awbFile: 
+    loaderStatus: 0
+  dspBusSetting: 
+  dontDestroyOnLoad: 0
+  dontRemoveExistsCueSheet: 0
 --- !u!1 &1704392625
 GameObject:
   m_ObjectHideFlags: 0
@@ -1189,6 +1316,54 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1814697457
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1814697458}
+  - component: {fileID: 1814697459}
+  m_Layer: 0
+  m_Name: LongSE
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1814697458
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1814697457}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1608056469}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1814697459
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1814697457}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d8c703ee4040934dba45b374ccdb2b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CueSheetName: SE_Long
+  AcbFilePath: SE_Long.acb
+  maxPlayers: 5
+  IntroStage01: search-part_Aintro
 --- !u!1001 &1949017360
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1659,7 +1834,6 @@ SceneRoots:
   - {fileID: 203844589}
   - {fileID: 903462637}
   - {fileID: 1704392627}
-  - {fileID: 1029219640}
   - {fileID: 5389785759589416077}
   - {fileID: 1949017360}
   - {fileID: 813212865}

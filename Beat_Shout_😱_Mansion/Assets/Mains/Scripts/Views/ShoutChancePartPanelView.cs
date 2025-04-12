@@ -13,7 +13,7 @@ namespace Mains.Views
         /// <summary>中央パネル</summary>
         [SerializeField] private RectTransform centerPanel;
         /// <summary>マイクアイコンイメージのビュー</summary>
-        [SerializeField] private IconMicImageView iconMicImageView;
+        [SerializeField] private IconMicShoutImageView iconMicShoutImageView;
         /// <summary>マイク点灯させるレベル</summary>
         [SerializeField] private float iconMicAlertLevel;
         /// <summary>シャウトチャンスパネルのビューモデル</summary>
@@ -25,10 +25,11 @@ namespace Mains.Views
         {
             if (centerPanel == null)
                 centerPanel = transform.GetChild(0) as RectTransform;
-            if (iconMicImageView == null)
-                iconMicImageView = GetComponentInChildren<IconMicImageView>();
+            if (iconMicShoutImageView == null)
+                iconMicShoutImageView = GetComponentInChildren<IconMicShoutImageView>();
         }
 
+        /// <see cref="IconMicShoutImageView.PlayShoutEffect(Observer{bool})">centerPanelを無効にするもう一つの方法</see>
         private void Start()
         {
             _shoutChancePartPanelViewModel = new();
@@ -36,39 +37,40 @@ namespace Mains.Views
             Observable.EveryUpdate()
                 .Select(_ => _shoutChancePartPanelViewModel.InteractionPart)
                 .Where(x => x != null)
+                .Take(1)
                 .Subscribe(x =>
                 {
-                    System.IDisposable dbLevelNotNulldisposable = null;
-                    System.IDisposable dbLeveldisposable = null;
+                    System.IDisposable dbLevelNotNullDisposable = null;
+                    System.IDisposable dbLevelDisposable = null;
                     x.Subscribe(interactionPart =>
                     {
                         switch (interactionPart)
                         {
                             case InteractionPart.ShoutChance:
                                 centerPanel.gameObject.SetActive(true);
-                                dbLevelNotNulldisposable?.Dispose();
-                                dbLeveldisposable?.Dispose();
+                                dbLevelNotNullDisposable?.Dispose();
+                                dbLevelDisposable?.Dispose();
                                 // デシベルレベルを取得してdB(A)を表示する用のテキストへ反映する処理を追加
-                                dbLevelNotNulldisposable = Observable.EveryUpdate()
+                                dbLevelNotNullDisposable = Observable.EveryUpdate()
                                     .Select(_ => _shoutChancePartPanelViewModel.DbLevel)
                                     .Where(x => x != null)
                                     .Take(1)
                                     .Subscribe(x =>
                                     {
-                                        dbLeveldisposable = x.Subscribe(dbLevel =>
+                                        dbLevelDisposable = x.Subscribe(dbLevel =>
                                         {
                                             if (iconMicAlertLevel <= dbLevel)
                                             {
-                                                iconMicImageView.SetSpriteMicShout();
-                                            }
-                                            else
-                                            {
-                                                iconMicImageView.SetSpriteMic();
+                                                StartCoroutine(iconMicShoutImageView.PlayShoutEffect());
                                             }
                                         })
                                         .AddTo(ref _disposableBag);
                                     })
                                     .AddTo(ref _disposableBag);
+
+                                break;
+                            case InteractionPart.Rhythm:
+                                // リズムパート移行時は別の方法でcenterPanelを無効にする
 
                                 break;
                             default:
