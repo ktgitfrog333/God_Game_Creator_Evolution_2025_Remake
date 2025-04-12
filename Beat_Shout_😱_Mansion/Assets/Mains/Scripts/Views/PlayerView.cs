@@ -1,13 +1,13 @@
 using UnityEngine;
 using Rewired;
 using R3;
-using R3.Triggers;
 using Mains.Commons;
 using Mains.ViewModels;
 using System.Linq;
 using Mains.External;
 using System.Collections.Generic;
 using Mains.Manager;
+using DG.Tweening;
 
 namespace Mains.Views
 {
@@ -27,23 +27,24 @@ namespace Mains.Views
         [SerializeField] private float ロー_歩幅;
         [SerializeField] private float トップ_歩幅;
         [SerializeField] private float シャウト達成デシベル;
-        /// <summary>Player > Body > FlashLight > Spot Light のLightコンポーネント</summary>
-        [SerializeField] private Light spotLightLight;
-        /// <summary>R3のリソース管理</summary>
-        private DisposableBag _disposableBag = new DisposableBag();
-        /// <summary>シャウトチャンスレンジ位置</summary>
-        private Transform _shoutChanceRange;
         /// <summary>プレイヤーのビューモデル</summary>
         private PlayerViewModel _playerViewModel;
         /// <summary>フェードイメージのビュー</summary>
         private FadeImageView _fadeImageView;
+        [SerializeField] private PlayerRhythmStruct リズムパートで使用するプレイヤープロパティ;
+        /// <summary>R3のリソース管理</summary>
+        private DisposableBag _disposableBag = new DisposableBag();
 
         private void Reset()
         {
             if (characterController == null)
                 characterController = GetComponent<CharacterController>();
-            if (spotLightLight == null)
-                spotLightLight = GetComponentInChildren<Light>();
+            if (リズムパートで使用するプレイヤープロパティ.spotLightLight == null)
+                リズムパートで使用するプレイヤープロパティ.spotLightLight = GetComponentInChildren<Light>();
+            if (リズムパートで使用するプレイヤープロパティ.elbow == null)
+                リズムパートで使用するプレイヤープロパティ.elbow = transform.GetChild(0).GetChild(0);
+            if (リズムパートで使用するプレイヤープロパティ.spotLightLightTrans == null)
+                リズムパートで使用するプレイヤープロパティ.spotLightLightTrans = transform.GetChild(0).GetChild(0).GetChild(0).GetChild(0).GetChild(0);
         }
 
         private void Start()
@@ -137,6 +138,16 @@ namespace Mains.Views
             float currentPitch = trans.rotation.eulerAngles.x;
             // ターゲットとなるポルターガイストビュー
             PoltergeistView poltergeistView = null;
+            FollowPlayerCameraView followPlayerCameraView = null;
+            Observable.EveryUpdate()
+                .Select(_ => FindAnyObjectByType<FollowPlayerCameraView>())
+                .Where(x => x != null)
+                .Take(1)
+                .Subscribe(x =>
+                {
+                    followPlayerCameraView = x;
+                })
+                .AddTo(ref _disposableBag);
             // リズムパートの位置まで移動する
             Observable.EveryUpdate()
                 .Select(_ => _playerViewModel.IsCompletedBurstGhosts)
@@ -176,6 +187,8 @@ namespace Mains.Views
                                             // [シャウト成功インタラクション] 4. 後処理
                                             _playerViewModel.SetIsCompletedBurstGhosts(false);
                                             poltergeistView = null;
+                                            if (followPlayerCameraView != null)
+                                                followPlayerCameraView.DeleteFollowAndLookAt();
                                         })
                                         .AddTo(ref _disposableBag);
                                 })
@@ -188,70 +201,192 @@ namespace Mains.Views
             Vector3 velocity = Vector3.zero;
             _playerViewModel = new(探索_シャウトチャンス_リズムパート情報管理テーブル);
             _playerViewModel.SetPlayerTransform(transform);
-            Observable.EveryUpdate()
-                .Where(_ => characterController.enabled)
+            // イントロが完了するまではプレイヤー操作禁止
+            characterController.enabled = false;
+            script_XyloApi.FrameRate
+                .Where(x => 0f < x)
                 .Subscribe(_ =>
                 {
-                    // プレイヤーの移動入力
-                    float moveX = player.GetAxis("MoveHorizontal");
-                    float moveZ = player.GetAxis("MoveVertical");
-                    if (0f < Mathf.Abs(moveX) ||
-                        0f < Mathf.Abs(moveZ))
-                    {
-                        walkingTime.Value += Time.deltaTime;
-                    }
-                    else
-                    {
-                        walkingTime.Value = 0f;
-                    }
-                    // 移動方向のベクトル
-                    Vector3 moveInput = new Vector3(moveX, 0, moveZ).normalized;
-                    Vector3 moveDirection = Quaternion.Euler(0f, currentYaw, 0f) * moveInput;
+                    characterController.enabled = true;
+                })
+                .AddTo(ref _disposableBag);
+            Observable.EveryUpdate()
+                .Select(_ => _playerViewModel.InteractionPart)
+                .Where(x => x != null)
+                .Take(1)
+                .Subscribe(x =>
+                {
+                    System.IDisposable observablePlayerControllerDisposable = null;
+                    System.IDisposable observableTake1PlayerControllerDisposable = null;
+                    System.IDisposable observableLightControllerDisposable = null;
+                    System.IDisposable observableTargetCrossPositionDisposable = null;
+                    x.Pairwise()
+                        .Do(x => Debug.Log($"part_prev: [{x.Previous}]_part_curr: [{x.Current}]"))
+                        .Subscribe(part =>
+                        {
+                            // None⇒探索（1. 探索、シャウト用の操作）
+                            // リズム⇒探索（1. 探索、シャウト用の操作）
+                            bool isNormalCtrl = part.Previous.Equals(InteractionPart.None) &&
+                                    part.Current.Equals(InteractionPart.Search) ||
+                                part.Previous.Equals(InteractionPart.Rhythm) &&
+                                    part.Current.Equals(InteractionPart.Search);
+                            // シャウトチャンス⇒リズム（2. リズムパート用の操作）
+                            bool isRhythmCtrl = part.Previous.Equals(InteractionPart.ShoutChance) &&
+                                part.Current.Equals(InteractionPart.Rhythm);
+                            // 上記以外 探索⇔シャウトチャンス（変更無し）
 
-                    // カメラの正面方向
-                    Vector3 cameraForward = Camera.main.transform.forward;
-                    cameraForward.y = 0; // 水平成分のみ使用
-                    cameraForward.Normalize();
+                            if (isNormalCtrl &&
+                                !isRhythmCtrl)
+                            {
+                                // 2. リズムパート用の操作の監視を破棄
+                                observableTake1PlayerControllerDisposable?.Dispose();
+                                observableLightControllerDisposable?.Dispose();
+                                observableTargetCrossPositionDisposable?.Dispose();
+                                // 1. 探索、シャウト用の操作
+                                observablePlayerControllerDisposable = Observable.EveryUpdate()
+                                    .Where(_ => characterController.enabled)
+                                    .Subscribe(_ =>
+                                    {
+                                        // プレイヤーの移動入力
+                                        float moveX = player.GetAxis("MoveHorizontal");
+                                        float moveZ = player.GetAxis("MoveVertical");
+                                        if (0f < Mathf.Abs(moveX) ||
+                                            0f < Mathf.Abs(moveZ))
+                                        {
+                                            walkingTime.Value += Time.deltaTime;
+                                        }
+                                        else
+                                        {
+                                            walkingTime.Value = 0f;
+                                        }
+                                        // 移動方向のベクトル
+                                        Vector3 moveInput = new Vector3(moveX, 0, moveZ).normalized;
+                                        Vector3 moveDirection = Quaternion.Euler(0f, currentYaw, 0f) * moveInput;
 
-                    // 進行方向とカメラの向きの角度を求める
-                    float angle = Vector3.Angle(cameraForward, moveDirection);
-                    // 正面移動判定（30度以内なら正面移動）
-                    isMovingForward.Value = (angle < 130f);
-                    // 角度に応じた移動速度の補正値（0°のとき1倍、180°のとき0.5倍など）
-                    float speedMultiplier = Mathf.Lerp(1f, 0.5f, angle / 180f);
+                                        // カメラの正面方向
+                                        Vector3 cameraForward = Camera.main.transform.forward;
+                                        cameraForward.y = 0; // 水平成分のみ使用
+                                        cameraForward.Normalize();
 
-                    // 移動速度に補正をかける
-                    float adjustedMoveSpeed = トップ_移動速度 * speedMultiplier;
+                                        // 進行方向とカメラの向きの角度を求める
+                                        float angle = Vector3.Angle(cameraForward, moveDirection);
+                                        // 正面移動判定（30度以内なら正面移動）
+                                        isMovingForward.Value = (angle < 130f);
+                                        // 角度に応じた移動速度の補正値（0°のとき1倍、180°のとき0.5倍など）
+                                        float speedMultiplier = Mathf.Lerp(1f, 0.5f, angle / 180f);
 
-                    // 実際の移動ベクトル
-                    Vector3 move = moveDirection * adjustedMoveSpeed;
-                    // 重力処理
-                    if (!isGrounded.Value)
-                    {
-                        velocity.y -= 重力 * Time.deltaTime;
-                    }
-                    else
-                    {
-                        velocity.y = 0; // 地面にいる場合、Y方向の速度をリセット
-                    }
-                    characterController.Move((move + velocity) * Time.deltaTime);
-                    // 視点移動入力
-                    float aimX = player.GetAxis("AimMoveHorizontal");
-                    float aimY = player.GetAxis("AimMoveVertical");
-                    // 視点変更 (角度を直接加算)
-                    currentYaw += aimX * 視点速度補正 * Time.deltaTime;
-                    currentPitch -= aimY * 視点速度補正 * Time.deltaTime;
+                                        // 移動速度に補正をかける
+                                        float adjustedMoveSpeed = トップ_移動速度 * speedMultiplier;
 
-                    // ピッチ角度を制限 (-90度～90度)
-                    // TODO: 外的要因（シャウト成功による自動移動等）で取得角度がエッジケースに該当することがある
-                    //       currentPitchが0⇒359.3694⇒90（※Mathf.Clampの補間）⇒唐突にプレイヤーが土下座する
-                    currentPitch = Mathf.Clamp(currentPitch, -90f, 90f);
+                                        // 実際の移動ベクトル
+                                        Vector3 move = moveDirection * adjustedMoveSpeed;
+                                        // 重力処理
+                                        if (!isGrounded.Value)
+                                        {
+                                            velocity.y -= 重力 * Time.deltaTime;
+                                        }
+                                        else
+                                        {
+                                            velocity.y = 0; // 地面にいる場合、Y方向の速度をリセット
+                                        }
+                                        characterController.Move((move + velocity) * Time.deltaTime);
+                                        // 視点移動入力
+                                        float aimX = player.GetAxis("AimMoveHorizontal");
+                                        float aimY = player.GetAxis("AimMoveVertical");
+                                        // 視点変更 (角度を直接加算)
+                                        currentYaw += aimX * 視点速度補正 * Time.deltaTime;
+                                        currentPitch -= aimY * 視点速度補正 * Time.deltaTime;
 
-                    // 回転を適用
-                    trans.rotation = Quaternion.Euler(currentPitch, currentYaw, 0f);
+                                        // ピッチ角度を制限 (-90度～90度)
+                                        // TODO: 外的要因（シャウト成功による自動移動等）で取得角度がエッジケースに該当することがある
+                                        //       currentPitchが0⇒359.3694⇒90（※Mathf.Clampの補間）⇒唐突にプレイヤーが土下座する
+                                        currentPitch = Mathf.Clamp(currentPitch, -90f, 90f);
 
-                    bool isSwitchPart = player.GetButtonDown("SwitchPart");
-                    _playerViewModel.SetIsSwitchPart(isSwitchPart);
+                                        // 回転を適用
+                                        trans.rotation = Quaternion.Euler(currentPitch, currentYaw, 0f);
+
+                                        bool isSwitchPart = player.GetButtonDown("SwitchPart");
+                                        _playerViewModel.SetIsSwitchPart(isSwitchPart);
+                                    })
+                                    .AddTo(ref _disposableBag);
+                            }
+                            else if (isRhythmCtrl)
+                            {
+                                // 1. 探索、シャウト用の操作の監視を破棄
+                                observablePlayerControllerDisposable?.Dispose();
+                                // 2. リズムパート用の操作
+                                //  X軸、Y軸（重力）、Z軸の位置移動は不可。
+                                //  コントローラーの場合は右スティック操作が左スティック操作に変わる。カメラの位置、角度の自動追尾が不可となり、固定となる。
+                                observableTake1PlayerControllerDisposable = Observable.EveryUpdate()
+                                    .Select(_ => _playerViewModel.TargetCrossPosition)
+                                    .Where(x => x != null)
+                                    .Take(1)
+                                    .Subscribe(x =>
+                                    {
+                                        observableTargetCrossPositionDisposable = x.Subscribe(position =>
+                                        {
+                                            Vector3 playerPos = リズムパートで使用するプレイヤープロパティ.spotLightLightTrans.position;
+                                            Vector3 lookDirection = position - playerPos;
+
+                                            if (lookDirection.sqrMagnitude > 0.001f)
+                                            {
+                                                Quaternion targetRotation = Quaternion.LookRotation(lookDirection.normalized, Vector3.up);
+                                                リズムパートで使用するプレイヤープロパティ.elbow.rotation = targetRotation;
+                                            }
+                                        })
+                                        .AddTo(ref _disposableBag);
+                                    })
+                                    .AddTo(ref _disposableBag);
+                                Sequence spotLightLightSeqence = null;
+                                observableLightControllerDisposable = Observable.EveryUpdate()
+                                    .Subscribe(_ =>
+                                    {
+                                        // クリックした際にライトを点灯させるがすぐ消す
+                                        if (player.GetButtonDown("TapLight"))
+                                        {
+                                            リズムパートで使用するプレイヤープロパティ.spotLightLight.enabled = true;
+                                            リズムパートで使用するプレイヤープロパティ.spotLightLight.intensity = 0f;
+                                            if (spotLightLightSeqence != null &&
+                                                spotLightLightSeqence.IsActive())
+                                            {
+                                                spotLightLightSeqence.Kill();
+                                            }
+                                            // 新しくシーケンスを作り直す
+                                            spotLightLightSeqence = DOTween.Sequence()
+                                                .Append(DOTween.To(
+                                                    () => リズムパートで使用するプレイヤープロパティ.spotLightLight.intensity,
+                                                    x => リズムパートで使用するプレイヤープロパティ.spotLightLight.intensity = x,
+                                                    1f, 0.2f))
+                                                .Append(DOTween.To(
+                                                    () => リズムパートで使用するプレイヤープロパティ.spotLightLight.intensity,
+                                                    x => リズムパートで使用するプレイヤープロパティ.spotLightLight.intensity = x,
+                                                    0f, 0.2f))
+                                                .OnComplete(() =>
+                                                {
+                                                    リズムパートで使用するプレイヤープロパティ.spotLightLight.enabled = false;
+                                                });
+                                            spotLightLightSeqence.Play();
+                                        }
+                                    })
+                                    .AddTo(ref _disposableBag);
+                            }
+                            // リズム⇒探索：カメラをリセット
+                            switch (part.Previous)
+                            {
+                                case InteractionPart.Rhythm:
+                                    switch (part.Current)
+                                    {
+                                        case InteractionPart.Search:
+                                            if (followPlayerCameraView != null)
+                                                followPlayerCameraView.ResetFollowAndLookAt();
+
+                                            break;
+                                    }
+
+                                    break;
+                            }
+                        })
+                    .AddTo(ref _disposableBag);
                 })
                 .AddTo(ref _disposableBag);
             // オバケが隠れている位置に接近した時に振動
@@ -349,6 +484,7 @@ namespace Mains.Views
                                             poltergeistView.AsyncDoBurstGhosts();
                                             _playerViewModel.SetInteractionPart(InteractionPart.Rhythm);
                                         }
+                                        script_XyloApi.ChangeBgmB();
                                     })
                                     .AddTo(ref _disposableBag);
 
@@ -455,7 +591,7 @@ namespace Mains.Views
                 })
                 .AddTo(ref _disposableBag);
             // ライトは一旦、消す
-            spotLightLight.enabled = false;
+            リズムパートで使用するプレイヤープロパティ.spotLightLight.enabled = false;
             // プレイヤーの体力初期設定
             Observable.EveryUpdate()
                 .Select(_ => GameManager.Instance)

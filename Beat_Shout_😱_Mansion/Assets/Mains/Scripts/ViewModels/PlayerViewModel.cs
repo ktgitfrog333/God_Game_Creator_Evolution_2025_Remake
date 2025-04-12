@@ -39,6 +39,14 @@ namespace Mains.ViewModels
                 return _playerModel?.InteractionPartTable?.interactionPart ?? null;
             }
         }
+        /// <summary>ターゲットクロス位置</summary>
+        public ReactiveCommand<Vector3> TargetCrossPosition
+        {
+            get
+            {
+                return _playerModel?.TargetCrossPosition ?? null;
+            }
+        }
 
         public PlayerViewModel(InteractionPartTable interactionPartTable)
         {

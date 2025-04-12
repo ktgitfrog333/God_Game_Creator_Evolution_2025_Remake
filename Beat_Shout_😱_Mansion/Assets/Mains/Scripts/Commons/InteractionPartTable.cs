@@ -10,7 +10,7 @@ namespace Mains.Commons
     public class InteractionPartTable : ScriptableObject
     {
         /// <summary>【探索／シャウトチャンス／リズム】パート</summary>
-        public ReactiveProperty<InteractionPart> interactionPart = new ReactiveProperty<InteractionPart>();
+        public ReactiveProperty<InteractionPart> interactionPart = new ReactiveProperty<InteractionPart>(InteractionPart.None);
         /// <summary>デシベルレベル</summary>
         public ReactiveCommand<float> dbLevel = new ReactiveCommand<float>();
         /// <summary>ゴーストが飛び出してくる演出の完了</summary>

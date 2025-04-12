@@ -8,7 +8,7 @@ namespace Mains.Models
     /// <summary>
     /// プレイヤーのモデル
     /// </summary>
-    public class PlayerModel : MonoBehaviour, IPlayerModel, IPoltergeistModel
+    public class PlayerModel : MonoBehaviour, IPlayerModel, IPoltergeistModel, IRhythmPartPanelModel
     {
         /// <summary>【探索／シャウトチャンス／リズム】パート情報管理テーブル</summary>
         public InteractionPartTable InteractionPartTable { get; set; }
@@ -28,6 +28,10 @@ namespace Mains.Models
         };
         /// <summary>プレイヤープロパティの構造体</summary>
         public PlayerPropertiesStruct PlayerPropertiesStruct => _playerPropertiesStruct;
+        /// <summary>ターゲットクロス位置</summary>
+        private readonly ReactiveCommand<Vector3> _targetCrossPosition = new();
+        /// <summary>ターゲットクロス位置</summary>
+        public ReactiveCommand<Vector3> TargetCrossPosition => _targetCrossPosition;
 
         private void Start()
         {
@@ -115,6 +119,11 @@ namespace Mains.Models
         {
             _playerPropertiesStruct.healthPoint.Execute(healthPoint);
         }
+
+        public void SetTargetCrossPosition(Vector3 targetCrossPosition)
+        {
+            _targetCrossPosition.Execute(targetCrossPosition);
+        }
     }
 
     /// <summary>
@@ -179,5 +188,17 @@ namespace Mains.Models
         /// </summary>
         /// <param name="isCompletedBurstGhosts">ゴーストが飛び出してくる演出の完了</param>
         public void SetIsCompletedBurstGhosts(bool isCompletedBurstGhosts);
+    }
+
+    /// <summary>
+    /// リズムパートパネルのインターフェース
+    /// </summary>
+    public interface IRhythmPartPanelModel
+    {
+        /// <summary>
+        /// ターゲットクロス位置をセット
+        /// </summary>
+        /// <param name="targetCrossPosition">ターゲットクロス位置</param>
+        public void SetTargetCrossPosition(Vector3 targetCrossPosition);
     }
 }

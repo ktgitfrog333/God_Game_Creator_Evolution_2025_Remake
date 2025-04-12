@@ -1,0 +1,25 @@
+using UnityEngine;
+
+namespace Mains.Tests
+{
+    public class CRIWARE_conductorTest : MonoBehaviour
+    {
+        private CRIWARE_conductor _cRIWARE_Conductor;
+
+        // Start is called once before the first execution of Update after the MonoBehaviour is created
+        void Start()
+        {
+
+        }
+
+        // Update is called once per frame
+        void Update()
+        {
+            if (_cRIWARE_Conductor == null)
+                _cRIWARE_Conductor = FindAnyObjectByType<CRIWARE_conductor>();
+
+            //Debug.Log($"currentSource: [{_cRIWARE_Conductor.currentSource}]");
+            //Debug.Log($"frameRate: [{_cRIWARE_Conductor.frameRate}]");
+        }
+    }
+}
