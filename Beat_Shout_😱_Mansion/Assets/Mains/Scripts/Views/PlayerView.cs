@@ -26,7 +26,7 @@ namespace Mains.Views
         [SerializeField] private float ロー_切り替え時間_秒;
         [SerializeField] private float ロー_歩幅;
         [SerializeField] private float トップ_歩幅;
-        [SerializeField] private float シャウト達成デシベル;
+        [SerializeField] private PlayerShoutChanceTable シャウトチャンスパートの共通パラメータ管理用テーブル;
         /// <summary>プレイヤーのビューモデル</summary>
         private PlayerViewModel _playerViewModel;
         /// <summary>フェードイメージのビュー</summary>
@@ -467,7 +467,7 @@ namespace Mains.Views
                                     .AddTo(ref _disposableBag);
 
                                 disposableDbLevel?.Dispose();
-                                disposableDbLevel = dbLevel.Where(x => シャウト達成デシベル <= x &&
+                                disposableDbLevel = dbLevel.Where(x => シャウトチャンスパートの共通パラメータ管理用テーブル.シャウト達成デシベル <= x &&
                                     0 < shoutChanceRanges.Count)
                                     .Subscribe(_ =>
                                     {
@@ -529,7 +529,7 @@ namespace Mains.Views
                             if (duration >= inhaleDurationThreshold)
                             {
                                 // キー／トリガー入力のためそれっぽいMAX値をセット
-                                dbLevel.Value = シャウト達成デシベル;
+                                dbLevel.Value = シャウトチャンスパートの共通パラメータ管理用テーブル.シャウト達成デシベル;
                             }
                             else
                             {
@@ -559,7 +559,7 @@ namespace Mains.Views
                             if (duration >= inhaleDurationThreshold)
                             {
                                 // キー／トリガー入力のためそれっぽいMAX値をセット
-                                dbLevel.Value = シャウト達成デシベル;
+                                dbLevel.Value = シャウトチャンスパートの共通パラメータ管理用テーブル.シャウト達成デシベル;
                             }
                             else
                             {

@@ -1,7 +1,9 @@
+using DG.Tweening;
 using Mains.Commons;
 using Mains.ViewModels;
 using R3;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Mains.Views
 {
@@ -16,6 +18,9 @@ namespace Mains.Views
         [SerializeField] private IconMicShoutImageView iconMicShoutImageView;
         /// <summary>マイク点灯させるレベル</summary>
         [SerializeField] private float iconMicAlertLevel;
+        /// <summary>シャウトパワーゲージ</summary>
+        [SerializeField] private Image shoutPowerGaugeImage;
+        [SerializeField] private PlayerShoutChanceTable シャウトチャンスパートの共通パラメータ管理用テーブル;
         /// <summary>シャウトチャンスパネルのビューモデル</summary>
         private ShoutChancePartPanelViewModel _shoutChancePartPanelViewModel;
         /// <summary>R3のリソース管理</summary>
@@ -27,6 +32,8 @@ namespace Mains.Views
                 centerPanel = transform.GetChild(0) as RectTransform;
             if (iconMicShoutImageView == null)
                 iconMicShoutImageView = GetComponentInChildren<IconMicShoutImageView>();
+            if (shoutPowerGaugeImage == null)
+                shoutPowerGaugeImage = transform.GetChild(0).GetChild(3).GetChild(1).GetComponent<Image>();
         }
 
         /// <see cref="IconMicShoutImageView.PlayShoutEffect(Observer{bool})">centerPanelを無効にするもう一つの方法</see>
@@ -50,22 +57,47 @@ namespace Mains.Views
                                 centerPanel.gameObject.SetActive(true);
                                 dbLevelNotNullDisposable?.Dispose();
                                 dbLevelDisposable?.Dispose();
-                                // デシベルレベルを取得してdB(A)を表示する用のテキストへ反映する処理を追加
+                                // デシベルレベルを取得してマイクアイコン切り替え表示する処理を追加
                                 dbLevelNotNullDisposable = Observable.EveryUpdate()
                                     .Select(_ => _shoutChancePartPanelViewModel.DbLevel)
                                     .Where(x => x != null)
                                     .Take(1)
                                     .Subscribe(x =>
                                     {
-                                        dbLevelDisposable = x.Subscribe(dbLevel =>
-                                        {
-                                            if (iconMicAlertLevel <= dbLevel)
+                                        Sequence fillSequence = null;
+                                        float? normalizedPrev = null;
+                                        dbLevelDisposable = x.Pairwise()
+                                            .Subscribe(dbLevel =>
                                             {
-                                                if (!iconMicShoutImageView.IsPlaying)
-                                                    StartCoroutine(iconMicShoutImageView.PlayShoutEffect());
-                                            }
-                                        })
-                                        .AddTo(ref _disposableBag);
+                                                if (iconMicAlertLevel <= dbLevel.Current)
+                                                {
+                                                    if (!iconMicShoutImageView.IsPlaying)
+                                                        StartCoroutine(iconMicShoutImageView.PlayShoutEffect());
+                                                }
+                                                if (dbLevel.Previous < dbLevel.Current)
+                                                {
+                                                    // fillAmount値の算出（0～1へ正規化）
+                                                    float normalized = Mathf.Clamp01(dbLevel.Current / シャウトチャンスパートの共通パラメータ管理用テーブル.シャウト達成デシベル);
+
+                                                    // すでにTweenが動いていて、目標値が近いならスキップ（不要な上書き防止）
+                                                    if (fillSequence != null && fillSequence.IsActive() && fillSequence.IsPlaying())
+                                                    {
+                                                        float currentTarget = normalizedPrev == null ? -1f : normalizedPrev.Value;
+                                                        if (Mathf.Approximately(currentTarget, normalized)) return;
+
+                                                        fillSequence.Kill(); // 上書きしたい場合は Kill
+                                                    }
+
+                                                    // DOTweenアニメーションでfillAmountを更新
+                                                    fillSequence = DOTween.Sequence()
+                                                        .Append(shoutPowerGaugeImage.DOFillAmount(normalized, 0.3f))
+                                                        .AppendInterval(.05f)
+                                                        .Append(shoutPowerGaugeImage.DOFillAmount(0f, 0.8f).SetEase(Ease.InOutSine));
+                                                    fillSequence.Play();
+                                                    normalizedPrev = normalized;
+                                                }
+                                            })
+                                            .AddTo(ref _disposableBag);
                                     })
                                     .AddTo(ref _disposableBag);
 
@@ -83,6 +115,8 @@ namespace Mains.Views
                     .AddTo(ref _disposableBag);
                 })
                 .AddTo(ref _disposableBag);
+            // シャウトパワーゲージの初期化
+            shoutPowerGaugeImage.fillAmount = 0f;
         }
 
         private void OnDestroy()

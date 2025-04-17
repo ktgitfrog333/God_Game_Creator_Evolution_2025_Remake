@@ -20,9 +20,6 @@ namespace Mains.Views
         [Tooltip("CommonPanel > HeaderPanel > MissionText をセット")]
         /// <summary>ミッションガイド詳細のテキスト</summary>
         [SerializeField] private TextMeshProUGUI missionText;
-        [Tooltip("CommonPanel > HeaderPanel > dBLevelText をセット")]
-        /// <summary>dB(A)を表示する用のテキスト</summary>
-        [SerializeField] private TextMeshProUGUI dBLevelText;
         [Tooltip("CommonPanel > FooterPanel > IconHeartsPanel をセット")]
         /// <summary>ハートアイコンを表示する用のトランスフォーム</summary>
         [SerializeField] private RectTransform iconHeartsPanel;
@@ -41,8 +38,6 @@ namespace Mains.Views
                 guideText = transform.GetChild(0).GetChild(0).GetComponentInChildren<TextMeshProUGUI>();
             if (missionText == null)
                 missionText = transform.GetChild(0).GetChild(1).GetComponent<TextMeshProUGUI>();
-            if (dBLevelText == null)
-                dBLevelText = transform.GetChild(0).GetChild(2).GetComponent<TextMeshProUGUI>();
             if (iconHeartsPanel == null)
                 iconHeartsPanel = transform.GetChild(1).GetChild(0) as RectTransform;
         }
@@ -85,20 +80,6 @@ namespace Mains.Views
                                 .Replace("${ghostExitMembersCount}", $"{ghostExitMembersCount}");
                         })
                         .AddTo(ref _disposableBag); 
-                })
-                .AddTo(ref _disposableBag);
-            // デシベルレベルを取得してdB(A)を表示する用のテキストへ反映する処理を追加
-            Observable.EveryUpdate()
-                .Select(_ => _commonPanelViewModel.DbLevel)
-                .Where(x => x != null)
-                .Take(1)
-                .Subscribe(x =>
-                {
-                    x.Subscribe(x =>
-                    {
-                        dBLevelText.text = 共通UIのテンプレート.dBLevelText.Replace("${dBLevel}", $"{x}");
-                    })
-                    .AddTo(ref _disposableBag);
                 })
                 .AddTo(ref _disposableBag);
             // プレイヤーの体力を取得してハートアイコンへ反映する処理を実装
