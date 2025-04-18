@@ -31,7 +31,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 20, y: 20, z: 20}
+  m_LocalScale: {x: 50, y: 50, z: 50}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -126,13 +126,13 @@ MonoBehaviour:
   curveStrength: 4
   maxSpeed: 70
   acceleration: 30
-  rotationSpeed: 5
-  targetDistance: 150
-  lifeDuration: 2.5
-  curvePhaseTime: 1.2
+  InitialScale: {x: 20, y: 20, z: 20}
+  finalScale: 2
+  continuousScaleFactor: 2
+  maxAdditionalScale: 0.2
   initialPhaseTime: 0.2
+  curvePhaseTime: 1.2
   CountInt: 3
-  arrivalBuffer: 0.2
 --- !u!114 &953840192343252355
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -147,21 +147,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   screenOffset: {x: 0, y: 0}
   targetCanvas: {fileID: 0}
-  imageSize: {x: 600, y: 600}
+  imageSize: {x: 100, y: 100}
   maintainConstantSize: 1
   layer1Alpha: 0.6
   layer2Alpha: 0.3
   noteType: 1
-  onClickSuccess:
-    m_PersistentCalls:
-      m_Calls: []
-  onClickFail:
-    m_PersistentCalls:
-      m_Calls: []
   normalColor: {r: 1, g: 1, b: 1, a: 1}
-  successColor: {r: 0, g: 1, b: 0, a: 1}
   holdingColor: {r: 0, g: 0, b: 1, a: 1}
-  failColor: {r: 1, g: 0, b: 0, a: 1}
   colorChangeDuration: 0.5
   longFirstSprites:
   - {fileID: 21300000, guid: ace951155df0eb34c9bbc0a4a47d43cf, type: 3}
@@ -226,10 +218,6 @@ MonoBehaviour:
   - {fileID: 21300000, guid: a26f3a7077e6e5e42a5dbf8e7c308494, type: 3}
   - {fileID: 21300000, guid: 46c3d4beb8b28b146b76b61544460b55, type: 3}
   - {fileID: 21300000, guid: a2dcc4b881ffbd54eab2a9b735798784, type: 3}
-  hitSprites:
-  - {fileID: 21300000, guid: 7ac9db228f5c6914fbc34eafd589b9f2, type: 3}
-  - {fileID: 21300000, guid: 7b83265e28b679c42a5bcd6d6da73518, type: 3}
-  - {fileID: 21300000, guid: cf406b4928b303b4bacd1122e7048b3a, type: 3}
   long02_1stSprites:
   - {fileID: 21300000, guid: 13a95743455c4834b948c6fd6e734c58, type: 3}
   - {fileID: 21300000, guid: 0f032dd6d701190418ae1e0b2e1a1de7, type: 3}
@@ -277,6 +265,6 @@ MonoBehaviour:
   - {fileID: 21300000, guid: ab2234e30dbcca74f90af6f2e76124f7, type: 3}
   frameDelay: 0.1
   hitFrameDelay: 0.07
-  aimCircleSprite: {fileID: 21300000, guid: 996ed951ccca31e4fa02ddaa6a9e4df9, type: 3}
+  aimCircleSprite: {fileID: 21300000, guid: 104bdda74c1d73c4db50db9d1194e1cf, type: 3}
   aimCircleAlpha: 0.5
-  aimCircleScale: 0.25
+  aimCircleScale: 1

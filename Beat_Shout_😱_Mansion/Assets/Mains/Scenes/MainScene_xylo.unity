@@ -530,7 +530,7 @@ Transform:
   m_GameObject: {fileID: 290245320}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalPosition: {x: 0, y: 1, z: -26.69}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1980,6 +1980,7 @@ Transform:
   - {fileID: 1570613199}
   - {fileID: 894523589}
   - {fileID: 1593455772}
+  - {fileID: 2382793677693381937}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1570613198
@@ -2388,6 +2389,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2088325643}
   m_CullTransparentMesh: 1
+--- !u!114 &2108305994
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8584265560990133474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ec183d3cb8f0cf4b8578c16c50a264e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pools:
+  - tag: MissGhostAttack
+    prefab: {fileID: 8093164255657242868, guid: afaf7b8b230542d44bfe35da78159299, type: 3}
+    size: 3
+  - tag: SuccessGhostDown
+    prefab: {fileID: 7580452747244997626, guid: a76f69c847603874ab7d671bad0beeab, type: 3}
+    size: 3
 --- !u!1 &2134525478
 GameObject:
   m_ObjectHideFlags: 0
@@ -2526,11 +2546,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e83f28a8c564c645a865b948e94ad16, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  missilePattern: 01020030004000101020020030004000
+  missilePattern: A2000C3000E4000
+  positionAngleA: 0
+  positionAngleB: 45
+  positionAngleC: 90
+  positionAngleD: 135
+  positionAngleE: 180
+  positionAngleF: 225
+  positionAngleG: 270
+  positionAngleH: 315
   spawnDistance: 0
-  maxRandomAngle: 45
-  minAngleDifference: 30
   missilePooler: {fileID: 1663314739}
+--- !u!4 &2382793677693381937
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8584265560990133474}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 200, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1542753932}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &5702482459377983545
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2605,6 +2646,23 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3427988054471313946, guid: d7bda0ded8377be41beb0d977a900e33, type: 3}
   m_PrefabInstance: {fileID: 5702482459377983545}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &8584265560990133474
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2382793677693381937}
+  - component: {fileID: 2108305994}
+  m_Layer: 0
+  m_Name: ObjPoolerXyloOther
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
