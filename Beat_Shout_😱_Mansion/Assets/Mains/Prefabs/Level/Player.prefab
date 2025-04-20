@@ -392,6 +392,7 @@ MonoBehaviour:
     spotLightLight: {fileID: 4898889403535075297}
     spotLightLightTrans: {fileID: 8553245315636639108}
     elbow: {fileID: 1229685872099579590}
+    batteryPrefab: {fileID: 3742273861877483066, guid: 16a2f1013cb7dea479125665d136085e, type: 3}
 --- !u!143 &8536045231518824716
 CharacterController:
   m_ObjectHideFlags: 0

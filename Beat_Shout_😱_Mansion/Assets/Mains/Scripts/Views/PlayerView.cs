@@ -168,14 +168,11 @@ namespace Mains.Views
                                     // [シャウト成功インタラクション] 3. プレイヤー移動させる処理
                                     if (poltergeistView != null)
                                     {
-                                        if (poltergeistView != null)
-                                        {
-                                            characterController.enabled = false;
-                                            trans.position = poltergeistView.RhythmPartPosition.position;
-                                            trans.eulerAngles = poltergeistView.RhythmPartPosition.eulerAngles;
-                                            currentYaw = trans.eulerAngles.y;
-                                            characterController.enabled = true;
-                                        }
+                                        characterController.enabled = false;
+                                        trans.position = poltergeistView.RhythmPartPosition.position;
+                                        trans.eulerAngles = poltergeistView.RhythmPartPosition.eulerAngles;
+                                        currentYaw = trans.eulerAngles.y;
+                                        characterController.enabled = true;
                                     }
                                     Observable.Create<bool>(observer =>
                                     {
@@ -219,6 +216,7 @@ namespace Mains.Views
                     System.IDisposable observablePlayerControllerDisposable = null;
                     System.IDisposable observableTake1PlayerControllerDisposable = null;
                     System.IDisposable observableLightControllerDisposable = null;
+                    System.IDisposable observableJustBeatTickDisposable = null;
                     System.IDisposable observableTargetCrossPositionDisposable = null;
                     x.Pairwise()
                         .Do(x => Debug.Log($"part_prev: [{x.Previous}]_part_curr: [{x.Current}]"))
@@ -241,6 +239,7 @@ namespace Mains.Views
                                 // 2. リズムパート用の操作の監視を破棄
                                 observableTake1PlayerControllerDisposable?.Dispose();
                                 observableLightControllerDisposable?.Dispose();
+                                observableJustBeatTickDisposable?.Dispose();
                                 observableTargetCrossPositionDisposable?.Dispose();
                                 // 1. 探索、シャウト用の操作
                                 observablePlayerControllerDisposable = Observable.EveryUpdate()
@@ -366,6 +365,38 @@ namespace Mains.Views
                                                     リズムパートで使用するプレイヤープロパティ.spotLightLight.enabled = false;
                                                 });
                                             spotLightLightSeqence.Play();
+                                            if (_playerViewModel.IsSelectedBattery)
+                                            {
+                                                // ViewModel経由で電池のTransformを取得
+                                                var batteryTransform = _playerViewModel.BatteryTransform;
+                                                if (batteryTransform != null)
+                                                {
+                                                    BatteryView batteryView = batteryTransform.GetComponent<BatteryView>();
+                                                    batteryView.GetBattery();
+                                                }
+                                            }
+                                        }
+                                    })
+                                    .AddTo(ref _disposableBag);
+                                // APIを使用してCRIWARE_conductor.csのJustBeatTickを監視
+                                observableJustBeatTickDisposable = Observable.EveryUpdate()
+                                    .Select(_ => script_XyloApi.JustBeatTick())
+                                    .Pairwise()
+                                    .Where(x => x.Previous != x.Current)
+                                    .Select(x => x.Current)
+                                    .Subscribe(justBeatTick =>
+                                    {
+                                        switch (justBeatTick)
+                                        {
+                                            case 4:
+                                                // [Miss]失敗を購読した場合は電池を落とす
+                                                if (_playerViewModel.BatteryTransform == null)
+                                                {
+                                                    Transform battery = DropBattery(trans, リズムパートで使用するプレイヤープロパティ.spotLightLightTrans);
+                                                    _playerViewModel.SetBatteryTransform(battery);
+                                                }
+
+                                                break;
                                         }
                                     })
                                     .AddTo(ref _disposableBag);
@@ -482,6 +513,7 @@ namespace Mains.Views
                                         if (poltergeistView != null)
                                         {
                                             poltergeistView.AsyncDoBurstGhosts();
+                                            poltergeistView.InstanceMissileTempoSpawner();
                                             _playerViewModel.SetInteractionPart(InteractionPart.Rhythm);
                                         }
                                         script_XyloApi.ChangeBgmB();
@@ -612,9 +644,72 @@ namespace Mains.Views
                 .AddTo(ref _disposableBag);
         }
 
+        private void OnGUI()
+        {
+#if UNITY_EDITOR
+            // ボタンの位置とサイズ (x, y, width, height)
+            Rect buttonRect = new Rect(10, 10, 150, 50);
+            if (GUI.Button(buttonRect, "InteractionPart を初期化"))
+            {
+                _playerViewModel.SetInteractionPart(InteractionPart.None);
+                _playerViewModel.SetInteractionPart(InteractionPart.Search);
+            }
+#endif
+        }
+
         private void OnDestroy()
         {
             _disposableBag.Dispose();
+        }
+
+        /// <summary>
+        /// 電池を落とす
+        /// </summary>
+        /// <param name="playerTransform">プレイヤーのトランスフォーム</param>
+        /// <param name="spotLightLightTrans">スポットライトのトランスフォーム</param>
+        /// <returns>バッテリーのトランスフォーム</returns>
+        private Transform DropBattery(Transform playerTransform, Transform spotLightLightTrans)
+        {
+            if (リズムパートで使用するプレイヤープロパティ.batteryPrefab == null)
+            {
+                Debug.LogWarning("BatteryPrefab が設定されていません。");
+                return null;
+            }
+
+            // プレイヤーの正面方向
+            Vector3 forward = playerTransform.forward;
+
+            // ランダムな角度（-20度〜+20度）をY軸回転で加える
+            float angle = Random.Range(-20f, 20f);
+            Quaternion rotation = Quaternion.Euler(0, angle, 0);
+            Vector3 offsetDirection = rotation * forward;
+
+            Vector3 spawnPosition = playerTransform.position + offsetDirection.normalized * 0.5f + Vector3.up * 0.8f;
+
+            // 電池を生成
+            Transform battery = Instantiate(リズムパートで使用するプレイヤープロパティ.batteryPrefab, spotLightLightTrans.position, Quaternion.identity);
+            BatteryView batteryView = battery.GetComponent<BatteryView>();
+            // 回転と移動を組み合わせたシーケンスを作成
+            Sequence batterySeq = DOTween.Sequence();
+            // ターゲットの向き（移動方向を向く）
+            Vector3 direction = spawnPosition - spotLightLightTrans.position;
+            Quaternion targetRotation = Quaternion.LookRotation(direction.normalized);
+            // 移動しながら回転（0.5秒程度で調整）
+            batterySeq
+                .Append(battery.DOMove(spawnPosition, 0.5f).SetEase(Ease.OutQuad))
+                .Join(battery.DORotate(new Vector3(360f, 0f, 0f), 0.5f, RotateMode.FastBeyond360).SetEase(Ease.OutQuad))
+                .OnComplete(() =>
+                {
+                    Vector3 direction = spawnPosition - battery.position;
+                    if (direction.sqrMagnitude > 0.001f)
+                    {
+                        battery.rotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
+                    }
+                    batteryView.SetEnabledCollider(true);
+                })
+                .Play();
+
+            return battery;
         }
 
         /// <summary>

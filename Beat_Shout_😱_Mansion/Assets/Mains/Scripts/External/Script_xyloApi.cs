@@ -185,5 +185,17 @@ namespace Mains.External
                 conductor.ChangeBgmB(3);
             }
         }
+
+        public int JustBeatTick()
+        {
+            var conductor = CRIWARE_conductor.Instance;
+            if (conductor != null)
+            {
+                return (int)conductor.JustBeatTick();
+            }
+            Debug.LogWarning($"{nameof(CRIWARE_conductor)}がインスタンスされていません！");
+
+            return -1;
+        }
     }
 }

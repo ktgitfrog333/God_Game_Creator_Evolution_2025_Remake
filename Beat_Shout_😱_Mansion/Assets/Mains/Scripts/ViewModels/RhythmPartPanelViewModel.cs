@@ -43,5 +43,11 @@ namespace Mains.ViewModels
             if (_playerModel != null)
                 _playerModel.SetTargetCrossPosition(targetCrossPosition);
         }
+
+        public void SetIsSelectedBattery(bool isSelectedBattery)
+        {
+            if (_playerModel != null)
+                _playerModel.SetIsSelectedBattery(isSelectedBattery);
+        }
     }
 }

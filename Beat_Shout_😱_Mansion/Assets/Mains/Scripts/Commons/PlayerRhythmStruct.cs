@@ -14,5 +14,7 @@ namespace Mains.Commons
         public Transform spotLightLightTrans;
         /// <summary>Player > Body > Elbow 肘</summary>
         public Transform elbow;
+        [Tooltip("Assets/Mains/Prefabs/Level/DynamicObjects/Battery.prefabをセットしておく。")]
+        public Transform batteryPrefab;
     }
 }
