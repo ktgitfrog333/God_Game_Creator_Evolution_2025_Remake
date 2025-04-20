@@ -43,7 +43,7 @@ public class MissileDirectAnimManagerB : MonoBehaviour
 
     [Header("プール返却設定")]
     [Tooltip("成功時のプール返却遅延（秒）")]
-    private float successReturnDelay = 0f; 
+    private float successReturnDelay = 0f;
 
     [Tooltip("失敗時のプール返却遅延（秒）")]
     private float failReturnDelay = 0.2f; // 0.3秒から0.2秒に変更
@@ -56,24 +56,15 @@ public class MissileDirectAnimManagerB : MonoBehaviour
     [Range(0.01f, 0.5f)]
     private float clickGracePeriod = 0.1f;
 
-    [Tooltip("クリック成功時のコールバック")]
-    public UnityEngine.Events.UnityEvent onClickSuccess;
-
-    [Tooltip("クリック失敗時のコールバック")]
-    public UnityEngine.Events.UnityEvent onClickFail;
-
     [Header("色設定")]
     [Tooltip("通常時の色")]
     public Color normalColor = Color.white;
 
-    [Tooltip("クリック成功時の色")]
-    public Color successColor = Color.green;
 
     [Tooltip("長押し中の色")]
     public Color holdingColor = Color.blue;
 
-    [Tooltip("失敗時の色")]
-    public Color failColor = Color.red;
+
 
     [Tooltip("色変更の持続時間（秒）")]
     public float colorChangeDuration = 0.5f;
@@ -99,9 +90,6 @@ public class MissileDirectAnimManagerB : MonoBehaviour
 
     [Tooltip("Short3rdアニメーション用スプライト")]
     public Sprite[] shortThirdSprites;
-
-    [Tooltip("Hitアニメーション用スプライト")]
-    public Sprite[] hitSprites;
 
     [Header("2拍長押しスプライトセット")]
     [Tooltip("2拍長押し1段階目スプライト (Long02_01)")]
@@ -155,6 +143,7 @@ public class MissileDirectAnimManagerB : MonoBehaviour
     private bool isSuccessful = false;
     private bool isFailed = false;
     private bool isReturningToPool = false;
+    private bool isForceReturning = false; // 強制返却中フラグ
     private float objectCreationTime = 0f;
     private float oneBeat = 0.4f;
     private bool isInitialized = false;
@@ -162,6 +151,7 @@ public class MissileDirectAnimManagerB : MonoBehaviour
     // オブジェクト管理用
     private GameObject[] uiElements = null;
     private bool isFirstInit = true;
+    private List<Coroutine> activeCoroutines = new List<Coroutine>();
 
     #endregion
 
@@ -186,7 +176,7 @@ public class MissileDirectAnimManagerB : MonoBehaviour
             }
 
             // タイマーを設定（安全対策）
-            StartCoroutine(SafetyTimer());
+            activeCoroutines.Add(StartManagedCoroutine(SafetyTimer()));
 
             isFirstInit = false;
         }
@@ -194,13 +184,14 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         // 毎回実行する初期化処理
         ResetComponentState();
     }
+
     public float GetAimCircleAlpha()
     {
         return aimCircleAlpha;
     }
+
     public void UpdateAimCircleSize(float scale)
     {
-
         aimCircleScale = scale;
         if (uiManager != null)
         {
@@ -222,6 +213,14 @@ public class MissileDirectAnimManagerB : MonoBehaviour
 
     private void OnEnable()
     {
+        // スケールをリセット
+        transform.localScale = Vector3.one;
+
+        // 状態をリセット
+        isReturningToPool = false;
+        isForceReturning = false;
+        activeCoroutines.Clear();
+
         // イベントリスナーの登録
         RegisterEventListeners();
 
@@ -235,6 +234,9 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         objectCreationTime = Time.time;
 
         UpdateAimCircleSize(aimCircleScale);
+
+        // 安全タイマーを設定
+        activeCoroutines.Add(StartManagedCoroutine(SafetyTimer()));
     }
 
     private void OnDisable()
@@ -252,18 +254,23 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         isSuccessful = false;
         isFailed = false;
         isReturningToPool = false;
+        isForceReturning = false;
+
+        // すべてのコルーチンを停止
+        StopAllCoroutines();
+        activeCoroutines.Clear();
     }
 
     // MissileDirectAnimManagerB.cs の Update メソッドを修正
     private void Update()
     {
         // プールに戻す処理が開始されている場合は更新しない
-        if (isReturningToPool) return;
+        if (isReturningToPool || isForceReturning) return;
 
         // UI位置の更新
         UpdateUIPosition();
 
-        // クリックデバッグ（任意の場所でのクリック処理をデバッグ用に追加）
+        // クリック（マウスボタン押下）処理
         if (Input.GetMouseButtonDown(0))
         {
             bool isOverUI = IsPointerOverUI();
@@ -277,6 +284,27 @@ public class MissileDirectAnimManagerB : MonoBehaviour
             }
         }
 
+        // リリース（マウスボタンを離す）処理を追加
+        if (Input.GetMouseButtonUp(0))
+        {
+            bool isOverUI = IsPointerOverUI();
+
+            // UI上でのリリースで、かつ長押しノーツの場合
+            if (isOverUI && enableClickDetection && !isFailed && !isSuccessful &&
+                (noteType == MissileNoteType.Long1Beat ||
+                 noteType == MissileNoteType.Long2Beat ||
+                 noteType == MissileNoteType.Long3Beat))
+            {
+                float elapsedTime = Time.time - objectCreationTime;
+
+                // 入力マネージャーにリリース処理を委任
+                if (inputManager != null && inputManager.IsLongPressStarted())
+                {
+                    inputManager.HandleLongPressRelease(elapsedTime);
+                }
+            }
+        }
+
         // 入力検出の処理（通常のフロー）
         if (enableClickDetection && !isFailed && !isSuccessful && inputManager != null)
         {
@@ -284,18 +312,60 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         }
 
         // アニメーションが完了していたら返却処理
-        if (animManager != null && animManager.IsAnimationCompleted() && returnToPoolWhenDone && !isReturningToPool)
+        if (animManager != null && animManager.IsAnimationCompleted() && returnToPoolWhenDone && !isReturningToPool && !isForceReturning)
         {
             if (!isSuccessful && !isFailed)
             {
                 Debug.Log($"{gameObject.name}: アニメーション完了を検出。プールに返却します。");
-                StartCoroutine(ReturnToPoolWithDelay(0.2f));
+                StartManagedCoroutine(ReturnToPoolWithDelay(0.2f));
+            }
+        }
+
+        // 短押しノーツの場合のみ、入力期限切れのチェックを行う
+        if (!isSuccessful && !isFailed && !isReturningToPool && !isForceReturning && enableClickDetection)
+        {
+            float elapsedTime = Time.time - objectCreationTime;
+            float absoluteClickTargetTime = oneBeat * 4; // ジャストタイミング
+            float clickDeadlineTime = absoluteClickTargetTime + clickGracePeriod; // 入力期限
+
+            if (noteType == MissileNoteType.Short && elapsedTime > clickDeadlineTime)
+            {
+                Debug.Log($"{gameObject.name}: 入力期限を過ぎました。時間: {elapsedTime:F2}秒, 期限: {clickDeadlineTime:F2}秒");
+                TriggerNoInputFailEvent();
+            }
+            // 長押しノーツの場合は、開始されていなければ失敗
+            else if ((noteType == MissileNoteType.Long1Beat ||
+                      noteType == MissileNoteType.Long2Beat ||
+                      noteType == MissileNoteType.Long3Beat) &&
+                     elapsedTime > clickDeadlineTime &&
+                     inputManager != null &&
+                     !inputManager.IsLongPressStarted())
+            {
+                Debug.Log($"{gameObject.name}: 長押し開始の入力期限を過ぎました。時間: {elapsedTime:F2}秒, 期限: {clickDeadlineTime:F2}秒");
+                TriggerNoInputFailEvent();
             }
         }
     }
+
+    // コルーチンをリストに追加して管理するヘルパーメソッド
+    private Coroutine StartManagedCoroutine(IEnumerator routine)
+    {
+        if (isReturningToPool || isForceReturning) return null;
+
+        Coroutine coroutine = StartCoroutine(routine);
+        if (coroutine != null)
+        {
+            activeCoroutines.Add(coroutine);
+        }
+        return coroutine;
+    }
+
     // 直接クリック処理用の新しいメソッドを追加
     private void ProcessClick(float elapsedTime)
     {
+        // プールに戻す処理が開始されている場合は処理しない
+        if (isReturningToPool || isForceReturning) return;
+
         // ジャストタイミングの絶対時間（生成から4ビート後）
         float absoluteClickTargetTime = oneBeat * 4;
 
@@ -313,9 +383,13 @@ public class MissileDirectAnimManagerB : MonoBehaviour
             ProcessLongClickDown(elapsedTime, absoluteClickTargetTime);
         }
     }
+
     // 短押し判定処理
     private void ProcessShortClick(float elapsedTime, float targetTime)
     {
+        // プールに戻す処理が開始されている場合は処理しない
+        if (isReturningToPool || isForceReturning) return;
+
         // タイミング差と判定
         float timingDifference = elapsedTime - targetTime;
         bool inClickWindow = Mathf.Abs(timingDifference) <= clickGracePeriod;
@@ -339,6 +413,9 @@ public class MissileDirectAnimManagerB : MonoBehaviour
     // 長押し開始判定処理
     private void ProcessLongClickDown(float elapsedTime, float targetTime)
     {
+        // プールに戻す処理が開始されている場合は処理しない
+        if (isReturningToPool || isForceReturning) return;
+
         // タイミング差と判定
         float timingDifference = elapsedTime - targetTime;
         bool inClickWindow = Mathf.Abs(timingDifference) <= clickGracePeriod;
@@ -394,6 +471,7 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         isSuccessful = false;
         isFailed = false;
         isReturningToPool = false;
+        isForceReturning = false;
 
         // レンダラーの色をリセット
         if (missileRenderer != null)
@@ -538,6 +616,7 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         isSuccessful = false;
         isFailed = false;
         isReturningToPool = false;
+        isForceReturning = false;
 
         // 色を元に戻す
         if (missileRenderer != null)
@@ -550,78 +629,111 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         {
             inputManager.Reset();
         }
+
+        // アクティブなコルーチンをクリア
+        StopAllCoroutines();
+        activeCoroutines.Clear();
     }
 
     public void TriggerSuccessEvent()
     {
+        // プールに戻す処理が開始されている場合は何もしない
+        if (isReturningToPool || isForceReturning) return;
+
         Debug.Log($"{gameObject.name}: クリック成功！");
 
         // 成功状態を設定
         isSuccessful = true;
         isFailed = false;
 
-        // 成功時の色に変更（緑）
-        ChangeObjectColor(successColor);
 
-        // 成功イベントを実行
-        onClickSuccess?.Invoke();
+        GameObject obj = ObjectPoolerXyloOther.Instance.SpawnFromPool("SuccessGhostDown", transform.position, Quaternion.identity);
+        MissGhostAttack missGhostAttack = obj.GetComponent<MissGhostAttack>();
+        if (missGhostAttack != null)
+        {
+            missGhostAttack.InitSuccess();
+        }
+        else
+        {
+            Debug.LogError("MissGhostAttack component not found on spawned object!");
+        }
 
         // 成功エフェクトなどを表示する場合はここに追加
         if (animManager != null)
         {
-            animManager.TriggerHitAnimation();
+          //  animManager.TriggerHitAnimation();
         }
 
         // 成功時の遅延でプールに返す
         if (returnToPoolWhenDone)
         {
-            // この行を確実に実行するため、コルーチンを直接開始する
-            StartCoroutine(ReturnToPoolWithDelay(successReturnDelay));
+            // コルーチンを管理付きで開始
+            StartManagedCoroutine(ReturnToPoolWithDelay(successReturnDelay));
             Debug.Log($"{gameObject.name}: 成功後のプール返却コルーチンを開始しました");
         }
     }
 
     public void TriggerFailEvent()
     {
+        // プールに戻す処理が開始されている場合は何もしない
+        if (isReturningToPool || isForceReturning) return;
+
         Debug.Log($"{gameObject.name}: クリック失敗");
+
+        GameObject obj = ObjectPoolerXyloOther.Instance.SpawnFromPool("MissGhostAttack", transform.position, Quaternion.identity);
+
+        MissGhostAttack missGhostAttack = obj.GetComponent<MissGhostAttack>();
+        if (missGhostAttack != null)
+        {
+            missGhostAttack.InitFailed(noteType);  // ノーツタイプを渡す
+        }
+        else
+        {
+            Debug.LogError("MissGhostAttack component not found on spawned object!");
+        }
 
         // 失敗状態を設定
         isSuccessful = false;
         isFailed = true;
 
-        // 失敗時の色に変更（赤）
-        ChangeObjectColor(failColor);
-
-        // 失敗イベントを実行
-        onClickFail?.Invoke();
-
         // 失敗時の遅延でプールに返す
         if (returnToPoolWhenDone)
         {
-            // この行を確実に実行するため、コルーチンを直接開始する
-            StartCoroutine(ReturnToPoolWithDelay(failReturnDelay));
+            // コルーチンを管理付きで開始
+            StartManagedCoroutine(ReturnToPoolWithDelay(failReturnDelay));
             Debug.Log($"{gameObject.name}: 失敗後のプール返却コルーチンを開始しました");
         }
     }
 
     public void TriggerNoInputFailEvent()
     {
-        Debug.Log($"{gameObject.name}: 入力なしで失敗しました");
+        // プールに戻す処理が開始されている場合は何もしない
+        if (isReturningToPool || isForceReturning) return;
+
+        Debug.Log($"{gameObject.name}: 入力なしで失敗しました - ノーツタイプ: {noteType}");
 
         // 失敗状態を設定
         isSuccessful = false;
         isFailed = true;
 
-        // 失敗時の色に変更（赤）
-        ChangeObjectColor(failColor);
+        GameObject obj = ObjectPoolerXyloOther.Instance.SpawnFromPool("MissGhostAttack", transform.position, Quaternion.identity);
 
-        // 失敗イベントを実行
-        onClickFail?.Invoke();
+        MissGhostAttack missGhostAttack = obj.GetComponent<MissGhostAttack>();
+        if (missGhostAttack != null)
+        {
+            // ノーツタイプを渡して初期化
+            missGhostAttack.InitFailed(noteType);
+            Debug.Log($"MissGhostAttack初期化 - オブジェクト: {obj.name}, スケール: {obj.transform.localScale}");
+        }
+        else
+        {
+            Debug.LogError("MissGhostAttack component not found on spawned object!");
+        }
 
         // 失敗時の遅延でプールに返す
         if (returnToPoolWhenDone)
         {
-            StartCoroutine(ReturnToPoolWithDelay(failReturnDelay));
+            StartManagedCoroutine(ReturnToPoolWithDelay(failReturnDelay));
             Debug.Log($"{gameObject.name}: 入力なしの失敗後のプール返却コルーチンを開始しました");
         }
     }
@@ -630,8 +742,11 @@ public class MissileDirectAnimManagerB : MonoBehaviour
     {
         if (missileRenderer == null) return;
 
+        // プールに戻す処理が開始されている場合は色変更しない
+        if (isReturningToPool || isForceReturning) return;
+
         // 色変更コルーチンを開始
-        StartCoroutine(ColorChangeCoroutine(newColor));
+        StartManagedCoroutine(ColorChangeCoroutine(newColor));
     }
 
     private IEnumerator ColorChangeCoroutine(Color targetColor)
@@ -643,7 +758,7 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         float elapsedTime = 0f;
 
         // 色を徐々に変更
-        while (elapsedTime < colorChangeDuration)
+        while (elapsedTime < colorChangeDuration && !isReturningToPool && !isForceReturning)
         {
             elapsedTime += Time.deltaTime;
             float t = Mathf.Clamp01(elapsedTime / colorChangeDuration);
@@ -654,12 +769,18 @@ public class MissileDirectAnimManagerB : MonoBehaviour
             yield return null;
         }
 
-        // 確実に目標色に設定
-        missileRenderer.material.color = targetColor;
+        // プールに戻す処理中でない場合のみ目標色に設定
+        if (!isReturningToPool && !isForceReturning && missileRenderer != null)
+        {
+            missileRenderer.material.color = targetColor;
+        }
     }
 
     public void TempoMethod()
     {
+        // プールに戻す処理が開始されている場合は更新しない
+        if (isReturningToPool || isForceReturning) return;
+
         // テンポ情報が初期化されていない場合は初期化を試みる
         if (!isInitialized)
         {
@@ -673,30 +794,36 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         // オブジェクトが非アクティブならアニメーションを更新しない
         if (uiManager == null || !uiManager.IsUIActive()) return;
 
-        // プールに戻す処理が開始されている場合は更新しない
-        if (isReturningToPool) return;
-
         // アニメーションを開始または進行
         animManager.HandleTempoTick(noteType);
 
         // アニメーションが完了していて、かつ成功/失敗のいずれも発生していない場合は自動的にプールに返却
-        if (animManager.IsAnimationCompleted() && !isSuccessful && !isFailed && returnToPoolWhenDone && !isReturningToPool)
+        if (animManager.IsAnimationCompleted() && !isSuccessful && !isFailed && returnToPoolWhenDone && !isReturningToPool && !isForceReturning)
         {
-              StartCoroutine(ReturnToPoolWithDelay(0f)); // 0.5秒後に返却
+            StartManagedCoroutine(ReturnToPoolWithDelay(0f));
         }
     }
 
     public IEnumerator ReturnToPoolWithDelay(float delay)
     {
         // 返却処理が開始されていなければ開始
-        if (!isReturningToPool)
+        if (!isReturningToPool && !isForceReturning)
         {
             isReturningToPool = true;
-          
+
+            // 実行中のすべてのコルーチンを停止（ただし自分自身は除く）
+            foreach (Coroutine coroutine in activeCoroutines.ToArray())
+            {
+                if (coroutine != null)
+                {
+                    StopCoroutine(coroutine);
+                }
+            }
+            activeCoroutines.Clear();
+
             // 指定された遅延を待つ
             yield return new WaitForSeconds(delay);
 
-         
             // プール返却前に状態をクリーンアップ
             CleanupBeforePoolReturn();
 
@@ -723,6 +850,19 @@ public class MissileDirectAnimManagerB : MonoBehaviour
             missileRenderer.material.color = normalColor;
         }
 
+        // HomingObjectのスケールをリセット
+        HomingObject homingComponent = GetComponent<HomingObject>();
+        if (homingComponent != null)
+        {
+            // HomingObjectのResetObjectメソッドを呼ぶか、直接スケールをリセット
+            transform.localScale = homingComponent.InitialScale;
+        }
+        else
+        {
+            // HomingObjectがなければデフォルトのスケールに戻す
+            transform.localScale = Vector3.one;
+        }
+
         // 動的生成したUIリソースをクリア（プール返却時）
         if (uiManager != null)
         {
@@ -743,7 +883,7 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         yield return new WaitForSeconds(maxLifetime);
 
         // まだアクティブで、かつ返却処理が開始されていない場合
-        if (gameObject.activeInHierarchy && !isReturningToPool)
+        if (gameObject.activeInHierarchy && !isReturningToPool && !isForceReturning)
         {
             Debug.LogWarning($"{gameObject.name}: 安全タイマーによる強制返却を実行します（{maxLifetime}秒経過）");
             ForceReturnToPool();
@@ -754,10 +894,14 @@ public class MissileDirectAnimManagerB : MonoBehaviour
     public void ForceReturnToPool()
     {
         // すでに返却処理中なら何もしない
-        if (isReturningToPool) return;
+        if (isReturningToPool || isForceReturning) return;
 
-        isReturningToPool = true;
-        Debug.Log($"{gameObject.name}: 強制的にプールに返却します");
+        isForceReturning = true;
+        Debug.Log($"{gameObject.name}: 強制的にプールに返却します - 実行中のコルーチンを停止中...");
+
+        // 実行中のすべてのコルーチンを停止
+        StopAllCoroutines();
+        activeCoroutines.Clear();
 
         // アニメーションとUI要素をクリーンアップ
         CleanupBeforePoolReturn();
@@ -813,7 +957,7 @@ public class MissileDirectAnimManagerB : MonoBehaviour
             case MissileAnimationType.Long03_01: return long03_1stSprites;
             case MissileAnimationType.Long03_02: return long03_2ndSprites;
             case MissileAnimationType.Long03_03: return long03_3rdSprites;
-            case MissileAnimationType.Hit: return hitSprites;
+        //    case MissileAnimationType.Hit: return new Sprite[0]; // hitSprites配列を削除したため空の配列を返す
             case MissileAnimationType.None:
             default:
                 return new Sprite[0];

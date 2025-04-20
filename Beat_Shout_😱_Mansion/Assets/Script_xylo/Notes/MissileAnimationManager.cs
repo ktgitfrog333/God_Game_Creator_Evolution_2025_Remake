@@ -79,11 +79,11 @@ public class MissileAnimationManager
         animLayer6th.Initialize(parent.GetSpritesForType(MissileAnimationType.Long03_01), parent.GetNormalFrameDelay());
         animLayer6th.SetVisibility(false); // 初期状態では非表示
 
-        // Hitレイヤー（特殊なHitアニメーション用のレイヤー）
-        GameObject layerHit = uiManager.CreateLayer("HitLayer");
-        hitLayer = layerHit.AddComponent<MissileUIHitAnimationLayer>();
-        hitLayer.Initialize(parent.GetSpritesForType(MissileAnimationType.Hit), parent.GetHitFrameDelay());
-        hitLayer.SetVisibility(false); // 初期状態は非表示
+        //// Hitレイヤー（特殊なHitアニメーション用のレイヤー）
+        //GameObject layerHit = uiManager.CreateLayer("HitLayer");
+        //hitLayer = layerHit.AddComponent<MissileUIHitAnimationLayer>();
+        //hitLayer.Initialize(parent.GetSpritesForType(MissileAnimationType.Hit), parent.GetHitFrameDelay());
+        //hitLayer.SetVisibility(false); // 初期状態は非表示
     }
 
     /// <summary>
@@ -97,7 +97,7 @@ public class MissileAnimationManager
         animLayer4th.SetVisibility(false);
         animLayer5th.SetVisibility(false);
         animLayer6th.SetVisibility(false);
-        hitLayer.SetVisibility(false);
+  //      hitLayer.SetVisibility(false);
     }
 
     /// <summary>
@@ -111,7 +111,7 @@ public class MissileAnimationManager
         animLayer4th.StopAnimation();
         animLayer5th.StopAnimation();
         animLayer6th.StopAnimation();
-        hitLayer.StopAnimation();
+      //  hitLayer.StopAnimation();
     }
 
     /// <summary>
@@ -149,8 +149,8 @@ public class MissileAnimationManager
             animLayer6th.RestartAnimation();
 
         // Hitレイヤーは可視状態の場合のみ再スタート
-        if (hitLayer.IsVisible())
-            hitLayer.RestartAnimation();
+        //if (hitLayer.IsVisible())
+        //    hitLayer.RestartAnimation();
     }
 
     /// <summary>
@@ -306,11 +306,11 @@ public class MissileAnimationManager
                 animLayer6th.SetVisibility(true);
                 animLayer6th.RestartAnimation();
                 break;
-            case MissileAnimationType.Hit:
-                hitLayer.ChangeSprites(parent.GetSpritesForType(MissileAnimationType.Hit));
-                hitLayer.SetVisibility(true);
-                hitLayer.RestartAnimation();
-                break;
+            //case MissileAnimationType.Hit:
+            //    hitLayer.ChangeSprites(parent.GetSpritesForType(MissileAnimationType.Hit));
+            //    hitLayer.SetVisibility(true);
+            //    hitLayer.RestartAnimation();
+            //    break;
         }
     }
 
