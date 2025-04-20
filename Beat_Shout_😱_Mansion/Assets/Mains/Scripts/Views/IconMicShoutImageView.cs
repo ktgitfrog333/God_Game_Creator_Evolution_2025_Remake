@@ -33,6 +33,9 @@ namespace Mains.Views
         private void Start()
         {
             _shoutChancePartPanelViewModel = new ShoutChancePartPanelViewModel();
+            Color color = new Color(image.color.r, image.color.g, image.color.b, image.color.a);
+            color = new Color(255, 255, 255, 0);
+            image.color = color;
         }
 
         /// <summary>
@@ -70,6 +73,8 @@ namespace Mains.Views
 
                         break;
                 }
+                color = new Color(255, 255, 255, 0);
+                image.color = color;
                 _isPlaying = false;
             }
         }

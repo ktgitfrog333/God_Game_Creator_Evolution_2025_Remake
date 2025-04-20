@@ -40,6 +40,10 @@ namespace Mains.Views
         }
         [Tooltip("Assets/Mains/Prefabs/Effects/GhostBursts.prefabをセットしておく。")]
         [SerializeField] private GameObject ghostBurstsPrefab;
+        [Tooltip("Assets/Mains/Prefabs/Level/DynamicObjects/MissileTempoSpawner.prefabをセットしておく。")]
+        [SerializeField] private Transform missileTempoSpawnerPrefab;
+        /// <summary>ミサイルテンポスポナー</summary>
+        private Transform _missileTempoSpawnerInstance;
         /// <summary>オバケが飛び出すエフェクト</summary>
         private Transform _ghostBurstsInstance;
         /// <summary>ポルターガイストのビューモデル</summary>
@@ -151,6 +155,23 @@ namespace Mains.Views
                     _poltergeistViewModel.AddGhostInStaticObjectStructs(ghostInStaticObjectStruct);
                 })
                 .AddTo(ref _disposableBag);
+            // リズムパートから探索パートへ切り替わった時の処理
+            Observable.EveryUpdate()
+                .Select(x => _poltergeistViewModel.InteractionPart)
+                .Where(x => x != null)
+                .Take(1)
+                .Subscribe(x =>
+                {
+                    x.Pairwise()
+                        .Where(x => x.Previous.Equals(InteractionPart.Rhythm) &&
+                            x.Current.Equals(InteractionPart.Search))
+                        .Subscribe(_ =>
+                        {
+                            FindMissileTempoSpawnerInstanceAndDestroy(_missileTempoSpawnerInstance);
+                        })
+                        .AddTo(ref _disposableBag);
+                })
+                .AddTo(ref _disposableBag);
         }
 
         private void OnDestroy()
@@ -214,6 +235,17 @@ namespace Mains.Views
         }
 
         /// <summary>
+        /// ミサイルテンポスポナーを生成
+        /// </summary>
+        public void InstanceMissileTempoSpawner()
+        {
+            var originParent = _transform.parent;
+            var missileTempoSpawnerInstance = Instantiate(missileTempoSpawnerPrefab, _transform.position, Quaternion.identity);
+            missileTempoSpawnerInstance.transform.SetParent(originParent);
+            _missileTempoSpawnerInstance = missileTempoSpawnerInstance;
+        }
+
+        /// <summary>
         /// 移動元の家具のポルターガイスト情報を初期化
         /// </summary>
         private void ResetStaticObject()
@@ -252,6 +284,18 @@ namespace Mains.Views
             {
                 ghostBurstsInstance.gameObject.SetActive(false);
                 ghostBurstsInstance.gameObject.SetActive(true);
+            }
+        }
+
+        /// <summary>
+        /// リズムパート終了時にDestroy
+        /// </summary>
+        /// <param name="missileTempoSpawnerInstance">ミサイルテンポスポナー</param>
+        private void FindMissileTempoSpawnerInstanceAndDestroy(Transform missileTempoSpawnerInstance)
+        {
+            if (missileTempoSpawnerInstance != null)
+            {
+                Destroy(missileTempoSpawnerInstance);
             }
         }
     }

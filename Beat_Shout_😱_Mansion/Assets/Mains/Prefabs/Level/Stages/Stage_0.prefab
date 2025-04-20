@@ -2477,6 +2477,7 @@ MonoBehaviour:
     useStatus: 0
     membersCount: 0
   ghostBurstsPrefab: {fileID: 115835426956401962, guid: 1cd222a032c831547b213c40ba8738bd, type: 3}
+  missileTempoSpawnerPrefab: {fileID: 401138369664789558, guid: b884b75fd024dbe4884d96e9b68ae9ae, type: 3}
 --- !u!1001 &452640602427414102
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2569,6 +2570,7 @@ MonoBehaviour:
     useStatus: 0
     membersCount: 0
   ghostBurstsPrefab: {fileID: 115835426956401962, guid: 1cd222a032c831547b213c40ba8738bd, type: 3}
+  missileTempoSpawnerPrefab: {fileID: 401138369664789558, guid: b884b75fd024dbe4884d96e9b68ae9ae, type: 3}
 --- !u!4 &452640602427542742 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 7ea1b4827d80a8c46807bd4db372acce, type: 3}
@@ -2925,6 +2927,7 @@ MonoBehaviour:
     useStatus: 0
     membersCount: 0
   ghostBurstsPrefab: {fileID: 115835426956401962, guid: 1cd222a032c831547b213c40ba8738bd, type: 3}
+  missileTempoSpawnerPrefab: {fileID: 401138369664789558, guid: b884b75fd024dbe4884d96e9b68ae9ae, type: 3}
 --- !u!1001 &2243374278998469590
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3724,6 +3727,7 @@ MonoBehaviour:
     useStatus: 0
     membersCount: 0
   ghostBurstsPrefab: {fileID: 115835426956401962, guid: 1cd222a032c831547b213c40ba8738bd, type: 3}
+  missileTempoSpawnerPrefab: {fileID: 401138369664789558, guid: b884b75fd024dbe4884d96e9b68ae9ae, type: 3}
 --- !u!65 &8943054137760225620
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4065,6 +4069,7 @@ MonoBehaviour:
     useStatus: 1
     membersCount: 10
   ghostBurstsPrefab: {fileID: 115835426956401962, guid: 1cd222a032c831547b213c40ba8738bd, type: 3}
+  missileTempoSpawnerPrefab: {fileID: 401138369664789558, guid: b884b75fd024dbe4884d96e9b68ae9ae, type: 3}
 --- !u!4 &8891762599458546522 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3911650657010619928, guid: 112fd45f6f54f45a0978da508b41e5d4, type: 3}
@@ -4267,6 +4272,7 @@ MonoBehaviour:
     useStatus: 1
     membersCount: 10
   ghostBurstsPrefab: {fileID: 115835426956401962, guid: 1cd222a032c831547b213c40ba8738bd, type: 3}
+  missileTempoSpawnerPrefab: {fileID: 401138369664789558, guid: b884b75fd024dbe4884d96e9b68ae9ae, type: 3}
 --- !u!4 &3167666049093089847 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7339045949415580884, guid: ee416fcfe3446314085d321eda9c4034, type: 3}
@@ -4554,6 +4560,7 @@ MonoBehaviour:
     useStatus: 0
     membersCount: 0
   ghostBurstsPrefab: {fileID: 115835426956401962, guid: 1cd222a032c831547b213c40ba8738bd, type: 3}
+  missileTempoSpawnerPrefab: {fileID: 401138369664789558, guid: b884b75fd024dbe4884d96e9b68ae9ae, type: 3}
 --- !u!4 &7847009707245859135 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3911650657010619928, guid: 112fd45f6f54f45a0978da508b41e5d4, type: 3}
@@ -4738,6 +4745,7 @@ MonoBehaviour:
     useStatus: 0
     membersCount: 0
   ghostBurstsPrefab: {fileID: 115835426956401962, guid: 1cd222a032c831547b213c40ba8738bd, type: 3}
+  missileTempoSpawnerPrefab: {fileID: 401138369664789558, guid: b884b75fd024dbe4884d96e9b68ae9ae, type: 3}
 --- !u!1001 &7379247449208222928
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5132,6 +5140,7 @@ MonoBehaviour:
     useStatus: 0
     membersCount: 0
   ghostBurstsPrefab: {fileID: 115835426956401962, guid: 1cd222a032c831547b213c40ba8738bd, type: 3}
+  missileTempoSpawnerPrefab: {fileID: 401138369664789558, guid: b884b75fd024dbe4884d96e9b68ae9ae, type: 3}
 --- !u!4 &3001803706153274780 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4813020071187404504, guid: d6f63ad3208cd914e9aa0a9b98f8f005, type: 3}
@@ -5425,6 +5434,7 @@ MonoBehaviour:
     useStatus: 0
     membersCount: 0
   ghostBurstsPrefab: {fileID: 115835426956401962, guid: 1cd222a032c831547b213c40ba8738bd, type: 3}
+  missileTempoSpawnerPrefab: {fileID: 0}
 --- !u!1001 &8727133031269667786
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5548,6 +5558,7 @@ MonoBehaviour:
     useStatus: 1
     membersCount: 10
   ghostBurstsPrefab: {fileID: 115835426956401962, guid: 1cd222a032c831547b213c40ba8738bd, type: 3}
+  missileTempoSpawnerPrefab: {fileID: 401138369664789558, guid: b884b75fd024dbe4884d96e9b68ae9ae, type: 3}
 --- !u!4 &8727133031270058314 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: de56919f78259af428f6dcc83528f34f, type: 3}

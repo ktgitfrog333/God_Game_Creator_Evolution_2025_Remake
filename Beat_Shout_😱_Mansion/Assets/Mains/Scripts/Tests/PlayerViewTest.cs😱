@@ -17,7 +17,7 @@ namespace Mains.Tests
         //[SerializeField] private PoltergeistView[] poltergeistViews;
         //[SerializeField] private GhostInStaticObjectStruct[] ghostInStaticObjectStructs;
         //private Player _player = null;
-        private Transform _spotLight;
+        //private Transform _spotLight;
 
         private void Start()
         {
@@ -30,15 +30,15 @@ namespace Mains.Tests
             //ghostInStaticObjectStructs = poltergeistViews.Select(q => q.GhostInStaticObjectStruct).ToArray();
             //var isTapLight = _player.GetButtonDown("TapLight");
             //Debug.Log($"isTapLight: [{isTapLight}]");
-            if (_spotLight == null)
-            {
-                PlayerView playerView = FindAnyObjectByType<PlayerView>();
-                _spotLight = playerView.transform.GetChild(0).GetChild(0).GetChild(0).GetChild(0).GetChild(0);
-            }
-            else
-            {
-                //Debug.DrawRay(_spotLight.position, _spotLight.forward * 5f, Color.green);
-            }
+            //if (_spotLight == null)
+            //{
+            //    PlayerView playerView = FindAnyObjectByType<PlayerView>();
+            //    _spotLight = playerView.transform.GetChild(0).GetChild(0).GetChild(0).GetChild(0).GetChild(0);
+            //}
+            //else
+            //{
+            //    //Debug.DrawRay(_spotLight.position, _spotLight.forward * 5f, Color.green);
+            //}
         }
 
         private void OnGUI()
@@ -146,13 +146,13 @@ namespace Mains.Tests
             //    playerModel.InteractionPartTable.interactionPart.Value = InteractionPart.Rhythm;
             //}
 
-            if (GUI.Button(buttonRect1, "探索パート"))
-            {
-                Debug.Log("探索パートボタンが押された！");
+            //if (GUI.Button(buttonRect1, "探索パート"))
+            //{
+            //    Debug.Log("探索パートボタンが押された！");
 
-                PlayerModel playerModel = FindAnyObjectByType<PlayerModel>();
-                playerModel.InteractionPartTable.interactionPart.Value = InteractionPart.Search;
-            }
+            //    PlayerModel playerModel = FindAnyObjectByType<PlayerModel>();
+            //    playerModel.InteractionPartTable.interactionPart.Value = InteractionPart.Search;
+            //}
 
             //Rect buttonRectBgmB = new Rect(10, 70, 150, 50);
 
@@ -161,6 +161,29 @@ namespace Mains.Tests
             //    // CRIWARE_conductorのインスタンスにアクセス
             //    CRIWARE_conductor.Instance.ChangeBgmB(3); // 0は開始ティック位置
             //}
+            if (GUI.Button(new Rect(20, 20, 200, 40), "DropBattery 呼び出し"))
+            {
+                PlayerView playerView = FindAnyObjectByType<PlayerView>();
+                if (playerView != null)
+                {
+                    // リフレクションで private メソッド DropBattery を呼び出す
+                    MethodInfo method = typeof(PlayerView).GetMethod("DropBattery", BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (method != null)
+                    {
+                        var obj = new object[]
+                        {
+                            playerView.transform,
+                            playerView.transform.GetChild(0).GetChild(0).GetChild(0).GetChild(0).GetChild(0),
+                        };
+                        method.Invoke(playerView, obj);
+                        Debug.Log("DropBattery を実行しました。");
+                    }
+                    else
+                    {
+                        Debug.LogError("DropBattery メソッドが見つかりませんでした。");
+                    }
+                }
+            }
         }
     }
 }

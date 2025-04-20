@@ -1,0 +1,77 @@
+using UnityEngine;
+using System.Collections.Generic;
+
+namespace Mains.Tests
+{
+    public class MissileDirectAnimManagerBTest : MonoBehaviour
+    {
+        [SerializeField] private Transform[] missileEffectContainers;
+        private void OnGUI()
+        {
+            // ボタンを描画
+            Rect buttonRect = new Rect(10, 10, 200, 50);
+            //if (GUI.Button(buttonRect, "ForceReturnToPool 実行"))
+            //{
+            //    // MissileDirectAnimManagerB をシーン内から取得
+            //    var manager = FindAnyObjectByType<MissileDirectAnimManagerB>();
+            //    if (manager != null)
+            //    {
+            //        manager.ForceReturnToPool();
+            //        Debug.Log("ForceReturnToPool を実行しました。");
+            //    }
+            //    else
+            //    {
+            //        Debug.LogError("MissileDirectAnimManagerB のインスタンスが見つかりません。");
+            //    }
+            //}
+            if (GUI.Button(buttonRect, "localScale:0 実行"))
+            {
+                foreach (var missileEffectContainer in missileEffectContainers)
+                {
+                    missileEffectContainer.localScale = Vector3.zero;
+                }
+            }
+            Rect buttonRect1 = new Rect(10, 10 + 50 + 4, 200, 50);
+            if (GUI.Button(buttonRect1, "localScale:1 実行"))
+            {
+                foreach (var missileEffectContainer in missileEffectContainers)
+                {
+                    missileEffectContainer.localScale = Vector3.one;
+                }
+            }
+        }
+
+        private void Update()
+        {
+            // MissileEffectContainer
+            if (missileEffectContainers == null ||
+                missileEffectContainers.Length < 1)
+            {
+                var gameobject = GameObject.Find("MissileEffectContainer");
+                if (gameobject != null)
+                {
+                    var parent = gameobject.transform.parent;
+                    List<Transform> containers = new List<Transform>();
+                    foreach (Transform child in parent)
+                    {
+                        if (child.name.Equals("MissileEffectContainer"))
+                        {
+                            containers.Add(child);
+                        }
+                    }
+                    missileEffectContainers = containers.ToArray();
+                }
+            }
+            //var manager = FindAnyObjectByType<MissileDirectAnimManagerB>();
+            //if (manager != null)
+            //{
+            //    manager.ForceReturnToPool();
+            //    Debug.Log("ForceReturnToPool を実行しました。");
+            //}
+            //else
+            //{
+            //    Debug.LogError("MissileDirectAnimManagerB のインスタンスが見つかりません。");
+            //}
+        }
+    }
+}

@@ -1,0 +1,13 @@
+using UnityEngine;
+
+namespace Mains.Commons
+{
+    /// <summary>
+    /// シャウトチャンスパートの共通パラメータ管理用テーブル
+    /// </summary>
+    [CreateAssetMenu(fileName = "PlayerShoutChanceTable", menuName = "Scriptable Objects/PlayerShoutChanceTable")]
+    public class PlayerShoutChanceTable : ScriptableObject
+    {
+        public float シャウト達成デシベル;
+    }
+}

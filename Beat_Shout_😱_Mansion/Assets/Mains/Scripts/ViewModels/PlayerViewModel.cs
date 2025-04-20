@@ -47,6 +47,10 @@ namespace Mains.ViewModels
                 return _playerModel?.TargetCrossPosition ?? null;
             }
         }
+        /// <summary>バッテリーのトランスフォーム</summary>
+        public Transform BatteryTransform => _playerModel?.BatteryTransform ?? null;
+        /// <summary>バッテリーが選択状態か</summary>
+        public bool IsSelectedBattery => _playerModel?.IsSelectedBattery ?? false;
 
         public PlayerViewModel(InteractionPartTable interactionPartTable)
         {
@@ -95,6 +99,12 @@ namespace Mains.ViewModels
         {
             if (_playerModel != null)
                 _playerModel.SetHealthPoint(healthPoint);
+        }
+
+        public void SetBatteryTransform(Transform batteryTransform)
+        {
+            if (_playerModel != null)
+                _playerModel.SetBatteryTransform(batteryTransform);
         }
     }
 }

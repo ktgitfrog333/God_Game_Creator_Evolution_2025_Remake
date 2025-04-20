@@ -50,7 +50,8 @@ namespace Mains.Views
                             case Commons.InteractionPart.Rhythm:
                                 centerPanel.gameObject.SetActive(true);
                                 targetCrossDisposable?.Dispose();
-                                int layerMask = 1 << LayerMask.NameToLayer("TerrainObjects");
+                                int layerMaskTerrainObjects = 1 << LayerMask.NameToLayer("TerrainObjects");
+                                int layerMaskDropItems = 1 << LayerMask.NameToLayer("DropItems");
                                 // マウスポインターへ追従
                                 targetCrossDisposable = Observable.EveryUpdate()
                                     .Subscribe(_ =>
@@ -73,7 +74,7 @@ namespace Mains.Views
                                                 // ポインター位置（スクリーン座標）からワールド方向ベクトルを計算
                                                 Ray ray = Camera.main.ScreenPointToRay(mousePos);
 
-                                                if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, layerMask))
+                                                if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, layerMaskTerrainObjects))
                                                 {
                                                     Vector3 hitPoint = hit.point;
                                                     _rhythmPartPanelViewModel.SetTargetCrossPosition(hitPoint);
@@ -86,6 +87,19 @@ namespace Mains.Views
 
                                                 // 必要なら制限処理もここで
                                                 targetCrossImage.anchoredPosition = localPoint;
+                                                // 選択状態の電池を検知する
+                                                if (Physics.Raycast(ray, out RaycastHit hit1, Mathf.Infinity, layerMaskDropItems))
+                                                {
+                                                    Transform hitTrans = hit1.transform;
+                                                    _rhythmPartPanelViewModel.SetIsSelectedBattery(true);
+
+                                                    // デバッグ表示
+                                                    Debug.DrawLine(ray.origin, hitTrans.position, Color.red);
+                                                }
+                                                else
+                                                {
+                                                    _rhythmPartPanelViewModel.SetIsSelectedBattery(false);
+                                                }
                                             }
                                         }
                                         else if (isInputJoystick && !isInputMouse)
@@ -108,10 +122,23 @@ namespace Mains.Views
                                             // ポインター位置（スクリーン座標）からワールド方向ベクトルを計算
                                             Ray ray = Camera.main.ScreenPointToRay(screenPoint);
 
-                                            if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, layerMask))
+                                            if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, layerMaskTerrainObjects))
                                             {
                                                 Vector3 hitPoint = hit.point;
                                                 _rhythmPartPanelViewModel.SetTargetCrossPosition(hitPoint);
+                                            }
+                                            // 選択状態の電池を検知する
+                                            if (Physics.Raycast(ray, out RaycastHit hit1, Mathf.Infinity, layerMaskDropItems))
+                                            {
+                                                Transform hitTrans = hit1.transform;
+                                                _rhythmPartPanelViewModel.SetIsSelectedBattery(true);
+
+                                                // デバッグ表示
+                                                Debug.DrawLine(ray.origin, hitTrans.position, Color.red);
+                                            }
+                                            else
+                                            {
+                                                _rhythmPartPanelViewModel.SetIsSelectedBattery(false);
                                             }
                                         }
                                     })

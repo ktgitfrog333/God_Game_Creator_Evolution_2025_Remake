@@ -14,8 +14,5 @@ namespace Mains.Commons
         [Tooltip("CommonPanel > HeaderPanel > MissionText のテンプレートをセット")]
         /// <summary>ミッションガイド詳細のテキスト</summary>
         public string missionText;
-        [Tooltip("CommonPanel > HeaderPanel > dBLevelText のテンプレートをセット")]
-        /// <summary>dB(A)を表示する用のテキスト</summary>
-        public string dBLevelText;
     }
 }

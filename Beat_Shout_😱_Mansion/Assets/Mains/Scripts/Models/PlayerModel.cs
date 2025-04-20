@@ -32,6 +32,14 @@ namespace Mains.Models
         private readonly ReactiveCommand<Vector3> _targetCrossPosition = new();
         /// <summary>ターゲットクロス位置</summary>
         public ReactiveCommand<Vector3> TargetCrossPosition => _targetCrossPosition;
+        /// <summary>バッテリーのトランスフォーム</summary>
+        private Transform _batteryTransform;
+        /// <summary>バッテリーのトランスフォーム</summary>
+        public Transform BatteryTransform => _batteryTransform;
+        /// <summary>バッテリーが選択状態か</summary>
+        private bool _isSelectedBattery;
+        /// <summary>バッテリーが選択状態か</summary>
+        public bool IsSelectedBattery => _isSelectedBattery;
 
         private void Start()
         {
@@ -124,6 +132,22 @@ namespace Mains.Models
         {
             _targetCrossPosition.Execute(targetCrossPosition);
         }
+
+        public void SetBatteryTransform(Transform batteryTransform)
+        {
+            if (_batteryTransform == null ||
+                batteryTransform == null ||
+                !_batteryTransform.Equals(batteryTransform))
+            {
+                _batteryTransform = batteryTransform;
+            }
+        }
+
+        public void SetIsSelectedBattery(bool isSelectedBattery)
+        {
+            if (_isSelectedBattery != isSelectedBattery)
+                _isSelectedBattery = isSelectedBattery;
+        }
     }
 
     /// <summary>
@@ -166,6 +190,11 @@ namespace Mains.Models
         /// </summary>
         /// <param name="healthPoint">プレイヤーのHP</param>
         public void SetHealthPoint(int healthPoint);
+        /// <summary>
+        /// バッテリーのトランスフォームをセット
+        /// </summary>
+        /// <param name="batteryTransform">バッテリーのトランスフォーム</param>
+        public void SetBatteryTransform(Transform batteryTransform);
     }
 
     /// <summary>
@@ -200,5 +229,15 @@ namespace Mains.Models
         /// </summary>
         /// <param name="targetCrossPosition">ターゲットクロス位置</param>
         public void SetTargetCrossPosition(Vector3 targetCrossPosition);
+        ///// <summary>
+        ///// バッテリーのトランスフォームをセット
+        ///// </summary>
+        ///// <param name="batteryTransform">バッテリーのトランスフォーム</param>
+        //public void SetBatteryTransform(Transform batteryTransform);
+        /// <summary>
+        /// バッテリーの選択状態をセット
+        /// </summary>
+        /// <param name="isSelectedBattery">バッテリーの選択状態</param>
+        public void SetIsSelectedBattery(bool isSelectedBattery);
     }
 }
