@@ -14,6 +14,45 @@ namespace Mains.External
         private MicInput_Criware _micInput_Criware;
         private readonly ReactiveCommand<float> _frameRate = new ReactiveCommand<float>();
         public ReactiveCommand<float> FrameRate => _frameRate;
+        private MissileDirectAnimManagerB _missileDirectAnimManagerB;
+        private readonly ReactiveCommand<bool> _isSuccessful = new ReactiveCommand<bool>();
+        public ReactiveCommand<bool> IsSuccessful => _isSuccessful;
+        private readonly ReactiveCommand<bool> _isFailed = new ReactiveCommand<bool>();
+        public ReactiveCommand<bool> IsFailed => _isFailed;
+        public Transform NoteTransform
+        {
+            get
+            {
+                if (_missileDirectAnimManagerB == null)
+                {
+                    return null;
+                }
+
+                // プライベートフィールド `_uiManager` をリフレクションで取得
+                var managerType = _missileDirectAnimManagerB.GetType();
+                var uiManagerField = managerType.GetField("uiManager", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (uiManagerField == null)
+                {
+                    Debug.LogWarning("_uiManager フィールドが見つかりませんでした。");
+                    return null;
+                }
+                var uiManager = uiManagerField.GetValue(_missileDirectAnimManagerB);
+                if (uiManager == null)
+                {
+                    Debug.LogWarning("_uiManager が null です。");
+                    return null;
+                }
+
+                var containerObject = ((MissileUIManager)uiManager).GetUIContainer();
+                if (containerObject == null)
+                {
+                    Debug.LogWarning("GetUIContainer の結果が null です。");
+                    return null;
+                }
+
+                return containerObject.transform as RectTransform;
+            }
+        }
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -38,6 +77,35 @@ namespace Mains.External
                     _frameRate.Execute(frameRate.Current);
                 })
                 .AddTo(ref _disposableBag);
+        }
+
+        public void SetMissileDirectAnimManagerB(Transform transform)
+        {
+            var missileDirectAnimManagerB = transform.GetComponent<MissileDirectAnimManagerB>();
+            if (missileDirectAnimManagerB != null)
+            {
+                _missileDirectAnimManagerB = missileDirectAnimManagerB;
+                Observable.EveryUpdate()
+                    .Select(_ => missileDirectAnimManagerB.IsSuccessful())
+                    .Pairwise()
+                    .Where(x => x.Previous != x.Current)
+                    .Select(x => x.Current)
+                    .Subscribe(isSuccessful =>
+                    {
+                        _isSuccessful.Execute(isSuccessful);
+                    })
+                    .AddTo(ref _disposableBag);
+                Observable.EveryUpdate()
+                    .Select(_ => missileDirectAnimManagerB.IsFailed())
+                    .Pairwise()
+                    .Where(x => x.Previous != x.Current)
+                    .Select(x => x.Current)
+                    .Subscribe(isFailed =>
+                    {
+                        _isFailed.Execute(isFailed);
+                    })
+                    .AddTo(ref _disposableBag);
+            }
         }
 
         /// <summary>

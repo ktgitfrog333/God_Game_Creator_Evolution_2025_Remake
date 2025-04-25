@@ -1,0 +1,96 @@
+using Mains.Views;
+using UnityEngine;
+using System.Reflection;
+
+namespace Mains.Tests
+{
+    public class HomingObjectCustomizeViewTest : MonoBehaviour
+    {
+        [Tooltip("Assets/Mains/Prefabs/UIs/GoodPanel.prefabをセットしておく。")]
+        [SerializeField] private Transform goodPanelPrefab;
+        [Tooltip("Assets/Mains/Prefabs/Level/DynamicObjects/GoodParticleSys.prefabをセットしておく。")]
+        [SerializeField] private Transform goodParticleSysPrefab;
+        [SerializeField] private Transform noteTransform;
+        [Tooltip("Assets/Mains/Prefabs/UIs/BadPanel.prefabをセットしておく。")]
+        [SerializeField] private Transform badPanelPrefab;
+        [Tooltip("Assets/Mains/Prefabs/Level/DynamicObjects/BadParticleSys.prefabをセットしておく。")]
+        [SerializeField] private Transform badParticleSysPrefab;
+
+        private void OnGUI()
+        {
+            if (GUI.Button(new Rect(20, 20, 250, 40), "（G）ShowUIPanelAtObjectPosition 実行"))
+            {
+                // HomingObjectCustomizeView をシーン内から取得
+                var view = GetComponent<HomingObjectCustomizeView>();
+                if (view != null)
+                {
+                    // リフレクションで private メソッドを取得
+                    MethodInfo method = typeof(HomingObjectCustomizeView).GetMethod(
+                        "ShowUIPanelAtObjectPosition",
+                        BindingFlags.NonPublic | BindingFlags.Instance
+                    );
+
+                    if (method != null)
+                    {
+                        var canvasTransform = GameObject.Find("OverlayCanvas").transform;
+                        object[] objects = new object[]
+                        {
+                            goodPanelPrefab,
+                            canvasTransform,
+                            goodParticleSysPrefab,
+                            noteTransform,
+                            transform,
+                        };
+                        method.Invoke(view, objects);
+                        Debug.Log("ShowUIPanelAtObjectPosition を実行しました。");
+                    }
+                    else
+                    {
+                        Debug.LogWarning("ShowUIPanelAtObjectPosition メソッドが見つかりません。");
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning("HomingObjectCustomizeView が見つかりません。");
+                }
+            }
+
+            if (GUI.Button(new Rect(20, 20 + 40 + 4, 250, 40), "（B）ShowUIPanelAtObjectPosition 実行"))
+            {
+                // HomingObjectCustomizeView をシーン内から取得
+                var view = GetComponent<HomingObjectCustomizeView>();
+                if (view != null)
+                {
+                    // リフレクションで private メソッドを取得
+                    MethodInfo method = typeof(HomingObjectCustomizeView).GetMethod(
+                        "ShowUIPanelAtObjectPosition",
+                        BindingFlags.NonPublic | BindingFlags.Instance
+                    );
+
+                    if (method != null)
+                    {
+                        var canvasTransform = GameObject.Find("OverlayCanvas").transform;
+                        object[] objects = new object[]
+                        {
+                            badPanelPrefab,
+                            canvasTransform,
+                            badParticleSysPrefab,
+                            noteTransform,
+                            transform,
+                        };
+                        method.Invoke(view, objects);
+                        Debug.Log("ShowUIPanelAtObjectPosition を実行しました。");
+                    }
+                    else
+                    {
+                        Debug.LogWarning("ShowUIPanelAtObjectPosition メソッドが見つかりません。");
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning("HomingObjectCustomizeView が見つかりません。");
+                }
+            }
+        }
+    }
+}
