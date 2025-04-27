@@ -216,7 +216,7 @@ namespace Mains.Views
                     System.IDisposable observablePlayerControllerDisposable = null;
                     System.IDisposable observableTake1PlayerControllerDisposable = null;
                     System.IDisposable observableLightControllerDisposable = null;
-                    System.IDisposable observableJustBeatTickDisposable = null;
+                    System.IDisposable observableIsFailedDisposable = null;
                     System.IDisposable observableTargetCrossPositionDisposable = null;
                     x.Pairwise()
                         .Do(x => Debug.Log($"part_prev: [{x.Previous}]_part_curr: [{x.Current}]"))
@@ -239,7 +239,7 @@ namespace Mains.Views
                                 // 2. リズムパート用の操作の監視を破棄
                                 observableTake1PlayerControllerDisposable?.Dispose();
                                 observableLightControllerDisposable?.Dispose();
-                                observableJustBeatTickDisposable?.Dispose();
+                                observableIsFailedDisposable?.Dispose();
                                 observableTargetCrossPositionDisposable?.Dispose();
                                 // 1. 探索、シャウト用の操作
                                 observablePlayerControllerDisposable = Observable.EveryUpdate()
@@ -378,25 +378,14 @@ namespace Mains.Views
                                         }
                                     })
                                     .AddTo(ref _disposableBag);
-                                // APIを使用してCRIWARE_conductor.csのJustBeatTickを監視
-                                observableJustBeatTickDisposable = Observable.EveryUpdate()
-                                    .Select(_ => script_XyloApi.JustBeatTick())
-                                    .Pairwise()
-                                    .Where(x => x.Previous != x.Current)
-                                    .Select(x => x.Current)
-                                    .Subscribe(justBeatTick =>
+                                observableIsFailedDisposable = script_XyloApi.IsFailed.Where(x => x)
+                                    .Subscribe(_ =>
                                     {
-                                        switch (justBeatTick)
+                                        // [Miss]失敗を購読した場合は電池を落とす
+                                        if (_playerViewModel.BatteryTransform == null)
                                         {
-                                            case 4:
-                                                // [Miss]失敗を購読した場合は電池を落とす
-                                                if (_playerViewModel.BatteryTransform == null)
-                                                {
-                                                    Transform battery = DropBattery(trans, リズムパートで使用するプレイヤープロパティ.spotLightLightTrans);
-                                                    _playerViewModel.SetBatteryTransform(battery);
-                                                }
-
-                                                break;
+                                            Transform battery = DropBattery(trans, リズムパートで使用するプレイヤープロパティ.spotLightLightTrans);
+                                            _playerViewModel.SetBatteryTransform(battery);
                                         }
                                     })
                                     .AddTo(ref _disposableBag);

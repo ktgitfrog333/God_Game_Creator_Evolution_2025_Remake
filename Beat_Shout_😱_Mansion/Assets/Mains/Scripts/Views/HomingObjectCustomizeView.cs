@@ -17,8 +17,16 @@ namespace Mains.Views
         [SerializeField] private Transform badPanelPrefab;
         [Tooltip("Assets/Mains/Prefabs/Level/DynamicObjects/BadParticleSys.prefabをセットしておく。")]
         [SerializeField] private Transform badParticleSysPrefab;
+        [Tooltip("オバケの3Dモデルレンダラー GhostBodyModel/ghost_normal")]
+        [SerializeField] private Renderer modelRenderer;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
+
+        private void Reset()
+        {
+            if (modelRenderer == null)
+                modelRenderer = transform.GetChild(0).GetChild(0).GetComponent<Renderer>();
+        }
 
         private void Start()
 		{
@@ -38,6 +46,18 @@ namespace Mains.Views
                     ShowUIPanelAtObjectPosition(badPanelPrefab, canvasTransform, badParticleSysPrefab, script_XyloApi.NoteTransform, trans);
                 })
                 .AddTo(ref _disposableBag);
+            script_XyloApi.SetMissileRendererColor();
+            // MissileDirectAnimManagerBのmissileRendererを監視して、それをオバケのモデル側のRendererへ反映
+            script_XyloApi.MissileRendererColor.Subscribe(color =>
+            {
+                SetRendererColor(modelRenderer, color);
+            })
+                .AddTo(ref _disposableBag);
+        }
+
+        private void OnDestroy()
+        {
+            _disposableBag.Dispose();
         }
 
         /// <summary>
@@ -67,6 +87,16 @@ namespace Mains.Views
             // 新しい回転を作成
             Quaternion finalRotation = Quaternion.Euler(euler);
             Transform particleInstance = Instantiate(particleSysPrefab, trans.position, finalRotation);
+        }
+
+        /// <summary>
+        /// レンダラーの色をセット
+        /// </summary>
+        /// <param name="modelRenderer">オバケの3Dモデルレンダラー</param>
+        /// <param name="color">色</param>
+        private void SetRendererColor(Renderer modelRenderer, Color color)
+        {
+            modelRenderer.material.color = color;
         }
     }
 }

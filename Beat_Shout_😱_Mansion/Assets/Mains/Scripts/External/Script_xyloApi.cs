@@ -2,6 +2,8 @@ using System.Reflection;
 using UnityEngine;
 using System.Text.RegularExpressions;
 using R3;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Mains.External
 {
@@ -29,30 +31,95 @@ namespace Mains.External
                 }
 
                 // プライベートフィールド `_uiManager` をリフレクションで取得
-                var managerType = _missileDirectAnimManagerB.GetType();
-                var uiManagerField = managerType.GetField("uiManager", BindingFlags.NonPublic | BindingFlags.Instance);
-                if (uiManagerField == null)
-                {
-                    Debug.LogWarning("_uiManager フィールドが見つかりませんでした。");
-                    return null;
-                }
-                var uiManager = uiManagerField.GetValue(_missileDirectAnimManagerB);
-                if (uiManager == null)
-                {
-                    Debug.LogWarning("_uiManager が null です。");
-                    return null;
-                }
-
-                var containerObject = ((MissileUIManager)uiManager).GetUIContainer();
-                if (containerObject == null)
-                {
-                    Debug.LogWarning("GetUIContainer の結果が null です。");
-                    return null;
-                }
+                var containerObject = GetContainerObjectInMissileDirectAnimManagerB(_missileDirectAnimManagerB);
 
                 return containerObject.transform as RectTransform;
             }
         }
+        private readonly ReactiveCommand<float> _lifeBeat = new ReactiveCommand<float>();
+        public ReactiveCommand<float> LifeBeat => _lifeBeat;
+        public float OneBeat => throw new System.NotImplementedException();
+        private FieldInfo _homingObjectLifeBeatField;
+        private HomingObject _homingObject;
+        private MissileObjectPooler _missileObjectPooler;
+        public Queue<GameObject>[] MissileGameObjects
+        {
+            get
+            {
+                if (_missileObjectPooler == null)
+                {
+                    Debug.LogWarning("MissileObjectPoolerがセットされていません。");
+                    return null;
+                }
+
+                var fieldInfo = typeof(MissileObjectPooler).GetField("missilePoolDict", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (fieldInfo == null)
+                {
+                    Debug.LogWarning("missilePoolDictフィールドが見つかりませんでした。");
+                    return null;
+                }
+
+                var dict = fieldInfo.GetValue(_missileObjectPooler) as Dictionary<int, Queue<GameObject>>;
+                if (dict == null)
+                {
+                    Debug.LogWarning("missilePoolDictの取得に失敗しました。");
+                    return null;
+                }
+
+                var missileTypesField = typeof(MissileObjectPooler).GetField("missileTypes", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (missileTypesField == null)
+                {
+                    Debug.LogWarning("missileTypesフィールドが見つかりませんでした。");
+                    return null;
+                }
+
+                var missileTypes = missileTypesField.GetValue(_missileObjectPooler) as List<MissileObjectPooler.MissileType>;
+                if (missileTypes == null)
+                {
+                    Debug.LogWarning("missileTypesの取得に失敗しました。");
+                    return null;
+                }
+
+                var missileIds = missileTypes.Select(q => q.missileId).ToArray();
+
+                var matchingQueues = dict
+                    .Where(pair => missileIds.Any(id => id == pair.Key))
+                    .Select(pair => pair.Value)
+                    .ToArray();
+
+                return matchingQueues;
+            }
+        }
+        private readonly ReactiveCommand<Color> _missileRendererColor = new ReactiveCommand<Color>();
+        public ReactiveCommand<Color> MissileRendererColor => _missileRendererColor;
+
+        public Transform[] GetNoteTransforms(Queue<GameObject>[] missileGameObjects)
+        {
+            if (missileGameObjects == null)
+            {
+                Debug.LogWarning("MissileGameObjectsがnullです。");
+                return null;
+            }
+
+            List<Transform> transforms = new List<Transform>();
+
+            foreach (var queue in missileGameObjects)
+            {
+                foreach (var gameObject in queue)
+                {
+                    if (gameObject != null)
+                    {
+                        MissileDirectAnimManagerB missileDirectAnimManagerB = gameObject.GetComponent<MissileDirectAnimManagerB>();
+                        var managerType = missileDirectAnimManagerB.GetType();
+                        var containerObject = GetContainerObjectInMissileDirectAnimManagerB(missileDirectAnimManagerB);
+                        transforms.Add(containerObject.transform);
+                    }
+                }
+            }
+
+            return transforms.ToArray();
+        }
+
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -105,6 +172,44 @@ namespace Mains.External
                         _isFailed.Execute(isFailed);
                     })
                     .AddTo(ref _disposableBag);
+            }
+        }
+
+        public void SetHomingObject(Transform transform)
+        {
+            _homingObject = transform.GetComponent<HomingObject>();
+            if (_homingObject != null)
+            {
+                // LifeBeatフィールドをリフレクションで取得
+                _homingObjectLifeBeatField = typeof(HomingObject).GetField("LifeBeat", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (_homingObjectLifeBeatField == null)
+                {
+                    Debug.LogWarning("LifeBeatフィールドが見つかりませんでした。");
+                    return;
+                }
+
+                Observable.EveryUpdate()
+                    .Select(_ =>
+                    {
+                        if (_homingObject == null || _homingObjectLifeBeatField == null)
+                            return 0f;
+                        return (float)_homingObjectLifeBeatField.GetValue(_homingObject);
+                    })
+                    .DistinctUntilChanged()
+                    .Subscribe(lifeBeat =>
+                    {
+                        _lifeBeat.Execute(lifeBeat);
+                    })
+                    .AddTo(ref _disposableBag);
+            }
+        }
+
+        public void SetMissileObjectPooler(Transform transform)
+        {
+            MissileObjectPooler missileObjectPooler = transform.GetComponent<MissileObjectPooler>();
+            if (missileObjectPooler != null)
+            {
+                _missileObjectPooler = missileObjectPooler;
             }
         }
 
@@ -264,6 +369,90 @@ namespace Mains.External
             Debug.LogWarning($"{nameof(CRIWARE_conductor)}がインスタンスされていません！");
 
             return -1;
+        }
+
+        public void SetLifeBeat(float newLifeBeat)
+        {
+            if (_homingObject == null || _homingObjectLifeBeatField == null)
+            {
+                Debug.LogWarning("HomingObjectまたはLifeBeatフィールドがセットされていません。");
+                return;
+            }
+
+            _homingObjectLifeBeatField.SetValue(_homingObject, newLifeBeat);
+        }
+
+        public void SetMissileRendererColor()
+        {
+            if (_missileDirectAnimManagerB == null)
+            {
+                Debug.LogWarning("MissileDirectAnimManagerBがセットされていません。");
+                return;
+            }
+            var managerType = _missileDirectAnimManagerB.GetType();
+            var missileRendererField = managerType.GetField("missileRenderer", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (missileRendererField == null)
+            {
+                Debug.LogWarning("missileRenderer フィールドが見つかりませんでした。");
+                return;
+            }
+            Observable.EveryUpdate()
+                .Subscribe(_ =>
+                {
+                    try
+                    {
+                        var missileRenderer = missileRendererField.GetValue(_missileDirectAnimManagerB);
+                        if (missileRenderer == null)
+                        {
+                            Debug.LogWarning("missileRenderer が null です。");
+                            return;
+                        }
+                        Material material = ((Renderer)missileRenderer).material;
+                        if (material != null)
+                        {
+                            Color color = material.color;
+                            _missileRendererColor.Execute(color);
+                        }
+                    }
+                    catch (MissingReferenceException e)
+                    {
+                        Debug.LogWarning($"監視先のオブジェクトがDestroy済みです。[{e.Message}]");
+                        return;
+                    }
+                })
+                .AddTo(ref _disposableBag);
+        }
+
+        /// <summary>
+        /// MissileDirectAnimManagerBのContainerObjectを取得
+        /// </summary>
+        /// <param name="managerType">MissileDirectAnimManagerBのタイプ</param>
+        /// <param name="missileDirectAnimManagerB">MissileDirectAnimManagerB</param>
+        /// <returns>ContainerObject</returns>
+        private GameObject GetContainerObjectInMissileDirectAnimManagerB(MissileDirectAnimManagerB missileDirectAnimManagerB)
+        {
+            var managerType = missileDirectAnimManagerB.GetType();
+            var uiManagerField = managerType.GetField("uiManager", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (uiManagerField == null)
+            {
+                Debug.LogWarning("_uiManager フィールドが見つかりませんでした。");
+                return null;
+            }
+            var uiManager = uiManagerField.GetValue(missileDirectAnimManagerB);
+            if (uiManager == null)
+            {
+                Debug.LogWarning("_uiManager が null です。");
+                return null;
+            }
+
+            var containerObject = ((MissileUIManager)uiManager).GetUIContainer();
+            if (containerObject == null)
+            {
+                Debug.LogWarning("GetUIContainer の結果が null です。");
+                return null;
+            }
+
+            return containerObject;
         }
     }
 }

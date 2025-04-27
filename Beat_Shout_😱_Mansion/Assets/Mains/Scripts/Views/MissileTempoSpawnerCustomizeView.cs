@@ -19,6 +19,8 @@ namespace Mains.Views
             Transform[] missileEffectContainers = null;
             Observable.EveryUpdate()
                 .Select(_ => missileTempoSpawnerCustomizeViewModel.BatteryTransform)
+                .Where(_ => missileEffectContainers != null &&
+                    0 < missileEffectContainers.Length)
                 .Subscribe(batteryTransform =>
                 {
                     if (batteryTransform != null)

@@ -42,6 +42,7 @@ public class HomingObject : MonoBehaviour
 
     private enum FlightPhase { Initial, Curving, Homing, MidPoint, Arrived }
     private FlightPhase currentPhase = FlightPhase.Initial;
+    [SerializeField] private float currentSpeedのCurving補正値 = .1f;
 
     private void OnEnable()
     {
@@ -256,7 +257,7 @@ public class HomingObject : MonoBehaviour
                 Vector3 curveForce = curveDirection * easedCurve;
 
                 // カーブしながら前進
-                transform.position += (transform.forward + curveForce) * currentSpeed * Time.deltaTime;
+                transform.position += (transform.forward + curveForce) * currentSpeed * currentSpeedのCurving補正値 * Time.deltaTime;
 
                 // カーブの終了
                 if (curveRatio >= 1f)
