@@ -1,6 +1,5 @@
 using UnityEngine;
 using Mains.Models; // PlayerModel を使うために必要
-using System;
 using Mains.Views;
 using TMPro;
 using System.Reflection;
@@ -37,37 +36,68 @@ namespace Mains.Tests
             //    }
             //}
 
-            if (GUI.Button(buttonRect, "CheckMissionStatusAndDirectionClear Test"))
+            //if (GUI.Button(buttonRect, "CheckMissionStatusAndDirectionClear Test"))
+            //{
+            //    Debug.Log("[テスト] CheckMissionStatusAndDirectionClear をテスト実行");
+
+            //    CommonPanelView commonPanelView = FindAnyObjectByType<CommonPanelView>();
+            //    if (commonPanelView != null)
+            //    {
+            //        // 仮のTextMeshProUGUIとPlayerとFadeImageViewを用意
+            //        //var tmp = new GameObject("DummyText").AddComponent<TMPro.TextMeshProUGUI>();
+            //        var fadeImageView = FindAnyObjectByType<FadeImageView>();
+            //        var player = Rewired.ReInput.players.GetPlayer(0); // 0番のプレイヤーを取得
+
+            //        MethodInfo methodInfo = commonPanelView.GetType().GetMethod("CheckMissionStatusAndDirectionClear", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            //        //commonPanelView.SendMessage(
+            //        //    "CheckMissionStatusAndDirectionClear",
+            //        //    new object[] { testGhostAllMembersUpdCount, testGhostAllMembersCount, stageClearPanel, player, fadeImageView }
+            //        //);
+
+            //        if (methodInfo != null)
+            //        {
+            //            object[] parameters = new object[] { testGhostAllMembersUpdCount, testGhostAllMembersCount, stageClearPanel, stageClearText, player, fadeImageView };
+            //            // メソッドを実行
+            //            methodInfo.Invoke(commonPanelView, parameters);
+            //        }
+            //        else
+            //        {
+            //            Debug.LogWarning("CheckMissionStatusAndDirectionClear メソッドが見つかりません。");
+            //        }
+
+            //        Debug.Log("[成功] CheckMissionStatusAndDirectionClear を呼び出しました");
+            //    }
+            //    else
+            //    {
+            //        Debug.LogWarning("CommonPanelView がシーン内に見つかりませんでした。");
+            //    }
+            //}
+
+            if (GUI.Button(buttonRect, "CheckPlayerHealthPointAndDirectionGameOver Test"))
             {
-                Debug.Log("[テスト] CheckMissionStatusAndDirectionClear をテスト実行");
+                Debug.Log("[テスト] CheckPlayerHealthPointAndDirectionGameOver をテスト実行");
 
                 CommonPanelView commonPanelView = FindAnyObjectByType<CommonPanelView>();
                 if (commonPanelView != null)
                 {
-                    // 仮のTextMeshProUGUIとPlayerとFadeImageViewを用意
-                    //var tmp = new GameObject("DummyText").AddComponent<TMPro.TextMeshProUGUI>();
                     var fadeImageView = FindAnyObjectByType<FadeImageView>();
                     var player = Rewired.ReInput.players.GetPlayer(0); // 0番のプレイヤーを取得
 
-                    MethodInfo methodInfo = commonPanelView.GetType().GetMethod("CheckMissionStatusAndDirectionClear", BindingFlags.NonPublic | BindingFlags.Instance);
-
-                    //commonPanelView.SendMessage(
-                    //    "CheckMissionStatusAndDirectionClear",
-                    //    new object[] { testGhostAllMembersUpdCount, testGhostAllMembersCount, stageClearPanel, player, fadeImageView }
-                    //);
+                    MethodInfo methodInfo = commonPanelView.GetType().GetMethod("CheckPlayerHealthPointAndDirectionGameOver", BindingFlags.NonPublic | BindingFlags.Instance);
 
                     if (methodInfo != null)
                     {
-                        object[] parameters = new object[] { testGhostAllMembersUpdCount, testGhostAllMembersCount, stageClearPanel, stageClearText, player, fadeImageView };
+                        object[] parameters = new object[] { testHealthPoint, player, fadeImageView };
                         // メソッドを実行
                         methodInfo.Invoke(commonPanelView, parameters);
                     }
                     else
                     {
-                        Debug.LogWarning("CheckMissionStatusAndDirectionClear メソッドが見つかりません。");
+                        Debug.LogWarning("CheckPlayerHealthPointAndDirectionGameOver メソッドが見つかりません。");
                     }
 
-                    Debug.Log("[成功] CheckMissionStatusAndDirectionClear を呼び出しました");
+                    Debug.Log("[成功] CheckPlayerHealthPointAndDirectionGameOver を呼び出しました");
                 }
                 else
                 {

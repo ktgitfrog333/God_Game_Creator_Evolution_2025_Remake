@@ -59,6 +59,8 @@ namespace Mains.Views
         private void Start()
         {
             _commonPanelViewModel = new CommonPanelViewModel();
+            var player = ReInput.players.GetPlayer(0);
+            FadeImageView fadeImageView = FindAnyObjectByType<FadeImageView>();
             // オバケの家具入居管理の構造体リストから、オバケの数を全て取得してその合計をミッションガイド概要／詳細へ反映する処理を実装
             Observable.EveryUpdate()
                 .Select(_ => _commonPanelViewModel.GhostInStaticObjectStructs)
@@ -84,8 +86,6 @@ namespace Mains.Views
                         })
                         .AddTo(ref _disposableBag);
                     // オバケが減ったら再度合計を更新
-                    var player = ReInput.players.GetPlayer(0);
-                    FadeImageView fadeImageView = FindAnyObjectByType<FadeImageView>();
                     x.ObserveReplace()
                         .Subscribe(_ =>
                         {
@@ -139,6 +139,15 @@ namespace Mains.Views
                                     }
                                 })
                                 .AddTo(ref _disposableBag);
+                                // HP減少のみを監視
+                                _commonPanelViewModel.PlayerHealthPoint.Pairwise()
+                                    .Where(x => x.Current < x.Previous)
+                                    .Select(x => x.Current)
+                                    .Subscribe(currentHp =>
+                                {
+                                    CheckPlayerHealthPointAndDirectionGameOver(currentHp, player, fadeImageView);
+                                })
+                                .AddTo(ref _disposableBag);
                             }
                         })
                         .AddTo(ref _disposableBag);
@@ -150,6 +159,35 @@ namespace Mains.Views
         private void OnDestroy()
         {
             _disposableBag.Dispose();
+        }
+
+        /// <summary>
+        /// プレイヤーのHPを監視してゲームオーバー演出を実行
+        /// </summary>
+        private void CheckPlayerHealthPointAndDirectionGameOver(int healthPoint, Player player, FadeImageView fadeImageView)
+        {
+            if (healthPoint < 1)
+            {
+                // 時間を停止
+                Time.timeScale = 0f;
+                player.controllers.maps.SetMapsEnabled(false, "Default"); // ゲーム操作を無効化
+                Observable.Create<bool>(observer =>
+                {
+                    StartCoroutine(fadeImageView.PlayFadeInDirection(observer, 1.5f));
+                    return Disposable.Empty;
+                })
+                    .Subscribe(_ =>
+                    {
+                        Observable.Create<bool>(observer =>
+                        {
+                            StartCoroutine(LoadSceneCoroutine(observer, "MainScene_Amagata"));
+                            return Disposable.Empty;
+                        })
+                            .Subscribe(_ => { })
+                            .AddTo(ref _disposableBag);
+                    })
+                    .AddTo(ref _disposableBag);
+            }
         }
 
         /// <summary>

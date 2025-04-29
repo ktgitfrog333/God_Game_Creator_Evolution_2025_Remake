@@ -37,6 +37,8 @@ namespace Mains.ViewModels
         public Transform PlayerTransform => _playerModel?.PlayerPropertiesStruct.transform ?? null;
         /// <summary>オバケの家具入居管理の構造体トランザクション</summary>
         public GhostInStaticObjectStruct TransactionGhostInStaticObjectStruct => _playerModel?.TransactionGhostInStaticObjectStruct ?? new GhostInStaticObjectStruct();
+        /// <summary>プレイヤーのHP</summary>
+        public ReactiveProperty<int> PlayerHealthPoint => _playerModel?.PlayerPropertiesStruct.healthPoint ?? null;
 
         public PoltergeistViewModel(PoltergeistTable poltergeistTable)
         {

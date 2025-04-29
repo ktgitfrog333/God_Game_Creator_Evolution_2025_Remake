@@ -45,6 +45,8 @@ namespace Mains.Views
                 リズムパートで使用するプレイヤープロパティ.elbow = transform.GetChild(0).GetChild(0);
             if (リズムパートで使用するプレイヤープロパティ.spotLightLightTrans == null)
                 リズムパートで使用するプレイヤープロパティ.spotLightLightTrans = transform.GetChild(0).GetChild(0).GetChild(0).GetChild(0).GetChild(0);
+            if (リズムパートで使用するプレイヤープロパティ.hitTrigger == null)
+                リズムパートで使用するプレイヤープロパティ.hitTrigger = transform.GetChild(1).GetComponent<SphereCollider>();
         }
 
         private void Start()
@@ -132,6 +134,7 @@ namespace Mains.Views
             // プレイヤーへキーボードやコントローラー操作を割り当てる場合は
             // 当該プレハブから実施すること（シーンからの変更は適用されない）
             var player = ReInput.players.GetPlayer(0);
+            player.controllers.maps.SetMapsEnabled(true, "Default"); // ゲーム操作を無効化
             // 現在のY軸回転角度 (左右回転)
             float currentYaw = trans.rotation.eulerAngles.y;
             // 現在のX軸回転角度 (上下回転)
@@ -307,6 +310,7 @@ namespace Mains.Views
                                         _playerViewModel.SetIsSwitchPart(isSwitchPart);
                                     })
                                     .AddTo(ref _disposableBag);
+                                _playerViewModel.SetIsLockedUpdateHealthPoint(false);
                             }
                             else if (isRhythmCtrl)
                             {
@@ -660,6 +664,16 @@ namespace Mains.Views
                             _playerViewModel.SetHealthPointMax(hpMax.Value);
                         })
                         .AddTo(ref _disposableBag);
+                })
+                .AddTo(ref _disposableBag);
+            // 当たり判定用のトリガーは常にカメラを追従する
+            var hitTriggerTrans = リズムパートで使用するプレイヤープロパティ.hitTrigger.transform;
+            Observable.EveryUpdate()
+                .Select(_ => followPlayerCameraView)
+                .Where(x => x != null)
+                .Subscribe(followPlayerCameraView =>
+                {
+                    hitTriggerTrans.position = followPlayerCameraView.transform.position;
                 })
                 .AddTo(ref _disposableBag);
         }

@@ -19,7 +19,7 @@ namespace Mains.ViewModels
         /// <summary>デシベルレベル</summary>
         public ReactiveCommand<float> DbLevel => _playerModel?.InteractionPartTable?.dbLevel ?? null;
         /// <summary>プレイヤーのHP</summary>
-        public ReactiveCommand<int> PlayerHealthPoint => _playerModel?.PlayerPropertiesStruct.healthPoint ?? null;
+        public ReactiveProperty<int> PlayerHealthPoint => _playerModel?.PlayerPropertiesStruct.healthPoint ?? null;
         /// <summary>プレイヤーの最大HP</summary>
         public ReactiveCommand<int> PlayerHealthPointMax => _playerModel?.PlayerPropertiesStruct.healthPointMax ?? null;
         /// <summary>R3のリソース管理</summary>

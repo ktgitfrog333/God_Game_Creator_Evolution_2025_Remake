@@ -106,5 +106,11 @@ namespace Mains.ViewModels
             if (_playerModel != null)
                 _playerModel.SetBatteryTransform(batteryTransform);
         }
+
+        public void SetIsLockedUpdateHealthPoint(bool isLockedUpdateHealthPoint)
+        {
+            if (_playerModel != null)
+                _playerModel.SetIsLockedUpdateHealthPoint(isLockedUpdateHealthPoint);
+        }
     }
 }

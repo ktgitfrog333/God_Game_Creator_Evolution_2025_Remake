@@ -8,7 +8,7 @@ namespace Mains.ViewModels
     /// <summary>
     /// MissGhostAttackのカスタマイズビューモデル
     /// </summary>
-    public class MissGhostAttackCustomizeViewModel
+    public class MissGhostAttackCustomizeViewModel : IMissGhostAttackCustomizeModel
     {
         /// <summary>プレイヤーのモデル</summary>
         private PlayerModel _playerModel;
@@ -34,6 +34,12 @@ namespace Mains.ViewModels
                     // 1度のみ実行されれば良いので破棄しても問題なし
                     disposable.Dispose();
                 });
+        }
+
+        public void SubtractionHealthPoint()
+        {
+            if (_playerModel != null)
+                _playerModel.SubtractionHealthPoint();
         }
     }
 }

@@ -1,6 +1,7 @@
 using Mains.Commons;
 using Mains.ViewModels;
 using R3;
+using R3.Triggers;
 using UnityEngine;
 
 namespace Mains.Views
@@ -10,8 +11,16 @@ namespace Mains.Views
     /// </summary>
     public class MissGhostAttackCustomizeView : MonoBehaviour
     {
+        /// <summary>ボックスコライダー</summary>
+        [SerializeField] private BoxCollider boxCollider;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
+
+        private void Reset()
+        {
+            if (boxCollider == null)
+                boxCollider = GetComponent<BoxCollider>();
+        }
 
         private void Start()
         {
@@ -53,11 +62,42 @@ namespace Mains.Views
                         .AddTo(ref _disposableBag);
                 })
                 .AddTo(ref _disposableBag);
+            // boxColliderのOnTriggerStayでプレイヤーのHPを減らす
+            if (boxCollider != null)
+            {
+                bool isOnTriggerEnter = false;
+                boxCollider.OnTriggerStayAsObservable()
+                    .Where(x => x.CompareTag("Player") &&
+                        !isOnTriggerEnter)
+                    .DistinctUntilChanged()
+                    .Subscribe(_ =>
+                    {
+                        isOnTriggerEnter = true;
+                        SubtractionPlayerHealth(viewModel);
+                    })
+                    .AddTo(ref _disposableBag);
+                trans.gameObject.OnDisableAsObservable()
+                    .Where(_ => isOnTriggerEnter)
+                    .Subscribe(_ =>
+                    {
+                        isOnTriggerEnter = false;
+                    })
+                    .AddTo(ref _disposableBag);
+            }
         }
 
         private void OnDestroy()
         {
             _disposableBag.Dispose();
+        }
+
+        /// <summary>
+        /// プレイヤーのHPを減らす演出
+        /// </summary>
+        /// <param name="viewModel">ビューモデル</param>
+        private void SubtractionPlayerHealth(MissGhostAttackCustomizeViewModel viewModel)
+        {
+            viewModel.SubtractionHealthPoint();
         }
     }
 }

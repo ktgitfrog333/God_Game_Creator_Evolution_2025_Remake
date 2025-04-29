@@ -8,7 +8,7 @@ namespace Mains.Models
     /// <summary>
     /// プレイヤーのモデル
     /// </summary>
-    public class PlayerModel : MonoBehaviour, IPlayerModel, IPoltergeistModel, IRhythmPartPanelModel, IHomingObjectCustomizeModel
+    public class PlayerModel : MonoBehaviour, IPlayerModel, IPoltergeistModel, IRhythmPartPanelModel, IHomingObjectCustomizeModel, IMissGhostAttackCustomizeModel
     {
         /// <summary>【探索／シャウトチャンス／リズム】パート情報管理テーブル</summary>
         public InteractionPartTable InteractionPartTable { get; set; }
@@ -28,7 +28,7 @@ namespace Mains.Models
         private PlayerPropertiesStruct _playerPropertiesStruct = new PlayerPropertiesStruct()
         {
             healthPointMax = new ReactiveCommand<int>(),
-            healthPoint = new ReactiveCommand<int>(),
+            healthPoint = new ReactiveProperty<int>(),
         };
         /// <summary>プレイヤープロパティの構造体</summary>
         public PlayerPropertiesStruct PlayerPropertiesStruct => _playerPropertiesStruct;
@@ -53,11 +53,6 @@ namespace Mains.Models
                 .Take(1)
                 .Subscribe(q =>
                 {
-                    // TODO:探索パート⇔シャウトチャンスパート切り替えが視覚化されていない間は残す
-                    InteractionPartTable.interactionPart.Subscribe(x => Debug.Log($"interactionPart: [{x}]"))
-                        .AddTo(ref _disposableBag);
-                    InteractionPartTable.dbLevel.Subscribe(x => Debug.Log($"dbLevel: [{x}]"))
-                        .AddTo(ref _disposableBag);
                     InteractionPartTable.interactionPart.Value = InteractionPart.Search;
                 })
                 .AddTo(ref _disposableBag);
@@ -124,12 +119,12 @@ namespace Mains.Models
         public void SetHealthPointMax(int healthPointMax)
         {
             _playerPropertiesStruct.healthPointMax.Execute(healthPointMax);
-            _playerPropertiesStruct.healthPoint.Execute(healthPointMax);
+            _playerPropertiesStruct.healthPoint.Value = healthPointMax;
         }
 
         public void SetHealthPoint(int healthPoint)
         {
-            _playerPropertiesStruct.healthPoint.Execute(healthPoint);
+            _playerPropertiesStruct.healthPoint.Value = healthPoint;
         }
 
         public void SetTargetCrossPosition(Vector3 targetCrossPosition)
@@ -181,6 +176,22 @@ namespace Mains.Models
             if (InteractionPartTable != null)
                 InteractionPartTable.interactionPart.Value = InteractionPart.Search;
         }
+
+        public void SubtractionHealthPoint()
+        {
+            if (_playerPropertiesStruct.healthPoint != null &&
+                !_playerPropertiesStruct.isLockedUpdateHealthPoint)
+            {
+                // 多段ヒット防止
+                _playerPropertiesStruct.isLockedUpdateHealthPoint = true;
+                _playerPropertiesStruct.healthPoint.Value--;
+            }
+        }
+
+        public void SetIsLockedUpdateHealthPoint(bool isLockedUpdateHealthPoint)
+        {
+            _playerPropertiesStruct.isLockedUpdateHealthPoint = isLockedUpdateHealthPoint;
+        }
     }
 
     /// <summary>
@@ -228,6 +239,11 @@ namespace Mains.Models
         /// </summary>
         /// <param name="batteryTransform">バッテリーのトランスフォーム</param>
         public void SetBatteryTransform(Transform batteryTransform);
+        /// <summary>
+        /// プレイヤーのHP更新ロックをセット
+        /// </summary>
+        /// <param name="isLockedUpdateHealthPoint">プレイヤーのHP更新ロック</param>
+        public void SetIsLockedUpdateHealthPoint(bool isLockedUpdateHealthPoint);
     }
 
     /// <summary>
@@ -296,5 +312,17 @@ namespace Mains.Models
         /// オバケの家具入居管理の構造体から減算
         /// </summary>
         public void SubtractionTransactionGhostInStaticObjectStruct();
+    }
+
+
+    /// <summary>
+    /// MissGhostAttackのカスタマイズモデルインターフェース
+    /// </summary>
+    public interface IMissGhostAttackCustomizeModel
+    {
+        /// <summary>
+        /// プレイヤーのHPを減らす
+        /// </summary>
+        public void SubtractionHealthPoint();
     }
 }

@@ -152,7 +152,6 @@ namespace Mains.Views
                             // 使用中ならIDを割り振る
                             ghostInStaticObjectStruct.ghostTeamID = new ReactiveProperty<string>();
                             ghostInStaticObjectStruct.ghostTeamID.Value = System.Guid.NewGuid().ToString();
-                            Debug.Log($"guid: [{ghostInStaticObjectStruct.ghostTeamID.Value}]");
                             _motorView.IsEnabledPoltergeist = true;
 
                             break;
@@ -186,6 +185,9 @@ namespace Mains.Views
         /// ＿＿・ViewModel経由でコミット<br/>
         /// ●BGMの終了を監視<br/>
         /// ＿○BGMが終了したらリズムパートを終了<br/>
+        /// ＿＿・ViewModel経由でコミット<br/>
+        /// ●HPの減少（リズムパート失敗）を監視<br/>
+        /// ＿○HPが減少したらリズムパートを終了<br/>
         /// ＿＿・ViewModel経由でコミット
         /// </remarks>
         public void BeginTransactionGhostInStaticObjectStruct()
@@ -217,7 +219,9 @@ namespace Mains.Views
                         // 利用総人数が0なら暗幕以降の演出は実行しない
                         var ghostStructs = _poltergeistViewModel.GhostInStaticObjectStructs;
                         var cnt = ghostStructs.Select(q => q.membersCount).Sum();
-                        if (0 < cnt)
+                        var healthPoint = _poltergeistViewModel.PlayerHealthPoint.Value;
+                        if (0 < cnt &&
+                            0 < healthPoint)
                         {
                             disposables.Add(
                                 Observable.Create<bool>(observer =>
@@ -273,6 +277,25 @@ namespace Mains.Views
                     .Subscribe(_ =>
                     {
                         isCompletedRhythmPart.Execute(true);
+                    })
+                    .AddTo(ref _disposableBag)
+            );
+            disposables.Add(
+                Observable.EveryUpdate()
+                    .Select(_ => _poltergeistViewModel.PlayerHealthPoint)
+                    .Where(x => x != null)
+                    .Take(1)
+                    .Subscribe(x =>
+                    {
+                        disposables.Add(
+                            x.Pairwise()
+                                .Where(x => x.Current < x.Previous)
+                                .Subscribe(playerHealthPoint =>
+                            {
+                                isCompletedRhythmPart.Execute(true);
+                            })
+                            .AddTo(ref _disposableBag)
+                        );
                     })
                     .AddTo(ref _disposableBag)
             );
