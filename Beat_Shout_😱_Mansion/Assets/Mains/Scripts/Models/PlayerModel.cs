@@ -8,7 +8,7 @@ namespace Mains.Models
     /// <summary>
     /// プレイヤーのモデル
     /// </summary>
-    public class PlayerModel : MonoBehaviour, IPlayerModel, IPoltergeistModel, IRhythmPartPanelModel
+    public class PlayerModel : MonoBehaviour, IPlayerModel, IPoltergeistModel, IRhythmPartPanelModel, IHomingObjectCustomizeModel
     {
         /// <summary>【探索／シャウトチャンス／リズム】パート情報管理テーブル</summary>
         public InteractionPartTable InteractionPartTable { get; set; }
@@ -20,6 +20,10 @@ namespace Mains.Models
         private ObservableList<GhostInStaticObjectStruct> _ghostInStaticObjectStructs = new ObservableList<GhostInStaticObjectStruct>();
         /// <summary>オバケの家具入居管理の構造体リスト</summary>
         public ObservableList<GhostInStaticObjectStruct> GhostInStaticObjectStructs => _ghostInStaticObjectStructs;
+        /// <summary>オバケの家具入居管理の構造体トランザクション</summary>
+        private GhostInStaticObjectStruct _transactionGhostInStaticObjectStruct;
+        /// <summary>オバケの家具入居管理の構造体トランザクション</summary>
+        public GhostInStaticObjectStruct TransactionGhostInStaticObjectStruct => _transactionGhostInStaticObjectStruct;
         /// <summary>プレイヤープロパティの構造体</summary>
         private PlayerPropertiesStruct _playerPropertiesStruct = new PlayerPropertiesStruct()
         {
@@ -148,6 +152,35 @@ namespace Mains.Models
             if (_isSelectedBattery != isSelectedBattery)
                 _isSelectedBattery = isSelectedBattery;
         }
+
+        public void SetTransactionGhostInStaticObjectStruct(GhostInStaticObjectStruct ghostInStaticObjectStruct)
+        {
+            _transactionGhostInStaticObjectStruct = ghostInStaticObjectStruct;
+        }
+
+        public void SubtractionTransactionGhostInStaticObjectStruct()
+        {
+            var ghostStuct = _transactionGhostInStaticObjectStruct;
+            if (ghostStuct.ghostTeamID != null &&
+                !string.IsNullOrEmpty(ghostStuct.ghostTeamID.Value) &&
+                ghostStuct.useStatus.Equals(UseStatus.Using) &&
+                0 < ghostStuct.membersCount)
+            {
+                ghostStuct.membersCount--;
+            }
+            _transactionGhostInStaticObjectStruct = ghostStuct;
+        }
+
+        public void SetDefaultTransactionGhostInStaticObjectStruct()
+        {
+            _transactionGhostInStaticObjectStruct = new GhostInStaticObjectStruct();
+        }
+
+        public void SetInteractionPartToSearch()
+        {
+            if (InteractionPartTable != null)
+                InteractionPartTable.interactionPart.Value = InteractionPart.Search;
+        }
     }
 
     /// <summary>
@@ -217,6 +250,19 @@ namespace Mains.Models
         /// </summary>
         /// <param name="isCompletedBurstGhosts">ゴーストが飛び出してくる演出の完了</param>
         public void SetIsCompletedBurstGhosts(bool isCompletedBurstGhosts);
+        /// <summary>
+        /// オバケの家具入居管理の構造体トランザクションをセット
+        /// </summary>
+        /// <param name="ghostInStaticObjectStruct">オバケの家具入居管理の構造体</param>
+        public void SetTransactionGhostInStaticObjectStruct(GhostInStaticObjectStruct ghostInStaticObjectStruct);
+        /// <summary>
+        /// オバケの家具入居管理の構造体トランザクションへデフォルトをセット
+        /// </summary>
+        public void SetDefaultTransactionGhostInStaticObjectStruct();
+        /// <summary>
+        /// 探索パート切り替え入力をセット
+        /// </summary>
+        public void SetInteractionPartToSearch();
     }
 
     /// <summary>
@@ -239,5 +285,16 @@ namespace Mains.Models
         /// </summary>
         /// <param name="isSelectedBattery">バッテリーの選択状態</param>
         public void SetIsSelectedBattery(bool isSelectedBattery);
+    }
+
+    /// <summary>
+    /// オブジェクトをホーミングする処理のカスタマイズインターフェース
+    /// </summary>
+    public interface IHomingObjectCustomizeModel
+    {
+        /// <summary>
+        /// オバケの家具入居管理の構造体から減算
+        /// </summary>
+        public void SubtractionTransactionGhostInStaticObjectStruct();
     }
 }

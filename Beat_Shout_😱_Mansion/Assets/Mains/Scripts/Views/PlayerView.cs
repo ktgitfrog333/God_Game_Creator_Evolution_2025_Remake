@@ -219,7 +219,6 @@ namespace Mains.Views
                     System.IDisposable observableIsFailedDisposable = null;
                     System.IDisposable observableTargetCrossPositionDisposable = null;
                     x.Pairwise()
-                        .Do(x => Debug.Log($"part_prev: [{x.Previous}]_part_curr: [{x.Current}]"))
                         .Subscribe(part =>
                         {
                             // None⇒探索（1. 探索、シャウト用の操作）
@@ -399,6 +398,37 @@ namespace Mains.Views
                                         case InteractionPart.Search:
                                             if (followPlayerCameraView != null)
                                                 followPlayerCameraView.ResetFollowAndLookAt();
+                                            // Rewairedで操作を禁止にする。着地したら暗幕フェードの透明度を元に戻す。
+                                            ReInput.players.GetPlayer(0).controllers.maps.SetMapsEnabled(false, "Default");
+                                            if (isGrounded.Value)
+                                            {
+                                                Observable.Create<bool>(observer =>
+                                                {
+                                                    StartCoroutine(_fadeImageView.PlayFadeOutDirection(observer, default ,false));
+                                                    return Disposable.Empty;
+                                                })
+                                                    .Subscribe(_ => { })
+                                                    .AddTo(ref _disposableBag);
+                                                ReInput.players.GetPlayer(0).controllers.maps.SetMapsEnabled(true, "Default");
+                                            }
+                                            else
+                                            {
+                                                isGrounded.Pairwise()
+                                                    .Where(x => x.Previous != x.Current &&
+                                                        x.Current)
+                                                    .Subscribe(_ =>
+                                                    {
+                                                        Observable.Create<bool>(observer =>
+                                                        {
+                                                            StartCoroutine(_fadeImageView.PlayFadeOutDirection(observer, default, false));
+                                                            return Disposable.Empty;
+                                                        })
+                                                            .Subscribe(_ => { })
+                                                            .AddTo(ref _disposableBag);
+                                                        ReInput.players.GetPlayer(0).controllers.maps.SetMapsEnabled(true, "Default");
+                                                    })
+                                                    .AddTo(ref _disposableBag);
+                                            }
 
                                             break;
                                     }
@@ -503,9 +533,10 @@ namespace Mains.Views
                                         {
                                             poltergeistView.AsyncDoBurstGhosts();
                                             poltergeistView.InstanceMissileTempoSpawner();
+                                            // BGM再生はトランザクション開始処理の中で実施
+                                            poltergeistView.BeginTransactionGhostInStaticObjectStruct();
                                             _playerViewModel.SetInteractionPart(InteractionPart.Rhythm);
                                         }
-                                        script_XyloApi.ChangeBgmB();
                                     })
                                     .AddTo(ref _disposableBag);
 

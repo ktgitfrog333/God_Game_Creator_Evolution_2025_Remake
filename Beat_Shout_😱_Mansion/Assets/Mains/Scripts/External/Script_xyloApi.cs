@@ -119,7 +119,15 @@ namespace Mains.External
 
             return transforms.ToArray();
         }
-
+        /// <summary>BGMの再生状態</summary>
+        /// <see cref="CriWare.CriAtomSourceBase.Status"/>
+        private readonly ReactiveCommand<int> _bgmBStatus = new ReactiveCommand<int>();
+        /// <summary>BGMの再生状態</summary>
+        public ReactiveCommand<int> BgmBStatus => _bgmBStatus;
+        /// <summary>BGMの更新</summary>
+        System.IDisposable _currentSourceStatusDisposable;
+        private ObjectPoolerXyloOther _objectPoolerXyloOther;
+        public Dictionary<string, Queue<GameObject>> PoolDictionary => _objectPoolerXyloOther.poolDictionary;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -350,12 +358,29 @@ namespace Mains.External
             return 0f;
         }
 
+        public void ChangeBgmA()
+        {
+            var conductor = CRIWARE_conductor.Instance;
+            if (conductor != null)
+            {
+                conductor.ChangeBgmA(6);
+            }
+        }
+
         public void ChangeBgmB()
         {
             var conductor = CRIWARE_conductor.Instance;
             if (conductor != null)
             {
                 conductor.ChangeBgmB(3);
+                _currentSourceStatusDisposable?.Dispose();
+                _currentSourceStatusDisposable = Observable.EveryUpdate()
+                    .Select(_ => conductor.currentSource.status)
+                    .Subscribe(status =>
+                    {
+                        _bgmBStatus.Execute((int)status);
+                    })
+                    .AddTo(ref _disposableBag);
             }
         }
 
@@ -421,6 +446,35 @@ namespace Mains.External
                     }
                 })
                 .AddTo(ref _disposableBag);
+        }
+
+        public void SetActiveObjectCount(int activeObjectCount)
+        {
+            if (_missileObjectPooler == null)
+            {
+                Debug.LogWarning("MissileObjectPoolerがセットされていません。");
+                return;
+            }
+
+            // MissileObjectPoolerクラスの"activeObjectCount"フィールドをリフレクションで取得
+            var fieldInfo = typeof(MissileObjectPooler).GetField("activeObjectCount", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (fieldInfo == null)
+            {
+                Debug.LogWarning("activeObjectCountフィールドが見つかりませんでした。");
+                return;
+            }
+
+            // フィールドに新しい値を設定
+            fieldInfo.SetValue(_missileObjectPooler, activeObjectCount);
+        }
+
+        public void SetObjectPoolerXyloOther(Transform transform)
+        {
+            var objectPoolerXyloOther = transform.GetComponent<ObjectPoolerXyloOther>();
+            if (objectPoolerXyloOther != null)
+            {
+                _objectPoolerXyloOther = objectPoolerXyloOther;
+            }
         }
 
         /// <summary>

@@ -1,11 +1,12 @@
 using Mains.External;
 using UnityEngine;
 using R3;
+using Mains.ViewModels;
 
 namespace Mains.Views
 {
     /// <summary>
-    /// オブジェクトをホーミングする処理のビュー
+    /// オブジェクトをホーミングする処理のカスタマイズビュー
     /// </summary>
 	public class HomingObjectCustomizeView : MonoBehaviour
 	{
@@ -34,10 +35,12 @@ namespace Mains.Views
             Transform trans = transform;
             var canvasTransform = GameObject.Find("OverlayCanvas").transform;
             script_XyloApi.SetMissileDirectAnimManagerB(trans);
+            HomingObjectCustomizeViewModel viewModel = new HomingObjectCustomizeViewModel();
             script_XyloApi.IsSuccessful.Where(x => x)
                 .Subscribe(_ =>
                 {
                     ShowUIPanelAtObjectPosition(goodPanelPrefab, canvasTransform, goodParticleSysPrefab, script_XyloApi.NoteTransform, trans);
+                    DoSubtractionTransactionGhostInStaticObjectStruct(viewModel);
                 })
                 .AddTo(ref _disposableBag);
             script_XyloApi.IsFailed.Where(x => x)
@@ -87,6 +90,16 @@ namespace Mains.Views
             // 新しい回転を作成
             Quaternion finalRotation = Quaternion.Euler(euler);
             Transform particleInstance = Instantiate(particleSysPrefab, trans.position, finalRotation);
+        }
+
+        /// <summary>
+        /// オバケの家具入居管理の構造体から減算
+        /// </summary>
+        /// <remarks>ViewModel経由で利用人数が0より大きいなら<br/>
+        /// ●利用人数から1名減らす</remarks>
+        private void DoSubtractionTransactionGhostInStaticObjectStruct(HomingObjectCustomizeViewModel viewModel)
+        {
+            viewModel.SubtractionTransactionGhostInStaticObjectStruct();
         }
 
         /// <summary>

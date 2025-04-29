@@ -5,9 +5,9 @@ using UnityEngine;
 namespace Mains.ViewModels
 {
     /// <summary>
-    /// オブジェクトをホーミングする処理のビューモデル
+    /// オブジェクトをホーミングする処理のカスタマイズビューモデル
     /// </summary>
-    public class HomingObjectCustomizeViewModel
+    public class HomingObjectCustomizeViewModel : IHomingObjectCustomizeModel
     {
         /// <summary>プレイヤーのモデル</summary>
         private PlayerModel _playerModel;
@@ -29,6 +29,12 @@ namespace Mains.ViewModels
                     _disposableBag.Dispose();
                 })
                 .AddTo(ref _disposableBag);
+        }
+
+        public void SubtractionTransactionGhostInStaticObjectStruct()
+        {
+            if (_playerModel != null)
+                _playerModel.SubtractionTransactionGhostInStaticObjectStruct();
         }
     }
 }

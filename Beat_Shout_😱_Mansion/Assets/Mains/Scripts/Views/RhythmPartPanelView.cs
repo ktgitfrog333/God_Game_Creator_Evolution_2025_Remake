@@ -18,7 +18,6 @@ namespace Mains.Views
         private DisposableBag _disposableBag = new DisposableBag();
         [Tooltip("Xbox360コントローラーのみ対象\n値の高さ＝入力感度")]
         [SerializeField] private float ポインター移動速度;
-        [SerializeField] private float mousePosZ = 10f;
 
         private void Reset()
         {

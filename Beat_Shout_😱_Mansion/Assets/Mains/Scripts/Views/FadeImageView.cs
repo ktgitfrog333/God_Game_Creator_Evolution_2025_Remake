@@ -55,6 +55,7 @@ namespace Mains.Views
         /// 暗幕フェードイン演出
         /// </summary>
         /// <param name="observer">オブザーバー</param>
+        /// <param name="duration">終了時間</param>
         /// <returns>コルーチン</returns>
         public IEnumerator PlayFadeInDirection(Observer<bool> observer, float duration = .5f)
         {
@@ -65,6 +66,7 @@ namespace Mains.Views
             // フェードインアニメーション
             image.DOFade(1f, duration)
                 .SetEase(Ease.InOutQuad)
+                .SetUpdate(true)
                 .OnComplete(() =>
                 {
                     observer.OnNext(true);
@@ -78,17 +80,23 @@ namespace Mains.Views
         /// 暗幕フェードアウト演出
         /// </summary>
         /// <param name="observer">オブザーバー</param>
+        /// <param name="duration">終了時間</param>
+        /// <param name="andFromTweenMode">0から1遷移演出を有効</param>
         /// <returns>コルーチン</returns>
-        public IEnumerator PlayFadeOutDirection(Observer<bool> observer, float duration = .5f)
+        public IEnumerator PlayFadeOutDirection(Observer<bool> observer, float duration = .5f, bool andFromTweenMode = true)
         {
-            // 初期状態で黒にする
-            Color startColor = image.color;
-            startColor.a = 1;
-            image.color = startColor;
+            if (andFromTweenMode)
+            {
+                // 初期状態で黒にする
+                Color startColor = image.color;
+                startColor.a = 1;
+                image.color = startColor;
+            }
 
             // フェードアウトアニメーション
             image.DOFade(0f, duration)
                 .SetEase(Ease.InOutQuad)
+                .SetUpdate(true)
                 .OnComplete(() =>
                 {
                     observer.OnNext(true);

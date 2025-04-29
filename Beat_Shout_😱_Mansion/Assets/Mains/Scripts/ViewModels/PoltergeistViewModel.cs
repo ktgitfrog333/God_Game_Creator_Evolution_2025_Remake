@@ -35,6 +35,8 @@ namespace Mains.ViewModels
         public ObservableList<GhostInStaticObjectStruct> GhostInStaticObjectStructs => _playerModel?.GhostInStaticObjectStructs ?? null;
         /// <summary>プレイヤーのトランスフォーム</summary>
         public Transform PlayerTransform => _playerModel?.PlayerPropertiesStruct.transform ?? null;
+        /// <summary>オバケの家具入居管理の構造体トランザクション</summary>
+        public GhostInStaticObjectStruct TransactionGhostInStaticObjectStruct => _playerModel?.TransactionGhostInStaticObjectStruct ?? new GhostInStaticObjectStruct();
 
         public PoltergeistViewModel(PoltergeistTable poltergeistTable)
         {
@@ -67,6 +69,24 @@ namespace Mains.ViewModels
         {
             if (_playerModel != null)
                 _playerModel.SetIsCompletedBurstGhosts(isCompletedBurstGhosts);
+        }
+
+        public void SetTransactionGhostInStaticObjectStruct(GhostInStaticObjectStruct ghostInStaticObjectStruct)
+        {
+            if (_playerModel != null)
+                _playerModel.SetTransactionGhostInStaticObjectStruct(ghostInStaticObjectStruct);
+        }
+
+        public void SetDefaultTransactionGhostInStaticObjectStruct()
+        {
+            if (_playerModel != null)
+                _playerModel.SetDefaultTransactionGhostInStaticObjectStruct();
+        }
+
+        public void SetInteractionPartToSearch()
+        {
+            if (_playerModel != null)
+                _playerModel.SetInteractionPartToSearch();
         }
     }
 }
