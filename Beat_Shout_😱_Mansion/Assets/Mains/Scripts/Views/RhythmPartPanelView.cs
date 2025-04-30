@@ -51,6 +51,7 @@ namespace Mains.Views
                                 targetCrossDisposable?.Dispose();
                                 int layerMaskTerrainObjects = 1 << LayerMask.NameToLayer("TerrainObjects");
                                 int layerMaskDropItems = 1 << LayerMask.NameToLayer("DropItems");
+                                int layerMaskGhost = 1 << LayerMask.NameToLayer("Ghost");
                                 // マウスポインターへ追従
                                 targetCrossDisposable = Observable.EveryUpdate()
                                     .Subscribe(_ =>
@@ -98,6 +99,20 @@ namespace Mains.Views
                                                 else
                                                 {
                                                     _rhythmPartPanelViewModel.SetIsSelectedBattery(false);
+                                                }
+                                                // 選択状態のMissGhostAttackを検知する
+                                                if (_rhythmPartPanelViewModel.BatteryTransform == null &&
+                                                    Physics.Raycast(ray, out RaycastHit hit2, Mathf.Infinity, layerMaskGhost))
+                                                {
+                                                    Transform hitTrans = hit2.transform;
+                                                    _rhythmPartPanelViewModel.SetSelectedMissGhostAttackTransform(hitTrans);
+
+                                                    // デバッグ表示
+                                                    Debug.DrawLine(ray.origin, hitTrans.position, Color.red);
+                                                }
+                                                else
+                                                {
+                                                    _rhythmPartPanelViewModel.SetSelectedMissGhostAttackTransform(null);
                                                 }
                                             }
                                         }

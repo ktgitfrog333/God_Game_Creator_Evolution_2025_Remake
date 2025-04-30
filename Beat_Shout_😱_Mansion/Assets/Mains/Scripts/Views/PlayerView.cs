@@ -219,6 +219,7 @@ namespace Mains.Views
                     System.IDisposable observablePlayerControllerDisposable = null;
                     System.IDisposable observableTake1PlayerControllerDisposable = null;
                     System.IDisposable observableLightControllerDisposable = null;
+                    System.IDisposable observableUpdateIsFailedDisposable = null;
                     System.IDisposable observableIsFailedDisposable = null;
                     System.IDisposable observableTargetCrossPositionDisposable = null;
                     x.Pairwise()
@@ -241,6 +242,7 @@ namespace Mains.Views
                                 // 2. リズムパート用の操作の監視を破棄
                                 observableTake1PlayerControllerDisposable?.Dispose();
                                 observableLightControllerDisposable?.Dispose();
+                                observableUpdateIsFailedDisposable?.Dispose();
                                 observableIsFailedDisposable?.Dispose();
                                 observableTargetCrossPositionDisposable?.Dispose();
                                 // 1. 探索、シャウト用の操作
@@ -378,18 +380,31 @@ namespace Mains.Views
                                                     batteryView.GetBattery();
                                                 }
                                             }
+                                            if (_playerViewModel.BatteryTransform == null &&
+                                                _playerViewModel.SelectedMissGhostAttackTransform != null)
+                                            {
+                                                _playerViewModel.SelectedMissGhostAttackTransform.gameObject.SetActive(false);
+                                            }
                                         }
                                     })
                                     .AddTo(ref _disposableBag);
-                                observableIsFailedDisposable = script_XyloApi.IsFailed.Where(x => x)
-                                    .Subscribe(_ =>
+                                observableUpdateIsFailedDisposable = Observable.EveryUpdate()
+                                    .Select(_ => _playerViewModel.IsFailed)
+                                    .Where(x => x != null)
+                                    .Take(1)
+                                    .Subscribe(x =>
                                     {
-                                        // [Miss]失敗を購読した場合は電池を落とす
-                                        if (_playerViewModel.BatteryTransform == null)
-                                        {
-                                            Transform battery = DropBattery(trans, リズムパートで使用するプレイヤープロパティ.spotLightLightTrans);
-                                            _playerViewModel.SetBatteryTransform(battery);
-                                        }
+                                        observableIsFailedDisposable = x.Where(x => x)
+                                            .Subscribe(_ =>
+                                            {
+                                                // [Miss]失敗を購読した場合は電池を落とす
+                                                if (_playerViewModel.BatteryTransform == null)
+                                                {
+                                                    Transform battery = DropBattery(trans, リズムパートで使用するプレイヤープロパティ.spotLightLightTrans);
+                                                    _playerViewModel.SetBatteryTransform(battery);
+                                                }
+                                            })
+                                            .AddTo(ref _disposableBag);
                                     })
                                     .AddTo(ref _disposableBag);
                             }
@@ -523,6 +538,7 @@ namespace Mains.Views
                                 disposableDbLevel?.Dispose();
                                 disposableDbLevel = dbLevel.Where(x => シャウトチャンスパートの共通パラメータ管理用テーブル.シャウト達成デシベル <= x &&
                                     0 < shoutChanceRanges.Count)
+                                    .Take(1)
                                     .Subscribe(_ =>
                                     {
                                         // [シャウト成功インタラクション] 1. シャウトチャンスレンジの中でオバケが潜んでいる家具かつ、一番近いコライダーからポルターガイストビューを取得
@@ -713,12 +729,15 @@ namespace Mains.Views
             // プレイヤーの正面方向
             Vector3 forward = playerTransform.forward;
 
-            // ランダムな角度（-20度〜+20度）をY軸回転で加える
-            float angle = Random.Range(-20f, 20f);
-            Quaternion rotation = Quaternion.Euler(0, angle, 0);
-            Vector3 offsetDirection = rotation * forward;
+            // プレイヤーの向き（Y軸）に基づく角度にランダム±20度を加える
+            float baseYaw = playerTransform.rotation.eulerAngles.y;
+            float randomOffset = Random.Range(-20f, 20f);
+            float finalYaw = baseYaw + randomOffset;
 
-            Vector3 spawnPosition = playerTransform.position + offsetDirection.normalized * 0.5f + Vector3.up * 0.8f;
+            Quaternion rotation = Quaternion.Euler(0, finalYaw, 0);
+            Vector3 offsetDirection = rotation * Vector3.forward;
+
+            Vector3 spawnPosition = playerTransform.position + offsetDirection.normalized * 1f + Vector3.up * 0.8f;
 
             // 電池を生成
             Transform battery = Instantiate(リズムパートで使用するプレイヤープロパティ.batteryPrefab, spotLightLightTrans.position, Quaternion.identity);

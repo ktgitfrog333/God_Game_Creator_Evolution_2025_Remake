@@ -219,6 +219,7 @@ namespace Mains.Views
                         // 利用総人数が0なら暗幕以降の演出は実行しない
                         var ghostStructs = _poltergeistViewModel.GhostInStaticObjectStructs;
                         var cnt = ghostStructs.Select(q => q.membersCount).Sum();
+                        // プレイヤーのHPが0なら暗幕以降の演出は実行しない
                         var healthPoint = _poltergeistViewModel.PlayerHealthPoint.Value;
                         if (0 < cnt &&
                             0 < healthPoint)

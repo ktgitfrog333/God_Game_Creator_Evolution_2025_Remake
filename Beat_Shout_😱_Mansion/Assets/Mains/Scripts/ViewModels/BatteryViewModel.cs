@@ -1,14 +1,14 @@
-using Mains.Commons;
 using Mains.Models;
-using R3;
 using UnityEngine;
+using R3;
+using Mains.Commons;
 
 namespace Mains.ViewModels
 {
     /// <summary>
-    /// リズムパートパネルのビューモデル
+    /// バッテリーのビューモデル
     /// </summary>
-    public class RhythmPartPanelViewModel : IRhythmPartPanelModel
+    public class BatteryViewModel
     {
         /// <summary>プレイヤーのモデル</summary>
         private PlayerModel _playerModel;
@@ -20,10 +20,8 @@ namespace Mains.ViewModels
                 return _playerModel?.InteractionPartTable?.interactionPart ?? null;
             }
         }
-        /// <summary>バッテリーのトランスフォーム</summary>
-        public Transform BatteryTransform => _playerModel?.BatteryTransform ?? null;
 
-        public RhythmPartPanelViewModel()
+        public BatteryViewModel()
         {
             System.IDisposable disposable = null;
             disposable = Observable.EveryUpdate()
@@ -36,24 +34,6 @@ namespace Mains.ViewModels
                     // 1度のみ実行されれば良いので破棄しても問題なし
                     disposable.Dispose();
                 });
-        }
-
-        public void SetTargetCrossPosition(Vector3 targetCrossPosition)
-        {
-            if (_playerModel != null)
-                _playerModel.SetTargetCrossPosition(targetCrossPosition);
-        }
-
-        public void SetIsSelectedBattery(bool isSelectedBattery)
-        {
-            if (_playerModel != null)
-                _playerModel.SetIsSelectedBattery(isSelectedBattery);
-        }
-
-        public void SetSelectedMissGhostAttackTransform(Transform selectedMissGhostAttackTransform)
-        {
-            if (_playerModel != null)
-                _playerModel.SetSelectedMissGhostAttackTransform(selectedMissGhostAttackTransform);
         }
     }
 }

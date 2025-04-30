@@ -4270,7 +4270,7 @@ MonoBehaviour:
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 1
-    membersCount: 26
+    membersCount: 8
   ghostBurstsPrefab: {fileID: 115835426956401962, guid: 1cd222a032c831547b213c40ba8738bd, type: 3}
   missileTempoSpawnerPrefab: {fileID: 401138369664789558, guid: b884b75fd024dbe4884d96e9b68ae9ae, type: 3}
 --- !u!4 &3167666049093089847 stripped
@@ -5556,7 +5556,7 @@ MonoBehaviour:
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 1
-    membersCount: 26
+    membersCount: 8
   ghostBurstsPrefab: {fileID: 115835426956401962, guid: 1cd222a032c831547b213c40ba8738bd, type: 3}
   missileTempoSpawnerPrefab: {fileID: 401138369664789558, guid: b884b75fd024dbe4884d96e9b68ae9ae, type: 3}
 --- !u!4 &8727133031270058314 stripped

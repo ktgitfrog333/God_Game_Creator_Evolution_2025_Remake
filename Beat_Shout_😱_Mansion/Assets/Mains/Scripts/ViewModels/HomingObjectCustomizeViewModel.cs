@@ -36,5 +36,11 @@ namespace Mains.ViewModels
             if (_playerModel != null)
                 _playerModel.SubtractionTransactionGhostInStaticObjectStruct();
         }
+
+        public void SetIsFailed(bool isFailed)
+        {
+            if (_playerModel != null)
+                _playerModel.SetIsFailed(isFailed);
+        }
     }
 }

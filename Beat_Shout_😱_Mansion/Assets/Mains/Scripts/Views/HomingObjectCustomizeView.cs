@@ -49,6 +49,11 @@ namespace Mains.Views
                     ShowUIPanelAtObjectPosition(badPanelPrefab, canvasTransform, badParticleSysPrefab, script_XyloApi.NoteTransform, trans);
                 })
                 .AddTo(ref _disposableBag);
+            script_XyloApi.IsFailed.Subscribe(isFailed =>
+                {
+                    viewModel.SetIsFailed(isFailed);
+                })
+                .AddTo(ref _disposableBag);
             script_XyloApi.SetMissileRendererColor();
             // MissileDirectAnimManagerBのmissileRendererを監視して、それをオバケのモデル側のRendererへ反映
             script_XyloApi.MissileRendererColor.Subscribe(color =>

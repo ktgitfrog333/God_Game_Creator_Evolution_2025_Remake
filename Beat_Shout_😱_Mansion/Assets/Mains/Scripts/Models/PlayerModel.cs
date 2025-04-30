@@ -44,6 +44,14 @@ namespace Mains.Models
         private bool _isSelectedBattery;
         /// <summary>バッテリーが選択状態か</summary>
         public bool IsSelectedBattery => _isSelectedBattery;
+        /// <summary>[Script_xyloApi.cs]リズムパート失敗</summary>
+        private readonly ReactiveCommand<bool> _isFailed = new ReactiveCommand<bool>();
+        /// <summary>[Script_xyloApi.cs]リズムパート失敗</summary>
+        public ReactiveCommand<bool> IsFailed => _isFailed;
+        /// <summary>選択されたMissGhostAttack</summary>
+        private Transform _selectedMissGhostAttackTransform;
+        /// <summary>選択されたMissGhostAttack</summary>
+        public Transform SelectedMissGhostAttackTransform => _selectedMissGhostAttackTransform;
 
         private void Start()
         {
@@ -192,6 +200,16 @@ namespace Mains.Models
         {
             _playerPropertiesStruct.isLockedUpdateHealthPoint = isLockedUpdateHealthPoint;
         }
+
+        public void SetIsFailed(bool isFailed)
+        {
+            _isFailed.Execute(isFailed);
+        }
+
+        public void SetSelectedMissGhostAttackTransform(Transform selectedMissGhostAttackTransform)
+        {
+            _selectedMissGhostAttackTransform = selectedMissGhostAttackTransform;
+        }
     }
 
     /// <summary>
@@ -301,6 +319,11 @@ namespace Mains.Models
         /// </summary>
         /// <param name="isSelectedBattery">バッテリーの選択状態</param>
         public void SetIsSelectedBattery(bool isSelectedBattery);
+        /// <summary>
+        /// 選択されたMissGhostAttackをセット
+        /// </summary>
+        /// <param name="selectedMissGhostAttackTransform">選択されたMissGhostAttack</param>
+        public void SetSelectedMissGhostAttackTransform(Transform selectedMissGhostAttackTransform);
     }
 
     /// <summary>
@@ -312,6 +335,10 @@ namespace Mains.Models
         /// オバケの家具入居管理の構造体から減算
         /// </summary>
         public void SubtractionTransactionGhostInStaticObjectStruct();
+        /// <summary>
+        /// [Script_xyloApi.cs]リズムパート失敗をセット
+        /// </summary>
+        public void SetIsFailed(bool isFailed);
     }
 
 

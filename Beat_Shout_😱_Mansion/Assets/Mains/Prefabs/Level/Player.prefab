@@ -448,6 +448,7 @@ MonoBehaviour:
     elbow: {fileID: 1229685872099579590}
     batteryPrefab: {fileID: 3742273861877483066, guid: 16a2f1013cb7dea479125665d136085e, type: 3}
     hitTrigger: {fileID: 4176574053611664939}
+  addOffsetDirectionNormalized: 1
 --- !u!143 &8536045231518824716
 CharacterController:
   m_ObjectHideFlags: 0
