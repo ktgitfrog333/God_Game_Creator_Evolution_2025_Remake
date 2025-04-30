@@ -1,0 +1,20 @@
+using Mains.Commons;
+using Mains.Models;
+using R3;
+using UnityEngine;
+
+namespace Mains.Tests
+{
+    public class PlayerModelTest : MonoBehaviour
+    {
+        [SerializeField] private GhostInStaticObjectStruct ghostInStaticObjectStruct;
+        private PlayerModel _playerModel;
+
+        private void Update()
+        {
+            if (_playerModel == null)
+                _playerModel = FindAnyObjectByType<PlayerModel>();
+            ghostInStaticObjectStruct = _playerModel.TransactionGhostInStaticObjectStruct;
+        }
+    }
+}

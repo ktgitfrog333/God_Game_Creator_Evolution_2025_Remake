@@ -51,6 +51,10 @@ namespace Mains.ViewModels
         public Transform BatteryTransform => _playerModel?.BatteryTransform ?? null;
         /// <summary>バッテリーが選択状態か</summary>
         public bool IsSelectedBattery => _playerModel?.IsSelectedBattery ?? false;
+        /// <summary>[Script_xyloApi.cs]リズムパート失敗</summary>
+        public ReactiveCommand<bool> IsFailed => _playerModel?.IsFailed ?? null;
+        /// <summary>選択されたMissGhostAttack</summary>
+        public Transform SelectedMissGhostAttackTransform => _playerModel?.SelectedMissGhostAttackTransform ?? null;
 
         public PlayerViewModel(InteractionPartTable interactionPartTable)
         {
@@ -105,6 +109,12 @@ namespace Mains.ViewModels
         {
             if (_playerModel != null)
                 _playerModel.SetBatteryTransform(batteryTransform);
+        }
+
+        public void SetIsLockedUpdateHealthPoint(bool isLockedUpdateHealthPoint)
+        {
+            if (_playerModel != null)
+                _playerModel.SetIsLockedUpdateHealthPoint(isLockedUpdateHealthPoint);
         }
     }
 }

@@ -19,11 +19,13 @@ namespace Mains.Views
             Transform[] missileEffectContainers = null;
             Observable.EveryUpdate()
                 .Select(_ => missileTempoSpawnerCustomizeViewModel.BatteryTransform)
+                .Where(_ => missileEffectContainers != null &&
+                    0 < missileEffectContainers.Length)
                 .Subscribe(batteryTransform =>
                 {
                     if (batteryTransform != null)
                     {
-                        // NULLじゃない場合はノーツ非表示、ノールクリック不可状態にする
+                        // NULLじゃない場合はノーツ非表示、ノーツクリック不可状態にする
                         foreach (var missileEffectContainer in missileEffectContainers)
                         {
                             missileEffectContainer.localScale = Vector3.zero;
@@ -31,7 +33,7 @@ namespace Mains.Views
                     }
                     else
                     {
-                        // NULLの場合はノーツ表示、ノールクリック可能状態にする
+                        // NULLの場合はノーツ表示、ノーツクリック可能状態にする
                         foreach (var missileEffectContainer in missileEffectContainers)
                         {
                             missileEffectContainer.localScale = Vector3.one;

@@ -45,6 +45,8 @@ namespace Mains.Views
                 リズムパートで使用するプレイヤープロパティ.elbow = transform.GetChild(0).GetChild(0);
             if (リズムパートで使用するプレイヤープロパティ.spotLightLightTrans == null)
                 リズムパートで使用するプレイヤープロパティ.spotLightLightTrans = transform.GetChild(0).GetChild(0).GetChild(0).GetChild(0).GetChild(0);
+            if (リズムパートで使用するプレイヤープロパティ.hitTrigger == null)
+                リズムパートで使用するプレイヤープロパティ.hitTrigger = transform.GetChild(1).GetComponent<SphereCollider>();
         }
 
         private void Start()
@@ -132,6 +134,7 @@ namespace Mains.Views
             // プレイヤーへキーボードやコントローラー操作を割り当てる場合は
             // 当該プレハブから実施すること（シーンからの変更は適用されない）
             var player = ReInput.players.GetPlayer(0);
+            player.controllers.maps.SetMapsEnabled(true, "Default"); // ゲーム操作を無効化
             // 現在のY軸回転角度 (左右回転)
             float currentYaw = trans.rotation.eulerAngles.y;
             // 現在のX軸回転角度 (上下回転)
@@ -216,10 +219,10 @@ namespace Mains.Views
                     System.IDisposable observablePlayerControllerDisposable = null;
                     System.IDisposable observableTake1PlayerControllerDisposable = null;
                     System.IDisposable observableLightControllerDisposable = null;
-                    System.IDisposable observableJustBeatTickDisposable = null;
+                    System.IDisposable observableUpdateIsFailedDisposable = null;
+                    System.IDisposable observableIsFailedDisposable = null;
                     System.IDisposable observableTargetCrossPositionDisposable = null;
                     x.Pairwise()
-                        .Do(x => Debug.Log($"part_prev: [{x.Previous}]_part_curr: [{x.Current}]"))
                         .Subscribe(part =>
                         {
                             // None⇒探索（1. 探索、シャウト用の操作）
@@ -239,7 +242,8 @@ namespace Mains.Views
                                 // 2. リズムパート用の操作の監視を破棄
                                 observableTake1PlayerControllerDisposable?.Dispose();
                                 observableLightControllerDisposable?.Dispose();
-                                observableJustBeatTickDisposable?.Dispose();
+                                observableUpdateIsFailedDisposable?.Dispose();
+                                observableIsFailedDisposable?.Dispose();
                                 observableTargetCrossPositionDisposable?.Dispose();
                                 // 1. 探索、シャウト用の操作
                                 observablePlayerControllerDisposable = Observable.EveryUpdate()
@@ -308,6 +312,7 @@ namespace Mains.Views
                                         _playerViewModel.SetIsSwitchPart(isSwitchPart);
                                     })
                                     .AddTo(ref _disposableBag);
+                                _playerViewModel.SetIsLockedUpdateHealthPoint(false);
                             }
                             else if (isRhythmCtrl)
                             {
@@ -375,29 +380,31 @@ namespace Mains.Views
                                                     batteryView.GetBattery();
                                                 }
                                             }
+                                            if (_playerViewModel.BatteryTransform == null &&
+                                                _playerViewModel.SelectedMissGhostAttackTransform != null)
+                                            {
+                                                _playerViewModel.SelectedMissGhostAttackTransform.gameObject.SetActive(false);
+                                            }
                                         }
                                     })
                                     .AddTo(ref _disposableBag);
-                                // APIを使用してCRIWARE_conductor.csのJustBeatTickを監視
-                                observableJustBeatTickDisposable = Observable.EveryUpdate()
-                                    .Select(_ => script_XyloApi.JustBeatTick())
-                                    .Pairwise()
-                                    .Where(x => x.Previous != x.Current)
-                                    .Select(x => x.Current)
-                                    .Subscribe(justBeatTick =>
+                                observableUpdateIsFailedDisposable = Observable.EveryUpdate()
+                                    .Select(_ => _playerViewModel.IsFailed)
+                                    .Where(x => x != null)
+                                    .Take(1)
+                                    .Subscribe(x =>
                                     {
-                                        switch (justBeatTick)
-                                        {
-                                            case 4:
+                                        observableIsFailedDisposable = x.Where(x => x)
+                                            .Subscribe(_ =>
+                                            {
                                                 // [Miss]失敗を購読した場合は電池を落とす
                                                 if (_playerViewModel.BatteryTransform == null)
                                                 {
                                                     Transform battery = DropBattery(trans, リズムパートで使用するプレイヤープロパティ.spotLightLightTrans);
                                                     _playerViewModel.SetBatteryTransform(battery);
                                                 }
-
-                                                break;
-                                        }
+                                            })
+                                            .AddTo(ref _disposableBag);
                                     })
                                     .AddTo(ref _disposableBag);
                             }
@@ -410,6 +417,37 @@ namespace Mains.Views
                                         case InteractionPart.Search:
                                             if (followPlayerCameraView != null)
                                                 followPlayerCameraView.ResetFollowAndLookAt();
+                                            // Rewairedで操作を禁止にする。着地したら暗幕フェードの透明度を元に戻す。
+                                            ReInput.players.GetPlayer(0).controllers.maps.SetMapsEnabled(false, "Default");
+                                            if (isGrounded.Value)
+                                            {
+                                                Observable.Create<bool>(observer =>
+                                                {
+                                                    StartCoroutine(_fadeImageView.PlayFadeOutDirection(observer, default ,false));
+                                                    return Disposable.Empty;
+                                                })
+                                                    .Subscribe(_ => { })
+                                                    .AddTo(ref _disposableBag);
+                                                ReInput.players.GetPlayer(0).controllers.maps.SetMapsEnabled(true, "Default");
+                                            }
+                                            else
+                                            {
+                                                isGrounded.Pairwise()
+                                                    .Where(x => x.Previous != x.Current &&
+                                                        x.Current)
+                                                    .Subscribe(_ =>
+                                                    {
+                                                        Observable.Create<bool>(observer =>
+                                                        {
+                                                            StartCoroutine(_fadeImageView.PlayFadeOutDirection(observer, default, false));
+                                                            return Disposable.Empty;
+                                                        })
+                                                            .Subscribe(_ => { })
+                                                            .AddTo(ref _disposableBag);
+                                                        ReInput.players.GetPlayer(0).controllers.maps.SetMapsEnabled(true, "Default");
+                                                    })
+                                                    .AddTo(ref _disposableBag);
+                                            }
 
                                             break;
                                     }
@@ -500,6 +538,7 @@ namespace Mains.Views
                                 disposableDbLevel?.Dispose();
                                 disposableDbLevel = dbLevel.Where(x => シャウトチャンスパートの共通パラメータ管理用テーブル.シャウト達成デシベル <= x &&
                                     0 < shoutChanceRanges.Count)
+                                    .Take(1)
                                     .Subscribe(_ =>
                                     {
                                         // [シャウト成功インタラクション] 1. シャウトチャンスレンジの中でオバケが潜んでいる家具かつ、一番近いコライダーからポルターガイストビューを取得
@@ -514,9 +553,10 @@ namespace Mains.Views
                                         {
                                             poltergeistView.AsyncDoBurstGhosts();
                                             poltergeistView.InstanceMissileTempoSpawner();
+                                            // BGM再生はトランザクション開始処理の中で実施
+                                            poltergeistView.BeginTransactionGhostInStaticObjectStruct();
                                             _playerViewModel.SetInteractionPart(InteractionPart.Rhythm);
                                         }
-                                        script_XyloApi.ChangeBgmB();
                                     })
                                     .AddTo(ref _disposableBag);
 
@@ -642,6 +682,16 @@ namespace Mains.Views
                         .AddTo(ref _disposableBag);
                 })
                 .AddTo(ref _disposableBag);
+            // 当たり判定用のトリガーは常にカメラを追従する
+            var hitTriggerTrans = リズムパートで使用するプレイヤープロパティ.hitTrigger.transform;
+            Observable.EveryUpdate()
+                .Select(_ => followPlayerCameraView)
+                .Where(x => x != null)
+                .Subscribe(followPlayerCameraView =>
+                {
+                    hitTriggerTrans.position = followPlayerCameraView.transform.position;
+                })
+                .AddTo(ref _disposableBag);
         }
 
         private void OnGUI()
@@ -679,12 +729,15 @@ namespace Mains.Views
             // プレイヤーの正面方向
             Vector3 forward = playerTransform.forward;
 
-            // ランダムな角度（-20度〜+20度）をY軸回転で加える
-            float angle = Random.Range(-20f, 20f);
-            Quaternion rotation = Quaternion.Euler(0, angle, 0);
-            Vector3 offsetDirection = rotation * forward;
+            // プレイヤーの向き（Y軸）に基づく角度にランダム±20度を加える
+            float baseYaw = playerTransform.rotation.eulerAngles.y;
+            float randomOffset = Random.Range(-20f, 20f);
+            float finalYaw = baseYaw + randomOffset;
 
-            Vector3 spawnPosition = playerTransform.position + offsetDirection.normalized * 0.5f + Vector3.up * 0.8f;
+            Quaternion rotation = Quaternion.Euler(0, finalYaw, 0);
+            Vector3 offsetDirection = rotation * Vector3.forward;
+
+            Vector3 spawnPosition = playerTransform.position + offsetDirection.normalized * 1f + Vector3.up * 0.8f;
 
             // 電池を生成
             Transform battery = Instantiate(リズムパートで使用するプレイヤープロパティ.batteryPrefab, spotLightLightTrans.position, Quaternion.identity);

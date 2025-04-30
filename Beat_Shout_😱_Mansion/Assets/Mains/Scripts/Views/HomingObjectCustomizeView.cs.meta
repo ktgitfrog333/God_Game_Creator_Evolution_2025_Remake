@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 03f10cd25d2efde48a1eea0fc5447058
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - goodPanelPrefab: {fileID: 4579842168580416802, guid: 718140b85ed8aef4c9de922496cdad40, type: 3}
+  - goodParticleSysPrefab: {fileID: 649647312542731792, guid: 06a7b9c6095182a40bd34a96729286bd, type: 3}
+  - badPanelPrefab: {fileID: 6422276594484730783, guid: cd28cda1a4be09d4392a6101c263fe71, type: 3}
+  - badParticleSysPrefab: {fileID: 1394655228571085345, guid: 0a0cdc51eb3927540a6329db734f0458, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

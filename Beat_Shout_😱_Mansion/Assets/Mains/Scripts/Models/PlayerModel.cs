@@ -8,7 +8,7 @@ namespace Mains.Models
     /// <summary>
     /// プレイヤーのモデル
     /// </summary>
-    public class PlayerModel : MonoBehaviour, IPlayerModel, IPoltergeistModel, IRhythmPartPanelModel
+    public class PlayerModel : MonoBehaviour, IPlayerModel, IPoltergeistModel, IRhythmPartPanelModel, IHomingObjectCustomizeModel, IMissGhostAttackCustomizeModel
     {
         /// <summary>【探索／シャウトチャンス／リズム】パート情報管理テーブル</summary>
         public InteractionPartTable InteractionPartTable { get; set; }
@@ -20,11 +20,15 @@ namespace Mains.Models
         private ObservableList<GhostInStaticObjectStruct> _ghostInStaticObjectStructs = new ObservableList<GhostInStaticObjectStruct>();
         /// <summary>オバケの家具入居管理の構造体リスト</summary>
         public ObservableList<GhostInStaticObjectStruct> GhostInStaticObjectStructs => _ghostInStaticObjectStructs;
+        /// <summary>オバケの家具入居管理の構造体トランザクション</summary>
+        private GhostInStaticObjectStruct _transactionGhostInStaticObjectStruct;
+        /// <summary>オバケの家具入居管理の構造体トランザクション</summary>
+        public GhostInStaticObjectStruct TransactionGhostInStaticObjectStruct => _transactionGhostInStaticObjectStruct;
         /// <summary>プレイヤープロパティの構造体</summary>
         private PlayerPropertiesStruct _playerPropertiesStruct = new PlayerPropertiesStruct()
         {
             healthPointMax = new ReactiveCommand<int>(),
-            healthPoint = new ReactiveCommand<int>(),
+            healthPoint = new ReactiveProperty<int>(),
         };
         /// <summary>プレイヤープロパティの構造体</summary>
         public PlayerPropertiesStruct PlayerPropertiesStruct => _playerPropertiesStruct;
@@ -40,6 +44,14 @@ namespace Mains.Models
         private bool _isSelectedBattery;
         /// <summary>バッテリーが選択状態か</summary>
         public bool IsSelectedBattery => _isSelectedBattery;
+        /// <summary>[Script_xyloApi.cs]リズムパート失敗</summary>
+        private readonly ReactiveCommand<bool> _isFailed = new ReactiveCommand<bool>();
+        /// <summary>[Script_xyloApi.cs]リズムパート失敗</summary>
+        public ReactiveCommand<bool> IsFailed => _isFailed;
+        /// <summary>選択されたMissGhostAttack</summary>
+        private Transform _selectedMissGhostAttackTransform;
+        /// <summary>選択されたMissGhostAttack</summary>
+        public Transform SelectedMissGhostAttackTransform => _selectedMissGhostAttackTransform;
 
         private void Start()
         {
@@ -49,11 +61,6 @@ namespace Mains.Models
                 .Take(1)
                 .Subscribe(q =>
                 {
-                    // TODO:探索パート⇔シャウトチャンスパート切り替えが視覚化されていない間は残す
-                    InteractionPartTable.interactionPart.Subscribe(x => Debug.Log($"interactionPart: [{x}]"))
-                        .AddTo(ref _disposableBag);
-                    InteractionPartTable.dbLevel.Subscribe(x => Debug.Log($"dbLevel: [{x}]"))
-                        .AddTo(ref _disposableBag);
                     InteractionPartTable.interactionPart.Value = InteractionPart.Search;
                 })
                 .AddTo(ref _disposableBag);
@@ -120,12 +127,12 @@ namespace Mains.Models
         public void SetHealthPointMax(int healthPointMax)
         {
             _playerPropertiesStruct.healthPointMax.Execute(healthPointMax);
-            _playerPropertiesStruct.healthPoint.Execute(healthPointMax);
+            _playerPropertiesStruct.healthPoint.Value = healthPointMax;
         }
 
         public void SetHealthPoint(int healthPoint)
         {
-            _playerPropertiesStruct.healthPoint.Execute(healthPoint);
+            _playerPropertiesStruct.healthPoint.Value = healthPoint;
         }
 
         public void SetTargetCrossPosition(Vector3 targetCrossPosition)
@@ -147,6 +154,61 @@ namespace Mains.Models
         {
             if (_isSelectedBattery != isSelectedBattery)
                 _isSelectedBattery = isSelectedBattery;
+        }
+
+        public void SetTransactionGhostInStaticObjectStruct(GhostInStaticObjectStruct ghostInStaticObjectStruct)
+        {
+            _transactionGhostInStaticObjectStruct = ghostInStaticObjectStruct;
+        }
+
+        public void SubtractionTransactionGhostInStaticObjectStruct()
+        {
+            var ghostStuct = _transactionGhostInStaticObjectStruct;
+            if (ghostStuct.ghostTeamID != null &&
+                !string.IsNullOrEmpty(ghostStuct.ghostTeamID.Value) &&
+                ghostStuct.useStatus.Equals(UseStatus.Using) &&
+                0 < ghostStuct.membersCount)
+            {
+                ghostStuct.membersCount--;
+            }
+            _transactionGhostInStaticObjectStruct = ghostStuct;
+        }
+
+        public void SetDefaultTransactionGhostInStaticObjectStruct()
+        {
+            _transactionGhostInStaticObjectStruct = new GhostInStaticObjectStruct();
+        }
+
+        public void SetInteractionPartToSearch()
+        {
+            if (InteractionPartTable != null)
+                InteractionPartTable.interactionPart.Value = InteractionPart.Search;
+        }
+
+        public void SubtractionHealthPoint()
+        {
+            if (_playerPropertiesStruct.healthPoint != null &&
+                !_playerPropertiesStruct.isLockedUpdateHealthPoint)
+            {
+                // 多段ヒット防止
+                _playerPropertiesStruct.isLockedUpdateHealthPoint = true;
+                _playerPropertiesStruct.healthPoint.Value--;
+            }
+        }
+
+        public void SetIsLockedUpdateHealthPoint(bool isLockedUpdateHealthPoint)
+        {
+            _playerPropertiesStruct.isLockedUpdateHealthPoint = isLockedUpdateHealthPoint;
+        }
+
+        public void SetIsFailed(bool isFailed)
+        {
+            _isFailed.Execute(isFailed);
+        }
+
+        public void SetSelectedMissGhostAttackTransform(Transform selectedMissGhostAttackTransform)
+        {
+            _selectedMissGhostAttackTransform = selectedMissGhostAttackTransform;
         }
     }
 
@@ -195,6 +257,11 @@ namespace Mains.Models
         /// </summary>
         /// <param name="batteryTransform">バッテリーのトランスフォーム</param>
         public void SetBatteryTransform(Transform batteryTransform);
+        /// <summary>
+        /// プレイヤーのHP更新ロックをセット
+        /// </summary>
+        /// <param name="isLockedUpdateHealthPoint">プレイヤーのHP更新ロック</param>
+        public void SetIsLockedUpdateHealthPoint(bool isLockedUpdateHealthPoint);
     }
 
     /// <summary>
@@ -217,6 +284,19 @@ namespace Mains.Models
         /// </summary>
         /// <param name="isCompletedBurstGhosts">ゴーストが飛び出してくる演出の完了</param>
         public void SetIsCompletedBurstGhosts(bool isCompletedBurstGhosts);
+        /// <summary>
+        /// オバケの家具入居管理の構造体トランザクションをセット
+        /// </summary>
+        /// <param name="ghostInStaticObjectStruct">オバケの家具入居管理の構造体</param>
+        public void SetTransactionGhostInStaticObjectStruct(GhostInStaticObjectStruct ghostInStaticObjectStruct);
+        /// <summary>
+        /// オバケの家具入居管理の構造体トランザクションへデフォルトをセット
+        /// </summary>
+        public void SetDefaultTransactionGhostInStaticObjectStruct();
+        /// <summary>
+        /// 探索パート切り替え入力をセット
+        /// </summary>
+        public void SetInteractionPartToSearch();
     }
 
     /// <summary>
@@ -239,5 +319,37 @@ namespace Mains.Models
         /// </summary>
         /// <param name="isSelectedBattery">バッテリーの選択状態</param>
         public void SetIsSelectedBattery(bool isSelectedBattery);
+        /// <summary>
+        /// 選択されたMissGhostAttackをセット
+        /// </summary>
+        /// <param name="selectedMissGhostAttackTransform">選択されたMissGhostAttack</param>
+        public void SetSelectedMissGhostAttackTransform(Transform selectedMissGhostAttackTransform);
+    }
+
+    /// <summary>
+    /// オブジェクトをホーミングする処理のカスタマイズインターフェース
+    /// </summary>
+    public interface IHomingObjectCustomizeModel
+    {
+        /// <summary>
+        /// オバケの家具入居管理の構造体から減算
+        /// </summary>
+        public void SubtractionTransactionGhostInStaticObjectStruct();
+        /// <summary>
+        /// [Script_xyloApi.cs]リズムパート失敗をセット
+        /// </summary>
+        public void SetIsFailed(bool isFailed);
+    }
+
+
+    /// <summary>
+    /// MissGhostAttackのカスタマイズモデルインターフェース
+    /// </summary>
+    public interface IMissGhostAttackCustomizeModel
+    {
+        /// <summary>
+        /// プレイヤーのHPを減らす
+        /// </summary>
+        public void SubtractionHealthPoint();
     }
 }

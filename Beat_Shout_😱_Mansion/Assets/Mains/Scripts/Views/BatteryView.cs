@@ -1,3 +1,6 @@
+using Mains.Commons;
+using Mains.ViewModels;
+using R3;
 using UnityEngine;
 
 namespace Mains.Views
@@ -10,6 +13,8 @@ namespace Mains.Views
     {
         /// <summary>カプセルコライダー</summary>
         [SerializeField] private SphereCollider sphereCollider;
+        /// <summary>R3のリソース管理</summary>
+        private DisposableBag _disposableBag = new DisposableBag();
 
         private void Reset()
         {
@@ -21,6 +26,30 @@ namespace Mains.Views
         {
             if (sphereCollider.enabled)
                 sphereCollider.enabled = false;
+        }
+
+        private void Start()
+        {
+            BatteryViewModel viewModel = new BatteryViewModel();
+            Observable.EveryUpdate()
+                .Select(_ => viewModel.InteractionPart)
+                .Where(x => x != null)
+                .Take(1)
+                .Subscribe(x =>
+                {
+                    x.Where(x => !x.Equals(InteractionPart.Rhythm))
+                        .Subscribe(_ =>
+                        {
+                            Destroy(gameObject);
+                        })
+                        .AddTo(ref _disposableBag);
+                })
+                .AddTo(ref _disposableBag);
+        }
+
+        private void OnDestroy()
+        {
+            _disposableBag.Dispose();
         }
 
         /// <summary>

@@ -5,7 +5,9 @@ using ObservableCollections;
 using Mains.ViewModels;
 using System.Linq;
 using System.Threading.Tasks;
-using UnityEngine.UIElements;
+using Mains.External;
+using Unity.Collections;
+using System.Collections.Generic;
 
 namespace Mains.Views
 {
@@ -50,10 +52,18 @@ namespace Mains.Views
         private PoltergeistViewModel _poltergeistViewModel;
         /// <summary>モーターのビュー</summary>
         private MotorView _motorView;
-        /// <summary>R3のリソース管理</summary>
-        private DisposableBag _disposableBag = new DisposableBag();
         /// <summary>トランスフォーム</summary>
         private Transform _transform;
+        /// <summary>シロさんのコンポーネントへアクセスするAPI</summary>
+        private Script_xyloApi _script_XyloApi;
+        /// <summary>フェードイメージのビュー</summary>
+        private FadeImageView _fadeImageView;
+        /// <summary>MissileObjectPoolerのカスタマイズビュー</summary>
+        private HomingObjectPoolerCustomizeView _homingObjectPoolerCustomizeView;
+        /// <summary>ObjectPoolerXyloOtherのカスタマイズビュー</summary>
+        private ObjectPoolerXyloOtherCustomizeView _objectPoolerXyloOtherCustomizeView;
+        /// <summary>R3のリソース管理</summary>
+        private DisposableBag _disposableBag = new DisposableBag();
 
         private void Reset()
         {
@@ -142,7 +152,6 @@ namespace Mains.Views
                             // 使用中ならIDを割り振る
                             ghostInStaticObjectStruct.ghostTeamID = new ReactiveProperty<string>();
                             ghostInStaticObjectStruct.ghostTeamID.Value = System.Guid.NewGuid().ToString();
-                            Debug.Log($"guid: [{ghostInStaticObjectStruct.ghostTeamID.Value}]");
                             _motorView.IsEnabledPoltergeist = true;
 
                             break;
@@ -155,28 +164,170 @@ namespace Mains.Views
                     _poltergeistViewModel.AddGhostInStaticObjectStructs(ghostInStaticObjectStruct);
                 })
                 .AddTo(ref _disposableBag);
-            // リズムパートから探索パートへ切り替わった時の処理
-            Observable.EveryUpdate()
-                .Select(x => _poltergeistViewModel.InteractionPart)
-                .Where(x => x != null)
-                .Take(1)
-                .Subscribe(x =>
-                {
-                    x.Pairwise()
-                        .Where(x => x.Previous.Equals(InteractionPart.Rhythm) &&
-                            x.Current.Equals(InteractionPart.Search))
-                        .Subscribe(_ =>
-                        {
-                            FindMissileTempoSpawnerInstanceAndDestroy(_missileTempoSpawnerInstance);
-                        })
-                        .AddTo(ref _disposableBag);
-                })
-                .AddTo(ref _disposableBag);
+            _script_XyloApi = new Script_xyloApi();
+            _fadeImageView = FindAnyObjectByType<FadeImageView>();
+            _homingObjectPoolerCustomizeView = FindAnyObjectByType<HomingObjectPoolerCustomizeView>();
+            _objectPoolerXyloOtherCustomizeView = FindAnyObjectByType<ObjectPoolerXyloOtherCustomizeView>();
         }
 
         private void OnDestroy()
         {
             _disposableBag.Dispose();
+        }
+
+        /// <summary>
+        /// オバケの家具入居管理の構造体の更新トランザクション開始
+        /// </summary>
+        /// <remarks>PlayerViewから呼び出される<br/>
+        /// ViewModel経由でTransactionGhostInStaticObjectStructをセット<br/>
+        /// ●利用人数の更新を監視<br/>
+        /// ＿○0になったらリズムパートを終了<br/>
+        /// ＿＿・ViewModel経由でコミット<br/>
+        /// ●BGMの終了を監視<br/>
+        /// ＿○BGMが終了したらリズムパートを終了<br/>
+        /// ＿＿・ViewModel経由でコミット<br/>
+        /// ●HPの減少（リズムパート失敗）を監視<br/>
+        /// ＿○HPが減少したらリズムパートを終了<br/>
+        /// ＿＿・ViewModel経由でコミット
+        /// </remarks>
+        public void BeginTransactionGhostInStaticObjectStruct()
+        {
+            _script_XyloApi.ChangeBgmB();
+            List<System.IDisposable> disposables = new List<System.IDisposable>();
+            ReactiveCommand<bool> isCompletedRhythmPart = new ReactiveCommand<bool>();
+            disposables.Add(
+                isCompletedRhythmPart.Where(x => x)
+                    .Take(1)
+                    .Subscribe(_ =>
+                    {
+                        _script_XyloApi.ChangeBgmA();
+                        CommitTransactionGhostInStaticObjectStruct(_poltergeistViewModel);
+                        // 後処理
+                        ReactiveProperty<int> processStepCnt = new ReactiveProperty<int>();
+                        disposables.Add(
+                            processStepCnt.Where(x => 1 < x)
+                                .Subscribe(_ =>
+                                {
+                                    // パート切り替え
+                                    _poltergeistViewModel.SetInteractionPartToSearch();
+                                    foreach (var disposable in disposables)
+                                        disposable.Dispose();
+                                })
+                                .AddTo(ref _disposableBag)
+                        );
+                        // 暗幕フェード
+                        // 利用総人数が0なら暗幕以降の演出は実行しない
+                        var ghostStructs = _poltergeistViewModel.GhostInStaticObjectStructs;
+                        var cnt = ghostStructs.Select(q => q.membersCount).Sum();
+                        // プレイヤーのHPが0なら暗幕以降の演出は実行しない
+                        var healthPoint = _poltergeistViewModel.PlayerHealthPoint.Value;
+                        if (0 < cnt &&
+                            0 < healthPoint)
+                        {
+                            disposables.Add(
+                                Observable.Create<bool>(observer =>
+                                {
+                                    StartCoroutine(_fadeImageView.PlayFadeInDirection(observer));
+                                    return Disposable.Empty;
+                                })
+                                    .Subscribe(_ =>
+                                    {
+                                        processStepCnt.Value++;
+                                    })
+                                    .AddTo(ref _disposableBag)
+                            );
+                        }
+                        else
+                        {
+                            foreach (var disposable in disposables)
+                                disposable.Dispose();
+                        }
+                        // スポナーの削除
+                        FindMissileTempoSpawnerInstanceAndDestroy(_missileTempoSpawnerInstance);
+                        // オバケが残っていたらプールへ戻す
+                        _homingObjectPoolerCustomizeView.DoReturnAllMissilesToPool();
+                        // オバケが残っていたらプールへ戻す（Other）
+                        disposables.Add(
+                            Observable.Create<bool>(observer =>
+                            {
+                                StartCoroutine(_objectPoolerXyloOtherCustomizeView.AllDisabled(observer));
+                                return Disposable.Empty;
+                            })
+                                .Subscribe(_ =>
+                                {
+                                    processStepCnt.Value++;
+                                })
+                                .AddTo(ref _disposableBag)
+                        );
+                    })
+                    .AddTo(ref _disposableBag)
+            );
+            disposables.Add(
+                _script_XyloApi.BgmBStatus.DistinctUntilChanged()
+                    .Where(x => x == 3)
+                    .Subscribe(_ =>
+                    {
+                        isCompletedRhythmPart.Execute(true);
+                    })
+                    .AddTo(ref _disposableBag)
+            );
+            ReactiveCommand<int> membersCount = new ReactiveCommand<int>();
+            disposables.Add(
+                membersCount.Where(x => x < 1)
+                    .Take(1)
+                    .Subscribe(_ =>
+                    {
+                        isCompletedRhythmPart.Execute(true);
+                    })
+                    .AddTo(ref _disposableBag)
+            );
+            disposables.Add(
+                Observable.EveryUpdate()
+                    .Select(_ => _poltergeistViewModel.PlayerHealthPoint)
+                    .Where(x => x != null)
+                    .Take(1)
+                    .Subscribe(x =>
+                    {
+                        disposables.Add(
+                            x.Pairwise()
+                                .Where(x => x.Current < x.Previous)
+                                .Subscribe(playerHealthPoint =>
+                            {
+                                isCompletedRhythmPart.Execute(true);
+                            })
+                            .AddTo(ref _disposableBag)
+                        );
+                    })
+                    .AddTo(ref _disposableBag)
+            );
+            _poltergeistViewModel.SetTransactionGhostInStaticObjectStruct(ghostInStaticObjectStruct);
+            disposables.Add(
+                Observable.EveryUpdate()
+                    .Select(_ => _poltergeistViewModel.TransactionGhostInStaticObjectStruct)
+                    .Subscribe(transactionGhostInStaticObjectStruct =>
+                    {
+                        membersCount.Execute(transactionGhostInStaticObjectStruct.membersCount);
+                    })
+                    .AddTo(ref _disposableBag)
+            );
+        }
+
+        /// <summary>
+        /// オバケの家具入居管理の構造体の更新トランザクションをコミット
+        /// </summary>
+        /// <param name="viewModel">ビューモデル</param>
+        private void CommitTransactionGhostInStaticObjectStruct(PoltergeistViewModel viewModel)
+        {
+            var transactionGhostStruct = viewModel.TransactionGhostInStaticObjectStruct;
+            if (transactionGhostStruct.membersCount < 1)
+            {
+                ExitGhost();
+            }
+            else
+            {
+                ShuffleNewStaticObject();
+            }
+            viewModel.SetDefaultTransactionGhostInStaticObjectStruct();
         }
 
         /// <summary>
@@ -293,9 +444,10 @@ namespace Mains.Views
         /// <param name="missileTempoSpawnerInstance">ミサイルテンポスポナー</param>
         private void FindMissileTempoSpawnerInstanceAndDestroy(Transform missileTempoSpawnerInstance)
         {
-            if (missileTempoSpawnerInstance != null)
+            if (missileTempoSpawnerInstance != null &&
+                missileTempoSpawnerInstance.gameObject != null)
             {
-                Destroy(missileTempoSpawnerInstance);
+                Destroy(missileTempoSpawnerInstance.gameObject);
             }
         }
     }

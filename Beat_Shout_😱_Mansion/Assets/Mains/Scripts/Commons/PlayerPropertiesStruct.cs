@@ -12,8 +12,10 @@ namespace Mains.Commons
         /// <summary>プレイヤーのトランスフォーム</summary>
         public Transform transform;
         /// <summary>プレイヤーのHP</summary>
-        public ReactiveCommand<int> healthPoint;
+        public ReactiveProperty<int> healthPoint;
         /// <summary>プレイヤーの最大HP</summary>
         public ReactiveCommand<int> healthPointMax;
+        /// <summary>プレイヤーのHP更新ロック</summary>
+        public bool isLockedUpdateHealthPoint;
     }
 }

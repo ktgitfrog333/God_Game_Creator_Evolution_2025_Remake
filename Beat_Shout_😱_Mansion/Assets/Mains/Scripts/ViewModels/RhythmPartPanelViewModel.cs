@@ -20,12 +20,13 @@ namespace Mains.ViewModels
                 return _playerModel?.InteractionPartTable?.interactionPart ?? null;
             }
         }
-        /// <summary>R3のリソース管理</summary>
-        private DisposableBag _disposableBag = new DisposableBag();
+        /// <summary>バッテリーのトランスフォーム</summary>
+        public Transform BatteryTransform => _playerModel?.BatteryTransform ?? null;
 
         public RhythmPartPanelViewModel()
         {
-            Observable.EveryUpdate()
+            System.IDisposable disposable = null;
+            disposable = Observable.EveryUpdate()
                 .Select(_ => GameObject.FindAnyObjectByType<PlayerModel>())
                 .Where(x => x != null)
                 .Take(1)
@@ -33,9 +34,8 @@ namespace Mains.ViewModels
                 {
                     _playerModel = x;
                     // 1度のみ実行されれば良いので破棄しても問題なし
-                    _disposableBag.Dispose();
-                })
-                .AddTo(ref _disposableBag);
+                    disposable.Dispose();
+                });
         }
 
         public void SetTargetCrossPosition(Vector3 targetCrossPosition)
@@ -48,6 +48,12 @@ namespace Mains.ViewModels
         {
             if (_playerModel != null)
                 _playerModel.SetIsSelectedBattery(isSelectedBattery);
+        }
+
+        public void SetSelectedMissGhostAttackTransform(Transform selectedMissGhostAttackTransform)
+        {
+            if (_playerModel != null)
+                _playerModel.SetSelectedMissGhostAttackTransform(selectedMissGhostAttackTransform);
         }
     }
 }

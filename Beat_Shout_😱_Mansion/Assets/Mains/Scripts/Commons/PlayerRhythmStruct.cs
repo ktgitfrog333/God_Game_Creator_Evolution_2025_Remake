@@ -16,5 +16,7 @@ namespace Mains.Commons
         public Transform elbow;
         [Tooltip("Assets/Mains/Prefabs/Level/DynamicObjects/Battery.prefabをセットしておく。")]
         public Transform batteryPrefab;
+        /// <summary>Player > HitTrigger リズムパートでのオバケがヒットする用のトリガー</summary>
+        public SphereCollider hitTrigger;
     }
 }
