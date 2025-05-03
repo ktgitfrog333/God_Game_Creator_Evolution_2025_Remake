@@ -31,7 +31,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 50, y: 50, z: 50}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -122,17 +122,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9544ef5ed7ed9984884285b7e365f441, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialSpeed: 20
-  curveStrength: 4
-  maxSpeed: 70
-  acceleration: 30
-  InitialScale: {x: 20, y: 20, z: 20}
-  finalScale: 2
+  initialSpeed: 10
+  curveStrength: 2
+  maxSpeed: 15
+  acceleration: 5
+  InitialScale: {x: 1, y: 1, z: 1}
+  finalScale: 1.2
   continuousScaleFactor: 2
-  maxAdditionalScale: 0.2
+  maxAdditionalScale: 0.1
   initialPhaseTime: 0.2
   curvePhaseTime: 1.2
   CountInt: 3
+  "currentSpeed\u306ECurving\u88DC\u6B63\u5024": 0.1
 --- !u!114 &953840192343252355
 MonoBehaviour:
   m_ObjectHideFlags: 0

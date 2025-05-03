@@ -767,7 +767,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0.28649712, y: -0.26414102, z: -0.07285836, w: 0.9180635}
   m_LocalPosition: {x: 11, y: 40.41, z: 200}
-  m_LocalScale: {x: 20, y: 20, z: 20}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 209826340}
@@ -1852,7 +1852,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0.28649712, y: -0.26414102, z: -0.07285836, w: 0.9180635}
   m_LocalPosition: {x: -47.5, y: 40.41, z: 200}
-  m_LocalScale: {x: 20, y: 20, z: 20}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 209826340}
@@ -2038,15 +2038,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2382793677482166144, guid: 8524c6731d2e5a24ea1b62e2d1968daf, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 200
+      value: 5000
       objectReference: {fileID: 0}
     - target: {fileID: 2382793677482166144, guid: 8524c6731d2e5a24ea1b62e2d1968daf, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 5000
       objectReference: {fileID: 0}
     - target: {fileID: 2382793677482166144, guid: 8524c6731d2e5a24ea1b62e2d1968daf, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 5000
       objectReference: {fileID: 0}
     - target: {fileID: 2382793677482166144, guid: 8524c6731d2e5a24ea1b62e2d1968daf, type: 3}
       propertyPath: m_LocalRotation.w
@@ -2172,7 +2172,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0.28649712, y: -0.26414102, z: -0.07285836, w: 0.9180635}
   m_LocalPosition: {x: -18.15, y: 74.6, z: 200}
-  m_LocalScale: {x: 20, y: 20, z: 20}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 209826340}
@@ -2437,13 +2437,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2134525478}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.28649712, y: -0.26414102, z: -0.07285836, w: 0.9180635}
-  m_LocalPosition: {x: -18.15, y: -0.23, z: 186}
-  m_LocalScale: {x: 30, y: 30, z: 30}
+  m_LocalRotation: {x: -0.09927894, y: -0.37682194, z: -0.55555683, w: 0.7345104}
+  m_LocalPosition: {x: -18.15, y: 11.7, z: 11.89}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 209826340}
-  m_LocalEulerAnglesHint: {x: -34.37, y: -32.48, z: 1.22}
+  m_LocalEulerAnglesHint: {x: -34.37, y: -32.48, z: -63.91}
 --- !u!65 &2134525480
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2546,15 +2546,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e83f28a8c564c645a865b948e94ad16, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  missilePattern: A2000C3000E4000
-  positionAngleA: 0
-  positionAngleB: 45
-  positionAngleC: 90
-  positionAngleD: 135
-  positionAngleE: 180
-  positionAngleF: 225
-  positionAngleG: 270
-  positionAngleH: 315
+  missilePattern: A20000000
+  positionAngleA: 180
+  positionAngleB: 225
+  positionAngleC: 270
+  positionAngleD: 315
+  positionAngleE: 0
+  positionAngleF: 45
+  positionAngleG: 90
+  positionAngleH: 135
   spawnDistance: 0
   missilePooler: {fileID: 1663314739}
 --- !u!4 &2382793677693381937

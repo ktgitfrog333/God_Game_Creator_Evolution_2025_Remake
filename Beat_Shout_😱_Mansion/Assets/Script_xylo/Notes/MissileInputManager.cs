@@ -14,13 +14,15 @@ public class MissileInputManager
 
     // クリック検出用変数
     private bool clickable = false;
-    private bool requireLongPress = false;
+    //  private bool requireLongPress = false;
     private int requiredBeats = 1;        // 長押しの場合の必要拍数
     private bool waitingForRelease = false;
     private bool clickPressed = false;
     private float clickTimer = 0f;
     private float clickTargetTime = 0f;
     private float releaseTargetTime = 0f;
+
+    private float absoluteReleaseTargetTime;
 
     /// <summary>
     /// コンストラクタ
@@ -51,7 +53,7 @@ public class MissileInputManager
         waitingForRelease = false;
         clickPressed = false;
         clickTimer = 0f;
-        requireLongPress = false;
+        //   requireLongPress = false;
         requiredBeats = 1;
     }
 
@@ -63,15 +65,18 @@ public class MissileInputManager
         return waitingForRelease && clickPressed;
     }
 
+
     /// <summary>
     /// 長押しリリース処理（外部から呼び出し可能）
     /// </summary>
+    /// 
+
     public void HandleLongPressRelease(float elapsedTime)
     {
         if (!waitingForRelease || !clickPressed) return;
 
         // リリースタイミングを計算
-        float absoluteReleaseTargetTime = CalculateReleaseTargetTime(currentNoteType);
+        absoluteReleaseTargetTime = CalculateReleaseTargetTime(currentNoteType);
         float releaseGracePeriod = clickGracePeriod;
         float releaseTimingDifference = elapsedTime - absoluteReleaseTargetTime;
         bool inReleaseWindow = Mathf.Abs(releaseTimingDifference) <= releaseGracePeriod;
@@ -79,13 +84,11 @@ public class MissileInputManager
         if (inReleaseWindow)
         {
             // 成功！
-            Debug.Log($"長押し解放成功！ ジャストタイミングとの差: {releaseTimingDifference:F3}秒（猶予時間: ±{releaseGracePeriod:F3}秒）");
             parent.TriggerSuccessEvent();
         }
         else
         {
             // 失敗 - 離すタイミング外
-            Debug.Log($"長押し解放失敗: ジャストタイミングとの差: {releaseTimingDifference:F3}秒（猶予時間: ±{releaseGracePeriod:F3}秒）");
             parent.TriggerFailEvent();
         }
 
@@ -108,27 +111,27 @@ public class MissileInputManager
             switch (currentNoteType)
             {
                 case MissileNoteType.Short:
-                    requireLongPress = false;
+                    //  requireLongPress = false;
                     requiredBeats = 0;
                     clickTargetTime = oneBeat * 4; // 4拍目でクリック
                     break;
 
                 case MissileNoteType.Long1Beat:
-                    requireLongPress = true;
+                    //   requireLongPress = true;
                     requiredBeats = 1;
                     clickTargetTime = oneBeat * 4;    // 4拍目で押す
                     releaseTargetTime = oneBeat * 5;  // 5拍目で離す
                     break;
 
                 case MissileNoteType.Long2Beat:
-                    requireLongPress = true;
+                    //    requireLongPress = true;
                     requiredBeats = 2;
                     clickTargetTime = oneBeat * 4;    // 4拍目で押す
                     releaseTargetTime = oneBeat * 6;  // 6拍目で離す (2拍後)
                     break;
 
                 case MissileNoteType.Long3Beat:
-                    requireLongPress = true;
+                    //     requireLongPress = true;
                     requiredBeats = 3;
                     clickTargetTime = oneBeat * 4;    // 4拍目で押す
                     releaseTargetTime = oneBeat * 7;  // 7拍目で離す (3拍後)
@@ -142,8 +145,8 @@ public class MissileInputManager
     /// </summary>
     public void HandleInput(MissileNoteType noteType, float elapsedTime)
     {
-        if (!clickable) return;
-
+    //    if (!clickable) return;
+       // Debug.Log("入力がクリッカブルになって見張っているよ");
         this.currentNoteType = noteType;
 
         switch (noteType)
@@ -197,32 +200,25 @@ public class MissileInputManager
         // マウスクリック/タッチ検出
         if (Input.GetMouseButtonDown(0))
         {
-            Debug.Log($"短押しノーツ: マウスクリックを検出しました（経過時間: {elapsedTime:F2}秒, 目標時間: {absoluteClickTargetTime:F2}秒）");
 
             // クリック位置がUI上かチェック
             if (parent.IsPointerOverUI())
             {
-                Debug.Log($"短押しノーツ: UI上のクリックを検出しました");
                 if (inClickWindow)
                 {
                     // 成功！
-                    Debug.Log($"クリック成功！ ジャストタイミングとの差: {timingDifference:F3}秒（猶予時間: ±{clickGracePeriod:F3}秒）【絶対時間】");
                     parent.TriggerSuccessEvent();
                 }
                 else
                 {
                     // 失敗 - タイミング外
-                    Debug.Log($"クリック失敗: ジャストタイミングとの差: {timingDifference:F3}秒（猶予時間: ±{clickGracePeriod:F3}秒）【絶対時間】");
                     parent.TriggerFailEvent();
                 }
 
                 // クリック判定を無効化
                 clickable = false;
             }
-            else
-            {
-                Debug.Log($"短押しノーツ: クリックはUI上ではありませんでした");
-            }
+
         }
     }
 
@@ -233,6 +229,7 @@ public class MissileInputManager
     {
         waitingForRelease = true;
         clickPressed = true;
+        Debug.Log("長押し始めたよ");
 
         // 必要なビート数に応じてリリースタイミングを設定
         switch (currentNoteType)
@@ -251,7 +248,6 @@ public class MissileInputManager
                 break;
         }
 
-        Debug.Log($"長押し開始: リリース目標時間は {releaseTargetTime:F2}秒です");
     }
 
     /// <summary>
@@ -272,6 +268,7 @@ public class MissileInputManager
         float releaseTimingDifference = elapsedTime - absoluteReleaseTargetTime;
         bool inReleaseWindow = Mathf.Abs(releaseTimingDifference) <= releaseGracePeriod;
 
+        // 押し始めの処理
         if (!waitingForRelease)
         {
             // マウス押下検出
@@ -285,39 +282,60 @@ public class MissileInputManager
                         waitingForRelease = true;
                         clickPressed = true;
 
-                        Debug.Log($"長押し開始成功！ ジャストタイミングとの差: {pressTimingDifference:F3}秒（猶予時間: ±{clickGracePeriod:F3}秒）【絶対時間】");
-
                         // 長押し中の色に変更
                         parent.SetHoldingColor();
                     }
                     else
                     {
                         // 失敗 - 押すタイミング外
-                        Debug.Log($"長押し開始失敗: ジャストタイミングとの差: {pressTimingDifference:F3}秒（猶予時間: ±{clickGracePeriod:F3}秒）【絶対時間】");
                         parent.TriggerFailEvent();
                         clickable = false;
                     }
                 }
             }
         }
-        else
+        // 長押し中の処理
+        else if (waitingForRelease && clickPressed)
         {
+            Debug.Log("長押ししているよ");
+            // 自動成功判定: 指定された離すタイミングに達した場合
+            if (elapsedTime >= absoluteReleaseTargetTime)
+            {
+                parent.TriggerSuccessEvent();
+                Debug.Log("長押し自動成功");
+
+                // 成功処理後、状態をリセット
+                clickable = false;
+                waitingForRelease = false;
+                clickPressed = false;
+
+                // 処理済みなので、ここで早期リターン
+                return;
+            }
+
             // マウスを離す検出
             if (Input.GetMouseButtonUp(0))
             {
                 // リリース判定を別メソッドへ移動して呼び出し
                 HandleLongPressRelease(elapsedTime);
+                // 処理済みなので、ここで早期リターン
+                return;
             }
 
             // 既に離すべき時間を過ぎているか確認
-            if (elapsedTime > (absoluteReleaseTargetTime + releaseGracePeriod * 2) && clickPressed)
+            if (elapsedTime > absoluteReleaseTargetTime)
             {
-                // リリースが大幅に遅れた場合は失敗として扱う
-                Debug.Log($"長押し解放忘れ: リリース時間を大幅に超過しました");
-                parent.TriggerFailEvent();
+                // 長押しが大幅に長すぎる場合の処理
+                parent.TriggerSuccessEvent();
+                Debug.Log("長押し持続成功（猶予時間外）");
+
+                // 成功処理後、状態をリセット
                 clickable = false;
                 waitingForRelease = false;
                 clickPressed = false;
+
+                // 処理済みなので、ここで早期リターン
+                return;
             }
         }
     }
