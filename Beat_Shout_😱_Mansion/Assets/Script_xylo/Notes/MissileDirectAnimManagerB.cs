@@ -147,6 +147,7 @@ public class MissileDirectAnimManagerB : MonoBehaviour
     private float objectCreationTime = 0f;
     private float oneBeat = 0.4f;
     private bool isInitialized = false;
+    private bool SetTimeYet = false;
 
     // オブジェクト管理用
     private GameObject[] uiElements = null;
@@ -235,6 +236,9 @@ public class MissileDirectAnimManagerB : MonoBehaviour
 
         UpdateAimCircleSize(aimCircleScale);
 
+        SetTimeYet = true;
+
+
         // 安全タイマーを設定
         activeCoroutines.Add(StartManagedCoroutine(SafetyTimer()));
     }
@@ -284,6 +288,7 @@ public class MissileDirectAnimManagerB : MonoBehaviour
             }
         }
 
+
         // リリース（マウスボタンを離す）処理を追加
         if (Input.GetMouseButtonUp(0))
         {
@@ -305,6 +310,7 @@ public class MissileDirectAnimManagerB : MonoBehaviour
             }
         }
 
+
         // 入力検出の処理（通常のフロー）
         if (enableClickDetection && !isFailed && !isSuccessful && inputManager != null)
         {
@@ -316,7 +322,6 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         {
             if (!isSuccessful && !isFailed)
             {
-                Debug.Log($"{gameObject.name}: アニメーション完了を検出。プールに返却します。");
                 StartManagedCoroutine(ReturnToPoolWithDelay(0.2f));
             }
         }
@@ -330,7 +335,6 @@ public class MissileDirectAnimManagerB : MonoBehaviour
 
             if (noteType == MissileNoteType.Short && elapsedTime > clickDeadlineTime)
             {
-                Debug.Log($"{gameObject.name}: 入力期限を過ぎました。時間: {elapsedTime:F2}秒, 期限: {clickDeadlineTime:F2}秒");
                 TriggerNoInputFailEvent();
             }
             // 長押しノーツの場合は、開始されていなければ失敗
@@ -341,8 +345,7 @@ public class MissileDirectAnimManagerB : MonoBehaviour
                      inputManager != null &&
                      !inputManager.IsLongPressStarted())
             {
-                Debug.Log($"{gameObject.name}: 長押し開始の入力期限を過ぎました。時間: {elapsedTime:F2}秒, 期限: {clickDeadlineTime:F2}秒");
-                TriggerNoInputFailEvent();
+                 TriggerNoInputFailEvent();
             }
         }
     }
@@ -394,19 +397,16 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         float timingDifference = elapsedTime - targetTime;
         bool inClickWindow = Mathf.Abs(timingDifference) <= clickGracePeriod;
 
-        Debug.Log($"{gameObject.name}: 短押し判定 - 経過時間: {elapsedTime:F2}秒, 目標時間: {targetTime:F2}秒, 差: {timingDifference:F2}秒, 猶予: {clickGracePeriod:F2}秒");
-
+      
         if (inClickWindow)
         {
             // 成功！
-            Debug.Log($"{gameObject.name}: クリック成功！ ジャストタイミングとの差: {timingDifference:F3}秒");
             TriggerSuccessEvent();
         }
         else
         {
             // 失敗 - タイミング外
-            Debug.Log($"{gameObject.name}: クリック失敗: ジャストタイミングとの差: {timingDifference:F3}秒");
-            TriggerFailEvent();
+             TriggerFailEvent();
         }
     }
 
@@ -420,13 +420,10 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         float timingDifference = elapsedTime - targetTime;
         bool inClickWindow = Mathf.Abs(timingDifference) <= clickGracePeriod;
 
-        Debug.Log($"{gameObject.name}: 長押し開始判定 - 経過時間: {elapsedTime:F2}秒, 目標時間: {targetTime:F2}秒, 差: {timingDifference:F2}秒, 猶予: {clickGracePeriod:F2}秒");
-
+      
         if (inClickWindow)
         {
-            // 長押し開始成功 - 色を変更して長押し中状態に
-            Debug.Log($"{gameObject.name}: 長押し開始成功！");
-            SetHoldingColor();
+         SetHoldingColor();
 
             // 長押し情報を保存（inputManagerに通知する代わりに直接処理）
             if (inputManager != null)
@@ -436,8 +433,7 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         }
         else
         {
-            // 失敗 - タイミング外
-            Debug.Log($"{gameObject.name}: 長押し開始失敗: ジャストタイミングとの差: {timingDifference:F3}秒");
+     
             TriggerFailEvent();
         }
     }
@@ -640,8 +636,7 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         // プールに戻す処理が開始されている場合は何もしない
         if (isReturningToPool || isForceReturning) return;
 
-        Debug.Log($"{gameObject.name}: クリック成功！");
-
+     
         // 成功状態を設定
         isSuccessful = true;
         isFailed = false;
@@ -669,7 +664,6 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         {
             // コルーチンを管理付きで開始
             StartManagedCoroutine(ReturnToPoolWithDelay(successReturnDelay));
-            Debug.Log($"{gameObject.name}: 成功後のプール返却コルーチンを開始しました");
         }
     }
 
@@ -678,7 +672,8 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         // プールに戻す処理が開始されている場合は何もしない
         if (isReturningToPool || isForceReturning) return;
 
-        Debug.Log($"{gameObject.name}: クリック失敗");
+        Debug.Log("失敗");
+
 
         GameObject obj = ObjectPoolerXyloOther.Instance.SpawnFromPool("MissGhostAttack", transform.position, Quaternion.identity);
 
@@ -701,7 +696,6 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         {
             // コルーチンを管理付きで開始
             StartManagedCoroutine(ReturnToPoolWithDelay(failReturnDelay));
-            Debug.Log($"{gameObject.name}: 失敗後のプール返却コルーチンを開始しました");
         }
     }
 
@@ -710,8 +704,7 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         // プールに戻す処理が開始されている場合は何もしない
         if (isReturningToPool || isForceReturning) return;
 
-        Debug.Log($"{gameObject.name}: 入力なしで失敗しました - ノーツタイプ: {noteType}");
-
+   
         // 失敗状態を設定
         isSuccessful = false;
         isFailed = true;
@@ -723,8 +716,7 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         {
             // ノーツタイプを渡して初期化
             missGhostAttack.InitFailed(noteType);
-            Debug.Log($"MissGhostAttack初期化 - オブジェクト: {obj.name}, スケール: {obj.transform.localScale}");
-        }
+         }
         else
         {
             Debug.LogError("MissGhostAttack component not found on spawned object!");
@@ -734,8 +726,7 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         if (returnToPoolWhenDone)
         {
             StartManagedCoroutine(ReturnToPoolWithDelay(failReturnDelay));
-            Debug.Log($"{gameObject.name}: 入力なしの失敗後のプール返却コルーチンを開始しました");
-        }
+      }
     }
 
     private void ChangeObjectColor(Color newColor)
@@ -897,8 +888,7 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         if (isReturningToPool || isForceReturning) return;
 
         isForceReturning = true;
-        Debug.Log($"{gameObject.name}: 強制的にプールに返却します - 実行中のコルーチンを停止中...");
-
+      
         // 実行中のすべてのコルーチンを停止
         StopAllCoroutines();
         activeCoroutines.Clear();

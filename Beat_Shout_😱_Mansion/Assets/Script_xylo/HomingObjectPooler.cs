@@ -155,8 +155,7 @@ public class MissileObjectPooler : MonoBehaviour
             if (prefab != null)
             {
                 int expansionSize = Mathf.CeilToInt(poolSize * 0.5f);
-                Debug.Log($"ミサイルプーラー: ID {missileId} のプールを拡張します (+{expansionSize})");
-
+           
                 for (int i = 0; i < expansionSize; i++)
                 {
                     GameObject obj = Instantiate(prefab);
@@ -222,8 +221,7 @@ public class MissileObjectPooler : MonoBehaviour
     // オブジェクトがプールに戻るのを監視するコルーチン（改良版）
     private IEnumerator ReturnToPoolWhenInactive(GameObject obj, int missileId)
     {
-        Debug.Log($"ミサイルプーラー: {obj.name} (ID:{missileId}) の監視を開始しました");
-
+    
         // オブジェクトがアクティブでなくなるまで待機
         // WaitUntilの代わりにポーリングを使用して確実に検出
         while (obj.activeInHierarchy)
@@ -234,8 +232,7 @@ public class MissileObjectPooler : MonoBehaviour
         // プールに戻す
         if (missilePoolDict.ContainsKey(missileId))
         {
-            Debug.Log($"ミサイルプーラー: {obj.name} (ID:{missileId}) を確実にプールに返却します");
-            missilePoolDict[missileId].Enqueue(obj);
+           missilePoolDict[missileId].Enqueue(obj);
             activeObjectCount--;
         }
         else
@@ -249,8 +246,7 @@ public class MissileObjectPooler : MonoBehaviour
     {
         if (missile == null) return;
 
-        Debug.Log($"ミサイルプーラー: {missile.name} (ID:{missileId}) を直接プールに返却します");
-
+      
         // 先にオブジェクトを非アクティブにする
         missile.SetActive(false);
 

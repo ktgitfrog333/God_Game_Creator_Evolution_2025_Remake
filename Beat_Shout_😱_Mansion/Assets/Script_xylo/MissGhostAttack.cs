@@ -4,7 +4,6 @@ public class MissGhostAttack : MonoBehaviour
 {
     [SerializeField] private float initialSpeed = 10f; // 初期速度（最大）
     [SerializeField] private float minSpeed = 3f; // 最小速度
-    [SerializeField] private float deceleration = 0.2f; // 減速度
     [SerializeField] private int frameDistance = 60; // N フレームの距離
     [SerializeField] private float gravity = 9.8f; // 重力
     [SerializeField] private float arcHeight = 5f; // 放物線の高さ（インスペクターで設定可能）
@@ -46,7 +45,6 @@ public class MissGhostAttack : MonoBehaviour
 
     public void InitFailed(MissileNoteType noteType = MissileNoteType.Short)
     {
-        Debug.Log($"Missile Init Failed生成 - ノーツタイプ: {noteType}");
         currentMode = MoveMode.Failed;
 
         // スケールを確実にリセット
@@ -89,8 +87,7 @@ public class MissGhostAttack : MonoBehaviour
 
     public void InitSuccess()
     {
-        Debug.Log("Missile InitSuccess生成");
-        currentMode = MoveMode.Success;
+       currentMode = MoveMode.Success;
 
         // スケールを確実にリセット
         transform.localScale = initialScale;
@@ -163,8 +160,7 @@ public class MissGhostAttack : MonoBehaviour
         // 指定時間が経過したらプールに返却
         if (fractionOfJourney >= 1.0f)
         {
-            Debug.Log($"Failed Movement complete at {Time.time}, duration: {timeSinceStart:F2}s");
-            ReturnToPool();
+           ReturnToPool();
         }
     }
 
@@ -199,7 +195,6 @@ public class MissGhostAttack : MonoBehaviour
         // アニメーション完了時
         if (normalizedTime >= 1.0f)
         {
-            Debug.Log($"Success Movement complete at {Time.time}, duration: {timeSinceStart:F2}s");
             ReturnToPool();
         }
     }
@@ -207,7 +202,6 @@ public class MissGhostAttack : MonoBehaviour
     // 衝突時にプールに返却
     private void OnCollisionEnter(Collision collision)
     {
-        Debug.Log($"Collision detected with {collision.gameObject.name}, returning to pool");
         ReturnToPool();
     }
 
@@ -239,7 +233,6 @@ public class MissGhostAttack : MonoBehaviour
     // 公開メソッド：外部からプールに返却するため
     public void ForceReturnToPool()
     {
-        Debug.Log($"Force return to pool: {gameObject.name}, mode: {currentMode}");
         ReturnToPool();
     }
 }

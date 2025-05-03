@@ -12,7 +12,7 @@ public class SE_Picker : MonoBehaviour
 
     private bool ActiveNow = false;
     private Dictionary<string, float> soundCooldowns = new Dictionary<string, float>();
-    private float cooldownTime = 0.06f; // “¯‚¶‰¹º‚ÌÄ¶ŠÔŠu
+   // private float cooldownTime = 0.06f; // “¯‚¶‰¹º‚ÌÄ¶ŠÔŠu
 
     private Queue<CriAtomExPlayer> availablePlayers = new Queue<CriAtomExPlayer>();
 

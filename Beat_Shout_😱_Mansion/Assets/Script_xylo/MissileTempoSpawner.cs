@@ -51,6 +51,8 @@ public class MissileTempoSpawner : MonoBehaviour
     private Vector3 originalScale;
     private List<(char angle, int missileId)> patternList = new List<(char, int)>(); // 角度とIDのペアのリスト
 
+    private bool Active;
+
     // 角度文字と実際の角度のマッピング用ディクショナリ
     private Dictionary<char, float> angleMap = new Dictionary<char, float>();
 
@@ -78,6 +80,8 @@ public class MissileTempoSpawner : MonoBehaviour
 
     private void OnEnable()
     {
+        Active = false;
+
         // 元のサイズを保存
         originalScale = transform.localScale;
 
@@ -188,29 +192,17 @@ public class MissileTempoSpawner : MonoBehaviour
             Debug.LogWarning("MissileTempoSpawner: 有効なパターンが見つかりません。デフォルトパターン 'A1B2C3D4E5F6G7H8' を使用します。");
 
             // デフォルトパターンを設定
-            patternList.Add(('A', 1));
-            patternList.Add(('B', 2));
-            patternList.Add(('C', 3));
-            patternList.Add(('D', 4));
-            patternList.Add(('E', 5));
-            patternList.Add(('F', 6));
-            patternList.Add(('G', 7));
-            patternList.Add(('H', 8));
+            //patternList.Add(('A', 1));
+            //patternList.Add(('B', 2));
+            //patternList.Add(('C', 3));
+            //patternList.Add(('D', 4));
+            //patternList.Add(('E', 5));
+            //patternList.Add(('F', 6));
+            //patternList.Add(('G', 7));
+            //patternList.Add(('H', 8));
         }
 
-        // 詳細なデバッグログ
-        Debug.Log($"MissileTempoSpawner: パターン文字列 '{missilePattern}' から {patternList.Count} 個のパターンを抽出しました。");
-        for (int i = 0; i < patternList.Count; i++)
-        {
-            if (patternList[i].missileId == 0)
-            {
-                Debug.Log($"  パターン {i + 1}: スキップ（何も生成しない）");
-            }
-            else
-            {
-                Debug.Log($"  パターン {i + 1}: 角度={patternList[i].angle} ({angleMap[patternList[i].angle]}°), ミサイルID={patternList[i].missileId}");
-            }
-        }
+     
     }
 
     /// <summary>
@@ -218,33 +210,36 @@ public class MissileTempoSpawner : MonoBehaviour
     /// </summary>
     private void TempoMethod()
     {
-        // プーラーが見つからない場合は何もしない
-        if (missilePooler == null) return;
-
-        // パターンリストが空の場合は何もしない
-        if (patternList.Count == 0) return;
-
-        // 現在のビートに対応するミサイルと角度を取得
-        var currentPattern = patternList[currentBeatIndex];
-        char angleChar = currentPattern.angle;
-        int missileId = currentPattern.missileId;
-
-        // ミサイルIDが有効（1-9）なら生成、0ならスキップ
-        if (missileId >= 1 && missileId <= 9)
+        if (Active)
         {
-            SpawnMissile(missileId, angleChar);
+            // プーラーが見つからない場合は何もしない
+            if (missilePooler == null) return;
+
+            // パターンリストが空の場合は何もしない
+            if (patternList.Count == 0) return;
+
+            // 現在のビートに対応するミサイルと角度を取得
+            var currentPattern = patternList[currentBeatIndex];
+            char angleChar = currentPattern.angle;
+            int missileId = currentPattern.missileId;
+
+            // ミサイルIDが有効（1-9）なら生成、0ならスキップ
+            if (missileId >= 1 && missileId <= 9)
+            {
+                SpawnMissile(missileId, angleChar);
+            }
+
+
+            // 次のビートインデックスに進む（循環）
+            currentBeatIndex = (currentBeatIndex + 1) % patternList.Count;
+
+            // ビジュアルフィードバック（生成時に少し拡大する）
+            StartCoroutine(PulseScale());
         }
-        else
+        else 
         {
-            // ID=0の場合はスキップするがデバッグログは出力
-            Debug.Log($"MissileTempoSpawner: ビート {currentBeatIndex + 1} はスキップします");
+        Active = true;
         }
-
-        // 次のビートインデックスに進む（循環）
-        currentBeatIndex = (currentBeatIndex + 1) % patternList.Count;
-
-        // ビジュアルフィードバック（生成時に少し拡大する）
-        StartCoroutine(PulseScale());
     }
 
     /// <summary>
@@ -326,7 +321,7 @@ public class MissileTempoSpawner : MonoBehaviour
 
         // 角度を調整（0度が12時方向、90度が3時方向になるよう回転）
         // 12時方向を0度にするために-90度回転
-        float adjustedAngle = angle - 90f;
+        float adjustedAngle = angle;
         if (adjustedAngle < 0f) adjustedAngle += 360f;
 
         // 角度に応じて方向ベクトルを計算
@@ -381,12 +376,9 @@ public class MissileTempoSpawner : MonoBehaviour
 
             // 生成に成功
             string missileName = missilePooler.GetMissileNameById(missileId);
-            Debug.Log($"MissileTempoSpawner: ミサイル {missileName} (ID:{missileId}) を角度 {angleChar} ({angleMap[angleChar]}°) で生成しました (パターン位置: {currentBeatIndex + 1}/{patternList.Count})");
         }
-        else
-        {
-            Debug.LogWarning($"MissileTempoSpawner: ミサイル ID {missileId} の生成に失敗しました。プールが空か、IDが無効です。");
-        }
+       
+        
     }
 
     /// <summary>
@@ -413,7 +405,6 @@ public class MissileTempoSpawner : MonoBehaviour
         ParsePatternString();
         currentBeatIndex = 0;
 
-        Debug.Log($"MissileTempoSpawner: パターンを '{newPattern}' に変更しました。");
     }
 
     /// <summary>
