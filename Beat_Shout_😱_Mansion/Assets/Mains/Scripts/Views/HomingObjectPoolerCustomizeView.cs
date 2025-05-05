@@ -38,6 +38,16 @@ namespace Mains.Views
                     }
                 })
                 .AddTo(ref _disposableBag);
+            Transform overlayCanvas = null;
+            Observable.EveryUpdate()
+                .Select(_ => GameObject.Find("OverlayCanvas"))
+                .Where(x => x != null)
+                .Take(1)
+                .Subscribe(x =>
+                {
+                    overlayCanvas = x.transform;
+                })
+                .AddTo(ref _disposableBag);
             // MissileEffectContainerが中央にいるなら大きさを0にする（有効／無効切り替えにすると既存スクリプトと競合するため暫定処置）
             Observable.EveryUpdate()
                 .Select(_ => _script_XyloApi.MissileGameObjects)
@@ -60,6 +70,11 @@ namespace Mains.Views
                                 else
                                 {
                                     missileEffectContainer.localScale = Vector3.zero;
+                                }
+                                if (overlayCanvas != null &&
+                                    !missileEffectContainer.parent.Equals(overlayCanvas))
+                                {
+                                    missileEffectContainer.SetParent(overlayCanvas);
                                 }
                             })
                             .AddTo(ref _disposableBag);
