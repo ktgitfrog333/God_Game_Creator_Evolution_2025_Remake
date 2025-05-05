@@ -57,6 +57,8 @@ namespace Mains.Views
         private MotorView _motorView;
         /// <summary>トランスフォーム</summary>
         private Transform _transform;
+        /// <summary>ポジション</summary>
+        private Vector3 _position;
         /// <summary>シロさんのコンポーネントへアクセスするAPI</summary>
         private Script_xyloApi _script_XyloApi;
         /// <summary>フェードイメージのビュー</summary>
@@ -91,6 +93,7 @@ namespace Mains.Views
         private void Start()
         {
             _transform = transform;
+            _position = _transform.position;
             // Poltergeistの生成
             var originParent = _transform.parent;
             // 初期化
@@ -395,11 +398,11 @@ namespace Mains.Views
         public void InstanceMissileTempoSpawner()
         {
             var originParent = _transform.parent;
-            var missileTempoSpawnerInstance = Instantiate(missileTempoSpawnerPrefab, _transform.position, Quaternion.identity);
+            var missileTempoSpawnerInstance = Instantiate(missileTempoSpawnerPrefab, _position, Quaternion.identity);
             missileTempoSpawnerInstance.transform.SetParent(originParent);
             // リズムパートの調整（家具に対して真正面に配置するとオバケがずれることがある？）
             var originAngles = _rhythmPartEulerAngles;
-            missileTempoSpawnerInstance.eulerAngles = new Vector3(originAngles.x, originAngles.y - 125.09f, originAngles.z);
+            missileTempoSpawnerInstance.eulerAngles = new Vector3(0f, originAngles.y - 125.09f, 0f);
             _missileTempoSpawnerInstance = missileTempoSpawnerInstance;
         }
 

@@ -1,0 +1,32 @@
+using System.Collections.Generic;
+using UnityEngine;
+using System.Linq;
+
+namespace Mains.Tests
+{
+    public class FPSCounterTest : MonoBehaviour
+    {
+        private List<float> frameTimes = new List<float>();
+        private float updateInterval = 1.0f; // 1•b‚²‚Æ‚ÉXV
+        private float timer = 0f;
+        private float currentFPS = 0f;
+
+        private void Update()
+        {
+            frameTimes.Add(Time.deltaTime);
+
+            timer += Time.deltaTime;
+            if (timer >= updateInterval)
+            {
+                currentFPS = 1.0f / frameTimes.Average();
+                frameTimes.Clear();
+                timer = 0f;
+            }
+        }
+
+        private void OnGUI()
+        {
+            GUI.Label(new Rect(10, 60, 200, 50), $"FPS: [{currentFPS:F1}] ({Application.targetFrameRate})");
+        }
+    }
+}
