@@ -6,7 +6,6 @@ using Mains.ViewModels;
 using System.Linq;
 using System.Threading.Tasks;
 using Mains.External;
-using Unity.Collections;
 using System.Collections.Generic;
 
 namespace Mains.Views
@@ -22,10 +21,14 @@ namespace Mains.Views
         [SerializeField] private GameObject motorPrefab;
         [Tooltip("Assets/Mains/Prefabs/Level/ShoutChanceRange.prefabをセットしておく。")]
         [SerializeField] private GameObject shoutChanceRangePrefab;
-        /// <summary>リズムパートポジション（プレイヤー位置をリズムパート用に移動させる）</summary>
-        private Transform _rhythmPartPosition;
-        /// <summary>リズムパートポジション（プレイヤー位置をリズムパート用に移動させる）</summary>
-        public Transform RhythmPartPosition => _rhythmPartPosition;
+        /// <summary>リズムパート位置（プレイヤー位置をリズムパート用に移動させる）</summary>
+        private Vector3 _rhythmPartPosition;
+        /// <summary>リズムパート角度（プレイヤー位置をリズムパート用に移動させる）</summary>
+        private Vector3 _rhythmPartEulerAngles;
+        /// <summary>リズムパート位置（プレイヤー位置をリズムパート用に移動させる）</summary>
+        public Vector3 RhythmPartPosition => _rhythmPartPosition;
+        /// <summary>リズムパート角度（プレイヤー位置をリズムパート用に移動させる）</summary>
+        public Vector3 RhythmPartEulerAngles => _rhythmPartEulerAngles;
         /// <summary>オバケの家具入居管理の構造体</summary>
         [SerializeField] private GhostInStaticObjectStruct ghostInStaticObjectStruct;
         /// <summary>オバケの家具入居管理の構造体</summary>
@@ -79,7 +82,7 @@ namespace Mains.Views
             }
             if (!isFound)
             {
-                var newObj = new GameObject("RhythmPartPosition");
+                var newObj = new GameObject("RhythmPartPosition").AddComponent<RhythmPartPositionView>();
                 newObj.transform.position = transform.position;
                 newObj.transform.SetParent(transform);
             }
@@ -115,7 +118,8 @@ namespace Mains.Views
             {
                 if (child.name.Equals("RhythmPartPosition"))
                 {
-                    _rhythmPartPosition = child;
+                    _rhythmPartPosition = child.position;
+                    _rhythmPartEulerAngles = child.eulerAngles;
                     break;
                 }
             }
@@ -393,6 +397,9 @@ namespace Mains.Views
             var originParent = _transform.parent;
             var missileTempoSpawnerInstance = Instantiate(missileTempoSpawnerPrefab, _transform.position, Quaternion.identity);
             missileTempoSpawnerInstance.transform.SetParent(originParent);
+            // リズムパートの調整（家具に対して真正面に配置するとオバケがずれることがある？）
+            var originAngles = _rhythmPartEulerAngles;
+            missileTempoSpawnerInstance.eulerAngles = new Vector3(originAngles.x, originAngles.y - 125.09f, originAngles.z);
             _missileTempoSpawnerInstance = missileTempoSpawnerInstance;
         }
 
