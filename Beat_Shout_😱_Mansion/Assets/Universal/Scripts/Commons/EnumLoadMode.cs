@@ -12,9 +12,13 @@ namespace Universal.Commons
         /// </summary>
         Continue,
         /// <summary>
-        /// デフォルトモード
+        /// デフォルトモード（レベル）
         /// </summary>
         Default,
+        /// <summary>
+        /// デフォルトモード（オプション）
+        /// </summary>
+        Default1,
         /// <summary>
         /// 全解放モード
         /// </summary>
