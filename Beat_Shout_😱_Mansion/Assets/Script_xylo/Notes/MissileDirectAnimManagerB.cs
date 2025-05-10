@@ -234,15 +234,25 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         // 生成時間を記録
         objectCreationTime = Time.time;
 
-        UpdateAimCircleSize(aimCircleScale);
+        // UIを確実に表示
+        if (uiManager != null)
+        {
+            uiManager.EnsureUIContainerActive();
+            uiManager.UpdateAimCircleSize(aimCircleScale);
+            uiManager.SetAimCircleAlpha(aimCircleAlpha);
+        }
+        else
+        {
+            Debug.LogError("OnEnable: uiManagerがnullです");
+        }
 
         SetTimeYet = true;
 
-
         // 安全タイマーを設定
         activeCoroutines.Add(StartManagedCoroutine(SafetyTimer()));
-    }
 
+        Debug.Log($"OnEnable完了: GameObjectID={gameObject.GetInstanceID()}, Position={transform.position}");
+    }
     private void OnDisable()
     {
         // イベントリスナーの解除
@@ -252,6 +262,23 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         if (animManager != null)
         {
             animManager.StopAllAnimations();
+        }
+        // MissileDirectAnimManagerB.cs の OnDisable メソッドに追加
+        if (uiManager != null)
+        {
+            uiManager.CleanupUIContainer();
+        }
+        // UIコンテナを非アクティブ化する処理を追加
+        if (uiManager != null)
+        {
+            uiManager.SetUIActive(false);
+
+            // UIコンテナのリファレンスを取得して非アクティブ化
+            GameObject container = uiManager.GetUIContainer();
+            if (container != null)
+            {
+                container.SetActive(false);
+            }
         }
 
         // 状態をリセット
@@ -264,7 +291,6 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         StopAllCoroutines();
         activeCoroutines.Clear();
     }
-
     // MissileDirectAnimManagerB.cs の Update メソッドを修正
     private void Update()
     {
@@ -273,6 +299,24 @@ public class MissileDirectAnimManagerB : MonoBehaviour
 
         // UI位置の更新
         UpdateUIPosition();
+
+        // デバッグ用キー入力
+        if (Input.GetKeyDown(KeyCode.F1) && uiManager != null)
+        {
+            // F1キー: AimCircleを強制表示
+            uiManager.ForceShowAimCircle();
+            Debug.Log("F1キーが押されました: AimCircleを強制表示します");
+        }
+
+        if (Input.GetKeyDown(KeyCode.F2) && uiManager != null)
+        {
+            // F2キー: 新しいテスト用AimCircleを作成
+            uiManager.CreateNewTestAimCircle();
+            Debug.Log("F2キーが押されました: 新しいテスト用AimCircleを作成します");
+        }
+
+
+
 
         // クリック（マウスボタン押下）処理
         if (Input.GetMouseButtonDown(0))
@@ -857,15 +901,17 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         // 動的生成したUIリソースをクリア（プール返却時）
         if (uiManager != null)
         {
+            // まずUIを非表示にする
+            uiManager.SetUIActive(false);
+
             GameObject container = uiManager.GetUIContainer();
             if (container != null)
             {
-                // 非アクティブに設定（実際に破棄はせず、次回使用時に再利用）
+                // 非アクティブに設定
                 container.SetActive(false);
             }
         }
     }
-
     // 安全対策としてのタイムアウトタイマー
     private IEnumerator SafetyTimer()
     {

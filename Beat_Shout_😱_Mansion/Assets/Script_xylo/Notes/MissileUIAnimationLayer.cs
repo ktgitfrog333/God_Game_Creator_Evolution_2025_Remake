@@ -82,10 +82,10 @@ public class MissileUIAnimationLayer : MonoBehaviour
         {
             StopAnimation();
         }
-        else if (visible && animationCoroutine == null)
+        else if (visible && animationCoroutine == null && isPlaying)
         {
-            // 表示時にアニメーションを開始
-            RestartAnimation();
+            // 表示時にアニメーションを開始（isPlayingがtrueの場合のみ）
+            SafeRestartAnimation();
         }
     }
 
@@ -116,6 +116,22 @@ public class MissileUIAnimationLayer : MonoBehaviour
     }
 
     /// <summary>
+    /// アニメーションを安全に再開
+    /// </summary>
+    public virtual void SafeRestartAnimation()
+    {
+        // ゲームオブジェクトがアクティブかどうかをチェック
+        if (!gameObject.activeInHierarchy)
+        {
+            Debug.LogWarning($"{gameObject.name}が非アクティブなためアニメーションコルーチンを開始できません");
+            isPlaying = true; // アニメーション再開フラグを立てる（後でアクティブになった時に再開できるよう）
+            return;
+        }
+
+        RestartAnimation();
+    }
+
+    /// <summary>
     /// アニメーションを再開
     /// </summary>
     public virtual void RestartAnimation()
@@ -130,8 +146,17 @@ public class MissileUIAnimationLayer : MonoBehaviour
         currentFrame = 0;
         image.sprite = sprites[0];
 
-        // アニメーションコルーチンを開始
-        animationCoroutine = StartCoroutine(AnimationCoroutine());
+        // ゲームオブジェクトがアクティブな場合のみコルーチンを開始
+        if (gameObject.activeInHierarchy)
+        {
+            isPlaying = true;
+            animationCoroutine = StartCoroutine(AnimationCoroutine());
+        }
+        else
+        {
+            Debug.LogWarning($"{gameObject.name}が非アクティブなためアニメーションコルーチンを開始できません");
+            isPlaying = true; // アニメーション再開フラグを立てる
+        }
     }
 
     /// <summary>
@@ -175,6 +200,14 @@ public class MissileUIAnimationLayer : MonoBehaviour
 
             // 次のフレームに進む
             currentFrame = (currentFrame + 1) % sprites.Length;
+
+            // ゲームオブジェクトが非アクティブになっていないか確認
+            if (this == null || !gameObject.activeInHierarchy)
+            {
+                isPlaying = false;
+                yield break;
+            }
+
             image.sprite = sprites[currentFrame];
         }
     }
