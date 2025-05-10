@@ -172,8 +172,8 @@ namespace Mains.Views
                                     if (poltergeistView != null)
                                     {
                                         characterController.enabled = false;
-                                        trans.position = poltergeistView.RhythmPartPosition.position;
-                                        trans.eulerAngles = poltergeistView.RhythmPartPosition.eulerAngles;
+                                        trans.position = poltergeistView.RhythmPartPosition;
+                                        trans.eulerAngles = poltergeistView.RhythmPartEulerAngles;
                                         currentYaw = trans.eulerAngles.y;
                                         characterController.enabled = true;
                                     }

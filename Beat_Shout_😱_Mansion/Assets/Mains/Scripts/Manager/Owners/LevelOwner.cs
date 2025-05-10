@@ -1,6 +1,7 @@
 using Mains.Commons;
 using R3;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
 using Universal.Commons;
@@ -27,11 +28,17 @@ namespace Mains.Manager.Owners
         private int? _playerHealthPointMax;
         /// <summary>プレイヤーの初期HP</summary>
         public int? PlayerHealthPointMax => _playerHealthPointMax;
+        /// <summary>初期処理の完了待ち</summary>
+        private readonly ReactiveCommand<bool> _isCompleted = new ReactiveCommand<bool>();
+        /// <summary>初期処理の完了待ち</summary>
+        public ReactiveCommand<bool> IsCompleted => _isCompleted;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
-        private void Start()
+        private async void Start()
         {
+            var mainCamera = Camera.main;
+            mainCamera.enabled = false;
             var temp = new ResourcesUtility();
             var userBean = temp.LoadSaveDatasJsonOfUserBean(ConstResorcesNames.USER_DATA);
             if (ステージを動的に生成する)
@@ -62,7 +69,6 @@ namespace Mains.Manager.Owners
                 directionalLight.shadowStrength = DirectionalLightを継承して再設定.shadowStrength;
                 directionalLight.color = DirectionalLightを継承して再設定.lightColor;
             }
-            var mainCamera = Camera.main;
             mainCamera.gameObject.layer = Mathf.RoundToInt(Mathf.Log(MainCameraを継承して再設定.PostProcessing用のLayer.value, 2));
             // Post-Process Layerコンポーネントを追加
             PostProcessLayer postProcessLayer = mainCamera.gameObject.GetComponent<PostProcessLayer>();
@@ -75,6 +81,9 @@ namespace Mains.Manager.Owners
             postProcessLayer.volumeLayer = MainCameraを継承して再設定.PostProcessing用のLayer; // Post-Processing用のLayerを設定
             postProcessLayer.antialiasingMode = PostProcessLayer.Antialiasing.SubpixelMorphologicalAntialiasing;
             postProcessLayer.subpixelMorphologicalAntialiasing.quality = SubpixelMorphologicalAntialiasing.Quality.Medium;
+            await Task.Delay(500);
+            mainCamera.enabled = true;
+            _isCompleted.Execute(true);
         }
 
         private void OnDestroy()

@@ -29,7 +29,7 @@ namespace Universal.Utilities
             if (!File.Exists($"{GetHomePath()}{ConstResorcesNames.USER_DATA}{EXTENSION_JSON}"))
             {
                 using (File.Create($"{GetHomePath()}{ConstResorcesNames.USER_DATA}{EXTENSION_JSON}")) { }
-                if (!SaveDatasJsonOfUserBean(ConstResorcesNames.USER_DATA, new UserBean(EnumLoadMode.Default)))
+                if (!SaveDatasJsonOfUserBean(ConstResorcesNames.USER_DATA, new UserBean()))
                     Debug.LogError("ユーザデータをJSONファイルへ保存の失敗");
             }
         }
@@ -66,9 +66,10 @@ namespace Universal.Utilities
                         using (var sr = new StreamReader($"{path}{resourcesLoadName}{EXTENSION_JSON}", Encoding.GetEncoding(ENCODING)))
                             return new UserBean(JsonUtility.FromJson<UserBean>(sr.ReadToEnd()));
                     case EnumLoadMode.Default:
-                        return new UserBean(enumLoadMode);
+                    case EnumLoadMode.Default1:
                     case EnumLoadMode.All:
-                        return new UserBean(enumLoadMode);
+                        using (var sr = new StreamReader($"{path}{resourcesLoadName}{EXTENSION_JSON}", Encoding.GetEncoding(ENCODING)))
+                            return new UserBean(JsonUtility.FromJson<UserBean>(sr.ReadToEnd()), enumLoadMode);
                     default:
                         throw new System.Exception("例外エラー");
                 }

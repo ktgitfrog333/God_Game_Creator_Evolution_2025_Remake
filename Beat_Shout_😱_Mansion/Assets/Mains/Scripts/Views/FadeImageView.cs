@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using DG.Tweening;
 using R3;
 using Mains.External;
+using Mains.Manager;
 
 namespace Mains.Views
 {
@@ -26,27 +27,41 @@ namespace Mains.Views
 
         private void Start()
         {
-            Color startColor = image.color;
-            if (0f < startColor.a)
-            {
-                startColor.a = 0;
-                image.color = startColor;
-            }
-            // 1. fade.6～.9 の間をゆったりとしたカーブでYoYoのループDOTweenアニメーション
-            image.DOFade(0.9f, 1.5f)
-                .SetEase(Ease.InOutSine)
-                .SetLoops(-1, LoopType.Yoyo)
-                .From(0.6f)
-                .SetId("LoopFade");
-            Script_xyloApi script_XyloApi = new Script_xyloApi();
-            script_XyloApi.FrameRate
-                .Where(x => 0f < x)
-                .Subscribe(_ =>
+            Observable.EveryUpdate()
+                .Select(_ => GameManager.Instance)
+                .Where(x => x != null)
+                .Take(1)
+                .Select(x => x.LevelOwner)
+                .Subscribe(owner =>
                 {
-                    // 2. このタイミングで一気に fade0にするDOTweenアニメーション
-                    DOTween.Kill("LoopFade"); // ループ停止
-                    image.DOFade(0f, 0.3f)
-                        .SetEase(Ease.OutQuad);
+                    owner.IsCompleted.Where(x => x)
+                        .Subscribe(_ =>
+                        {
+                            Color startColor = image.color;
+                            if (0f < startColor.a)
+                            {
+                                startColor.a = 0;
+                                image.color = startColor;
+                            }
+                            // 1. fade.6～.9 の間をゆったりとしたカーブでYoYoのループDOTweenアニメーション
+                            image.DOFade(0.9f, 1.5f)
+                                .SetEase(Ease.InOutSine)
+                                .SetLoops(-1, LoopType.Yoyo)
+                                .From(0.6f)
+                                .SetId("LoopFade");
+                            Script_xyloApi script_XyloApi = new Script_xyloApi();
+                            script_XyloApi.FrameRate
+                                .Where(x => 0f < x)
+                                .Subscribe(_ =>
+                                {
+                                    // 2. このタイミングで一気に fade0にするDOTweenアニメーション
+                                    DOTween.Kill("LoopFade"); // ループ停止
+                                    image.DOFade(0f, 0.3f)
+                                        .SetEase(Ease.OutQuad);
+                                })
+                                .AddTo(ref _disposableBag);
+                        })
+                        .AddTo(ref _disposableBag);
                 })
                 .AddTo(ref _disposableBag);
         }
