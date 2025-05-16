@@ -6,27 +6,25 @@ using UnityEngine;
 public class SE_Picker : MonoBehaviour
 {
     public static SE_Picker Instance { get; private set; }
-
     private CriAtomExAcb acbBomb;
     private List<CriAtomExPlayer> atomExPlayers;
-
     private bool ActiveNow = false;
     private Dictionary<string, float> soundCooldowns = new Dictionary<string, float>();
-   // private float cooldownTime = 0.06f; // 同じ音声の再生間隔
-
+    // private float cooldownTime = 0.06f; // 同じ音声の再生間隔
     private Queue<CriAtomExPlayer> availablePlayers = new Queue<CriAtomExPlayer>();
-
     private float Beat; //ビート関連の処理の為に一応作っている。現時点では使用していない
     private int playerIndex;
 
+    // マスター音量の設定（SliderVolumeから設定される）
+    private float masterSEVolume = 1.0f;
+
     //インスペクター上での設定項目
-    public string CueSheetName;　//SEライブラリの情報
-    public string AcbFilePath;　//同上
+    public string CueSheetName; //SEライブラリの情報
+    public string AcbFilePath; //同上
     public int maxPlayers = 10; // 再生機の数。限度を超えると最初のものが止まる。CRIWARE側で最大数を設定していればある程度は回避される
 
     //ここから先は個別のSEの登録
     public string FootStep;
-
 
     private void OnEnable()
     {
@@ -60,7 +58,24 @@ public class SE_Picker : MonoBehaviour
             atomExPlayers.Add(player);
             availablePlayers.Enqueue(player);
         }
+
         ActiveNow = true;
+
+        // 保存されているSE音量を読み込む
+        LoadMasterSEVolume();
+    }
+
+    // マスターSE音量を読み込む
+    private void LoadMasterSEVolume()
+    {
+        // PlayerPrefsから保存されているSE音量を読み込む
+        masterSEVolume = PlayerPrefs.GetFloat("Key_SEVolume", 1.0f);
+    }
+
+    // マスターSE音量を設定するメソッド（SliderVolumeから呼び出される）
+    public void SetMasterSEVolume(float volume)
+    {
+        masterSEVolume = Mathf.Clamp(volume, 0f, 1f);
     }
 
     private CriAtomExPlayer GetNextPlayer()
@@ -71,7 +86,6 @@ public class SE_Picker : MonoBehaviour
             availablePlayers.Enqueue(player);
             return player;
         }
-
         Debug.LogWarning("No available players; returning the first player.");
         return atomExPlayers[0];
     }
@@ -83,13 +97,11 @@ public class SE_Picker : MonoBehaviour
             Debug.LogError("Cue name is null or empty.");
             return false;
         }
-
         if (!ActiveNow || acbBomb == null)
         {
             Debug.LogWarning("Sound system is not active or ACB is null.");
             return false;
         }
-
         return true;
     }
 
@@ -97,7 +109,10 @@ public class SE_Picker : MonoBehaviour
     {
         if (!IsPlayable(cueName)) return;
 
-        volume = Mathf.Clamp(volume, 0f, 1f); // 音量を制限
+        // 個別の音量にマスター音量を乗算して最終的な音量を決定
+        float finalVolume = volume * masterSEVolume;
+        finalVolume = Mathf.Clamp(finalVolume, 0f, 1f); // 音量を制限
+
         CriAtomExPlayer player = GetNextPlayer();
         if (player == null)
         {
@@ -105,18 +120,14 @@ public class SE_Picker : MonoBehaviour
             return;
         }
 
-        player.SetVolume(volume);
+        player.SetVolume(finalVolume);
         player.SetCue(acbBomb, cueName);
         player.Start();
     }
 
     //ここから先にSEを登録していく。音量は明示的に指定する
-
-
-        public void PlayFootStep(float Vol)
+    public void PlayFootStep(float Vol)
     {
         PlaySound(FootStep, Vol);
     }
-
-
 }

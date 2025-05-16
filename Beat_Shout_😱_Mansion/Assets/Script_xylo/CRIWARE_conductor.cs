@@ -25,6 +25,9 @@ public class CRIWARE_conductor : MonoBehaviour
     private float lastBeatSyncTime03 = -1f; // 最後に一拍目同期イベントが発生した時刻
     private float lastBeatSyncTime04 = -1f; // 最後に一拍目同期イベントが発生した時刻
 
+    // 音量設定関連
+    private float masterBGMVolume = 1.0f; // マスターBGM音量
+    private const string Key_BGMVolume = "Key_BGMVolume"; // PlayerPrefsキー（SliderVolumeと共通）
 
     public float BeatFuzzy = 20f; // ビートのズレ許容範囲
     public float BeatOffSet = 0.0f; // ビートのズレのオフセット。マイナス値前提。秒数の実数
@@ -100,7 +103,11 @@ public class CRIWARE_conductor : MonoBehaviour
         else
         {
             Destroy(gameObject); // 二つ目のインスタンスが作成された場合は破棄
+            return;
         }
+        
+        // 保存されているBGM音量を読み込む
+        LoadMasterBGMVolume();
 
         atomSourceA = GetComponent<CriAtomSource>();
         if (atomSourceA.player != null)
@@ -108,12 +115,48 @@ public class CRIWARE_conductor : MonoBehaviour
             currentSource = atomSourceA; // 初期状態でAを使用
             CRIWARE_AisacChange.Instance.SetSource(currentSource); // AISACの適用先を設定
             atomSourceA.player.OnBeatSyncCallback += OnBeatSync; // ビート同期イベントのコールバックを登録
+            
+            // 初期音量の設定
+            ApplyVolumeToAllSources();
 
             Invoke("DelayBGMLoopStart", 10.5f); //BGMのループ再生を遅らせる
         }
         else
         {
             Invoke("InitDelay", 0.05f); //ここも雰囲気で処理を待っている。他データ読み込みと連携を整える必要あり
+        }
+    }
+
+    // マスターBGM音量を読み込むメソッド
+    private void LoadMasterBGMVolume()
+    {
+        masterBGMVolume = PlayerPrefs.GetFloat(Key_BGMVolume, 1.0f); // デフォルト値は1.0f
+    }
+
+    // マスターBGM音量を設定するメソッド（SliderVolumeから呼び出される）
+    public void SetMasterBGMVolume(float volume)
+    {
+        masterBGMVolume = Mathf.Clamp(volume, 0f, 1f);
+        ApplyVolumeToAllSources();
+    }
+    
+    // すべての音源に音量を適用するメソッド
+    private void ApplyVolumeToAllSources()
+    {
+        // 各音源にマスター音量を適用
+        if (atomSourceA != null)
+        {
+            atomSourceA.volume = masterBGMVolume;
+        }
+        
+        if (atomSourceB != null)
+        {
+            atomSourceB.volume = masterBGMVolume;
+        }
+        
+        if (atomSourceC != null)
+        {
+            atomSourceC.volume = masterBGMVolume;
         }
     }
 
@@ -124,6 +167,9 @@ public class CRIWARE_conductor : MonoBehaviour
             currentSource = atomSourceA; // 初期状態でAを使用
             CRIWARE_AisacChange.Instance.SetSource(currentSource); // AISACの適用先を設定
             atomSourceA.player.OnBeatSyncCallback += OnBeatSync; // ビート同期イベントのコールバックを登録
+            
+            // 初期音量の設定
+            ApplyVolumeToAllSources();
 
             Debug.Log("遅れて初期化完了");
             Invoke("DelayBGMLoopStart", 10.5f); //BGMのループ再生を遅らせる
@@ -151,7 +197,6 @@ public class CRIWARE_conductor : MonoBehaviour
             StopCoroutine(invoke16BeatCoroutine);
             invoke16BeatCoroutine = null; // 参照をクリア
         }
-
     }
 
     public void ChangeBgmA(int TickNumber) //通常BGM切り替え専用メソッド
@@ -168,6 +213,9 @@ public class CRIWARE_conductor : MonoBehaviour
 
         // 新しいBGMを設定
         currentSource = atomSourceA; // 新しい音源を設定
+        
+        // 音量を適用
+        currentSource.volume = masterBGMVolume;
 
         // 再生開始位置を設定
         SetStartTimeByTick(TickNumber);
@@ -200,6 +248,9 @@ public class CRIWARE_conductor : MonoBehaviour
 
         // 新しいBGMを設定
         currentSource = atomSourceB; // 新しい音源を設定
+        
+        // 音量を適用
+        currentSource.volume = masterBGMVolume;
 
         // 再生開始位置を設定
         SetStartTimeByTick(TickNumber);
@@ -216,7 +267,6 @@ public class CRIWARE_conductor : MonoBehaviour
             currentSource.player.OnBeatSyncCallback -= OnBeatSync; // 既存のコールバックを解除
             currentSource.player.OnBeatSyncCallback += OnBeatSync; // 新しいコールバックを登録
         }
-
     }
 
     public void ChangeBgmC(int TickNumber) //BGM切り替え専用メソッド
@@ -233,6 +283,9 @@ public class CRIWARE_conductor : MonoBehaviour
 
         // 新しいBGMを設定
         currentSource = atomSourceC; // 新しい音源を設定
+        
+        // 音量を適用
+        currentSource.volume = masterBGMVolume;
 
         // 再生開始位置を設定
         SetStartTimeByTick(TickNumber);
@@ -251,10 +304,6 @@ public class CRIWARE_conductor : MonoBehaviour
         }
     }
 
-
-
-
-
     private void SetStartTimeByTick(int TickNumber)
     {
         if (currentSource == null) return;
@@ -268,7 +317,6 @@ public class CRIWARE_conductor : MonoBehaviour
         // 再生開始位置を設定
         currentSource.player.SetStartTime((long)(startTimeInSeconds * 1000)); // ミリ秒単位で設定
     }
-
 
     private void OnBeatSync(ref CriAtomExBeatSync.Info info)
     {
@@ -285,7 +333,6 @@ public class CRIWARE_conductor : MonoBehaviour
             // 初期化が終わったのでフラグをリセット
             isInitializedAfterChange = false;
         }
-
 
         //ここから拍頭を送信する為のイベント
 
@@ -349,7 +396,6 @@ public class CRIWARE_conductor : MonoBehaviour
             StartCoroutine(InvokeTempoMethodDelay8NextFrame()); // 1フレーム後に発火
         }
 
-
         // コルーチンを開始する前に、以前のコルーチンが実行中であれば停止
         if (invoke16BeatCoroutine != null)
         {
@@ -358,7 +404,6 @@ public class CRIWARE_conductor : MonoBehaviour
         }
         // コルーチンを開始して 1/4, 2/4, 3/4 拍後に処理を実行
         StartCoroutine(Invoke16BeatCoroutine());
-
     }
 
     private IEnumerator Invoke16BeatCoroutine()
@@ -388,8 +433,6 @@ public class CRIWARE_conductor : MonoBehaviour
         TempoMethodDelay1_1?.Invoke();
     }
 
-
-
     private IEnumerator InvokeTempoMethodDelay2NextFrame()
     {
         // 1フレーム待機
@@ -398,7 +441,6 @@ public class CRIWARE_conductor : MonoBehaviour
 
         TempoMethodDelay1_2?.Invoke();
     }
-
 
     private IEnumerator InvokeTempoMethodDelay3NextFrame()
     {
@@ -409,6 +451,7 @@ public class CRIWARE_conductor : MonoBehaviour
 
         TempoMethodDelay1_3?.Invoke();
     }
+    
     private IEnumerator InvokeTempoMethodDelay4NextFrame()
     {
         // 1フレーム待機
@@ -417,6 +460,7 @@ public class CRIWARE_conductor : MonoBehaviour
 
         TempoMethodDelay1_4?.Invoke();
     }
+    
     private IEnumerator InvokeTempoMethodDelay5NextFrame()
     {
         // 1フレーム待機
@@ -425,6 +469,7 @@ public class CRIWARE_conductor : MonoBehaviour
 
         TempoMethodDelay1_5?.Invoke();
     }
+    
     private IEnumerator InvokeTempoMethodDelay6NextFrame()
     {
         // 1フレーム待機
@@ -433,6 +478,7 @@ public class CRIWARE_conductor : MonoBehaviour
 
         TempoMethodDelay1_6?.Invoke();
     }
+    
     private IEnumerator InvokeTempoMethodDelay7NextFrame()
     {
         // 1フレーム待機
@@ -440,8 +486,8 @@ public class CRIWARE_conductor : MonoBehaviour
         StartCoroutine(InvokeTempoMethod2nd7NextFrame());
 
         TempoMethodDelay1_7?.Invoke();
-
     }
+    
     private IEnumerator InvokeTempoMethodDelay8NextFrame()
     {
         // 1フレーム待機
@@ -450,7 +496,6 @@ public class CRIWARE_conductor : MonoBehaviour
 
         TempoMethodDelay1_8?.Invoke();
     }
-
 
     private IEnumerator InvokeTempoMethod2nd1NextFrame()
     {
@@ -467,6 +512,7 @@ public class CRIWARE_conductor : MonoBehaviour
 
         TempoMethodDelay2_2?.Invoke();
     }
+    
     private IEnumerator InvokeTempoMethod2nd3NextFrame()
     {
         // 1フレーム待機
@@ -474,6 +520,7 @@ public class CRIWARE_conductor : MonoBehaviour
 
         TempoMethodDelay2_3?.Invoke();
     }
+    
     private IEnumerator InvokeTempoMethod2nd4NextFrame()
     {
         // 1フレーム待機
@@ -481,6 +528,7 @@ public class CRIWARE_conductor : MonoBehaviour
 
         TempoMethodDelay2_4?.Invoke();
     }
+    
     private IEnumerator InvokeTempoMethod2nd5NextFrame()
     {
         // 1フレーム待機
@@ -488,6 +536,7 @@ public class CRIWARE_conductor : MonoBehaviour
 
         TempoMethodDelay2_5?.Invoke();
     }
+    
     private IEnumerator InvokeTempoMethod2nd6NextFrame()
     {
         // 1フレーム待機
@@ -495,6 +544,7 @@ public class CRIWARE_conductor : MonoBehaviour
 
         TempoMethodDelay2_6?.Invoke();
     }
+    
     private IEnumerator InvokeTempoMethod2nd7NextFrame()
     {
         // 1フレーム待機
@@ -502,6 +552,7 @@ public class CRIWARE_conductor : MonoBehaviour
 
         TempoMethodDelay2_7?.Invoke();
     }
+    
     private IEnumerator InvokeTempoMethod2nd8NextFrame()
     {
         // 1フレーム待機
@@ -509,7 +560,6 @@ public class CRIWARE_conductor : MonoBehaviour
 
         TempoMethodDelay2_8?.Invoke();
     }
-
 
     public BeatResult JustBeatTick()
     {
@@ -545,5 +595,4 @@ public class CRIWARE_conductor : MonoBehaviour
             return BeatFuzzy / frameRate;
         }
     }
-
 }
