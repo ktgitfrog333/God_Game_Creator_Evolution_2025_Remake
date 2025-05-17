@@ -180,7 +180,7 @@ namespace Mains.Views
                     {
                         Observable.Create<bool>(observer =>
                         {
-                            StartCoroutine(LoadSceneCoroutine(observer, "MainScene_Amagata"));
+                            StartCoroutine(LoadSceneCoroutine(observer, "MainScene"));
                             return Disposable.Empty;
                         })
                             .Subscribe(_ => { })
@@ -235,7 +235,7 @@ namespace Mains.Views
                                     {
                                         Observable.Create<bool>(observer =>
                                         {
-                                            StartCoroutine(LoadSceneCoroutine(observer, "MainScene_Amagata"));
+                                            StartCoroutine(LoadSceneCoroutine(observer, "MainScene"));
                                             return Disposable.Empty;
                                         })
                                             .Subscribe(_ => { })
@@ -254,7 +254,7 @@ namespace Mains.Views
         /// <param name="observer">オブザーバー</param>
         /// <param name="sceneName">シーン名</param>
         /// <returns>コルーチン</returns>
-        /// <see cref="Assets/Mains/Scenes/MainScene_Amagata.unity"/>
+        /// <see cref="Assets/Mains/Scenes/MainScene.unity"/>
         private IEnumerator LoadSceneCoroutine(Observer<bool> observer, string sceneName)
         {
             // 時間を再生
