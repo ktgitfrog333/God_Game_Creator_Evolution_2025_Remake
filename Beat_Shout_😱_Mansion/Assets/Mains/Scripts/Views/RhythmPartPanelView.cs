@@ -2,6 +2,8 @@ using Mains.ViewModels;
 using R3;
 using Rewired;
 using UnityEngine;
+using Mains.Commons;
+using System.Linq;
 
 namespace Mains.Views
 {
@@ -17,7 +19,7 @@ namespace Mains.Views
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
         [Tooltip("Xbox360コントローラーのみ対象\n値の高さ＝入力感度")]
-        [SerializeField] private float ポインター移動速度;
+        [SerializeField] private float ポインター移動距離;
 
         private void Reset()
         {
@@ -59,9 +61,11 @@ namespace Mains.Views
                                         Vector2 mousePos = Input.mousePosition;
                                         float moveX = player.GetAxis("RhythmMoveHorizontal");
                                         float moveZ = player.GetAxis("RhythmMoveVertical");
+                                        bool isGetBattery = player.GetButtonDown("GetBattery");
 
                                         bool isInputMouse = Input.GetAxis("Mouse X") != 0f || Input.GetAxis("Mouse Y") != 0f;
-                                        bool isInputJoystick = Mathf.Abs(moveX) > 0.1f || Mathf.Abs(moveZ) > 0.1f;
+                                        bool isInputJoystick = Mathf.Abs(moveX) > 0.1f || Mathf.Abs(moveZ) > 0.1f || isGetBattery;
+                                        Vector2 movePosition = isInputJoystick && !isInputMouse ? new Vector2(moveX, moveZ) : Vector2.zero;
 
                                         // 入力排他制御：同一フレーム内でマウスとジョイスティックが両方有効になることを防ぐ
                                         if (isInputMouse && !isInputJoystick)
@@ -118,8 +122,9 @@ namespace Mains.Views
                                         }
                                         else if (isInputJoystick && !isInputMouse)
                                         {
-                                            Vector2 movePosition = new Vector2(moveX, moveZ) * ポインター移動速度 * Time.deltaTime;
-                                            Vector2 calcPosition = targetCrossImage.anchoredPosition + movePosition;
+                                            var mainCamera = Camera.main;
+                                            Vector2 calcPosition = movePosition * ポインター移動距離;
+                                            _rhythmPartPanelViewModel.SetTargetCrossAnchoredPosition(calcPosition);
 
                                             Rect panelRect = centerPanel.rect;
                                             float halfWidth = targetCrossImage.rect.width * 0.5f;
@@ -128,31 +133,33 @@ namespace Mains.Views
                                             // UI内の移動制限
                                             calcPosition.x = Mathf.Clamp(calcPosition.x, panelRect.xMin + halfWidth, panelRect.xMax - halfWidth);
                                             calcPosition.y = Mathf.Clamp(calcPosition.y, panelRect.yMin + halfHeight, panelRect.yMax - halfHeight);
-
                                             targetCrossImage.anchoredPosition = calcPosition;
 
                                             Vector3 worldPosition = targetCrossImage.transform.TransformPoint(calcPosition);
                                             Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(null, worldPosition);
                                             // ポインター位置（スクリーン座標）からワールド方向ベクトルを計算
-                                            Ray ray = Camera.main.ScreenPointToRay(screenPoint);
+                                            Ray ray = mainCamera.ScreenPointToRay(screenPoint);
 
                                             if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, layerMaskTerrainObjects))
                                             {
                                                 Vector3 hitPoint = hit.point;
                                                 _rhythmPartPanelViewModel.SetTargetCrossPosition(hitPoint);
                                             }
-                                            // 選択状態の電池を検知する
-                                            if (Physics.Raycast(ray, out RaycastHit hit1, Mathf.Infinity, layerMaskDropItems))
+                                            // Xbox360コントローラーはBボタンで電池を取得する
+                                            if (isGetBattery)
                                             {
-                                                Transform hitTrans = hit1.transform;
                                                 _rhythmPartPanelViewModel.SetIsSelectedBattery(true);
-
-                                                // デバッグ表示
-                                                Debug.DrawLine(ray.origin, hitTrans.position, Color.red);
+                                                MissGhostAttackCustomizeView missGhostAttackCustomizeView = FindAnyObjectByType<MissGhostAttackCustomizeView>();
+                                                if (missGhostAttackCustomizeView != null)
+                                                {
+	                                                Transform hitTrans = missGhostAttackCustomizeView.transform;
+	                                                _rhythmPartPanelViewModel.SetSelectedMissGhostAttackTransform(hitTrans);
+                                                }
                                             }
                                             else
                                             {
                                                 _rhythmPartPanelViewModel.SetIsSelectedBattery(false);
+                                                _rhythmPartPanelViewModel.SetSelectedMissGhostAttackTransform(null);
                                             }
                                         }
                                     })

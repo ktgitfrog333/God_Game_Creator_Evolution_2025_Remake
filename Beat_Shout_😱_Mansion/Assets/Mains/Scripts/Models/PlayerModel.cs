@@ -2,13 +2,15 @@ using UnityEngine;
 using Mains.Commons;
 using R3;
 using ObservableCollections;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Mains.Models
 {
     /// <summary>
     /// プレイヤーのモデル
     /// </summary>
-    public class PlayerModel : MonoBehaviour, IPlayerModel, IPoltergeistModel, IRhythmPartPanelModel, IHomingObjectCustomizeModel, IMissGhostAttackCustomizeModel
+    public class PlayerModel : MonoBehaviour, IPlayerModel, IPoltergeistModel, IRhythmPartPanelModel, IHomingObjectCustomizeModel, IMissGhostAttackCustomizeModel, IMissileDirectAnimManagerBCustomizeModel
     {
         /// <summary>【探索／シャウトチャンス／リズム】パート情報管理テーブル</summary>
         public InteractionPartTable InteractionPartTable { get; set; }
@@ -52,6 +54,14 @@ namespace Mains.Models
         private Transform _selectedMissGhostAttackTransform;
         /// <summary>選択されたMissGhostAttack</summary>
         public Transform SelectedMissGhostAttackTransform => _selectedMissGhostAttackTransform;
+        /// <summary>MissileDirectAnimManagerBのカスタマイズ構造体リスト</summary>
+        private MissileDirectAnimCustomizeStruct[] _missileDirectAnimCustomizeStructs;
+        /// <summary>MissileDirectAnimManagerBのカスタマイズ構造体リスト</summary>
+        public MissileDirectAnimCustomizeStruct[] MissileDirectAnimCustomizeStructs => _missileDirectAnimCustomizeStructs;
+        /// <summary>ターゲットクロスアンカー位置</summary>
+        private Vector2 _targetCrossAnchoredPosition;
+        /// <summary>ターゲットクロスアンカー位置</summary>
+        public Vector2 TargetCrossAnchoredPosition => _targetCrossAnchoredPosition;
 
         private void Start()
         {
@@ -210,6 +220,44 @@ namespace Mains.Models
         {
             _selectedMissGhostAttackTransform = selectedMissGhostAttackTransform;
         }
+        
+        public void AddMissileDirectAnimCustomizeStructs(MissileDirectAnimCustomizeStruct missileDirectAnimCustomizeStruct)
+        {
+            List<MissileDirectAnimCustomizeStruct> missileDirectAnimCustomizeStructs = null;
+            if (_missileDirectAnimCustomizeStructs == null)
+            {
+                missileDirectAnimCustomizeStructs = new List<MissileDirectAnimCustomizeStruct>();
+                missileDirectAnimCustomizeStructs.Add(missileDirectAnimCustomizeStruct);
+            }
+            else
+            {
+                missileDirectAnimCustomizeStructs = _missileDirectAnimCustomizeStructs.ToList();
+                var index = -1;
+                for (int i = 0; i < missileDirectAnimCustomizeStructs.Count; i++)
+                {
+                    if (missileDirectAnimCustomizeStructs[i].transform.GetInstanceID() == missileDirectAnimCustomizeStruct.transform.GetInstanceID())
+                    {
+                        index = i;
+                        break;
+                    }
+                }
+                if (-1 < index)
+                {
+                    missileDirectAnimCustomizeStructs[index] = missileDirectAnimCustomizeStruct;
+                }
+                else
+                {
+                    missileDirectAnimCustomizeStructs.Add(missileDirectAnimCustomizeStruct);
+                }
+            }
+
+            _missileDirectAnimCustomizeStructs = missileDirectAnimCustomizeStructs.ToArray();
+        }
+
+        public void SetTargetCrossAnchoredPosition(Vector2 targetCrossAnchoredPosition)
+        {
+            _targetCrossAnchoredPosition = targetCrossAnchoredPosition;
+        }
     }
 
     /// <summary>
@@ -324,6 +372,11 @@ namespace Mains.Models
         /// </summary>
         /// <param name="selectedMissGhostAttackTransform">選択されたMissGhostAttack</param>
         public void SetSelectedMissGhostAttackTransform(Transform selectedMissGhostAttackTransform);
+        /// <summary>
+        /// ターゲットクロスアンカー位置をセット
+        /// </summary>
+        /// <param name="targetCrossAnchoredPosition">ターゲットクロスアンカー位置</param>
+        public void SetTargetCrossAnchoredPosition(Vector2 targetCrossAnchoredPosition);
     }
 
     /// <summary>
@@ -351,5 +404,16 @@ namespace Mains.Models
         /// プレイヤーのHPを減らす
         /// </summary>
         public void SubtractionHealthPoint();
+    }
+    
+    /// <summary>
+    /// MissileDirectAnimManagerBのカスタマイズモデルインターフェース
+    /// </summary>
+    public interface IMissileDirectAnimManagerBCustomizeModel
+    {
+        /// <summary>
+        /// MissileDirectAnimManagerBのカスタマイズ構造体リストへ追加
+        /// </summary>
+    	public void AddMissileDirectAnimCustomizeStructs(MissileDirectAnimCustomizeStruct missileDirectAnimCustomizeStruct);
     }
 }

@@ -1,0 +1,33 @@
+using Mains.Views;
+using UnityEngine;
+
+namespace Mains.Tests
+{
+    public class MissileDirectAnimManagerBCustomizeInputViewTest : MonoBehaviour
+    {
+        private MissileDirectAnimManagerBCustomizeInputView missileDirectAnimManagerBCustomizeInputView;
+        // Start is called once before the first execution of Update after the MonoBehaviour is created
+        void Start()
+        {
+            missileDirectAnimManagerBCustomizeInputView = GetComponent<MissileDirectAnimManagerBCustomizeInputView>();
+        }
+
+        // Update is called once per frame
+        void Update()
+        {
+            float? nullableAngle = missileDirectAnimManagerBCustomizeInputView.Angle;
+            if (nullableAngle.HasValue)
+            {
+                float angle = nullableAngle.Value;
+                //Debug.Log($"Angle: [{angle}]");
+                float radians = angle * Mathf.Deg2Rad;
+
+                // direction ベクトル（XY平面上）
+                Vector3 direction = new Vector3(Mathf.Cos(radians), Mathf.Sin(radians), 0);
+
+                // デバッグ用レイ描画
+                Debug.DrawRay(transform.position, direction * 2f, Color.red); // 長さ2、色は緑
+            }
+        }
+    }
+}
