@@ -5,15 +5,20 @@ using CriWare;
 using UnityEngine;
 using static CriWare.CriAtomExBeatSync;
 
+/// <summary>
+/// CRIWARE サウンドエンジンを使用した音楽同期管理クラス
+/// ビート同期イベント処理と BGM 音源制御を行う
+/// </summary>
 public class CRIWARE_conductor : MonoBehaviour
 {
     public int ThisStageNumber = 0;
 
-    [HideInInspector] public static CRIWARE_conductor Instance { get; private set; }//シングルトンを設定
+    [HideInInspector] public static CRIWARE_conductor Instance { get; private set; } // シングルトンを設定
 
-    public CriAtomSource atomSourceA;//BGMの音源A
-    public CriAtomSource atomSourceB;//BGMの音源B
-    public CriAtomSource atomSourceC;//BGMの音源C 同様の形で増やすことが可能
+    [Header("音源設定")]
+    public CriAtomSource atomSourceA; // BGMの音源A
+    public CriAtomSource atomSourceB; // BGMの音源B
+    public CriAtomSource atomSourceC; // BGMの音源C 同様の形で増やすことが可能
 
     [HideInInspector] public CriAtomSource currentSource;
     private bool isInitializedAfterChange = false; // 楽曲変更後に初期化が必要かどうかのフラグ
@@ -21,14 +26,14 @@ public class CRIWARE_conductor : MonoBehaviour
     [HideInInspector] public float lastBeatSyncTime = -1f; // 最後にビート同期イベントが発生した時刻
 
     private float lastBeatSyncTime01 = -1f; // 最後に一拍目同期イベントが発生した時刻
-    private float lastBeatSyncTime02 = -1f; // 最後に一拍目同期イベントが発生した時刻
-    private float lastBeatSyncTime03 = -1f; // 最後に一拍目同期イベントが発生した時刻
-    private float lastBeatSyncTime04 = -1f; // 最後に一拍目同期イベントが発生した時刻
+    private float lastBeatSyncTime02 = -1f; // 最後に二拍目同期イベントが発生した時刻
+    private float lastBeatSyncTime03 = -1f; // 最後に三拍目同期イベントが発生した時刻
+    private float lastBeatSyncTime04 = -1f; // 最後に四拍目同期イベントが発生した時刻
 
     // 音量設定関連
     private float masterBGMVolume = 1.0f; // マスターBGM音量
-    private const string Key_BGMVolume = "Key_BGMVolume"; // PlayerPrefsキー（SliderVolumeと共通）
 
+    [Header("ビート設定")]
     public float BeatFuzzy = 20f; // ビートのズレ許容範囲
     public float BeatOffSet = 0.0f; // ビートのズレのオフセット。マイナス値前提。秒数の実数
     private float beatFuzzySet; // ビートのズレ許容範囲の決定値
@@ -37,7 +42,7 @@ public class CRIWARE_conductor : MonoBehaviour
 
     public static event Action TempoSet;
 
-    //拍頭
+    // 拍頭
     public static event Action TempoMethodEvent1;
     public static event Action TempoMethodEvent2;
     public static event Action TempoMethodEvent3;
@@ -47,7 +52,7 @@ public class CRIWARE_conductor : MonoBehaviour
     public static event Action TempoMethodEvent7;
     public static event Action TempoMethodEvent8;
 
-    //拍頭の１フレーム後。分散処理用
+    // 拍頭の１フレーム後。分散処理用
     public static event Action TempoMethodDelay1_1;
     public static event Action TempoMethodDelay1_2;
     public static event Action TempoMethodDelay1_3;
@@ -57,7 +62,7 @@ public class CRIWARE_conductor : MonoBehaviour
     public static event Action TempoMethodDelay1_7;
     public static event Action TempoMethodDelay1_8;
 
-    //拍頭の２フレーム後。分散処理用
+    // 拍頭の２フレーム後。分散処理用
     public static event Action TempoMethodDelay2_1;
     public static event Action TempoMethodDelay2_2;
     public static event Action TempoMethodDelay2_3;
@@ -67,28 +72,28 @@ public class CRIWARE_conductor : MonoBehaviour
     public static event Action TempoMethodDelay2_7;
     public static event Action TempoMethodDelay2_8;
 
-    //16ビートの処理用
+    // 16ビートの処理用
     public static event Action TempoMethod16Beat2;
     public static event Action TempoMethod16Beat3;
     public static event Action TempoMethod16Beat4;
 
     private Coroutine invoke16BeatCoroutine; // コルーチンの参照を保持
 
-    //BGM切り替え用のboolスイッチ
+    // BGM切り替え用のboolスイッチ
     [HideInInspector] public bool BGM_A_Sw = false;
     [HideInInspector] public bool BGM_B_Sw = false;
     [HideInInspector] public bool BGM_C_Sw = false;
 
     public enum BeatResult
     {
-        Tick01,//1拍目に合致した
-        Tick02,//2拍目に合致した
-        Tick03,//3拍目に合致した
-        Tick04,//4拍目に合致した
-        Miss // 条件を満たさなかった場合
+        Tick01, // 1拍目に合致した
+        Tick02, // 2拍目に合致した
+        Tick03, // 3拍目に合致した
+        Tick04, // 4拍目に合致した
+        Miss    // 条件を満たさなかった場合
     }
 
-    void OnEnable() //初期化待ちで少し遅らせる。初期化完了を取得する方法があれば変更する
+    void OnEnable() // 初期化待ちで少し遅らせる。初期化完了を取得する方法があれば変更する
     {
         Invoke("Delay", 0.3f);
     }
@@ -105,7 +110,7 @@ public class CRIWARE_conductor : MonoBehaviour
             Destroy(gameObject); // 二つ目のインスタンスが作成された場合は破棄
             return;
         }
-        
+
         // 保存されているBGM音量を読み込む
         LoadMasterBGMVolume();
 
@@ -115,32 +120,44 @@ public class CRIWARE_conductor : MonoBehaviour
             currentSource = atomSourceA; // 初期状態でAを使用
             CRIWARE_AisacChange.Instance.SetSource(currentSource); // AISACの適用先を設定
             atomSourceA.player.OnBeatSyncCallback += OnBeatSync; // ビート同期イベントのコールバックを登録
-            
+
             // 初期音量の設定
             ApplyVolumeToAllSources();
 
-            Invoke("DelayBGMLoopStart", 10.5f); //BGMのループ再生を遅らせる
+            Invoke("DelayBGMLoopStart", 10.5f); // BGMのループ再生を遅らせる
         }
         else
         {
-            Invoke("InitDelay", 0.05f); //ここも雰囲気で処理を待っている。他データ読み込みと連携を整える必要あり
+            Invoke("InitDelay", 0.05f); // ここも雰囲気で処理を待っている。他データ読み込みと連携を整える必要あり
         }
     }
 
-    // マスターBGM音量を読み込むメソッド
+    /// <summary>
+    /// マスターBGM音量を読み込むメソッド
+    /// AudioSettingsManagerから設定を取得
+    /// </summary>
     private void LoadMasterBGMVolume()
     {
-        masterBGMVolume = PlayerPrefs.GetFloat(Key_BGMVolume, 1.0f); // デフォルト値は1.0f
+        // AudioSettingsManagerから設定を読み込む
+        AudioSettingsData settings = AudioSettingsManager.LoadSettings();
+        masterBGMVolume = settings.bgmVolume;
+        Debug.Log($"CRIWARE_conductor: マスターBGM音量を読み込みました: {masterBGMVolume:F1}");
     }
 
-    // マスターBGM音量を設定するメソッド（SliderVolumeから呼び出される）
+    /// <summary>
+    /// マスターBGM音量を設定するメソッド（AudioSettingsControllerから呼び出される）
+    /// </summary>
+    /// <param name="volume">設定する音量 (0.0 - 1.0)</param>
     public void SetMasterBGMVolume(float volume)
     {
         masterBGMVolume = Mathf.Clamp(volume, 0f, 1f);
         ApplyVolumeToAllSources();
+        Debug.Log($"CRIWARE_conductor: マスターBGM音量を設定しました: {masterBGMVolume:F1}");
     }
-    
-    // すべての音源に音量を適用するメソッド
+
+    /// <summary>
+    /// すべての音源に音量を適用するメソッド
+    /// </summary>
     private void ApplyVolumeToAllSources()
     {
         // 各音源にマスター音量を適用
@@ -148,12 +165,12 @@ public class CRIWARE_conductor : MonoBehaviour
         {
             atomSourceA.volume = masterBGMVolume;
         }
-        
+
         if (atomSourceB != null)
         {
             atomSourceB.volume = masterBGMVolume;
         }
-        
+
         if (atomSourceC != null)
         {
             atomSourceC.volume = masterBGMVolume;
@@ -167,13 +184,12 @@ public class CRIWARE_conductor : MonoBehaviour
             currentSource = atomSourceA; // 初期状態でAを使用
             CRIWARE_AisacChange.Instance.SetSource(currentSource); // AISACの適用先を設定
             atomSourceA.player.OnBeatSyncCallback += OnBeatSync; // ビート同期イベントのコールバックを登録
-            
+
             // 初期音量の設定
             ApplyVolumeToAllSources();
 
             Debug.Log("遅れて初期化完了");
-            Invoke("DelayBGMLoopStart", 10.5f); //BGMのループ再生を遅らせる
-
+            Invoke("DelayBGMLoopStart", 10.5f); // BGMのループ再生を遅らせる
         }
         else
         {
@@ -184,13 +200,16 @@ public class CRIWARE_conductor : MonoBehaviour
 
     void DelayBGMLoopStart()
     {
-        CRIWARE_AisacChange.Instance.PlayStart(); //スタートのAisacを再生
+        CRIWARE_AisacChange.Instance.PlayStart(); // スタートのAisacを再生
     }
 
     // このオブジェクトの破壊時にビート同期イベントのコールバックを削除
     private void OnDisable()
     {
-        currentSource.player.OnBeatSyncCallback -= OnBeatSync;
+        if (currentSource != null && currentSource.player != null)
+        {
+            currentSource.player.OnBeatSyncCallback -= OnBeatSync;
+        }
 
         if (invoke16BeatCoroutine != null)
         {
@@ -199,7 +218,11 @@ public class CRIWARE_conductor : MonoBehaviour
         }
     }
 
-    public void ChangeBgmA(int TickNumber) //通常BGM切り替え専用メソッド
+    /// <summary>
+    /// 通常BGM(A)に切り替える
+    /// </summary>
+    /// <param name="TickNumber">開始ティック位置</param>
+    public void ChangeBgmA(int TickNumber) // 通常BGM切り替え専用メソッド
     {
         if (currentSource == atomSourceA)
         {
@@ -213,7 +236,7 @@ public class CRIWARE_conductor : MonoBehaviour
 
         // 新しいBGMを設定
         currentSource = atomSourceA; // 新しい音源を設定
-        
+
         // 音量を適用
         currentSource.volume = masterBGMVolume;
 
@@ -234,7 +257,10 @@ public class CRIWARE_conductor : MonoBehaviour
         }
     }
 
-    public void ChangeBgmB(int TickNumber) //BGM切り替え専用メソッド
+    /// <summary>
+    /// BGM(B)に切り替える
+    /// </summary>
+    public void ChangeBgmB(int TickNumber) // BGM切り替え専用メソッド
     {
         if (currentSource == atomSourceB)
         {
@@ -248,7 +274,7 @@ public class CRIWARE_conductor : MonoBehaviour
 
         // 新しいBGMを設定
         currentSource = atomSourceB; // 新しい音源を設定
-        
+
         // 音量を適用
         currentSource.volume = masterBGMVolume;
 
@@ -269,7 +295,10 @@ public class CRIWARE_conductor : MonoBehaviour
         }
     }
 
-    public void ChangeBgmC(int TickNumber) //BGM切り替え専用メソッド
+    /// <summary>
+    /// BGM(C)に切り替える
+    /// </summary>
+    public void ChangeBgmC(int TickNumber) // BGM切り替え専用メソッド
     {
         if (currentSource == atomSourceC)
         {
@@ -283,7 +312,7 @@ public class CRIWARE_conductor : MonoBehaviour
 
         // 新しいBGMを設定
         currentSource = atomSourceC; // 新しい音源を設定
-        
+
         // 音量を適用
         currentSource.volume = masterBGMVolume;
 
@@ -304,6 +333,9 @@ public class CRIWARE_conductor : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 指定したティック位置から再生を開始する
+    /// </summary>
     private void SetStartTimeByTick(int TickNumber)
     {
         if (currentSource == null) return;
@@ -318,6 +350,9 @@ public class CRIWARE_conductor : MonoBehaviour
         currentSource.player.SetStartTime((long)(startTimeInSeconds * 1000)); // ミリ秒単位で設定
     }
 
+    /// <summary>
+    /// ビート同期イベントのコールバック
+    /// </summary>
     private void OnBeatSync(ref CriAtomExBeatSync.Info info)
     {
         lastBeatSyncTime = Time.time; // ビート同期イベントの時刻を更新
@@ -327,16 +362,16 @@ public class CRIWARE_conductor : MonoBehaviour
             // 初期化処理
             beatFuzzySet = BeatFuzzy / info.bpm; // ビートのズレ許容範囲の決定値を計算
             BasicBeat = 60 / info.bpm;   // ４分音符の秒数を計算
-            frameRate = info.bpm; //再生速度調整の為BPMの情報をそのまま渡す。BPMxx/1BPM120*xx%で速度調整
-            TempoSet?.Invoke(); //他スクリプトにテンポ情報を送る
+            frameRate = info.bpm; // 再生速度調整の為BPMの情報をそのまま渡す。BPMxx/1BPM120*xx%で速度調整
+            TempoSet?.Invoke(); // 他スクリプトにテンポ情報を送る
             Debug.Log("テンポ情報を送信");
             // 初期化が終わったのでフラグをリセット
             isInitializedAfterChange = false;
         }
 
-        //ここから拍頭を送信する為のイベント
+        // ここから拍頭を送信する為のイベント
 
-        //info.barCountが偶数で、なおかつinfo.beatCountが1の時に実行 イントロの一小節で奇数偶数が逆になる
+        // info.barCountが偶数で、なおかつinfo.beatCountが1の時に実行 イントロの一小節で奇数偶数が逆になる
         if (info.barCount % 2 == 1 && info.beatCount == 0)
         {
             TempoMethodEvent1?.Invoke();
@@ -351,7 +386,7 @@ public class CRIWARE_conductor : MonoBehaviour
             lastBeatSyncTime02 = Time.time; // ビート同期イベントの時刻を更新
             StartCoroutine(InvokeTempoMethodDelay2NextFrame()); // 1フレーム後に発火
         }
-        else if (info.barCount % 2 == 1 && info.beatCount == 2)//スローモードの時は実行しない
+        else if (info.barCount % 2 == 1 && info.beatCount == 2) // スローモードの時は実行しない
         {
             TempoMethodEvent3?.Invoke();
 
@@ -365,7 +400,7 @@ public class CRIWARE_conductor : MonoBehaviour
             lastBeatSyncTime04 = Time.time; // ビート同期イベントの時刻を更新
             StartCoroutine(InvokeTempoMethodDelay4NextFrame()); // 1フレーム後に発火
         }
-        //info.barCountが奇数で、なおかつinfo.beatCountが1の時に実行
+        // info.barCountが奇数で、なおかつinfo.beatCountが1の時に実行
         else if (info.barCount % 2 == 0 && info.beatCount == 0)
         {
             TempoMethodEvent5?.Invoke();
@@ -373,15 +408,14 @@ public class CRIWARE_conductor : MonoBehaviour
             lastBeatSyncTime01 = Time.time; // ビート同期イベントの時刻を更新
             StartCoroutine(InvokeTempoMethodDelay5NextFrame()); // 1フレーム後に発火
         }
-
-        else if (info.barCount % 2 == 0 && info.beatCount == 1)//スローモードの時は実行しない
+        else if (info.barCount % 2 == 0 && info.beatCount == 1) // スローモードの時は実行しない
         {
             TempoMethodEvent6?.Invoke();
 
             lastBeatSyncTime02 = Time.time; // ビート同期イベントの時刻を更新
             StartCoroutine(InvokeTempoMethodDelay6NextFrame()); // 1フレーム後に発火
         }
-        else if (info.barCount % 2 == 0 && info.beatCount == 2)//スローモードの時は実行しない)
+        else if (info.barCount % 2 == 0 && info.beatCount == 2) // スローモードの時は実行しない)
         {
             TempoMethodEvent7?.Invoke();
 
@@ -403,7 +437,7 @@ public class CRIWARE_conductor : MonoBehaviour
             invoke16BeatCoroutine = null;
         }
         // コルーチンを開始して 1/4, 2/4, 3/4 拍後に処理を実行
-        StartCoroutine(Invoke16BeatCoroutine());
+        invoke16BeatCoroutine = StartCoroutine(Invoke16BeatCoroutine());
     }
 
     private IEnumerator Invoke16BeatCoroutine()
@@ -424,6 +458,7 @@ public class CRIWARE_conductor : MonoBehaviour
         invoke16BeatCoroutine = null;
     }
 
+    // 以下はディレイイベント用コルーチン（変更なし）
     private IEnumerator InvokeTempoMethodDelay1NextFrame()
     {
         // 1フレーム待機
@@ -451,7 +486,7 @@ public class CRIWARE_conductor : MonoBehaviour
 
         TempoMethodDelay1_3?.Invoke();
     }
-    
+
     private IEnumerator InvokeTempoMethodDelay4NextFrame()
     {
         // 1フレーム待機
@@ -460,7 +495,7 @@ public class CRIWARE_conductor : MonoBehaviour
 
         TempoMethodDelay1_4?.Invoke();
     }
-    
+
     private IEnumerator InvokeTempoMethodDelay5NextFrame()
     {
         // 1フレーム待機
@@ -469,7 +504,7 @@ public class CRIWARE_conductor : MonoBehaviour
 
         TempoMethodDelay1_5?.Invoke();
     }
-    
+
     private IEnumerator InvokeTempoMethodDelay6NextFrame()
     {
         // 1フレーム待機
@@ -478,7 +513,7 @@ public class CRIWARE_conductor : MonoBehaviour
 
         TempoMethodDelay1_6?.Invoke();
     }
-    
+
     private IEnumerator InvokeTempoMethodDelay7NextFrame()
     {
         // 1フレーム待機
@@ -487,7 +522,7 @@ public class CRIWARE_conductor : MonoBehaviour
 
         TempoMethodDelay1_7?.Invoke();
     }
-    
+
     private IEnumerator InvokeTempoMethodDelay8NextFrame()
     {
         // 1フレーム待機
@@ -512,7 +547,7 @@ public class CRIWARE_conductor : MonoBehaviour
 
         TempoMethodDelay2_2?.Invoke();
     }
-    
+
     private IEnumerator InvokeTempoMethod2nd3NextFrame()
     {
         // 1フレーム待機
@@ -520,7 +555,7 @@ public class CRIWARE_conductor : MonoBehaviour
 
         TempoMethodDelay2_3?.Invoke();
     }
-    
+
     private IEnumerator InvokeTempoMethod2nd4NextFrame()
     {
         // 1フレーム待機
@@ -528,7 +563,7 @@ public class CRIWARE_conductor : MonoBehaviour
 
         TempoMethodDelay2_4?.Invoke();
     }
-    
+
     private IEnumerator InvokeTempoMethod2nd5NextFrame()
     {
         // 1フレーム待機
@@ -536,7 +571,7 @@ public class CRIWARE_conductor : MonoBehaviour
 
         TempoMethodDelay2_5?.Invoke();
     }
-    
+
     private IEnumerator InvokeTempoMethod2nd6NextFrame()
     {
         // 1フレーム待機
@@ -544,7 +579,7 @@ public class CRIWARE_conductor : MonoBehaviour
 
         TempoMethodDelay2_6?.Invoke();
     }
-    
+
     private IEnumerator InvokeTempoMethod2nd7NextFrame()
     {
         // 1フレーム待機
@@ -552,7 +587,7 @@ public class CRIWARE_conductor : MonoBehaviour
 
         TempoMethodDelay2_7?.Invoke();
     }
-    
+
     private IEnumerator InvokeTempoMethod2nd8NextFrame()
     {
         // 1フレーム待機
@@ -561,9 +596,13 @@ public class CRIWARE_conductor : MonoBehaviour
         TempoMethodDelay2_8?.Invoke();
     }
 
+    /// <summary>
+    /// 現在のビートに合っているかを判定
+    /// </summary>
+    /// <returns>ビート判定結果</returns>
     public BeatResult JustBeatTick()
     {
-        // OnBeatSyncが一度も実行されていない場合、NotExecutedを返す
+        // OnBeatSyncが一度も実行されていない場合、Missを返す
         if (lastBeatSyncTime < 0) return BeatResult.Miss;
         float elapsedTime1 = Time.time - lastBeatSyncTime01;
         float elapsedTime2 = Time.time - lastBeatSyncTime02;
@@ -588,7 +627,10 @@ public class CRIWARE_conductor : MonoBehaviour
         return BeatResult.Miss;
     }
 
-    public float AllowedTimeAroundBeat　// ビートのズレ許容範囲の秒数
+    /// <summary>
+    /// ビートのズレ許容範囲の秒数を取得
+    /// </summary>
+    public float AllowedTimeAroundBeat
     {
         get
         {
