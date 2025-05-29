@@ -1,3 +1,8 @@
+1.1.58.4:
+
+    Bug Fixes:
+      - Windows Standalone, Raw Input: Fixed possible missed mouse events when using mouse and keyboard together with Unity Input System backend enabled.
+
 1.1.58.3:
 
     Bug Fixes:

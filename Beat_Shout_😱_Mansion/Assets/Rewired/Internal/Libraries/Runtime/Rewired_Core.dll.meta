@@ -17,13 +17,6 @@ labels:
 - Xbox360
 - XInput
 - DirectInput
-AssetOrigin:
-  serializedVersion: 1
-  productId: 21676
-  packageName: Rewired
-  packageVersion: 1.1.58.3
-  assetPath: Assets/Rewired/Internal/Libraries/Runtime/Rewired_Core.dll
-  uploadId: 726422
 PluginImporter:
   externalObjects: {}
   serializedVersion: 3
@@ -109,3 +102,10 @@ PluginImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 21676
+  packageName: Rewired
+  packageVersion: 1.1.58.4
+  assetPath: Assets/Rewired/Internal/Libraries/Runtime/Rewired_Core.dll
+  uploadId: 727838
