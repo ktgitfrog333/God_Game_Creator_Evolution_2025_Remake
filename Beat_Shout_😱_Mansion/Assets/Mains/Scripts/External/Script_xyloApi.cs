@@ -18,9 +18,9 @@ namespace Mains.External
         public ReactiveCommand<float> FrameRate => _frameRate;
         private MissileDirectAnimManagerB _missileDirectAnimManagerB;
         private readonly ReactiveCommand<bool> _isSuccessful = new ReactiveCommand<bool>();
-        public ReactiveCommand<bool> IsSuccessful => _isSuccessful;
+        public ReactiveCommand<bool> IsSuccessfulReactive => _isSuccessful;
         private readonly ReactiveCommand<bool> _isFailed = new ReactiveCommand<bool>();
-        public ReactiveCommand<bool> IsFailed => _isFailed;
+        public ReactiveCommand<bool> IsFailedReactive => _isFailed;
         public Transform NoteTransform
         {
             get
@@ -128,6 +128,171 @@ namespace Mains.External
         System.IDisposable _currentSourceStatusDisposable;
         private ObjectPoolerXyloOther _objectPoolerXyloOther;
         public Dictionary<string, Queue<GameObject>> PoolDictionary => _objectPoolerXyloOther.poolDictionary;
+        public bool IsReturningToPool
+        {
+            get
+            {
+                if (_missileDirectAnimManagerB == null) return false;
+
+                var managerType = _missileDirectAnimManagerB.GetType();
+                var fieldInfo = managerType.GetField("isReturningToPool", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (fieldInfo == null)
+                {
+                    Debug.LogWarning("isReturningToPool フィールドが見つかりませんでした。");
+                    return false;
+                }
+
+                var value = fieldInfo.GetValue(_missileDirectAnimManagerB);
+                return value != null && (bool)value;
+            }
+        }
+        public bool IsForceReturning
+        {
+            get
+            {
+                if (_missileDirectAnimManagerB == null) return false;
+
+                var managerType = _missileDirectAnimManagerB.GetType();
+                var fieldInfo = managerType.GetField("isForceReturning", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (fieldInfo == null)
+                {
+                    Debug.LogWarning("isForceReturning フィールドが見つかりませんでした。");
+                    return false;
+                }
+
+                var value = fieldInfo.GetValue(_missileDirectAnimManagerB);
+                return value != null && (bool)value;
+            }
+        }
+        public bool IsPointerOverUI
+        {
+            get
+            {
+                var isUIActive = IsUIActiveInMissileDirectAnimManagerB(_missileDirectAnimManagerB);
+
+                return isUIActive;
+            }
+        }
+        public bool EnableClickDetection
+        {
+            get
+            {
+                if (_missileDirectAnimManagerB == null)
+                {
+                    Debug.LogWarning("MissileDirectAnimManagerBがセットされていません。");
+                    return false;
+                }
+                var managerType = _missileDirectAnimManagerB.GetType();
+                var enableClickDetectionField = managerType.GetField("enableClickDetection", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (enableClickDetectionField == null)
+                {
+                    Debug.LogWarning("enableClickDetection フィールドが見つかりませんでした。");
+                    return false;
+                }
+                var enableClickDetection = enableClickDetectionField.GetValue(_missileDirectAnimManagerB);
+                if (enableClickDetection == null)
+                {
+                    Debug.LogWarning("enableClickDetection が null です。");
+                    return false;
+                }
+                return (bool)enableClickDetection;
+            }
+        }
+        public bool IsSuccessful
+        {
+            get
+            {
+                if (_missileDirectAnimManagerB == null) return false;
+
+                var managerType = _missileDirectAnimManagerB.GetType();
+                var fieldInfo = managerType.GetField("isSuccessful", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (fieldInfo == null)
+                {
+                    Debug.LogWarning("isSuccessful フィールドが見つかりませんでした。");
+                    return false;
+                }
+
+                var value = fieldInfo.GetValue(_missileDirectAnimManagerB);
+                return value != null && (bool)value;
+            }
+        }
+
+        public bool IsFailed
+        {
+            get
+            {
+                if (_missileDirectAnimManagerB == null) return false;
+
+                var managerType = _missileDirectAnimManagerB.GetType();
+                var fieldInfo = managerType.GetField("isFailed", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (fieldInfo == null)
+                {
+                    Debug.LogWarning("isFailed フィールドが見つかりませんでした。");
+                    return false;
+                }
+
+                var value = fieldInfo.GetValue(_missileDirectAnimManagerB);
+                return value != null && (bool)value;
+            }
+        }
+
+        public float ObjectCreationTime
+        {
+            get
+            {
+                if (_missileDirectAnimManagerB == null) return -1f;
+
+                var type = _missileDirectAnimManagerB.GetType();
+                var fieldInfo = type.GetField("objectCreationTime", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (fieldInfo == null)
+                {
+                    Debug.LogWarning("objectCreationTime フィールドが見つかりませんでした。");
+                    return -1f;
+                }
+
+                var value = fieldInfo.GetValue(_missileDirectAnimManagerB);
+                return value is float floatVal ? floatVal : -1f;
+            }
+        }
+
+        public int NoteType
+        {
+            get
+            {
+                if (_missileDirectAnimManagerB == null) return (int)MissileNoteType.None;
+
+                var type = _missileDirectAnimManagerB.GetType();
+                var fieldInfo = type.GetField("noteType", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (fieldInfo == null)
+                {
+                    Debug.LogWarning("noteType フィールドが見つかりませんでした。");
+                    return (int)MissileNoteType.None;
+                }
+
+                var value = fieldInfo.GetValue(_missileDirectAnimManagerB);
+                return value is MissileNoteType enumVal ? (int)enumVal : (int)MissileNoteType.None;
+            }
+        }
+
+        public bool IsLongPressStarted
+        {
+            get
+            {
+                if (_missileDirectAnimManagerB == null) return false;
+
+                var type = _missileDirectAnimManagerB.GetType();
+                var fieldInfo = type.GetField("isLongPressStarted", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (fieldInfo == null)
+                {
+                    Debug.LogWarning("isLongPressStarted フィールドが見つかりませんでした。");
+                    return false;
+                }
+
+                var value = fieldInfo.GetValue(_missileDirectAnimManagerB);
+                return value is bool boolVal && boolVal;
+            }
+        }
+
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -448,6 +613,98 @@ namespace Mains.External
                 .AddTo(ref _disposableBag);
         }
 
+        public void ProcessClick(float elapsedTime)
+        {
+            if (_missileDirectAnimManagerB == null)
+            {
+                return;
+            }
+            MethodInfo methodInfo = _missileDirectAnimManagerB.GetType().GetMethod("ProcessClick", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (methodInfo != null)
+            {
+                // メソッドを実行
+                object[] parameters = new object[]
+                {
+                    elapsedTime,
+                };
+                methodInfo.Invoke(_missileDirectAnimManagerB, parameters);
+            }
+        }
+
+        public void HandleLongPressRelease(float elapsedTime)
+        {
+            if (_missileDirectAnimManagerB == null)
+            {
+                return;
+            }
+            // inputManagerを取得してHandleLongPressReleaseを呼び出し
+            var inputManagerField = _missileDirectAnimManagerB.GetType().GetField("inputManager", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (inputManagerField == null)
+            {
+                Debug.LogWarning("inputManager フィールドが見つかりませんでした。");
+                return;
+            }
+            var inputManager = inputManagerField.GetValue(_missileDirectAnimManagerB);
+            if (inputManager == null)
+            {
+                Debug.LogWarning("missileRenderer が null です。");
+                return;
+            }
+            MissileInputManager tmpInputManager = (MissileInputManager)inputManager;
+            MethodInfo methodInfo = tmpInputManager.GetType().GetMethod("HandleLongPressRelease", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (methodInfo != null)
+            {
+                // メソッドを実行
+                object[] parameters = new object[]
+                {
+                    elapsedTime,
+                };
+                methodInfo.Invoke(_missileDirectAnimManagerB, parameters);
+            }
+        }
+
+        /// <summary>
+        /// UpdateUIPositionにてreturnとなり得る処理のみ抽出
+        /// </summary>
+        /// <see cref="MissileDirectAnimManagerB.UpdateUIPosition"/>
+        public void CheckUpdateUIPosition()
+        {
+            if (_missileDirectAnimManagerB == null) return;
+
+            var managerType = _missileDirectAnimManagerB.GetType();
+            var fieldInfoCamera = managerType.GetField("mainCamera", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (fieldInfoCamera == null)
+            {
+                Debug.LogWarning("mainCamera フィールドが見つかりませんでした。");
+                return;
+            }
+
+            var valueCamera = fieldInfoCamera.GetValue(_missileDirectAnimManagerB);
+            Camera mainCamera = (Camera)valueCamera;
+            if (mainCamera == null)
+            {
+                mainCamera = Camera.main;
+                if (mainCamera == null) return;
+            }
+            var fieldInfoUI = managerType.GetField("uiManager", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (fieldInfoUI == null)
+            {
+                Debug.LogWarning("uiManager フィールドが見つかりませんでした。");
+                return;
+            }
+
+            var valueUI = fieldInfoUI.GetValue(_missileDirectAnimManagerB);
+            MissileUIManager uiManager = (MissileUIManager)valueUI;
+            if (uiManager == null) return;
+
+            Vector3 screenPos = mainCamera.WorldToScreenPoint(_missileDirectAnimManagerB.transform.position);
+            // 画面背後にある場合は非表示
+            if (screenPos.z < 0)
+            {
+                return;
+            }
+        }
+
         public void SetActiveObjectCount(int activeObjectCount)
         {
             if (_missileObjectPooler == null)
@@ -507,6 +764,31 @@ namespace Mains.External
             }
 
             return containerObject;
+        }
+
+        /// <summary>
+        /// MissileDirectAnimManagerBのIsUIActiveを取得
+        /// </summary>
+        /// <param name="missileDirectAnimManagerB">MissileDirectAnimManagerB</param>
+        /// <returns>MissileDirectAnimManagerBのIsUIActive</returns>
+        private bool IsUIActiveInMissileDirectAnimManagerB(MissileDirectAnimManagerB missileDirectAnimManagerB)
+        {
+            var managerType = missileDirectAnimManagerB.GetType();
+            var uiManagerField = managerType.GetField("uiManager", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (uiManagerField == null)
+            {
+                Debug.LogWarning("_uiManager フィールドが見つかりませんでした。");
+                return false;
+            }
+            var uiManager = uiManagerField.GetValue(missileDirectAnimManagerB);
+            if (uiManager == null)
+            {
+                Debug.LogWarning("_uiManager が null です。");
+                return false;
+            }
+            var isUIActive = ((MissileUIManager)uiManager).IsUIActive();
+
+            return isUIActive;
         }
     }
 }

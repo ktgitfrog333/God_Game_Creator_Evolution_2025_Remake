@@ -22,6 +22,8 @@ namespace Mains.ViewModels
         }
         /// <summary>バッテリーのトランスフォーム</summary>
         public Transform BatteryTransform => _playerModel?.BatteryTransform ?? null;
+        /// <summary>MissileDirectAnimManagerBのカスタマイズ構造体</summary>
+        public MissileDirectAnimCustomizeStruct[] MissileDirectAnimCustomizeStructs => _playerModel?.MissileDirectAnimCustomizeStructs ?? new MissileDirectAnimCustomizeStruct[0];
 
         public RhythmPartPanelViewModel()
         {
@@ -54,6 +56,12 @@ namespace Mains.ViewModels
         {
             if (_playerModel != null)
                 _playerModel.SetSelectedMissGhostAttackTransform(selectedMissGhostAttackTransform);
+        }
+
+        public void SetTargetCrossAnchoredPosition(Vector2 targetCrossAnchoredPosition)
+        {
+            if (_playerModel != null)
+                _playerModel.SetTargetCrossAnchoredPosition(targetCrossAnchoredPosition);
         }
     }
 }

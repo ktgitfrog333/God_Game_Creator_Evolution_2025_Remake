@@ -104,8 +104,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   centerPanel: {fileID: 4907286768330094902}
-  "\u30DD\u30A4\u30F3\u30BF\u30FC\u79FB\u52D5\u901F\u5EA6": 3000
-  mousePosZ: 10
+  "\u30DD\u30A4\u30F3\u30BF\u30FC\u79FB\u52D5\u8DDD\u96E2": 350
 --- !u!1001 &2561542787291714564
 PrefabInstance:
   m_ObjectHideFlags: 0

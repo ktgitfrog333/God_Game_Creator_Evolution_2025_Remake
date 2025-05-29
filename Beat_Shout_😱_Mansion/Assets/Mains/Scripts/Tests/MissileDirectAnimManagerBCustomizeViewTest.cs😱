@@ -1,0 +1,73 @@
+using Mains.Views;
+using UnityEngine;
+using System.Reflection;
+
+namespace Mains.Tests
+{
+    public class MissileDirectAnimManagerBCustomizeViewTest : MonoBehaviour
+    {
+        private MissileDirectAnimManagerBCustomizeView missileDirectAnimManagerBCustomizeView;
+        private MissileDirectAnimManagerBCustomizeInputView missileDirectAnimManagerBCustomizeInputView;
+        [SerializeField] private Transform trans;
+        private Transform mainCamera;
+        [SerializeField] private float 角度の許容範囲;
+        [SerializeField] private RectTransform targetCrossTrasform;
+        [SerializeField] private RectTransform noteTransform;
+        [SerializeField] private float scopeRange;
+
+        private void Start()
+        {
+            missileDirectAnimManagerBCustomizeView = GetComponent<MissileDirectAnimManagerBCustomizeView>();
+            mainCamera = Camera.main.transform;
+            missileDirectAnimManagerBCustomizeInputView = FindAnyObjectByType<MissileDirectAnimManagerBCustomizeInputView>();
+        }
+
+        private void Update()
+        {
+            MethodInfo methodInfo = missileDirectAnimManagerBCustomizeView.GetType().GetMethod("IsOverUIOfAngleLine", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            if (methodInfo != null)
+            {
+                object[] parameters = new object[] { targetCrossTrasform.anchoredPosition, noteTransform, scopeRange };
+                // メソッドを実行
+                object result = methodInfo.Invoke(missileDirectAnimManagerBCustomizeView, parameters);
+                bool isOverUIOfAngleLine = (bool)result;
+                Debug.Log($"IsOverUIOfAngleLine: [{isOverUIOfAngleLine}]");
+            }
+
+            //if (trans != null)
+            //{
+            //    MethodInfo methodInfo = missileDirectAnimManagerBCustomizeView.GetType().GetMethod("IsGoodStickDirection", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            //    if (methodInfo != null)
+            //    {
+            //        object[] parameters = new object[] { missileDirectAnimManagerBCustomizeInputView, trans, mainCamera, 角度の許容範囲 };
+            //        // メソッドを実行
+            //        object result = methodInfo.Invoke(missileDirectAnimManagerBCustomizeView, parameters);
+            //        bool isGoodStickDirection = (bool)result;
+            //        Debug.Log($"IsGoodStickDirection: [{isGoodStickDirection}]");
+            //    }
+            //}
+            //if (trans != null)
+            //{
+            //    MethodInfo methodInfo = missileDirectAnimManagerBCustomizeView.GetType().GetMethod("GetAngle", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            //    if (methodInfo != null)
+            //    {
+            //        object[] parameters = new object[] { trans, mainCamera };
+            //        // メソッドを実行
+            //        object result = methodInfo.Invoke(missileDirectAnimManagerBCustomizeView, parameters);
+            //        float angle = (float)result;
+            //        //Debug.Log($"Angle: [{angle}]");
+            //        float radians = angle * Mathf.Deg2Rad;
+
+            //        // direction ベクトル（XY平面上）
+            //        Vector3 direction = new Vector3(Mathf.Cos(radians), Mathf.Sin(radians), 0);
+
+            //        // デバッグ用レイ描画
+            //        Debug.DrawRay(transform.position, direction * 2f, Color.green); // 長さ2、色は緑
+            //    }
+            //}
+        }
+    }
+}
