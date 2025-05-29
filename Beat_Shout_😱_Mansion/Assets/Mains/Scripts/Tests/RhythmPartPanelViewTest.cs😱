@@ -1,31 +1,146 @@
+using Mains.Commons;
+using Mains.Models;
 using Mains.ViewModels;
+using Mains.Views;
+using System.Linq;
+using System.Reflection;
 using UnityEngine;
 
 namespace Mains.Tests
 {
     public class RhythmPartPanelViewTest : MonoBehaviour
     {
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
-        void Start()
-        {
+        private RhythmPartPanelView _rhythmPartPanelView;
+        private RhythmPartPanelViewModel _viewModel;
+        private Camera _camera;
+        private PlayerModel _playerModel;
+        //private MissileDirectAnimCustomizeStruct _missileDirectAnimCustomizeStruct;
+        /// <summary>角度一致しているかのフラグ</summary>
+        [SerializeField] private bool isGoodStickDirection;
+        /// <summary>トランスフォーム</summary>
+        [SerializeField] private Transform trans;
+        [SerializeField] private RectTransform targetCrossImage;
+        private MissileDirectAnimManagerBCustomizeInputView _missileDirectAnimManagerBCustomizeInputView;
+        private MissileDirectAnimManagerBCustomizeView[] _missileDirectAnimManagerBCustomizeViews;
+        //private LineRenderer _lineRenderer;
+        [SerializeField] private float angleTolerance;
 
+        private void Start()
+        {
+            GameObject gameObject = new GameObject($"{typeof(PlayerModel).Name}");
+            //_playerModel = gameObject.AddComponent<PlayerModel>();
+            _rhythmPartPanelView = FindAnyObjectByType<RhythmPartPanelView>();
+            _viewModel = new RhythmPartPanelViewModel();
+            _camera = Camera.main;
+
+            //// LineRenderer付きオブジェクト生成
+            //GameObject lineObj = new GameObject("RayLine");
+            //_lineRenderer = lineObj.AddComponent<LineRenderer>();
+
+            //// 見た目の調整（必要に応じて）
+            //_lineRenderer.startWidth = 0.02f;
+            //_lineRenderer.endWidth = 0.02f;
+            //_lineRenderer.material = new Material(Shader.Find("Sprites/Default")); // URPやHDRPでは別途マテリアルを使ってもOK
+            //_lineRenderer.positionCount = 2;
+            //_lineRenderer.useWorldSpace = true;
+            //_lineRenderer.startColor = Color.red;
+            //_lineRenderer.endColor = Color.red;
         }
 
-        // Update is called once per frame
-        void Update()
+        private void Update()
         {
-            Vector3 mousePos = Input.mousePosition;
-            Ray ray = Camera.main.ScreenPointToRay(mousePos);
-
-            if (Physics.Raycast(ray, out RaycastHit hit))
+            if (_playerModel == null)
             {
-                Vector3 hitPoint = hit.point;
-                //_rhythmPartPanelViewModel.SetTargetCrossPosition(hitPoint);
-
-                // デバッグ表示
-                Debug.DrawLine(ray.origin, hitPoint, Color.red);
+                _playerModel = FindAnyObjectByType<PlayerModel>();
             }
+            // MissileDirectAnimManagerBCustomizeInputViewのAngle
+            if (_missileDirectAnimManagerBCustomizeInputView == null)
+            {
+                _missileDirectAnimManagerBCustomizeInputView = FindAnyObjectByType<MissileDirectAnimManagerBCustomizeInputView>();
 
+                return;
+            }
+            float inputAngleMain = 0f;
+            float notesAngleMain = 0f;
+            float? nullableInputAngle = _missileDirectAnimManagerBCustomizeInputView.Angle;
+            if (nullableInputAngle.HasValue)
+            {
+                float inputAngle = nullableInputAngle.Value;
+                float radians = inputAngle * Mathf.Deg2Rad;
+
+                // direction ベクトル（XY平面上）
+                Vector3 direction = new Vector3(Mathf.Cos(radians), Mathf.Sin(radians), 0);
+
+                // デバッグ用レイ描画
+                Debug.DrawRay(_camera.transform.position, direction * 2f, Color.red); // 長さ2、色は緑
+                //Vector3 start = _camera.transform.position;
+                //Vector3 end = start + direction * 10f;
+
+                //_lineRenderer.SetPosition(0, start);
+                //_lineRenderer.SetPosition(1, end);
+            }
+            // MissileDirectAnimManagerBCustomizeViewのトランスフォーム
+            _missileDirectAnimManagerBCustomizeViews = FindObjectsByType<MissileDirectAnimManagerBCustomizeView>(FindObjectsSortMode.None);
+            foreach (var missileDirectAnimManagerBCustomizeView in _missileDirectAnimManagerBCustomizeViews/*.Select(q => q.transform)*/)
+            {
+                MethodInfo methodInfo = missileDirectAnimManagerBCustomizeView.GetType().GetMethod("GetAngle", BindingFlags.NonPublic | BindingFlags.Instance);
+
+                if (methodInfo != null)
+                {
+                    object[] parameters = new object[] { missileDirectAnimManagerBCustomizeView.transform, _camera };
+                    // メソッドを実行
+                    object result = methodInfo.Invoke(missileDirectAnimManagerBCustomizeView, parameters);
+                    float notesAngle = (float)result;
+                    float radians1 = notesAngle * Mathf.Deg2Rad;
+
+                    // direction ベクトル（XY平面上）
+                    Vector3 direction1 = new Vector3(Mathf.Cos(radians1), Mathf.Sin(radians1), 0);
+
+                    // デバッグ用レイ描画
+                    Debug.DrawRay(_camera.transform.position, direction1 * 2f, Color.blue); // 長さ2、色は緑
+                }
+            }
+            //// それぞれをデバッグ
+            //float angleDiff = Mathf.Abs(Mathf.DeltaAngle(inputAngleMain, notesAngleMain));
+            //angleDiff <= angleTolerance;
+            //MethodInfo methodInfo = _rhythmPartPanelView.GetType().GetMethod("GetCalcPosition", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            //if (methodInfo != null)
+            //{
+            //    object[] parameters = new object[] { _viewModel, _camera };
+            //    // メソッドを実行
+            //    object result = methodInfo.Invoke(_rhythmPartPanelView, parameters);
+            //    Vector2 calcPosition = (Vector2)result;
+            //    Debug.Log($"calcPosition: [{calcPosition}]");
+            //    //targetCrossImage.anchoredPosition = calcPosition;
+            //    targetCrossImage.position = calcPosition;
+            //}
+
+            //Vector3 mousePos = Input.mousePosition;
+            //Ray ray = Camera.main.ScreenPointToRay(mousePos);
+
+            //if (Physics.Raycast(ray, out RaycastHit hit))
+            //{
+            //    Vector3 hitPoint = hit.point;
+            //    //_rhythmPartPanelViewModel.SetTargetCrossPosition(hitPoint);
+
+            //    // デバッグ表示
+            //    Debug.DrawLine(ray.origin, hitPoint, Color.red);
+            //}
         }
+
+        //private void OnGUI()
+        //{
+        //    Rect buttonRect = new Rect(10, 70, 250, 50);
+
+        //    if (GUI.Button(buttonRect, $"実行"))
+        //    {
+        //        _playerModel.AddMissileDirectAnimCustomizeStructs(new MissileDirectAnimCustomizeStruct()
+        //        {
+        //            isGoodStickDirection = isGoodStickDirection,
+        //            transform = trans,
+        //        });
+        //    }
+        //}
     }
 }

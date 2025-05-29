@@ -289,6 +289,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1947344915237714615, guid: c4bf94faa0d1eb84a89a7182c76ad75e, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3135475004665830566}
+    - targetCorrespondingSourceObject: {fileID: 1947344915237714615, guid: c4bf94faa0d1eb84a89a7182c76ad75e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3245134590935376745}
   m_SourcePrefab: {fileID: 100100000, guid: c4bf94faa0d1eb84a89a7182c76ad75e, type: 3}
 --- !u!1 &2511367845825755897 stripped
 GameObject:
@@ -312,6 +315,21 @@ MonoBehaviour:
   badPanelPrefab: {fileID: 6422276594484730783, guid: cd28cda1a4be09d4392a6101c263fe71, type: 3}
   badParticleSysPrefab: {fileID: 1394655228571085345, guid: 0a0cdc51eb3927540a6329db734f0458, type: 3}
   modelRenderer: {fileID: 1047624068163644786}
+--- !u!114 &3245134590935376745
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2511367845825755897}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f7926b7ed223e748973c3cb4b9b985f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  missileDirectAnimManagerBCustomizeInputPrefab: {fileID: 4914204312436364235, guid: 8b092f74167d32e4aa0c34ac3169a6ff, type: 3}
+  "\u89D2\u5EA6\u306E\u8A31\u5BB9\u7BC4\u56F2": 30
+  "\u63A5\u89E6\u5224\u5B9A\u306E\u7BC4\u56F2": 15
 --- !u!4 &6735803402496231585 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7252503887650212079, guid: c4bf94faa0d1eb84a89a7182c76ad75e, type: 3}

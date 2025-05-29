@@ -1,5 +1,7 @@
 using UnityEngine;
 using Rewired;
+using Universal.Commons;
+using Universal.Utilities;
 
 namespace Mains.Views
 {
@@ -16,6 +18,15 @@ namespace Mains.Views
         [SerializeField] private float duration;
         /// <summary>振動を開始する最長距離</summary>
         [SerializeField] private float[] maxDistances;
+        /// <summary>振動が有効か</summary>
+        private bool _isEnabledMotor;
+        
+        private void Start()
+        {
+            var temp = new ResourcesUtility();
+            var userBean = temp.LoadSaveDatasJsonOfUserBean(ConstResorcesNames.USER_DATA);
+        	_isEnabledMotor = userBean.vibrationEnableIndex == 1;
+        }
 
         /// <summary>
         /// コントローラーの振動
@@ -24,6 +35,11 @@ namespace Mains.Views
         /// <param name="distance">距離</param>
         public void VibrateController(Player player, float distance)
         {
+        	if (!_isEnabledMotor)
+        	{
+        		// 振動が無効なら振動させない
+        		return;
+        	}
             // 一定距離に近づいたら振動させる
             if (player == null ||
                 maxDistances[1] < distance) return;
