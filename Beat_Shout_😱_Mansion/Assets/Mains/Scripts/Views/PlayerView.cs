@@ -386,6 +386,25 @@ namespace Mains.Views
                                                 _playerViewModel.SelectedMissGhostAttackTransform.gameObject.SetActive(false);
                                             }
                                         }
+                                        // Xbox360コントローラー専用
+                                        if (player.GetButtonDown("GetBattery"))
+                                        {
+                                            if (_playerViewModel.IsSelectedBattery)
+                                            {
+                                                // ViewModel経由で電池のTransformを取得
+                                                var batteryTransform = _playerViewModel.BatteryTransform;
+                                                if (batteryTransform != null)
+                                                {
+                                                    BatteryView batteryView = batteryTransform.GetComponent<BatteryView>();
+                                                    batteryView.GetBattery();
+                                                }
+                                            }
+                                            if (_playerViewModel.BatteryTransform == null &&
+                                                _playerViewModel.SelectedMissGhostAttackTransform != null)
+                                            {
+                                                _playerViewModel.SelectedMissGhostAttackTransform.gameObject.SetActive(false);
+                                            }
+                                        }
                                     })
                                     .AddTo(ref _disposableBag);
                                 observableUpdateIsFailedDisposable = Observable.EveryUpdate()

@@ -36,20 +36,20 @@ namespace Mains.Views
             var canvasTransform = GameObject.Find("OverlayCanvas").transform;
             script_XyloApi.SetMissileDirectAnimManagerB(trans);
             HomingObjectCustomizeViewModel viewModel = new HomingObjectCustomizeViewModel();
-            script_XyloApi.IsSuccessful.Where(x => x)
+            script_XyloApi.IsSuccessfulReactive.Where(x => x)
                 .Subscribe(_ =>
                 {
                     ShowUIPanelAtObjectPosition(goodPanelPrefab, canvasTransform, goodParticleSysPrefab, script_XyloApi.NoteTransform, trans);
                     DoSubtractionTransactionGhostInStaticObjectStruct(viewModel);
                 })
                 .AddTo(ref _disposableBag);
-            script_XyloApi.IsFailed.Where(x => x)
+            script_XyloApi.IsFailedReactive.Where(x => x)
                 .Subscribe(_ =>
                 {
                     ShowUIPanelAtObjectPosition(badPanelPrefab, canvasTransform, badParticleSysPrefab, script_XyloApi.NoteTransform, trans);
                 })
                 .AddTo(ref _disposableBag);
-            script_XyloApi.IsFailed.Subscribe(isFailed =>
+            script_XyloApi.IsFailedReactive.Subscribe(isFailed =>
                 {
                     viewModel.SetIsFailed(isFailed);
                 })
