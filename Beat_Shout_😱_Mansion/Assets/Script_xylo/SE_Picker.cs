@@ -3,34 +3,42 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// SE音声を再生するための管理クラス
+/// シングルトンパターンで実装されており、どこからでもアクセス可能
+/// </summary>
 public class SE_Picker : MonoBehaviour
 {
     public static SE_Picker Instance { get; private set; }
+
     private CriAtomExAcb acbBomb;
     private List<CriAtomExPlayer> atomExPlayers;
     private bool ActiveNow = false;
     private Dictionary<string, float> soundCooldowns = new Dictionary<string, float>();
-    // private float cooldownTime = 0.06f; // 同じ音声の再生間隔
     private Queue<CriAtomExPlayer> availablePlayers = new Queue<CriAtomExPlayer>();
-    private float Beat; //ビート関連の処理の為に一応作っている。現時点では使用していない
+    private float Beat; // ビート関連の処理の為に一応作っている。現時点では使用していない
     private int playerIndex;
 
-    // マスター音量の設定（SliderVolumeから設定される）
+    // マスター音量の設定（AudioSettingsControllerから設定される）
     private float masterSEVolume = 1.0f;
 
-    //インスペクター上での設定項目
-    public string CueSheetName; //SEライブラリの情報
-    public string AcbFilePath; //同上
+    // インスペクター上での設定項目
+    [Header("CRIWARE設定")]
+    public string CueSheetName; // SEライブラリの情報
+    public string AcbFilePath; // 同上
     public int maxPlayers = 10; // 再生機の数。限度を超えると最初のものが止まる。CRIWARE側で最大数を設定していればある程度は回避される
 
-    //ここから先は個別のSEの登録
-    public string FootStep;
+    [Header("SEキュー名")]
+    public string FootStep; // 足音SE
 
     private void OnEnable()
     {
         Invoke("Delay", 1.2f);
     }
 
+    /// <summary>
+    /// 初期化を遅延実行するメソッド
+    /// </summary>
     private void Delay()
     {
         if (Instance == null)
@@ -65,19 +73,31 @@ public class SE_Picker : MonoBehaviour
         LoadMasterSEVolume();
     }
 
-    // マスターSE音量を読み込む
+    /// <summary>
+    /// マスターSE音量を読み込むメソッド
+    /// AudioSettingsManagerから設定を取得
+    /// </summary>
     private void LoadMasterSEVolume()
     {
-        // PlayerPrefsから保存されているSE音量を読み込む
-        masterSEVolume = PlayerPrefs.GetFloat("Key_SEVolume", 1.0f);
+        // AudioSettingsManagerから設定を読み込む
+        AudioSettingsData settings = AudioSettingsManager.LoadSettings();
+        masterSEVolume = settings.seVolume;
+        Debug.Log($"SE_Picker: マスターSE音量を読み込みました: {masterSEVolume:F1}");
     }
 
-    // マスターSE音量を設定するメソッド（SliderVolumeから呼び出される）
+    /// <summary>
+    /// マスターSE音量を設定するメソッド（AudioSettingsControllerから呼び出される）
+    /// </summary>
+    /// <param name="volume">設定する音量 (0.0 - 1.0)</param>
     public void SetMasterSEVolume(float volume)
     {
         masterSEVolume = Mathf.Clamp(volume, 0f, 1f);
+        Debug.Log($"SE_Picker: マスターSE音量を設定しました: {masterSEVolume:F1}");
     }
 
+    /// <summary>
+    /// 次に使用するプレイヤーを取得するメソッド
+    /// </summary>
     private CriAtomExPlayer GetNextPlayer()
     {
         if (availablePlayers.Count > 0)
@@ -90,6 +110,9 @@ public class SE_Picker : MonoBehaviour
         return atomExPlayers[0];
     }
 
+    /// <summary>
+    /// 指定されたキュー名が再生可能かどうかを確認するメソッド
+    /// </summary>
     private bool IsPlayable(string cueName)
     {
         if (string.IsNullOrEmpty(cueName))
@@ -97,14 +120,21 @@ public class SE_Picker : MonoBehaviour
             Debug.LogError("Cue name is null or empty.");
             return false;
         }
+
         if (!ActiveNow || acbBomb == null)
         {
             Debug.LogWarning("Sound system is not active or ACB is null.");
             return false;
         }
+
         return true;
     }
 
+    /// <summary>
+    /// 音声を再生するメソッド
+    /// </summary>
+    /// <param name="cueName">再生するキュー名</param>
+    /// <param name="volume">個別の音量 (0.0 - 1.0)</param>
     private void PlaySound(string cueName, float volume)
     {
         if (!IsPlayable(cueName)) return;
@@ -125,9 +155,14 @@ public class SE_Picker : MonoBehaviour
         player.Start();
     }
 
-    //ここから先にSEを登録していく。音量は明示的に指定する
-    public void PlayFootStep(float Vol)
+    // ここから先にSEを登録していく。音量は明示的に指定する
+
+    /// <summary>
+    /// 足音SEを再生するメソッド
+    /// </summary>
+    /// <param name="volume">音量 (0.0 - 1.0)</param>
+    public void PlayFootStep(float volume)
     {
-        PlaySound(FootStep, Vol);
+        PlaySound(FootStep, volume);
     }
 }
