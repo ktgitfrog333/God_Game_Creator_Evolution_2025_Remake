@@ -1584,11 +1584,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sampleSize: 1024
   requiredDuration: 0.1
-  microphoneSensitivity: 24.1
+  microphoneSensitivity: 25
   volumeChangeThreshold: 0.15
   comparisonDuration: 0.1
   bgmAtomSource: {fileID: 951453400}
-  bgmCancellationStrength: 2
+  bgmCancellationStrength: 0.64
   enableBgmCancellation: 1
   bgmVolumeThreshold: 0.01
   bgmVolumeEstimateMultiplier: 0.3
