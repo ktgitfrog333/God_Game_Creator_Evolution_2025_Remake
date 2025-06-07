@@ -1,12 +1,15 @@
-using UnityEngine;
+using DG.Tweening;
 using Mains.Commons;
-using R3;
-using ObservableCollections;
+using Mains.External;
 using Mains.ViewModels;
+using ObservableCollections;
+using R3;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Mains.External;
-using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEngine;
 
 namespace Mains.Views
 {
@@ -29,6 +32,10 @@ namespace Mains.Views
         public Vector3 RhythmPartPosition => _rhythmPartPosition;
         /// <summary>リズムパート角度（プレイヤー位置をリズムパート用に移動させる）</summary>
         public Vector3 RhythmPartEulerAngles => _rhythmPartEulerAngles;
+        /// <summary>リズムパート位置（家具をリズムパート用に移動させる）</summary>
+        private Vector3 _rhythmPartPosition_1;
+        /// <summary>リズムパート角度（家具をリズムパート用に移動させる）</summary>
+        private Vector3 _rhythmPartEulerAngles_1;
         /// <summary>オバケの家具入居管理の構造体</summary>
         [SerializeField] private GhostInStaticObjectStruct ghostInStaticObjectStruct;
         /// <summary>オバケの家具入居管理の構造体</summary>
@@ -57,8 +64,10 @@ namespace Mains.Views
         private MotorView _motorView;
         /// <summary>トランスフォーム</summary>
         private Transform _transform;
-        /// <summary>ポジション</summary>
-        private Vector3 _position;
+        /// <summary>初期ポジション</summary>
+        private Vector3 _initialPosition;
+        /// <summary>初期オイラー角度</summary>
+        private Vector3 _initialEulerAngles;
         /// <summary>シロさんのコンポーネントへアクセスするAPI</summary>
         private Script_xyloApi _script_XyloApi;
         /// <summary>フェードイメージのビュー</summary>
@@ -67,6 +76,10 @@ namespace Mains.Views
         private HomingObjectPoolerCustomizeView _homingObjectPoolerCustomizeView;
         /// <summary>ObjectPoolerXyloOtherのカスタマイズビュー</summary>
         private ObjectPoolerXyloOtherCustomizeView _objectPoolerXyloOtherCustomizeView;
+        /// <summary>トリガー以外のコライダー</summary>
+        private List<Collider> _noTriggerColliders;
+        /// <summary>Rigidbody</summary>
+        private Rigidbody _rigidbody;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -88,12 +101,29 @@ namespace Mains.Views
                 newObj.transform.position = transform.position;
                 newObj.transform.SetParent(transform);
             }
+            // リズムパートポジション（家具をリズムパート用に移動させる）の生成
+            bool isFound1 = false;
+            foreach (Transform child in transform)
+            {
+                if (child.name.Equals("RhythmPartPosition_1"))
+                {
+                    isFound1 = true;
+                    break;
+                }
+            }
+            if (!isFound1)
+            {
+                var newObj = new GameObject("RhythmPartPosition_1").AddComponent<RhythmPartPosition_1View>();
+                newObj.transform.position = transform.position;
+                newObj.transform.SetParent(transform);
+            }
         }
 
         private void Start()
         {
             _transform = transform;
-            _position = _transform.position;
+            _initialPosition = _transform.position;
+            _initialEulerAngles = _transform.eulerAngles;
             // Poltergeistの生成
             var originParent = _transform.parent;
             // 初期化
@@ -105,6 +135,9 @@ namespace Mains.Views
             motorInstance.transform.SetParent(originParent);
             _transform.SetParent(motorInstance.transform);
             _transform.localPosition = Vector3.zero;
+            _noTriggerColliders = new List<Collider>();
+            _noTriggerColliders.Add(motorInstance.GetComponent<BoxCollider>());
+            _rigidbody = motorInstance.GetComponent<Rigidbody>();
             // ShoutChanceRangeの生成
             var originParent_1 = motorInstance.transform.parent;
             Transform shoutChanceInstance = Instantiate(shoutChanceRangePrefab, motorInstance.transform.position, Quaternion.identity).transform;
@@ -114,15 +147,25 @@ namespace Mains.Views
             shoutChanceInstance.transform.eulerAngles = _transform.eulerAngles;
             shoutChanceInstance.SetParent(originParent_1);
             motorInstance.transform.SetParent(shoutChanceInstance);
+            _noTriggerColliders.Add(shoutChanceInstance.GetComponent<BoxCollider>());
             motorInstance.transform.localPosition = Vector3.zero;
             _transform.SetParent(motorInstance.transform);
             _transform.localPosition = Vector3.zero;
-            foreach (Transform child in transform)
+            foreach (Transform child in _transform)
             {
                 if (child.name.Equals("RhythmPartPosition"))
                 {
                     _rhythmPartPosition = child.position;
                     _rhythmPartEulerAngles = child.eulerAngles;
+                    break;
+                }
+            }
+            foreach (Transform child in _transform)
+            {
+                if (child.name.Equals("RhythmPartPosition_1"))
+                {
+                    _rhythmPartPosition_1 = child.position;
+                    _rhythmPartEulerAngles_1 = child.eulerAngles;
                     break;
                 }
             }
@@ -180,6 +223,7 @@ namespace Mains.Views
         private void OnDestroy()
         {
             _disposableBag.Dispose();
+            _script_XyloApi?.Dispose();
         }
 
         /// <summary>
@@ -239,6 +283,8 @@ namespace Mains.Views
                                 })
                                     .Subscribe(_ =>
                                     {
+                                        _motorView?.DoStopFloaterAnimation();
+                                        ResetMovePosition(_initialPosition, _initialEulerAngles, _noTriggerColliders, _rigidbody);
                                         processStepCnt.Value++;
                                     })
                                     .AddTo(ref _disposableBag)
@@ -386,8 +432,7 @@ namespace Mains.Views
         /// </summary>
         public async void AsyncDoBurstGhosts()
         {
-            BurstGhosts(_ghostBurstsInstance, _transform);
-            await Task.Delay(1000);
+            await Task.Delay(0);
             if (_poltergeistViewModel != null)
                 _poltergeistViewModel.SetIsCompletedBurstGhosts(true);
         }
@@ -398,12 +443,103 @@ namespace Mains.Views
         public void InstanceMissileTempoSpawner()
         {
             var originParent = _transform.parent;
-            var missileTempoSpawnerInstance = Instantiate(missileTempoSpawnerPrefab, _position, Quaternion.identity);
+            var missileTempoSpawnerInstance = Instantiate(missileTempoSpawnerPrefab, _rhythmPartPosition_1, Quaternion.identity);
             missileTempoSpawnerInstance.transform.SetParent(originParent);
             // リズムパートの調整（家具に対して真正面に配置するとオバケがずれることがある？）
-            var originAngles = _rhythmPartEulerAngles;
+            var originAngles = _rhythmPartEulerAngles_1;
             missileTempoSpawnerInstance.eulerAngles = new Vector3(0f, originAngles.y - 125.09f, 0f);
             _missileTempoSpawnerInstance = missileTempoSpawnerInstance;
+        }
+
+        /// <summary>
+        /// リズムパート位置へ移動する処理
+        /// </summary>
+        public void MovePosition()
+        {
+            SetRigidbodyStatus(_rigidbody, false);
+            SetNoTriggerColliders(_noTriggerColliders, false);
+            _transform.position = _rhythmPartPosition_1;
+            _transform.eulerAngles = _rhythmPartEulerAngles_1;
+        }
+
+        /// <summary>
+        /// リズムパート位置への移動アニメーションを再生
+        /// </summary>
+        /// <param name="observer">オブザーバー</param>
+        /// <param name="playerTransform">プレイヤーのトランスフォーム</param>
+        /// <returns>コルーチン</returns>
+        public IEnumerator PlayMovePositionAnimation(Observer<bool> observer, Transform playerTransform)
+        {
+            SetRigidbodyStatus(_rigidbody, false);
+            SetNoTriggerColliders(_noTriggerColliders, false);
+
+            Vector3 targetPosition = _rhythmPartPosition_1;
+            Vector3 start = _transform.position;
+            Vector3 end = targetPosition;
+
+            // プレイヤーとの距離をチェック
+            float avoidRadius = 15.0f; // プレイヤーとの距離がこれ以下なら回避
+            Vector3 playerPosition = playerTransform.position;
+
+            List<Vector3> path = new List<Vector3>();
+            var sequence = DOTween.Sequence();
+            if (Vector3.Distance(playerPosition, end) < avoidRadius)
+            {
+                // プレイヤーを避けるための方向を計算
+                Vector3 toTarget = (end - start).normalized;
+                Vector3 toPlayer = (playerPosition - start).normalized;
+                Vector3 avoidDir = Vector3.Cross(toTarget, Vector3.up).normalized; // Y軸を基準に外側へ回避
+                // プレイヤーが右にいれば、avoidDirを反転させる（左回避にする）
+                float dot = Vector3.Dot(avoidDir, toPlayer);
+                if (dot > 0)
+                {
+                    avoidDir *= -1f;
+                }
+                // 中継点の追加（少し外側に避ける）
+                Vector3 midPoint = (start + end) * 0.5f + avoidDir * 1.0f;
+                path.Add(start);
+                path.Add(midPoint);
+                path.Add(end);
+
+                sequence
+                    .Append(_transform.DOPath(path.ToArray(), 1.2f, PathType.CatmullRom).SetEase(Ease.InOutSine))
+                    .Join(_transform.DOLocalRotate(new Vector3(0, 1080f, 0), 1.2f, RotateMode.FastBeyond360).SetEase(Ease.InOutSine))
+                    .AppendCallback(() =>
+                    {
+                        _transform.eulerAngles = _rhythmPartEulerAngles_1; // 最終角度に調整
+                        observer.OnNext(true);
+                        observer.OnCompleted();
+                    });
+            }
+            else
+            {
+                // そのまま移動
+                DOTween.Sequence()
+                    .Append(_transform.DOMove(end, 1f))
+                    .Join(_transform.DOLocalRotate(new Vector3(0, 1080f, 0), 1.2f, RotateMode.FastBeyond360).SetEase(Ease.InOutSine))
+                    .AppendCallback(() =>
+                    {
+                        _transform.eulerAngles = _rhythmPartEulerAngles_1; // 最終角度に調整
+                        observer.OnNext(true);
+                        observer.OnCompleted();
+                    });
+            }
+
+            yield return null;
+        }
+
+        /// <summary>
+        /// 浮かせるアニメーション処理を呼び出す
+        /// </summary>
+        /// <returns>コルーチン</returns>
+        public IEnumerator DoPlayFloaterAnimation()
+        {
+            if (_motorView != null)
+            {
+                StartCoroutine(_motorView.DoPlayFloaterAnimation());
+            }
+            
+            yield return null;
         }
 
         /// <summary>
@@ -459,6 +595,78 @@ namespace Mains.Views
             {
                 Destroy(missileTempoSpawnerInstance.gameObject);
             }
+        }
+
+        /// <summary>
+        /// Rigidbodyの重力、物理シミュレーションを有効／無効切り替え
+        /// </summary>
+        /// <param name="rigidbody">Rigidbody</param>
+        /// <param name="isEnabled">有効／無効</param>
+        private void SetRigidbodyStatus(Rigidbody rigidbody, bool isEnabled)
+        {
+            if (rigidbody == null)
+                return;
+
+            if (isEnabled &&
+                !rigidbody.useGravity &&
+                rigidbody.isKinematic)
+            {
+                // 有効
+                rigidbody.useGravity = true;
+                rigidbody.isKinematic = false;
+            }
+            else if (!isEnabled &&
+                rigidbody.useGravity &&
+                !rigidbody.isKinematic)
+            {
+                // 無効
+                rigidbody.useGravity = false;
+                rigidbody.isKinematic = true;
+            }
+        }
+
+        /// <summary>
+        /// コライダーを有効／無効切り替え
+        /// </summary>
+        /// <param name="noTriggerColliders">コライダーリスト</param>
+        /// <param name="isEnabled">有効／無効</param>
+        private void SetNoTriggerColliders(List<Collider> noTriggerColliders, bool isEnabled)
+        {
+            if (noTriggerColliders == null ||
+                noTriggerColliders.Count < 1)
+                return;
+
+            if (isEnabled)
+            {
+                // 有効
+                foreach (var noTriggerCollider in noTriggerColliders.Where(x => !x.enabled))
+                {
+                    noTriggerCollider.enabled = true;
+                }
+            }
+            else
+            {
+                // 無効
+                foreach (var noTriggerCollider in noTriggerColliders.Where(x => x.enabled))
+                {
+                    noTriggerCollider.enabled = false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 元の位置へ移動させる処理
+        /// </summary>
+        /// <param name="initialPosition">初期ポジション</param>
+        /// <param name="initialEulerAngles">初期オイラー角度</param>
+        /// <param name="noTriggerColliders">コライダーリスト</param>
+        /// <param name="rigidbody">Rigidbody</param>
+        private void ResetMovePosition(Vector3 initialPosition, Vector3 initialEulerAngles, List<Collider> noTriggerColliders, Rigidbody rigidbody)
+        {
+            _transform.position = initialPosition;
+            _transform.eulerAngles = initialEulerAngles;
+            SetNoTriggerColliders(noTriggerColliders, true);
+            SetRigidbodyStatus(rigidbody, true);
         }
     }
 }

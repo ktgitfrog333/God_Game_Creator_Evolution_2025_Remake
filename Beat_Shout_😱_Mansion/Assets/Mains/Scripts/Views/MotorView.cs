@@ -1,6 +1,9 @@
+using DG.Tweening;
 using Mains.Commons;
+using Mains.External;
 using Mains.ViewModels;
 using R3;
+using System.Collections;
 using UnityEngine;
 
 namespace Mains.Views
@@ -28,8 +31,6 @@ namespace Mains.Views
         [SerializeField] private GameObject dustParticlePrefab;
         /// <summary>ポルターガイストのビューモデル</summary>
         private PoltergeistViewModel _poltergeistViewModel;
-        /// <summary>R3のリソース管理</summary>
-        private DisposableBag _disposableBag = new DisposableBag();
         /// <summary>ポルターガイストが有効か</summary>
         public bool IsEnabledPoltergeist { get; set; }
         /// <summary>トランスフォーム</summary>
@@ -38,12 +39,26 @@ namespace Mains.Views
         private ReactiveCommand<bool> _onAction = new ReactiveCommand<bool>();
         /// <summary>初期回転値</summary>
         private Quaternion _initialRotation;
+        /// <summary>初期ローカル回転値</summary>
+        private Quaternion _initialLocalRotation;
         /// <summary>角度しきい値（°）</summary>
         [SerializeField] private float tiltThreshold;
         [Tooltip("Assets/Mains/Prefabs/Level/ObjectsPoolView.prefabをセットしておく。")]
         [SerializeField] private GameObject objectsPoolViewPrefab;
         /// <summary>振動を開始する最長距離</summary>
         [SerializeField] private float maxDistance;
+        ///// <summary>アニメーションをループするか</summary>
+        //private bool _isLoopAnimation = false;
+        /// <summary>シロさんのコンポーネントへアクセスするAPI</summary>
+        private Script_xyloApi _script_XyloApi;
+        /// <summary>浮かせるアニメーション処理の監視</summary>
+        private System.IDisposable _onTempoSetDisposable = null;
+        /// <summary>初期ローカルポジション</summary>
+        private Vector3 _initialLocalPosition;
+        /// <summary>初期ローカルオイラー角度</summary>
+        private Vector3 _initialLocalEulerAngles;
+        /// <summary>R3のリソース管理</summary>
+        private DisposableBag _disposableBag = new DisposableBag();
 
         private void Reset()
         {
@@ -56,6 +71,8 @@ namespace Mains.Views
         private void Start()
         {
             _transform = transform;
+            _initialLocalPosition = transform.localPosition;
+            _initialLocalEulerAngles = transform.localEulerAngles;
             Transform dustParticleInstance = null;
             _poltergeistViewModel = new PoltergeistViewModel(poltergeistTable);
             // オブジェクトプールビュー
@@ -124,11 +141,14 @@ namespace Mains.Views
                 })
                 .AddTo(ref _disposableBag);
             _initialRotation = _transform.rotation;
+            _initialLocalRotation = _transform.localRotation;
+            _script_XyloApi = new Script_xyloApi();
         }
 
         private void OnDestroy()
         {
             _disposableBag.Dispose();
+            _script_XyloApi?.Dispose();
         }
 
         private void OnDrawGizmosSelected()
@@ -174,5 +194,77 @@ namespace Mains.Views
         /// </summary>
         /// <see cref="Assets/Mains/Animations/Poltergeists/Poltergeist.controller"/>
         public void OnDummy() { }
+
+        /// <summary>
+        /// 浮かせるアニメーション処理を呼び出す
+        /// </summary>
+        /// <returns>コルーチン</returns>
+        /// <remarks>クラゲの様にふわふわ空中に漂うDOTweenアニメーション</remarks>
+        public IEnumerator DoPlayFloaterAnimation()
+        {
+            if (_transform != null &&
+                _script_XyloApi != null)
+            {
+                var fromPosition = _transform.position;
+                _onTempoSetDisposable = _script_XyloApi.IsOnTempoMethodEventAny.Subscribe(_ =>
+                {
+                    PlayFloaterAnimation(_transform, _script_XyloApi.BasicBeat, fromPosition);
+                })
+                    .AddTo(ref _disposableBag);
+            }
+
+            yield return null;
+        }
+
+        /// <summary>
+        /// 浮かせるアニメーション処理
+        /// </summary>
+        /// <param name="trans">トランスフォーム</param>
+        /// <param name="basicBeat">BasicBeat</param>
+        /// <param name="fromPosition">ポジション初期値</param>
+        private void PlayFloaterAnimation(Transform trans, float basicBeat, Vector3 fromPosition)
+        {
+            trans.position = fromPosition; // 毎回初期化（必要なら）
+            // 上下にふわふわ移動（ワールドY軸方向）
+            trans.DOMove(trans.position + Vector3.up * 0.5f, basicBeat / 2f)
+                .SetLoops(2, LoopType.Yoyo)
+                .SetEase(Ease.InOutSine);
+        }
+
+        /// <summary>
+        /// 浮かせるアニメーション処理を停止を呼び出す
+        /// </summary>
+        public void DoStopFloaterAnimation()
+        {
+            StopFloaterAnimation(_transform, _initialLocalPosition, _initialLocalEulerAngles, _onTempoSetDisposable);
+        }
+
+        /// <summary>
+        /// 浮かせるアニメーション処理を停止
+        /// </summary>
+        /// <param name="trans">トランスフォーム</param>
+        /// <param name="initialLocalPosition">ローカルポジション初期値</param>
+        /// <param name="initialLocalEulerAngles">ローカルオイラー角度初期値</param>
+        /// <param name="onTempoSetDisposable">浮かせるアニメーション処理の監視</param>
+        private void StopFloaterAnimation(Transform trans, Vector3 initialLocalPosition, Vector3 initialLocalEulerAngles, System.IDisposable onTempoSetDisposable)
+        {
+            // 既にループが無効なら return
+            if (onTempoSetDisposable == null)
+                return;
+
+            // PlayFloaterAnimation / AnimateRandomTiltLoop で発生した Tween をすべて停止
+            if (trans != null)
+            {
+                // この Transform に紐づく全 Tween を停止・削除
+                trans.DOKill(complete: true);
+
+                trans.localPosition = initialLocalPosition;
+
+                // 傾きを初期角度に戻す（必要に応じて）
+                trans.localEulerAngles = initialLocalEulerAngles;
+            }
+            onTempoSetDisposable.Dispose();
+            onTempoSetDisposable = null;
+        }
     }
 }

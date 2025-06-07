@@ -16,6 +16,8 @@ namespace Mains.Views
     {
         /// <summary>イメージ</summary>
         [SerializeField] private Image image;
+        /// <summary>シロさんのコンポーネントへアクセスするAPI</summary>
+        private Script_xyloApi _script_XyloApi;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -49,8 +51,8 @@ namespace Mains.Views
                                 .SetLoops(-1, LoopType.Yoyo)
                                 .From(0.6f)
                                 .SetId("LoopFade");
-                            Script_xyloApi script_XyloApi = new Script_xyloApi();
-                            script_XyloApi.FrameRate
+                            _script_XyloApi = new Script_xyloApi();
+                            _script_XyloApi.FrameRateReactive
                                 .Where(x => 0f < x)
                                 .Subscribe(_ =>
                                 {
@@ -64,6 +66,12 @@ namespace Mains.Views
                         .AddTo(ref _disposableBag);
                 })
                 .AddTo(ref _disposableBag);
+        }
+
+        private void OnDestroy()
+        {
+            _disposableBag.Dispose();
+            _script_XyloApi?.Dispose();
         }
 
         /// <summary>

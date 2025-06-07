@@ -1,6 +1,7 @@
 using Unity.Cinemachine;
 using UnityEngine;
 using R3;
+using System.Collections;
 
 namespace Mains.Views
 {
@@ -48,6 +49,16 @@ namespace Mains.Views
         {
             cinemachineCamera.Follow = null;
             cinemachineCamera.LookAt = null;
+        }
+
+        /// <summary>
+        /// CinemachineCameraのFollowとLookAtを削除
+        /// </summary>
+        /// <remarks>1フレーム待機版</remarks>
+        public IEnumerator AsyncDeleteFollowAndLookAt()
+        {
+            yield return null;
+            DeleteFollowAndLookAt();
         }
 
         /// <summary>
