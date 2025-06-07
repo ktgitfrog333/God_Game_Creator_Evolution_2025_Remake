@@ -37,5 +37,23 @@ namespace Mains.ViewModels
         		_playerModel.AddMissileDirectAnimCustomizeStructs(missileDirectAnimCustomizeStruct);
         	}
         }
+
+        public void AddOrSetOnEnabledTime(MissileDirectAnimCustomizeStruct missileDirectAnimCustomizeStruct)
+        {
+            if (_playerModel != null)
+            {
+                _playerModel.AddOrSetOnEnabledTime(missileDirectAnimCustomizeStruct);
+            }
+        }
+
+        public bool IsFrontMissileDirectAnim(Transform transform)
+        {
+            if (_playerModel != null)
+            {
+                return _playerModel.IsFrontMissileDirectAnim(transform);
+            }
+
+            return false;
+        }
     }
 }

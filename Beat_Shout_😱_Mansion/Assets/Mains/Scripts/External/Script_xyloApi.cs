@@ -759,6 +759,25 @@ namespace Mains.External
             }
         }
 
+        public void SetEnableClickDetection(bool isEnableClickDetection)
+        {
+            if (_missileDirectAnimManagerB == null)
+            {
+                return;
+            }
+
+            var managerType = _missileDirectAnimManagerB.GetType();
+            var enableClickDetectionField = managerType.GetField("enableClickDetection", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (enableClickDetectionField == null)
+            {
+                Debug.LogWarning("enableClickDetection フィールドが見つかりませんでした。");
+                return;
+            }
+
+            // 値をセットする
+            enableClickDetectionField.SetValue(_missileDirectAnimManagerB, isEnableClickDetection);
+        }
+
         /// <summary>
         /// MissileDirectAnimManagerBのContainerObjectを取得
         /// </summary>

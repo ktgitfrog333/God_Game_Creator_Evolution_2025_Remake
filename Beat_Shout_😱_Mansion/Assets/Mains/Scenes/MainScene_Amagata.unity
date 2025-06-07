@@ -165,7 +165,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sampleSize: 1024
   requiredDuration: 0.1
-  startThreshold: 0.1
+  microphoneSensitivity: 1
+  volumeChangeThreshold: 0.15
+  comparisonDuration: 0.1
+  bgmAtomSource: {fileID: 0}
+  bgmCancellationStrength: 1
+  enableBgmCancellation: 1
+  bgmVolumeThreshold: 0.01
+  bgmVolumeEstimateMultiplier: 0.3
+  averagingDuration: 0.2
   volumeThresholds:
   - 0.1
   - 0.3
@@ -173,6 +181,11 @@ MonoBehaviour:
   - 0.7
   text: {fileID: 1237731673}
   volumeSlider: {fileID: 0}
+  sliderFillImage: {fileID: 0}
+  level1Color: {r: 0, g: 1, b: 0, a: 1}
+  level2Color: {r: 0, g: 0, b: 1, a: 1}
+  level3Color: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  level4Color: {r: 1, g: 0, b: 0, a: 1}
 --- !u!1 &203844586
 GameObject:
   m_ObjectHideFlags: 0
