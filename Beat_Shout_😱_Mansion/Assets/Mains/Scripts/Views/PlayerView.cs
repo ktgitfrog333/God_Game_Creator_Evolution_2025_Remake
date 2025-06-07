@@ -8,6 +8,7 @@ using Mains.External;
 using System.Collections.Generic;
 using Mains.Manager;
 using DG.Tweening;
+using System.Collections;
 
 namespace Mains.Views
 {
@@ -32,6 +33,8 @@ namespace Mains.Views
         /// <summary>フェードイメージのビュー</summary>
         private FadeImageView _fadeImageView;
         [SerializeField] private PlayerRhythmStruct リズムパートで使用するプレイヤープロパティ;
+        /// <summary>シロさんのコンポーネントへアクセスするAPI</summary>
+        private Script_xyloApi _script_XyloApi;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -51,13 +54,13 @@ namespace Mains.Views
 
         private void Start()
         {
-            Script_xyloApi script_XyloApi = new();
+            _script_XyloApi = new Script_xyloApi();
             // 着地した瞬間も足音を鳴らす
             ReactiveProperty<bool> isGrounded = new();
             isGrounded.Pairwise()
                 .Where(x => x.Previous != x.Current &&
                     x.Current)
-                .Subscribe(_ => script_XyloApi.PlayFootStep())
+                .Subscribe(_ => _script_XyloApi.PlayFootStep())
                 .AddTo(ref _disposableBag);
             Observable.EveryUpdate()
                 .Select(_ => IsGrounded())
@@ -71,7 +74,7 @@ namespace Mains.Views
             walkingDistance.Where(x => (isMovingForward.Value ? トップ_歩幅 : ロー_歩幅) < x)
                 .Subscribe(_ =>
                 {
-                    script_XyloApi.PlayFootStep();
+                    _script_XyloApi.PlayFootStep();
                     walkingDistance.Value = 0f;
                 })
                 .AddTo(ref _disposableBag);
@@ -151,6 +154,26 @@ namespace Mains.Views
                     followPlayerCameraView = x;
                 })
                 .AddTo(ref _disposableBag);
+            ReactiveProperty<int> movePlayerAndpoltergeistProcessCnt = new ReactiveProperty<int>();
+            // [シャウト成功インタラクション] 下記の3つの購読を監視
+            //  3-a. プレイヤー移動アニメーション
+            //  3-b. プレイヤー回転アニメーション
+            //  3-c. 家具移動アニメーション
+            movePlayerAndpoltergeistProcessCnt.Where(x => 3 == x)
+                .Subscribe(_ =>
+                {
+                    // [シャウト成功インタラクション] 4. 後処理
+                    characterController.enabled = true;
+                    StartCoroutine(poltergeistView.DoPlayFloaterAnimation());
+                    _playerViewModel.SetIsCompletedBurstGhosts(false);
+                    poltergeistView = null;
+                    if (followPlayerCameraView != null)
+                    {
+                        StartCoroutine(followPlayerCameraView.AsyncDeleteFollowAndLookAt());
+                    }
+                    movePlayerAndpoltergeistProcessCnt.Value = 0;
+                })
+                .AddTo(ref _disposableBag);
             // リズムパートの位置まで移動する
             Observable.EveryUpdate()
                 .Select(_ => _playerViewModel.IsCompletedBurstGhosts)
@@ -161,38 +184,43 @@ namespace Mains.Views
                     x.Where(x => x)
                         .Subscribe(x =>
                         {
-                            Observable.Create<bool>(observer =>
+                            // [シャウト成功インタラクション] 3. プレイヤー移動させる処理
+                            if (poltergeistView != null)
                             {
-                                StartCoroutine(_fadeImageView.PlayFadeInDirection(observer));
-                                return Disposable.Empty;
-                            })
-                                .Subscribe(_ =>
-                                {
-                                    // [シャウト成功インタラクション] 3. プレイヤー移動させる処理
-                                    if (poltergeistView != null)
+                                characterController.enabled = false;
+                                // [シャウト成功インタラクション] 3-a. プレイヤー移動アニメーション
+                                trans.DOMove(poltergeistView.RhythmPartPosition, 1f)
+                                    .OnComplete(() =>
                                     {
-                                        characterController.enabled = false;
-                                        trans.position = poltergeistView.RhythmPartPosition;
+                                        movePlayerAndpoltergeistProcessCnt.Value++;
+                                    });
+                                // [シャウト成功インタラクション] 3-b. プレイヤー回転アニメーション
+                                Observable.Create<bool>(observer =>
+                                {
+                                    StartCoroutine(LookAtLoopPoltergeist(observer, trans, poltergeistView.transform, 1f));
+
+                                    return Disposable.Empty;
+                                })
+                                    .Subscribe(_ =>
+                                    {
                                         trans.eulerAngles = poltergeistView.RhythmPartEulerAngles;
                                         currentYaw = trans.eulerAngles.y;
-                                        characterController.enabled = true;
-                                    }
-                                    Observable.Create<bool>(observer =>
-                                    {
-                                        StartCoroutine(_fadeImageView.PlayFadeOutDirection(observer));
-                                        return Disposable.Empty;
+                                        movePlayerAndpoltergeistProcessCnt.Value++;
                                     })
-                                        .Subscribe(_ =>
-                                        {
-                                            // [シャウト成功インタラクション] 4. 後処理
-                                            _playerViewModel.SetIsCompletedBurstGhosts(false);
-                                            poltergeistView = null;
-                                            if (followPlayerCameraView != null)
-                                                followPlayerCameraView.DeleteFollowAndLookAt();
-                                        })
-                                        .AddTo(ref _disposableBag);
+                                    .AddTo(ref _disposableBag);
+                                Observable.Create<bool>(observer =>
+                                {
+                                    // [シャウト成功インタラクション] 3-c. 家具移動アニメーション
+                                    StartCoroutine(poltergeistView.PlayMovePositionAnimation(observer, trans));
+
+                                    return Disposable.Empty;
                                 })
-                                .AddTo(ref _disposableBag);
+                                    .Subscribe(_ =>
+                                    {
+                                        movePlayerAndpoltergeistProcessCnt.Value++;
+                                    })
+                                    .AddTo(ref _disposableBag);
+                            }
                         })
                         .AddTo(ref _disposableBag);
                 })
@@ -203,13 +231,17 @@ namespace Mains.Views
             _playerViewModel.SetPlayerTransform(transform);
             // イントロが完了するまではプレイヤー操作禁止
             characterController.enabled = false;
-            script_XyloApi.FrameRate
+            _script_XyloApi.FrameRateReactive
                 .Where(x => 0f < x)
                 .Subscribe(_ =>
                 {
                     characterController.enabled = true;
                 })
                 .AddTo(ref _disposableBag);
+            // シャウトが成功したポジション
+            Vector3? successShoutPosition = null;
+            // シャウトが成功したオイラー角度
+            Vector3? successShoutEulerAngles = null;
             Observable.EveryUpdate()
                 .Select(_ => _playerViewModel.InteractionPart)
                 .Where(x => x != null)
@@ -442,7 +474,7 @@ namespace Mains.Views
                                             {
                                                 Observable.Create<bool>(observer =>
                                                 {
-                                                    StartCoroutine(_fadeImageView.PlayFadeOutDirection(observer, default ,false));
+                                                    StartCoroutine(_fadeImageView.PlayFadeOutDirection(observer, default, false));
                                                     return Disposable.Empty;
                                                 })
                                                     .Subscribe(_ => { })
@@ -467,6 +499,19 @@ namespace Mains.Views
                                                     })
                                                     .AddTo(ref _disposableBag);
                                             }
+                                            // 元の位置へ移動させる処理
+                                            characterController.enabled = false;
+                                            if (successShoutPosition.HasValue &&
+                                                successShoutEulerAngles.HasValue)
+                                            {
+                                                trans.position = successShoutPosition.Value;
+                                                trans.eulerAngles = successShoutEulerAngles.Value;
+                                                currentYaw = trans.eulerAngles.y;
+                                            }
+                                            // 初期値へリセット
+                                            successShoutPosition = null;
+                                            successShoutEulerAngles = null;
+                                            characterController.enabled = true;
 
                                             break;
                                     }
@@ -560,6 +605,8 @@ namespace Mains.Views
                                     .Take(1)
                                     .Subscribe(_ =>
                                     {
+                                        successShoutPosition = trans.position;
+                                        successShoutEulerAngles = trans.eulerAngles;
                                         // [シャウト成功インタラクション] 1. シャウトチャンスレンジの中でオバケが潜んでいる家具かつ、一番近いコライダーからポルターガイストビューを取得
                                         poltergeistView = shoutChanceRanges
                                             .Where(q => q.GetComponentInChildren<PoltergeistView>().GhostInStaticObjectStruct.useStatus.Equals(UseStatus.Using))
@@ -598,7 +645,7 @@ namespace Mains.Views
                     bool inhaleHeld = player.GetButton("Inhale");
                     bool inhaleLeftHeld = player.GetButton("InhaleHalfLeft");
                     bool inhaleRightHeld = player.GetButton("InhaleHalfRight");
-                    bool isMicInput = script_XyloApi.IsMicInput();
+                    bool isMicInput = _script_XyloApi.IsMicInput();
 
                     // Inhale 単体の入力
                     if (inhaleHeld &&
@@ -666,7 +713,7 @@ namespace Mains.Views
                         !inhaleRightHeld &&
                         isMicInput)
                     {
-                        dbLevel.Value = script_XyloApi.GetDBLevel();
+                        dbLevel.Value = _script_XyloApi.GetDBLevel();
                     }
 
                     _playerViewModel.SetDbLevel(dbLevel.Value);
@@ -729,6 +776,31 @@ namespace Mains.Views
         private void OnDestroy()
         {
             _disposableBag.Dispose();
+            _script_XyloApi?.Dispose();
+        }
+
+        /// <summary>
+        /// ポルターガイストの方へ向きを調整
+        /// </summary>
+        /// <param name="observer">オブザーバー</param>
+        /// <param name="trans">トランスフォーム</param>
+        /// <param name="poltergeistTransform">ポルターガイストのトランスフォーム</param>
+        /// <param name="duration">終了時間</param>
+        /// <returns>コルーチン</returns>
+        private IEnumerator LookAtLoopPoltergeist(Observer<bool> observer, Transform trans, Transform poltergeistTransform, float duration)
+        {
+            float elapsedTimeSec = 0f;
+            while (elapsedTimeSec < duration)
+            {
+                elapsedTimeSec += Time.deltaTime;
+                trans.LookAt(poltergeistTransform);
+
+                yield return null;
+            }
+            observer.OnNext(true);
+            observer.OnCompleted();
+
+            yield return null;
         }
 
         /// <summary>

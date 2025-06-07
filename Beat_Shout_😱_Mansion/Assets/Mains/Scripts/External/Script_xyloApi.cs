@@ -1,21 +1,30 @@
-using System.Reflection;
-using UnityEngine;
-using System.Text.RegularExpressions;
 using R3;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Text.RegularExpressions;
+using UnityEngine;
 
 namespace Mains.External
 {
     /// <summary>
     /// シロさんのコンポーネントへアクセスするAPI
     /// </summary>
-    public class Script_xyloApi
+    public class Script_xyloApi : System.IDisposable
     {
         private Test_FootStep _test_FootStep;
         private MicInput_Criware _micInput_Criware;
-        private readonly ReactiveCommand<float> _frameRate = new ReactiveCommand<float>();
-        public ReactiveCommand<float> FrameRate => _frameRate;
+        private readonly ReactiveCommand<float> _frameRateReactive = new ReactiveCommand<float>();
+        public ReactiveCommand<float> FrameRateReactive => _frameRateReactive;
+        private float _basicBeat;
+        public float BasicBeat => _basicBeat;
+        /// <see cref="CRIWARE_conductor.TempoSet"/>
+        private ReactiveCommand<bool> _isOnTempoMethodEventAny = new ReactiveCommand<bool>();
+        public ReactiveCommand<bool> IsOnTempoMethodEventAny => _isOnTempoMethodEventAny;
+        private void OnTempoMethodEventAny()
+        {
+            _isOnTempoMethodEventAny.Execute(true);
+        }
         private MissileDirectAnimManagerB _missileDirectAnimManagerB;
         private readonly ReactiveCommand<bool> _isSuccessful = new ReactiveCommand<bool>();
         public ReactiveCommand<bool> IsSuccessfulReactive => _isSuccessful;
@@ -314,7 +323,23 @@ namespace Mains.External
                 .Where(frameRate => frameRate.Previous != frameRate.Current)
                 .Subscribe(frameRate =>
                 {
-                    _frameRate.Execute(frameRate.Current);
+                    _frameRateReactive.Execute(frameRate.Current);
+                })
+                .AddTo(ref _disposableBag);
+            CRIWARE_conductor.TempoMethodEvent1 += OnTempoMethodEventAny;
+            CRIWARE_conductor.TempoMethodEvent2 += OnTempoMethodEventAny;
+            CRIWARE_conductor.TempoMethodEvent3 += OnTempoMethodEventAny;
+            CRIWARE_conductor.TempoMethodEvent4 += OnTempoMethodEventAny;
+            CRIWARE_conductor.TempoMethodEvent5 += OnTempoMethodEventAny;
+            CRIWARE_conductor.TempoMethodEvent6 += OnTempoMethodEventAny;
+            CRIWARE_conductor.TempoMethodEvent7 += OnTempoMethodEventAny;
+            CRIWARE_conductor.TempoMethodEvent8 += OnTempoMethodEventAny;
+            Observable.EveryUpdate()
+                .Select(_ => CRIWARE_conductor.Instance)
+                .Where(x => x != null)
+                .Subscribe(conductor =>
+                {
+                    _basicBeat = conductor.BasicBeat;
                 })
                 .AddTo(ref _disposableBag);
         }
@@ -789,6 +814,19 @@ namespace Mains.External
             var isUIActive = ((MissileUIManager)uiManager).IsUIActive();
 
             return isUIActive;
+        }
+
+        public void Dispose()
+        {
+            _disposableBag.Dispose();
+            CRIWARE_conductor.TempoMethodEvent1 -= OnTempoMethodEventAny;
+            CRIWARE_conductor.TempoMethodEvent2 -= OnTempoMethodEventAny;
+            CRIWARE_conductor.TempoMethodEvent3 -= OnTempoMethodEventAny;
+            CRIWARE_conductor.TempoMethodEvent4 -= OnTempoMethodEventAny;
+            CRIWARE_conductor.TempoMethodEvent5 -= OnTempoMethodEventAny;
+            CRIWARE_conductor.TempoMethodEvent6 -= OnTempoMethodEventAny;
+            CRIWARE_conductor.TempoMethodEvent7 -= OnTempoMethodEventAny;
+            CRIWARE_conductor.TempoMethodEvent8 -= OnTempoMethodEventAny;
         }
     }
 }

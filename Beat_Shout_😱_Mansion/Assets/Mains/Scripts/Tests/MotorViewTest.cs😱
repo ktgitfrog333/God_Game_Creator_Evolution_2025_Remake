@@ -1,0 +1,126 @@
+using Mains.Views;
+using System.Collections.Generic;
+using System.Reflection;
+using UnityEngine;
+using R3;
+
+namespace Mains.Tests
+{
+    public class MotorViewTest : MonoBehaviour
+    {
+        [SerializeField] private MotorView motorView;
+        Vector3 _initialLocalPosition;
+        Vector3 _initialLocalEulerAngles;
+        [SerializeField] private float basicBeat = 1f;
+        /// <summary>浮かせるアニメーション処理の監視</summary>
+        private System.IDisposable _onTempoSetDisposable = null;
+        private Vector3 _motorPosition;
+        private Quaternion _motorRotation;
+        /// <summary>R3のリソース管理</summary>
+        private DisposableBag _disposableBag = new DisposableBag();
+
+        // Start is called once before the first execution of Update after the MonoBehaviour is created
+        void Start()
+        {
+            var rigidbody = motorView.GetComponent<Rigidbody>();
+            rigidbody.isKinematic = true;
+            rigidbody.useGravity = false;
+            _initialLocalPosition = motorView.transform.localPosition;
+            _initialLocalEulerAngles = motorView.transform.localEulerAngles;
+        }
+
+        // Update is called once per frame
+        void Update()
+        {
+        }
+
+        private void OnGUI()
+        {
+            Rect buttonRect = new Rect(10, 70, 250, 50);
+            if (GUI.Button(buttonRect, $"再生"))
+            {
+                _motorPosition = motorView.transform.position;
+                _motorRotation = motorView.transform.rotation;
+                float elapsedTimeSec = 0f;
+                _onTempoSetDisposable = Observable.EveryUpdate()
+                    .Subscribe(_ =>
+                    {
+                        elapsedTimeSec += Time.deltaTime;
+                        if (basicBeat <= elapsedTimeSec)
+                        {
+                            elapsedTimeSec = 0;
+                            MethodInfo methodInfo = motorView.GetType().GetMethod("PlayFloaterAnimation", BindingFlags.NonPublic | BindingFlags.Instance);
+                            if (methodInfo != null)
+                            {
+                                var fieldInfo = typeof(MotorView).GetField("_transform", BindingFlags.NonPublic | BindingFlags.Instance);
+                                if (fieldInfo == null)
+                                {
+                                    return;
+                                }
+                                var valueInfo = fieldInfo.GetValue(motorView);
+                                if (valueInfo == null)
+                                {
+                                    return;
+                                }
+                                Transform trans = (Transform)valueInfo;
+                                float tmpBasicBeat = basicBeat;
+                                //var fieldInfo2 = typeof(MotorView).GetField("_initialLocalPosition", BindingFlags.NonPublic | BindingFlags.Instance);
+                                //if (fieldInfo2 == null)
+                                //{
+                                //    return;
+                                //}
+                                //var valueInfo2 = fieldInfo2.GetValue(motorView);
+                                //if (valueInfo2 == null)
+                                //{
+                                //    return;
+                                //}
+                                Vector3 initialPosition = _motorPosition;
+                                //Vector3 initialLocalPosition = (Vector3)valueInfo2;
+                                //var fieldInfo1 = typeof(MotorView).GetField("_initialRotation", BindingFlags.NonPublic | BindingFlags.Instance);
+                                //if (fieldInfo1 == null)
+                                //{
+                                //    return;
+                                //}
+                                //var valueInfo1 = fieldInfo1.GetValue(motorView);
+                                //if (valueInfo1 == null)
+                                //{
+                                //    return;
+                                //}
+                                Quaternion initialRotation = _motorRotation;
+                                //Quaternion initialRotation = (Quaternion)valueInfo1;
+                                object[] parameters = new object[] { trans, tmpBasicBeat, initialPosition, initialRotation };
+                                //object[] parameters = new object[] { trans, tmpBasicBeat, initialLocalPosition, initialRotation };
+                                // メソッドを実行
+                                methodInfo.Invoke(motorView, parameters);
+                            }
+                        }
+                        Debug.Log($"elapsedTimeSec: [{elapsedTimeSec}]");
+                    })
+                    .AddTo(ref _disposableBag);
+                //StartCoroutine(motorView.DoPlayFloaterAnimation());
+            }
+            Rect buttonRect1 = new Rect(10, 50 + 70, 250, 50);
+            if (GUI.Button(buttonRect1, $"停止"))
+            {
+                MethodInfo methodInfo = motorView.GetType().GetMethod("StopFloaterAnimation", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (methodInfo != null)
+                {
+                    Transform trans = motorView.transform;
+                    Vector3 initialLocalPosition = _initialLocalPosition;
+                    Vector3 initialLocalEulerAngles = _initialLocalEulerAngles;
+                    System.IDisposable onTempoSetDisposable = _onTempoSetDisposable;
+                    object[] parameters = new object[] { trans, initialLocalPosition, initialLocalEulerAngles, onTempoSetDisposable };
+                    // メソッドを実行
+                    methodInfo.Invoke(motorView, parameters);
+                }
+                _onTempoSetDisposable?.Dispose();
+                _onTempoSetDisposable = null;
+            }
+        }
+
+        private void OnDestroy()
+        {
+            _disposableBag.Dispose();
+        }
+    }
+}
