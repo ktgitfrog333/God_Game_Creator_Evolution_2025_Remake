@@ -22,6 +22,10 @@ public class TitleScreenController : MonoBehaviour
     public Slider micVolumeSlider;      // マイクボリューム表示用スライダー（選択不可）
     public Button backButton;           // 戻るボタン
 
+    [Header("ゲーム終了確認画面")]
+    public Button confirmYesButton;     // はいボタン
+    public Button confirmNoButton;      // いいえボタン
+
     [Header("オプション表示UI")]
     public GameObject VibOn1;          // 振動OFF時にハイライト
     public GameObject VibOn2;          // 振動ON時にハイライト
@@ -38,6 +42,8 @@ public class TitleScreenController : MonoBehaviour
     public GameObject Option3;         // オプション：振動設定フォーカス表示
     public GameObject Option4;         // オプション：マイク設定フォーカス表示
     public GameObject Option5;         // オプション：戻るボタンフォーカス表示
+    public GameObject ConfirmObi1;     // 終了確認：はいボタンフォーカス表示
+    public GameObject ConfirmObi2;     // 終了確認：いいえボタンフォーカス表示
 
     [Header("フェード設定")]
     public Image White;                 // フェード用の白いイメージ
@@ -55,12 +61,16 @@ public class TitleScreenController : MonoBehaviour
     public GameObject initialPanel;     // 初期画面のパネル
     public GameObject mainMenuPanel;    // メインメニューのパネル
     public GameObject optionsPanel;     // オプション画面のパネル
+    public GameObject exitConfirmPanel; // ゲーム終了確認画面のパネル
 
     [Header("マイク入力システム連携")]
     public MicInput_Criware micInputSystem; // マイク入力システムの参照
 
     [Header("デバッグ設定")]
     public bool enableDebugMode = true; // デバッグログの有効/無効
+
+    [Header("ナビゲーション設定")]
+    public bool enableMenuLoop = false; // メニューのループナビゲーションを有効にするか
 
     private Player player; // プレイヤーの入力
     private int currentFocus = 0; // 現在フォーカスされているボタン/スライダーのインデックス
@@ -71,9 +81,10 @@ public class TitleScreenController : MonoBehaviour
     // メニュー状態の列挙型
     public enum MenuState
     {
-        Initial,    // 初期画面
-        MainMenu,   // メインメニュー
-        Options     // オプション画面
+        Initial,        // 初期画面
+        MainMenu,       // メインメニュー
+        Options,        // オプション画面
+        ExitConfirm     // ゲーム終了確認画面
     }
 
     void Start()
@@ -500,6 +511,16 @@ public class TitleScreenController : MonoBehaviour
                         Debug.Log("[Obi Display] " + optionObis[currentFocus].name + " を表示 (フォーカス: " + currentFocus + ")");
                 }
                 break;
+
+            case MenuState.ExitConfirm:
+                GameObject[] confirmObis = { ConfirmObi1, ConfirmObi2 };
+                if (currentFocus >= 0 && currentFocus < confirmObis.Length && confirmObis[currentFocus] != null)
+                {
+                    confirmObis[currentFocus].SetActive(true);
+                    if (enableDebugMode)
+                        Debug.Log("[Obi Display] " + confirmObis[currentFocus].name + " を表示 (フォーカス: " + currentFocus + ")");
+                }
+                break;
         }
     }
 
@@ -508,7 +529,7 @@ public class TitleScreenController : MonoBehaviour
     /// </summary>
     private void HideAllObiObjects()
     {
-        GameObject[] allObis = { FirstObi1, TitleObi1, TitleObi2, TitleObi3, Option1, Option2, Option3, Option4, Option5 };
+        GameObject[] allObis = { FirstObi1, TitleObi1, TitleObi2, TitleObi3, Option1, Option2, Option3, Option4, Option5, ConfirmObi1, ConfirmObi2 };
 
         foreach (GameObject obi in allObis)
         {
@@ -673,6 +694,8 @@ public class TitleScreenController : MonoBehaviour
             mainMenuPanel.SetActive(false);
         if (optionsPanel != null)
             optionsPanel.SetActive(false);
+        if (exitConfirmPanel != null)
+            exitConfirmPanel.SetActive(false);
 
         // 初期状態では"Game Start"ボタンのみフォーカス
         currentMenuState = MenuState.Initial;
@@ -700,6 +723,8 @@ public class TitleScreenController : MonoBehaviour
             mainMenuPanel.SetActive(true);
         if (optionsPanel != null)
             optionsPanel.SetActive(false);
+        if (exitConfirmPanel != null)
+            exitConfirmPanel.SetActive(false);
 
         // メインメニューの状態に変更
         currentMenuState = MenuState.MainMenu;
@@ -727,6 +752,8 @@ public class TitleScreenController : MonoBehaviour
             mainMenuPanel.SetActive(false);
         if (optionsPanel != null)
             optionsPanel.SetActive(true);
+        if (exitConfirmPanel != null)
+            exitConfirmPanel.SetActive(false);
 
         // オプション画面の状態に変更
         currentMenuState = MenuState.Options;
@@ -747,6 +774,35 @@ public class TitleScreenController : MonoBehaviour
         if (enableDebugMode)
         {
             Debug.Log("[Menu] オプション画面表示完了 - BGMボリュームスライダーがフォーカス中");
+        }
+    }
+
+    void ShowExitConfirmMenu()
+    {
+        if (enableDebugMode)
+        {
+            Debug.Log("[Menu] ゲーム終了確認画面を表示中...");
+        }
+
+        // パネルの切り替え
+        if (initialPanel != null)
+            initialPanel.SetActive(false);
+        if (mainMenuPanel != null)
+            mainMenuPanel.SetActive(false);
+        if (optionsPanel != null)
+            optionsPanel.SetActive(false);
+        if (exitConfirmPanel != null)
+            exitConfirmPanel.SetActive(true);
+
+        // ゲーム終了確認画面の状態に変更
+        currentMenuState = MenuState.ExitConfirm;
+        currentMenuItems = new Selectable[] { confirmYesButton, confirmNoButton }; // はい=0, いいえ=1
+        currentFocus = 1; // デフォルトで"いいえ"ボタンにフォーカス（安全のため）
+
+        SetFocusToCurrentItem();
+        if (enableDebugMode)
+        {
+            Debug.Log("[Menu] ゲーム終了確認画面表示完了 - いいえボタンがフォーカス中");
         }
     }
 
@@ -812,24 +868,38 @@ public class TitleScreenController : MonoBehaviour
             MoveFocusDown();
         }
 
-        // UILeft - 左方向（スライダー値を減らす）
+        // UILeft - 左方向（スライダー値を減らす/確認画面での左移動）
         if (player.GetButtonDown("UILeft"))
         {
             if (enableDebugMode)
             {
                 Debug.Log("[REWIRED ACTION] UILeft が押されました！");
             }
-            AdjustSliderValue(-1);
+            if (currentMenuState == MenuState.ExitConfirm)
+            {
+                MoveFocusLeft();
+            }
+            else
+            {
+                AdjustSliderValue(-1);
+            }
         }
 
-        // UIRight - 右方向（スライダー値を増やす）
+        // UIRight - 右方向（スライダー値を増やす/確認画面での右移動）
         if (player.GetButtonDown("UIRight"))
         {
             if (enableDebugMode)
             {
                 Debug.Log("[REWIRED ACTION] UIRight が押されました！");
             }
-            AdjustSliderValue(1);
+            if (currentMenuState == MenuState.ExitConfirm)
+            {
+                MoveFocusRight();
+            }
+            else
+            {
+                AdjustSliderValue(1);
+            }
         }
 
         // UISubmit - 決定
@@ -842,7 +912,7 @@ public class TitleScreenController : MonoBehaviour
             PressCurrentItem();
         }
 
-        // UICancel - キャンセル（オプション画面から戻る）
+        // UICancel - キャンセル（オプション画面や確認画面から戻る）
         if (player.GetButtonDown("UICancel"))
         {
             if (enableDebugMode)
@@ -852,6 +922,10 @@ public class TitleScreenController : MonoBehaviour
             if (currentMenuState == MenuState.Options)
             {
                 OnBackPressed();
+            }
+            else if (currentMenuState == MenuState.ExitConfirm)
+            {
+                OnConfirmNoPressed(); // キャンセルで「いいえ」扱い
             }
         }
     }
@@ -883,7 +957,14 @@ public class TitleScreenController : MonoBehaviour
             {
                 Debug.Log("[KEYBOARD] 左矢印キー/Aキー");
             }
-            AdjustSliderValue(-1);
+            if (currentMenuState == MenuState.ExitConfirm)
+            {
+                MoveFocusLeft();
+            }
+            else
+            {
+                AdjustSliderValue(-1);
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
@@ -892,7 +973,14 @@ public class TitleScreenController : MonoBehaviour
             {
                 Debug.Log("[KEYBOARD] 右矢印キー/Dキー");
             }
-            AdjustSliderValue(1);
+            if (currentMenuState == MenuState.ExitConfirm)
+            {
+                MoveFocusRight();
+            }
+            else
+            {
+                AdjustSliderValue(1);
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
@@ -914,6 +1002,10 @@ public class TitleScreenController : MonoBehaviour
             {
                 OnBackPressed();
             }
+            else if (currentMenuState == MenuState.ExitConfirm)
+            {
+                OnConfirmNoPressed(); // キャンセルで「いいえ」扱い
+            }
         }
     }
 
@@ -921,16 +1013,28 @@ public class TitleScreenController : MonoBehaviour
     {
         if (currentMenuItems == null || currentMenuItems.Length <= 1) return;
 
+        // 確認画面では上下移動を無効化
+        if (currentMenuState == MenuState.ExitConfirm) return;
+
         if (enableDebugMode)
         {
             Debug.Log("[MoveFocusUp] 上方向の移動 - 現在のフォーカス: " + currentFocus);
         }
 
-        // 上方向に移動（最上位で下端にループ）
-        currentFocus--;
-        if (currentFocus < 0)
+        // 上方向に移動
+        if (enableMenuLoop)
         {
-            currentFocus = currentMenuItems.Length - 1;
+            // ループ有効：最上位で下端にループ
+            currentFocus--;
+            if (currentFocus < 0)
+            {
+                currentFocus = currentMenuItems.Length - 1;
+            }
+        }
+        else
+        {
+            // ループ無効：最上位で停止
+            currentFocus = Mathf.Max(0, currentFocus - 1);
         }
 
         SetFocusToCurrentItem();
@@ -940,17 +1044,65 @@ public class TitleScreenController : MonoBehaviour
     {
         if (currentMenuItems == null || currentMenuItems.Length <= 1) return;
 
+        // 確認画面では上下移動を無効化
+        if (currentMenuState == MenuState.ExitConfirm) return;
+
         if (enableDebugMode)
         {
             Debug.Log("[MoveFocusDown] 下方向の移動 - 現在のフォーカス: " + currentFocus);
         }
 
-        // 下方向に移動（最下位で上端にループ）
-        currentFocus++;
-        if (currentFocus >= currentMenuItems.Length)
+        // 下方向に移動
+        if (enableMenuLoop)
         {
-            currentFocus = 0;
+            // ループ有効：最下位で上端にループ
+            currentFocus++;
+            if (currentFocus >= currentMenuItems.Length)
+            {
+                currentFocus = 0;
+            }
         }
+        else
+        {
+            // ループ無効：最下位で停止
+            currentFocus = Mathf.Min(currentMenuItems.Length - 1, currentFocus + 1);
+        }
+
+        SetFocusToCurrentItem();
+    }
+
+    void MoveFocusLeft()
+    {
+        if (currentMenuItems == null || currentMenuItems.Length <= 1) return;
+
+        // 確認画面でのみ有効
+        if (currentMenuState != MenuState.ExitConfirm) return;
+
+        if (enableDebugMode)
+        {
+            Debug.Log("[MoveFocusLeft] 左方向の移動 - 現在のフォーカス: " + currentFocus);
+        }
+
+        // 左方向に移動（はいボタンへ）
+        currentFocus = 0; // はいボタンのインデックス
+
+        SetFocusToCurrentItem();
+    }
+
+    void MoveFocusRight()
+    {
+        if (currentMenuItems == null || currentMenuItems.Length <= 1) return;
+
+        // 確認画面でのみ有効
+        if (currentMenuState != MenuState.ExitConfirm) return;
+
+        if (enableDebugMode)
+        {
+            Debug.Log("[MoveFocusRight] 右方向の移動 - 現在のフォーカス: " + currentFocus);
+        }
+
+        // 右方向に移動（いいえボタンへ）
+        currentFocus = 1; // いいえボタンのインデックス
 
         SetFocusToCurrentItem();
     }
@@ -1064,6 +1216,14 @@ public class TitleScreenController : MonoBehaviour
             {
                 OnBackPressed();
             }
+            else if (button == confirmYesButton)
+            {
+                OnConfirmYesPressed();
+            }
+            else if (button == confirmNoButton)
+            {
+                OnConfirmNoPressed();
+            }
 
             // ボタンのOnClickイベントも呼び出し
             button.onClick.Invoke();
@@ -1152,14 +1312,9 @@ public class TitleScreenController : MonoBehaviour
     {
         if (enableDebugMode)
         {
-            Debug.Log("[Exit Game] ゲームを終了します！フェードアウト後に終了");
+            Debug.Log("[Exit Game] ゲーム終了確認画面を表示します");
         }
-
-        // フェードアウト後にゲーム終了
-        if (!isFading)
-        {
-            StartCoroutine(FadeOutAndQuitGame());
-        }
+        ShowExitConfirmMenu();
     }
 
     void OnBackPressed()
@@ -1171,6 +1326,29 @@ public class TitleScreenController : MonoBehaviour
 
         // オプション画面から戻る時に設定を保存
         SaveOptions();
+        ShowMainMenu();
+    }
+
+    void OnConfirmYesPressed()
+    {
+        if (enableDebugMode)
+        {
+            Debug.Log("[Confirm Yes] ゲームを終了します！フェードアウト後に終了");
+        }
+
+        // フェードアウト後にゲーム終了
+        if (!isFading)
+        {
+            StartCoroutine(FadeOutAndQuitGame());
+        }
+    }
+
+    void OnConfirmNoPressed()
+    {
+        if (enableDebugMode)
+        {
+            Debug.Log("[Confirm No] メインメニューに戻ります");
+        }
         ShowMainMenu();
     }
 
@@ -1220,6 +1398,12 @@ public class TitleScreenController : MonoBehaviour
     void ForceShowOptions()
     {
         ShowOptionsMenu();
+    }
+
+    [ContextMenu("強制終了確認表示")]
+    void ForceShowExitConfirm()
+    {
+        ShowExitConfirmMenu();
     }
 
     [ContextMenu("初期状態にリセット")]
