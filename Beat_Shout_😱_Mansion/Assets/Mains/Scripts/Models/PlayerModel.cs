@@ -10,7 +10,7 @@ namespace Mains.Models
     /// <summary>
     /// プレイヤーのモデル
     /// </summary>
-    public class PlayerModel : MonoBehaviour, IPlayerModel, IPoltergeistModel, IRhythmPartPanelModel, IHomingObjectCustomizeModel, IMissGhostAttackCustomizeModel, IMissileDirectAnimManagerBCustomizeModel
+    public class PlayerModel : MonoBehaviour, IPlayerModel, IPoltergeistModel, IRhythmPartPanelModel, IHomingObjectCustomizeModel, IMissGhostAttackCustomizeModel, IMissileDirectAnimManagerBCustomizeModel, ICommonPanelModel, IFadeImageModel
     {
         /// <summary>【探索／シャウトチャンス／リズム】パート情報管理テーブル</summary>
         public InteractionPartTable InteractionPartTable { get; set; }
@@ -62,6 +62,13 @@ namespace Mains.Models
         private Vector2 _targetCrossAnchoredPosition;
         /// <summary>ターゲットクロスアンカー位置</summary>
         public Vector2 TargetCrossAnchoredPosition => _targetCrossAnchoredPosition;
+        private ReactiveCommand<int> _selectedStageIndex = new ReactiveCommand<int>();
+        /// <summary>選択されたステージ番号</summary>
+        public ReactiveCommand<int> SelectedStageIndex => _selectedStageIndex;
+        /// <summary>ステージ開始演出が完了したか</summary>
+        private ReactiveCommand<bool> _isCompletedStartDirection = new ReactiveCommand<bool>();
+        /// <summary>ステージ開始演出が完了したか</summary>
+        public ReactiveCommand<bool> IsCompletedStartDirection => _isCompletedStartDirection;
 
         private void Start()
         {
@@ -74,6 +81,7 @@ namespace Mains.Models
                     InteractionPartTable.interactionPart.Value = InteractionPart.Search;
                 })
                 .AddTo(ref _disposableBag);
+            _selectedStageIndex.Execute(-1);
         }
 
         private void OnDestroy()
@@ -317,6 +325,16 @@ namespace Mains.Models
 
             return false;
         }
+
+        public void SetSelectedStageIndex(int selectedStageIndex)
+        {
+            _selectedStageIndex.Execute(selectedStageIndex);
+        }
+
+        public void SetIsCompletedStartDirection(bool isCompleted)
+        {
+            _isCompletedStartDirection.Execute(isCompleted);
+        }
     }
 
     /// <summary>
@@ -486,5 +504,29 @@ namespace Mains.Models
         /// <param name="transform">トランスフォーム</param>
         /// <returns>最前面に存在するか</returns>
         public bool IsFrontMissileDirectAnim(Transform transform);
+    }
+
+    /// <summary>
+    /// 共通UIのモデルインターフェース
+    /// </summary>
+    public interface ICommonPanelModel
+    {
+        /// <summary>
+        /// 選択されたステージ番号をセット
+        /// </summary>
+        /// <param name="selectedStageIndex">選択されたステージ番号</param>
+        public void SetSelectedStageIndex(int selectedStageIndex);
+    }
+
+    /// <summary>
+    /// フェードイメージのモデルインターフェース
+    /// </summary>
+    public interface IFadeImageModel
+    {
+        /// <summary>
+        /// ステージ開始演出が完了したかをセット
+        /// </summary>
+        /// <param name="isCompleted">ステージ開始演出が完了したか</param>
+        public void SetIsCompletedStartDirection(bool isCompleted);
     }
 }

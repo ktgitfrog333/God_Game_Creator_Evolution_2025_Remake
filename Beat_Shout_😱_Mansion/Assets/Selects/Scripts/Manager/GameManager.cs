@@ -1,7 +1,7 @@
-using Mains.Manager.Owners;
 using UnityEngine;
+using Selects.Manager.Owners;
 
-namespace Mains.Manager
+namespace Selects.Manager
 {
     /// <summary>
     /// ゲームマネージャー
