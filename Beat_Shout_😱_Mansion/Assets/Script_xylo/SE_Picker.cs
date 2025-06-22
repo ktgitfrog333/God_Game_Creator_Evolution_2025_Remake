@@ -30,6 +30,8 @@ public class SE_Picker : MonoBehaviour
 
     [Header("SEキュー名")]
     public string FootStep; // 足音SE
+    public string SubmitL;
+    public string SubmitS;
 
     private void OnEnable()
     {
@@ -164,5 +166,23 @@ public class SE_Picker : MonoBehaviour
     public void PlayFootStep(float volume)
     {
         PlaySound(FootStep, volume);
+    }
+
+    /// <summary>
+    /// 決定音（大）を再生するメソッド
+    /// </summary>
+    /// <param name="volume">音量 (0.0 - 1.0)</param>
+    public void PlaySubmitL(float volume)
+    {
+        PlaySound(SubmitL, volume);
+    }
+
+    /// <summary>
+    /// 決定音（小）を再生するメソッド
+    /// </summary>
+    /// <param name="volume">音量 (0.0 - 1.0)</param>
+    public void PlaySubmitS(float volume)
+    {
+        PlaySound(SubmitS, volume);
     }
 }
