@@ -4,6 +4,28 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections;
 
+/// <summary>
+/// タイトル画面のUI制御とナビゲーション管理
+/// 
+/// 【必要な依存関係】
+/// - AudioSettingsManager: JSON形式で設定を保存/読み込みするクラス
+/// - AudioSettingsData: 設定データを格納するクラス
+///   実際の構造（修正版）:
+///   [System.Serializable]
+///   public class AudioSettingsData
+///   {
+///       public float bgmVolume = 1.0f;          // BGM音量 (0.0-1.0)
+///       public float seVolume = 1.0f;           // SE音量 (0.0-1.0)  
+///       public bool micInputEnabled = true;     // マイク入力の有効/無効
+///       public bool vibrationEnabled = true;    // 振動の有効/無効【新規追加】
+///   }
+/// - CRIWARE_conductor: BGM音量の制御用（オプション）
+/// - MicInput_Criware: マイク入力システム（オプション）
+/// 
+/// 【設定の保存方式】
+/// 完全にJSON形式でAudioSettingsManagerを通じて保存されます
+/// PlayerPrefsは一切使用しません（完全統一）
+/// </summary>
 public class TitleScreenController : MonoBehaviour
 {
     [Header("初期画面")]
@@ -22,6 +44,10 @@ public class TitleScreenController : MonoBehaviour
     public Slider micVolumeSlider;      // マイクボリューム表示用スライダー（選択不可）
     public Button backButton;           // 戻るボタン
 
+    [Header("ゲーム終了確認画面")]
+    public Button confirmYesButton;     // はいボタン
+    public Button confirmNoButton;      // いいえボタン
+
     [Header("オプション表示UI")]
     public GameObject VibOn1;          // 振動OFF時にハイライト
     public GameObject VibOn2;          // 振動ON時にハイライト
@@ -38,6 +64,8 @@ public class TitleScreenController : MonoBehaviour
     public GameObject Option3;         // オプション：振動設定フォーカス表示
     public GameObject Option4;         // オプション：マイク設定フォーカス表示
     public GameObject Option5;         // オプション：戻るボタンフォーカス表示
+    public GameObject ConfirmObi1;     // 終了確認：はいボタンフォーカス表示
+    public GameObject ConfirmObi2;     // 終了確認：いいえボタンフォーカス表示
 
     [Header("フェード設定")]
     public Image White;                 // フェード用の白いイメージ
@@ -55,12 +83,21 @@ public class TitleScreenController : MonoBehaviour
     public GameObject initialPanel;     // 初期画面のパネル
     public GameObject mainMenuPanel;    // メインメニューのパネル
     public GameObject optionsPanel;     // オプション画面のパネル
+    public GameObject exitConfirmPanel; // ゲーム終了確認画面のパネル
 
     [Header("マイク入力システム連携")]
     public MicInput_Criware micInputSystem; // マイク入力システムの参照
 
+    [Header("CRIWARE連携設定")]
+    public bool enableCRIWAREIntegration = true; // CRIWARE連携を有効にするか
+
     [Header("デバッグ設定")]
     public bool enableDebugMode = true; // デバッグログの有効/無効
+
+    [Header("ナビゲーション設定")]
+    public bool enableMenuLoop = false; // メニューのループナビゲーションを有効にするか
+
+    private int previousMainMenuFocus = 0; // メインメニューでの前回のフォーカス位置を記憶
 
     private Player player; // プレイヤーの入力
     private int currentFocus = 0; // 現在フォーカスされているボタン/スライダーのインデックス
@@ -71,9 +108,10 @@ public class TitleScreenController : MonoBehaviour
     // メニュー状態の列挙型
     public enum MenuState
     {
-        Initial,    // 初期画面
-        MainMenu,   // メインメニュー
-        Options     // オプション画面
+        Initial,        // 初期画面
+        MainMenu,       // メインメニュー
+        Options,        // オプション画面
+        ExitConfirm     // ゲーム終了確認画面
     }
 
     void Start()
@@ -302,22 +340,22 @@ public class TitleScreenController : MonoBehaviour
             Debug.Log("[Setup] オプションスライダーを初期設定中...");
         }
 
-        // BGMボリューム（0-10の11段階）
+        // BGMボリューム（0-10の11段階）デフォルト値は1.0なので10
         if (bgmVolumeSlider != null)
         {
             bgmVolumeSlider.minValue = 0;
             bgmVolumeSlider.maxValue = 10;
             bgmVolumeSlider.wholeNumbers = true;
-            bgmVolumeSlider.value = 7; // デフォルト値
+            bgmVolumeSlider.value = 10; // デフォルト値（AudioSettingsDataの1.0に対応）
         }
 
-        // SEボリューム（0-10の11段階）
+        // SEボリューム（0-10の11段階）デフォルト値は1.0なので10
         if (seVolumeSlider != null)
         {
             seVolumeSlider.minValue = 0;
             seVolumeSlider.maxValue = 10;
             seVolumeSlider.wholeNumbers = true;
-            seVolumeSlider.value = 7; // デフォルト値
+            seVolumeSlider.value = 10; // デフォルト値（AudioSettingsDataの1.0に対応）
         }
 
         // 振動ON/OFF（0か1の2段階）
@@ -329,13 +367,13 @@ public class TitleScreenController : MonoBehaviour
             vibrationSlider.value = 1; // デフォルトはON
         }
 
-        // マイクON/OFF（0か1の2段階）
+        // マイクON/OFF（0か1の2段階）デフォルト値はtrueなので1
         if (microphoneSlider != null)
         {
             microphoneSlider.minValue = 0;
             microphoneSlider.maxValue = 1;
             microphoneSlider.wholeNumbers = true;
-            microphoneSlider.value = 0; // デフォルトはOFF
+            microphoneSlider.value = 1; // デフォルト値（AudioSettingsDataのtrueに対応）
         }
 
         // マイクボリューム表示用（選択不可・値の設定は外部に委譲）
@@ -354,7 +392,7 @@ public class TitleScreenController : MonoBehaviour
         }
     }
 
-    // オプション設定の保存（TitleScreenManagerから移植）
+    // オプション設定の保存（完全JSON統一版）
     private void SaveOptions()
     {
         if (enableDebugMode)
@@ -362,10 +400,13 @@ public class TitleScreenController : MonoBehaviour
             Debug.Log("[Options] 設定を保存中...");
         }
 
+        // AudioSettingsManagerから現在の設定を読み込み
+        AudioSettingsData settings = AudioSettingsManager.LoadSettings();
+
         // BGMボリュームを保存
         if (bgmVolumeSlider != null)
         {
-            PlayerPrefs.SetFloat("VolumeMain", bgmVolumeSlider.value / 10f); // 0-1の範囲に変換
+            settings.bgmVolume = bgmVolumeSlider.value / 10f; // 0-1の範囲に変換
             if (enableDebugMode)
                 Debug.Log("[Save] BGMボリューム: " + bgmVolumeSlider.value);
         }
@@ -373,15 +414,15 @@ public class TitleScreenController : MonoBehaviour
         // SEボリュームを保存
         if (seVolumeSlider != null)
         {
-            PlayerPrefs.SetFloat("VolumeSE", seVolumeSlider.value / 10f); // 0-1の範囲に変換
+            settings.seVolume = seVolumeSlider.value / 10f; // 0-1の範囲に変換
             if (enableDebugMode)
                 Debug.Log("[Save] SEボリューム: " + seVolumeSlider.value);
         }
 
-        // 振動設定を保存
+        // 振動設定を保存（JSON統一）
         if (vibrationSlider != null)
         {
-            PlayerPrefs.SetInt("VibrationEnabled", (int)vibrationSlider.value);
+            settings.vibrationEnabled = vibrationSlider.value == 1;
             if (enableDebugMode)
                 Debug.Log("[Save] 振動設定: " + (vibrationSlider.value == 1 ? "ON" : "OFF"));
         }
@@ -389,22 +430,23 @@ public class TitleScreenController : MonoBehaviour
         // マイク設定を保存
         if (microphoneSlider != null)
         {
-            PlayerPrefs.SetInt("MicrophoneEnabled", (int)microphoneSlider.value);
+            settings.micInputEnabled = microphoneSlider.value == 1;
             if (enableDebugMode)
                 Debug.Log("[Save] マイク設定: " + (microphoneSlider.value == 1 ? "ON" : "OFF"));
         }
 
         // マイクボリュームの保存は外部のマイクシステムに委譲
 
-        PlayerPrefs.Save();
+        // JSON形式で設定を保存
+        AudioSettingsManager.SaveSettings(settings);
 
         if (enableDebugMode)
         {
-            Debug.Log("[Options] 設定を保存しました");
+            Debug.Log("[Options] すべての設定をJSONファイルに保存しました");
         }
     }
 
-    // オプション設定の読み込み（TitleScreenManagerから移植）
+    // オプション設定の読み込み（完全JSON統一版）
     private void LoadOptions()
     {
         if (enableDebugMode)
@@ -412,11 +454,17 @@ public class TitleScreenController : MonoBehaviour
             Debug.Log("[Options] 設定を読み込み中...");
         }
 
+        // AudioSettingsManagerから設定を読み込み
+        AudioSettingsData settings = AudioSettingsManager.LoadSettings();
+
         // BGMボリュームを読み込み
         if (bgmVolumeSlider != null)
         {
-            float savedBGM = PlayerPrefs.GetFloat("VolumeMain", 0.7f); // デフォルト0.7
-            bgmVolumeSlider.value = savedBGM * 10f; // 0-10の範囲に変換
+            bgmVolumeSlider.value = settings.bgmVolume * 10f; // 0-10の範囲に変換
+
+            // CRIWARE_conductorにも音量を適用
+            ApplyBGMVolumeChange(settings.bgmVolume);
+
             if (enableDebugMode)
                 Debug.Log("[Load] BGMボリューム: " + bgmVolumeSlider.value);
         }
@@ -424,17 +472,19 @@ public class TitleScreenController : MonoBehaviour
         // SEボリュームを読み込み
         if (seVolumeSlider != null)
         {
-            float savedSE = PlayerPrefs.GetFloat("VolumeSE", 0.7f); // デフォルト0.7
-            seVolumeSlider.value = savedSE * 10f; // 0-10の範囲に変換
+            seVolumeSlider.value = settings.seVolume * 10f; // 0-10の範囲に変換
+
+            // SEシステムにも音量を適用
+            ApplySEVolumeChange(settings.seVolume);
+
             if (enableDebugMode)
                 Debug.Log("[Load] SEボリューム: " + seVolumeSlider.value);
         }
 
-        // 振動設定を読み込み
+        // 振動設定を読み込み（JSON統一）
         if (vibrationSlider != null)
         {
-            int savedVibration = PlayerPrefs.GetInt("VibrationEnabled", 1); // デフォルトON
-            vibrationSlider.value = savedVibration;
+            vibrationSlider.value = settings.vibrationEnabled ? 1 : 0;
             if (enableDebugMode)
                 Debug.Log("[Load] 振動設定: " + (vibrationSlider.value == 1 ? "ON" : "OFF"));
         }
@@ -442,8 +492,7 @@ public class TitleScreenController : MonoBehaviour
         // マイク設定を読み込み
         if (microphoneSlider != null)
         {
-            int savedMicrophone = PlayerPrefs.GetInt("MicrophoneEnabled", 0); // デフォルトOFF
-            microphoneSlider.value = savedMicrophone;
+            microphoneSlider.value = settings.micInputEnabled ? 1 : 0;
             if (enableDebugMode)
                 Debug.Log("[Load] マイク設定: " + (microphoneSlider.value == 1 ? "ON" : "OFF"));
         }
@@ -459,7 +508,7 @@ public class TitleScreenController : MonoBehaviour
 
         if (enableDebugMode)
         {
-            Debug.Log("[Options] 設定を読み込みました");
+            Debug.Log("[Options] すべての設定をJSONファイルから読み込みました");
         }
     }
 
@@ -500,6 +549,16 @@ public class TitleScreenController : MonoBehaviour
                         Debug.Log("[Obi Display] " + optionObis[currentFocus].name + " を表示 (フォーカス: " + currentFocus + ")");
                 }
                 break;
+
+            case MenuState.ExitConfirm:
+                GameObject[] confirmObis = { ConfirmObi1, ConfirmObi2 };
+                if (currentFocus >= 0 && currentFocus < confirmObis.Length && confirmObis[currentFocus] != null)
+                {
+                    confirmObis[currentFocus].SetActive(true);
+                    if (enableDebugMode)
+                        Debug.Log("[Obi Display] " + confirmObis[currentFocus].name + " を表示 (フォーカス: " + currentFocus + ")");
+                }
+                break;
         }
     }
 
@@ -508,7 +567,7 @@ public class TitleScreenController : MonoBehaviour
     /// </summary>
     private void HideAllObiObjects()
     {
-        GameObject[] allObis = { FirstObi1, TitleObi1, TitleObi2, TitleObi3, Option1, Option2, Option3, Option4, Option5 };
+        GameObject[] allObis = { FirstObi1, TitleObi1, TitleObi2, TitleObi3, Option1, Option2, Option3, Option4, Option5, ConfirmObi1, ConfirmObi2 };
 
         foreach (GameObject obi in allObis)
         {
@@ -626,6 +685,77 @@ public class TitleScreenController : MonoBehaviour
     }
 
     /// <summary>
+    /// BGMボリューム変更を適用するメソッド
+    /// </summary>
+    /// <param name="volume">音量 (0.0 - 1.0)</param>
+    private void ApplyBGMVolumeChange(float volume)
+    {
+        // CRIWARE連携が有効で、CRIWARE_conductorが存在する場合は音量を適用
+        if (enableCRIWAREIntegration && CRIWARE_conductor.Instance != null)
+        {
+            CRIWARE_conductor.Instance.SetMasterBGMVolume(volume);
+            if (enableDebugMode)
+            {
+                Debug.Log("[BGM Volume] CRIWARE_conductorに音量を適用: " + volume.ToString("F1"));
+            }
+        }
+        else
+        {
+            if (enableDebugMode)
+            {
+                if (!enableCRIWAREIntegration)
+                {
+                    Debug.Log("[BGM Volume] CRIWARE連携が無効になっています");
+                }
+                else
+                {
+                    Debug.Log("[BGM Volume] CRIWARE_conductorが見つかりません");
+                }
+            }
+        }
+
+        // その他のBGM音量変更処理があればここに追加
+    }
+
+    /// <summary>
+    /// SEボリューム変更を適用するメソッド（修正版）
+    /// </summary>
+    /// <param name="volume">音量 (0.0 - 1.0)</param>
+    private void ApplySEVolumeChange(float volume)
+    {
+        // SE_Pickerに音量を適用
+        if (SE_Picker.Instance != null)
+        {
+            SE_Picker.Instance.SetMasterSEVolume(volume);
+            if (enableDebugMode)
+            {
+                Debug.Log("[SE Volume] SE_Pickerに音量を適用: " + volume.ToString("F1"));
+            }
+        }
+        else
+        {
+            if (enableDebugMode)
+            {
+                Debug.Log("[SE Volume] SE_Pickerが見つかりません");
+            }
+        }
+
+        // CRIWARE連携が有効な場合の追加処理
+        if (enableCRIWAREIntegration)
+        {
+            // 他のSEシステムがある場合はここで音量を適用
+            // 例: SEManager.Instance.SetVolume(volume);
+
+            if (enableDebugMode)
+            {
+                Debug.Log("[SE Volume] CRIWARE連携でSE音量を適用: " + volume.ToString("F1"));
+            }
+        }
+
+        // その他のSE音量変更処理があればここに追加
+    }
+
+    /// <summary>
     /// マイク設定が変更された時にマイク入力システムに通知
     /// </summary>
     private void NotifyMicrophoneSettingChanged()
@@ -673,11 +803,27 @@ public class TitleScreenController : MonoBehaviour
             mainMenuPanel.SetActive(false);
         if (optionsPanel != null)
             optionsPanel.SetActive(false);
+        if (exitConfirmPanel != null)
+            exitConfirmPanel.SetActive(false);
 
         // 初期状態では"Game Start"ボタンのみフォーカス
         currentMenuState = MenuState.Initial;
         currentMenuItems = new Selectable[] { gameStartButton };
         currentFocus = 0;
+
+        // 初期化時は前回フォーカス位置も0にリセット
+        previousMainMenuFocus = 0;
+
+        // CRIWARE_conductorが存在する場合、現在の音量設定を適用
+        AudioSettingsData settings = AudioSettingsManager.LoadSettings();
+        if (bgmVolumeSlider != null)
+        {
+            ApplyBGMVolumeChange(settings.bgmVolume);
+        }
+        if (seVolumeSlider != null)
+        {
+            ApplySEVolumeChange(settings.seVolume);
+        }
 
         SetFocusToCurrentItem();
         if (enableDebugMode)
@@ -690,7 +836,7 @@ public class TitleScreenController : MonoBehaviour
     {
         if (enableDebugMode)
         {
-            Debug.Log("[Menu] メインメニューを表示中...");
+            Debug.Log("[Menu] メインメニューを表示中... フォーカス位置: " + previousMainMenuFocus);
         }
 
         // パネルの切り替え
@@ -700,16 +846,20 @@ public class TitleScreenController : MonoBehaviour
             mainMenuPanel.SetActive(true);
         if (optionsPanel != null)
             optionsPanel.SetActive(false);
+        if (exitConfirmPanel != null)
+            exitConfirmPanel.SetActive(false);
 
         // メインメニューの状態に変更
         currentMenuState = MenuState.MainMenu;
         currentMenuItems = new Selectable[] { beginGameButton, optionsButton, exitGameButton };
-        currentFocus = 0; // "ゲーム開始"ボタンにフォーカス
+
+        // 記憶されたフォーカス位置を設定（範囲チェック付き）
+        currentFocus = Mathf.Clamp(previousMainMenuFocus, 0, currentMenuItems.Length - 1);
 
         SetFocusToCurrentItem();
         if (enableDebugMode)
         {
-            Debug.Log("[Menu] メインメニュー表示完了 - ゲーム開始ボタンがフォーカス中");
+            Debug.Log("[Menu] メインメニュー表示完了 - フォーカス位置: " + currentFocus + " (" + currentMenuItems[currentFocus].name + ")");
         }
     }
 
@@ -727,6 +877,8 @@ public class TitleScreenController : MonoBehaviour
             mainMenuPanel.SetActive(false);
         if (optionsPanel != null)
             optionsPanel.SetActive(true);
+        if (exitConfirmPanel != null)
+            exitConfirmPanel.SetActive(false);
 
         // オプション画面の状態に変更
         currentMenuState = MenuState.Options;
@@ -747,6 +899,35 @@ public class TitleScreenController : MonoBehaviour
         if (enableDebugMode)
         {
             Debug.Log("[Menu] オプション画面表示完了 - BGMボリュームスライダーがフォーカス中");
+        }
+    }
+
+    void ShowExitConfirmMenu()
+    {
+        if (enableDebugMode)
+        {
+            Debug.Log("[Menu] ゲーム終了確認画面を表示中...");
+        }
+
+        // パネルの切り替え
+        if (initialPanel != null)
+            initialPanel.SetActive(false);
+        if (mainMenuPanel != null)
+            mainMenuPanel.SetActive(false);
+        if (optionsPanel != null)
+            optionsPanel.SetActive(false);
+        if (exitConfirmPanel != null)
+            exitConfirmPanel.SetActive(true);
+
+        // ゲーム終了確認画面の状態に変更
+        currentMenuState = MenuState.ExitConfirm;
+        currentMenuItems = new Selectable[] { confirmYesButton, confirmNoButton }; // はい=0, いいえ=1
+        currentFocus = 1; // デフォルトで"いいえ"ボタンにフォーカス（安全のため）
+
+        SetFocusToCurrentItem();
+        if (enableDebugMode)
+        {
+            Debug.Log("[Menu] ゲーム終了確認画面表示完了 - いいえボタンがフォーカス中");
         }
     }
 
@@ -812,24 +993,38 @@ public class TitleScreenController : MonoBehaviour
             MoveFocusDown();
         }
 
-        // UILeft - 左方向（スライダー値を減らす）
+        // UILeft - 左方向（スライダー値を減らす/確認画面での左移動）
         if (player.GetButtonDown("UILeft"))
         {
             if (enableDebugMode)
             {
                 Debug.Log("[REWIRED ACTION] UILeft が押されました！");
             }
-            AdjustSliderValue(-1);
+            if (currentMenuState == MenuState.ExitConfirm)
+            {
+                MoveFocusLeft();
+            }
+            else
+            {
+                AdjustSliderValue(-1);
+            }
         }
 
-        // UIRight - 右方向（スライダー値を増やす）
+        // UIRight - 右方向（スライダー値を増やす/確認画面での右移動）
         if (player.GetButtonDown("UIRight"))
         {
             if (enableDebugMode)
             {
                 Debug.Log("[REWIRED ACTION] UIRight が押されました！");
             }
-            AdjustSliderValue(1);
+            if (currentMenuState == MenuState.ExitConfirm)
+            {
+                MoveFocusRight();
+            }
+            else
+            {
+                AdjustSliderValue(1);
+            }
         }
 
         // UISubmit - 決定
@@ -842,7 +1037,7 @@ public class TitleScreenController : MonoBehaviour
             PressCurrentItem();
         }
 
-        // UICancel - キャンセル（オプション画面から戻る）
+        // UICancel - キャンセル（オプション画面や確認画面から戻る）
         if (player.GetButtonDown("UICancel"))
         {
             if (enableDebugMode)
@@ -852,6 +1047,10 @@ public class TitleScreenController : MonoBehaviour
             if (currentMenuState == MenuState.Options)
             {
                 OnBackPressed();
+            }
+            else if (currentMenuState == MenuState.ExitConfirm)
+            {
+                OnConfirmNoPressed(); // キャンセルで「いいえ」扱い
             }
         }
     }
@@ -883,7 +1082,14 @@ public class TitleScreenController : MonoBehaviour
             {
                 Debug.Log("[KEYBOARD] 左矢印キー/Aキー");
             }
-            AdjustSliderValue(-1);
+            if (currentMenuState == MenuState.ExitConfirm)
+            {
+                MoveFocusLeft();
+            }
+            else
+            {
+                AdjustSliderValue(-1);
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
@@ -892,7 +1098,14 @@ public class TitleScreenController : MonoBehaviour
             {
                 Debug.Log("[KEYBOARD] 右矢印キー/Dキー");
             }
-            AdjustSliderValue(1);
+            if (currentMenuState == MenuState.ExitConfirm)
+            {
+                MoveFocusRight();
+            }
+            else
+            {
+                AdjustSliderValue(1);
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
@@ -914,6 +1127,10 @@ public class TitleScreenController : MonoBehaviour
             {
                 OnBackPressed();
             }
+            else if (currentMenuState == MenuState.ExitConfirm)
+            {
+                OnConfirmNoPressed(); // キャンセルで「いいえ」扱い
+            }
         }
     }
 
@@ -921,16 +1138,34 @@ public class TitleScreenController : MonoBehaviour
     {
         if (currentMenuItems == null || currentMenuItems.Length <= 1) return;
 
+        // 確認画面では上下移動を無効化
+        if (currentMenuState == MenuState.ExitConfirm) return;
+
+        // 方向キー音を再生
+        if (SE_Picker.Instance != null)
+        {
+            SE_Picker.Instance.PlaySubmitS(1f);
+        }
+
         if (enableDebugMode)
         {
             Debug.Log("[MoveFocusUp] 上方向の移動 - 現在のフォーカス: " + currentFocus);
         }
 
-        // 上方向に移動（最上位で下端にループ）
-        currentFocus--;
-        if (currentFocus < 0)
+        // 上方向に移動
+        if (enableMenuLoop)
         {
-            currentFocus = currentMenuItems.Length - 1;
+            // ループ有効：最上位で下端にループ
+            currentFocus--;
+            if (currentFocus < 0)
+            {
+                currentFocus = currentMenuItems.Length - 1;
+            }
+        }
+        else
+        {
+            // ループ無効：最上位で停止
+            currentFocus = Mathf.Max(0, currentFocus - 1);
         }
 
         SetFocusToCurrentItem();
@@ -940,17 +1175,83 @@ public class TitleScreenController : MonoBehaviour
     {
         if (currentMenuItems == null || currentMenuItems.Length <= 1) return;
 
+        // 確認画面では上下移動を無効化
+        if (currentMenuState == MenuState.ExitConfirm) return;
+
+        // 方向キー音を再生
+        if (SE_Picker.Instance != null)
+        {
+            SE_Picker.Instance.PlaySubmitS(1f);
+        }
+
         if (enableDebugMode)
         {
             Debug.Log("[MoveFocusDown] 下方向の移動 - 現在のフォーカス: " + currentFocus);
         }
 
-        // 下方向に移動（最下位で上端にループ）
-        currentFocus++;
-        if (currentFocus >= currentMenuItems.Length)
+        // 下方向に移動
+        if (enableMenuLoop)
         {
-            currentFocus = 0;
+            // ループ有効：最下位で上端にループ
+            currentFocus++;
+            if (currentFocus >= currentMenuItems.Length)
+            {
+                currentFocus = 0;
+            }
         }
+        else
+        {
+            // ループ無効：最下位で停止
+            currentFocus = Mathf.Min(currentMenuItems.Length - 1, currentFocus + 1);
+        }
+
+        SetFocusToCurrentItem();
+    }
+
+    void MoveFocusLeft()
+    {
+        if (currentMenuItems == null || currentMenuItems.Length <= 1) return;
+
+        // 確認画面でのみ有効
+        if (currentMenuState != MenuState.ExitConfirm) return;
+
+        // 方向キー音を再生
+        if (SE_Picker.Instance != null)
+        {
+            SE_Picker.Instance.PlaySubmitS(1f);
+        }
+
+        if (enableDebugMode)
+        {
+            Debug.Log("[MoveFocusLeft] 左方向の移動 - 現在のフォーカス: " + currentFocus);
+        }
+
+        // 左方向に移動（はいボタンへ）
+        currentFocus = 0; // はいボタンのインデックス
+
+        SetFocusToCurrentItem();
+    }
+
+    void MoveFocusRight()
+    {
+        if (currentMenuItems == null || currentMenuItems.Length <= 1) return;
+
+        // 確認画面でのみ有効
+        if (currentMenuState != MenuState.ExitConfirm) return;
+
+        // 方向キー音を再生
+        if (SE_Picker.Instance != null)
+        {
+            SE_Picker.Instance.PlaySubmitS(1f);
+        }
+
+        if (enableDebugMode)
+        {
+            Debug.Log("[MoveFocusRight] 右方向の移動 - 現在のフォーカス: " + currentFocus);
+        }
+
+        // 右方向に移動（いいえボタンへ）
+        currentFocus = 1; // いいえボタンのインデックス
 
         SetFocusToCurrentItem();
     }
@@ -965,16 +1266,29 @@ public class TitleScreenController : MonoBehaviour
 
         if (slider != null && slider.interactable)
         {
+            // スライダー値変更前の値を保存
+            float previousValue = slider.value;
+
             float newValue = slider.value + direction;
             slider.value = Mathf.Clamp(newValue, slider.minValue, slider.maxValue);
 
-            if (enableDebugMode)
+            // 実際に値が変更された場合のみ音を再生
+            if (slider.value != previousValue)
             {
-                Debug.Log("[Slider Adjust] " + slider.name + " の値を " + slider.value + " に変更");
-            }
+                // 方向キー音を再生
+                if (SE_Picker.Instance != null)
+                {
+                    SE_Picker.Instance.PlaySubmitS(1f);
+                }
 
-            // スライダーの値が変更されたときの処理
-            OnSliderValueChanged(slider);
+                if (enableDebugMode)
+                {
+                    Debug.Log("[Slider Adjust] " + slider.name + " の値を " + slider.value + " に変更");
+                }
+
+                // スライダーの値が変更されたときの処理
+                OnSliderValueChanged(slider);
+            }
         }
     }
 
@@ -987,7 +1301,8 @@ public class TitleScreenController : MonoBehaviour
             {
                 Debug.Log("[BGM Volume] " + slider.value);
             }
-            // BGMボリューム変更処理をここに実装
+            // BGMボリューム変更処理
+            ApplyBGMVolumeChange(slider.value / 10f); // 0-10の値を0-1に変換
         }
         else if (slider == seVolumeSlider)
         {
@@ -995,7 +1310,8 @@ public class TitleScreenController : MonoBehaviour
             {
                 Debug.Log("[SE Volume] " + slider.value);
             }
-            // SEボリューム変更処理をここに実装
+            // SEボリューム変更処理（リアルタイム反映）
+            ApplySEVolumeChange(slider.value / 10f); // 0-10の値を0-1に変換
         }
         else if (slider == vibrationSlider)
         {
@@ -1035,6 +1351,12 @@ public class TitleScreenController : MonoBehaviour
         Selectable currentItem = currentMenuItems[currentFocus];
         if (currentItem == null) return;
 
+        // 決定音を再生
+        if (SE_Picker.Instance != null)
+        {
+            SE_Picker.Instance.PlaySubmitL(1f);
+        }
+
         if (enableDebugMode)
         {
             Debug.Log("[Item Press] " + currentItem.name + " が選択されました！");
@@ -1063,6 +1385,14 @@ public class TitleScreenController : MonoBehaviour
             else if (button == backButton)
             {
                 OnBackPressed();
+            }
+            else if (button == confirmYesButton)
+            {
+                OnConfirmYesPressed();
+            }
+            else if (button == confirmNoButton)
+            {
+                OnConfirmNoPressed();
             }
 
             // ボタンのOnClickイベントも呼び出し
@@ -1122,6 +1452,9 @@ public class TitleScreenController : MonoBehaviour
         {
             Debug.Log("[Game Start] メインメニューを表示します");
         }
+
+        // 初回はゲーム開始ボタンからスタート
+        previousMainMenuFocus = 0;
         ShowMainMenu();
     }
 
@@ -1143,8 +1476,12 @@ public class TitleScreenController : MonoBehaviour
     {
         if (enableDebugMode)
         {
-            Debug.Log("[Options] オプション画面を開きます");
+            Debug.Log("[Options] オプション画面を開きます - 現在のフォーカス位置を記憶: " + currentFocus);
         }
+
+        // 現在のフォーカス位置を記憶
+        previousMainMenuFocus = currentFocus;
+
         ShowOptionsMenu();
     }
 
@@ -1152,7 +1489,34 @@ public class TitleScreenController : MonoBehaviour
     {
         if (enableDebugMode)
         {
-            Debug.Log("[Exit Game] ゲームを終了します！フェードアウト後に終了");
+            Debug.Log("[Exit Game] ゲーム終了確認画面を表示します - 現在のフォーカス位置を記憶: " + currentFocus);
+        }
+
+        // 現在のフォーカス位置を記憶
+        previousMainMenuFocus = currentFocus;
+
+        ShowExitConfirmMenu();
+    }
+
+    void OnBackPressed()
+    {
+        if (enableDebugMode)
+        {
+            Debug.Log("[Back] メインメニューに戻ります - 設定を保存 - 前回のフォーカス位置: " + previousMainMenuFocus);
+        }
+
+        // オプション画面から戻る時に設定を保存
+        SaveOptions();
+
+        // 記憶されたフォーカス位置でメインメニューに戻る
+        ShowMainMenu();
+    }
+
+    void OnConfirmYesPressed()
+    {
+        if (enableDebugMode)
+        {
+            Debug.Log("[Confirm Yes] ゲームを終了します！フェードアウト後に終了");
         }
 
         // フェードアウト後にゲーム終了
@@ -1162,15 +1526,14 @@ public class TitleScreenController : MonoBehaviour
         }
     }
 
-    void OnBackPressed()
+    void OnConfirmNoPressed()
     {
         if (enableDebugMode)
         {
-            Debug.Log("[Back] メインメニューに戻ります - 設定を保存");
+            Debug.Log("[Confirm No] メインメニューに戻ります - 前回のフォーカス位置: " + previousMainMenuFocus);
         }
 
-        // オプション画面から戻る時に設定を保存
-        SaveOptions();
+        // 記憶されたフォーカス位置でメインメニューに戻る
         ShowMainMenu();
     }
 
@@ -1222,6 +1585,12 @@ public class TitleScreenController : MonoBehaviour
         ShowOptionsMenu();
     }
 
+    [ContextMenu("強制終了確認表示")]
+    void ForceShowExitConfirm()
+    {
+        ShowExitConfirmMenu();
+    }
+
     [ContextMenu("初期状態にリセット")]
     void ResetToInitialState()
     {
@@ -1232,12 +1601,50 @@ public class TitleScreenController : MonoBehaviour
     void ForceSaveOptions()
     {
         SaveOptions();
+        Debug.Log("[Force Save] 設定をJSONファイルに強制保存しました");
     }
 
     [ContextMenu("設定を再読み込み")]
     void ForceLoadOptions()
     {
         LoadOptions();
+        Debug.Log("[Force Load] 設定をJSONファイルから再読み込みしました");
+    }
+
+    [ContextMenu("設定をデフォルトにリセット")]
+    void ResetOptionsToDefault()
+    {
+        if (enableDebugMode)
+        {
+            Debug.Log("[Reset] 設定をデフォルト値にリセット中...");
+        }
+
+        // デフォルト設定を作成（AudioSettingsData.CreateDefault()を使用）
+        AudioSettingsData defaultSettings = AudioSettingsData.CreateDefault();
+
+        // JSON形式で全設定を保存
+        AudioSettingsManager.SaveSettings(defaultSettings);
+
+        // UIに反映
+        LoadOptions();
+
+        if (enableDebugMode)
+        {
+            Debug.Log("[Reset] すべての設定をデフォルト値にリセットしました");
+        }
+    }
+
+    [ContextMenu("現在の設定値を表示")]
+    void ShowCurrentSettings()
+    {
+        AudioSettingsData settings = AudioSettingsManager.LoadSettings();
+
+        Debug.Log("=== 現在の設定値（完全JSON統一） ===");
+        Debug.Log($"BGMボリューム: {settings.bgmVolume:F1} ({settings.bgmVolume * 10:F0}/10)");
+        Debug.Log($"SEボリューム: {settings.seVolume:F1} ({settings.seVolume * 10:F0}/10)");
+        Debug.Log($"振動設定: {(settings.vibrationEnabled ? "ON" : "OFF")}");
+        Debug.Log($"マイク設定: {(settings.micInputEnabled ? "ON" : "OFF")}");
+        Debug.Log("AudioSettingsData: " + settings.ToString());
     }
 
     [ContextMenu("振動表示を更新")]
@@ -1277,6 +1684,59 @@ public class TitleScreenController : MonoBehaviour
     void ForceHideAllObiObjects()
     {
         HideAllObiObjects();
+    }
+
+    [ContextMenu("BGM音量を強制適用")]
+    void ForceApplyBGMVolume()
+    {
+        if (!enableCRIWAREIntegration)
+        {
+            Debug.Log("[Force Apply] CRIWARE連携が無効になっています");
+            return;
+        }
+
+        if (bgmVolumeSlider != null)
+        {
+            float volume = bgmVolumeSlider.value / 10f;
+            ApplyBGMVolumeChange(volume);
+            Debug.Log("[Force Apply] BGM音量を強制適用: " + volume.ToString("F1"));
+        }
+    }
+
+    [ContextMenu("SE音量を強制適用")]
+    void ForceApplySEVolume()
+    {
+        if (!enableCRIWAREIntegration)
+        {
+            Debug.Log("[Force Apply] CRIWARE連携が無効になっています");
+            return;
+        }
+
+        if (seVolumeSlider != null)
+        {
+            float volume = seVolumeSlider.value / 10f;
+            ApplySEVolumeChange(volume);
+            Debug.Log("[Force Apply] SE音量を強制適用: " + volume.ToString("F1"));
+        }
+    }
+
+    [ContextMenu("CRIWARE_conductor接続テスト")]
+    void TestCRIWAREConnection()
+    {
+        if (!enableCRIWAREIntegration)
+        {
+            Debug.Log("[Connection Test] CRIWARE連携が無効になっています");
+            return;
+        }
+
+        if (CRIWARE_conductor.Instance != null)
+        {
+            Debug.Log("[Connection Test] CRIWARE_conductor接続成功!");
+        }
+        else
+        {
+            Debug.Log("[Connection Test] CRIWARE_conductorが見つかりません");
+        }
     }
 
     [ContextMenu("フェードインテスト")]
