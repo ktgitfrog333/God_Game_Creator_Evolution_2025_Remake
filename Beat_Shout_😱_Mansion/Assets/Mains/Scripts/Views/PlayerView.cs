@@ -235,7 +235,24 @@ namespace Mains.Views
                 .Where(x => 0f < x)
                 .Subscribe(_ =>
                 {
-                    characterController.enabled = true;
+                    if (!characterController.enabled)
+                        characterController.enabled = true;
+                })
+                .AddTo(ref _disposableBag);
+            // [セレクト画面用]フェード処理が完了するまではプレイヤー操作禁止
+            Observable.EveryUpdate()
+                .Select(_ => _playerViewModel.IsCompletedStartDirection)
+                .Where(x => x != null)
+                .Take(1)
+                .Subscribe(x =>
+                {
+                    x.Where(x => x)
+                        .Subscribe(_ =>
+                        {
+                            if (!characterController.enabled)
+                                characterController.enabled = true;
+                        })
+                        .AddTo(ref _disposableBag);
                 })
                 .AddTo(ref _disposableBag);
             // シャウトが成功したポジション

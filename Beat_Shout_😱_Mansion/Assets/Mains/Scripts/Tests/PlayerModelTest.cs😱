@@ -9,12 +9,14 @@ namespace Mains.Tests
     {
         [SerializeField] private GhostInStaticObjectStruct ghostInStaticObjectStruct;
         private PlayerModel _playerModel;
+        [SerializeField] private MissileDirectAnimCustomizeStruct[] missileDirectAnimCustomizeStructs;
 
         private void Update()
         {
             if (_playerModel == null)
                 _playerModel = FindAnyObjectByType<PlayerModel>();
-            ghostInStaticObjectStruct = _playerModel.TransactionGhostInStaticObjectStruct;
+            //ghostInStaticObjectStruct = _playerModel.TransactionGhostInStaticObjectStruct;
+            missileDirectAnimCustomizeStructs = _playerModel.MissileDirectAnimCustomizeStructs;
         }
     }
 }

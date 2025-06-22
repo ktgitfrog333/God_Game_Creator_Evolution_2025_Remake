@@ -7,6 +7,7 @@ namespace Mains.Manager
     /// ゲームマネージャー
     /// </summary>
     [RequireComponent(typeof(LevelOwner))]
+    [RequireComponent(typeof(UIOwner))]
     public class GameManager : MonoBehaviour
     {
         /// <summary>ゲームマネージャー</summary>

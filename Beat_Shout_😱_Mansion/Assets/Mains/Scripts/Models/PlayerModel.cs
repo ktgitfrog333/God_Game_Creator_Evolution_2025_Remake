@@ -10,7 +10,7 @@ namespace Mains.Models
     /// <summary>
     /// プレイヤーのモデル
     /// </summary>
-    public class PlayerModel : MonoBehaviour, IPlayerModel, IPoltergeistModel, IRhythmPartPanelModel, IHomingObjectCustomizeModel, IMissGhostAttackCustomizeModel, IMissileDirectAnimManagerBCustomizeModel
+    public class PlayerModel : MonoBehaviour, IPlayerModel, IPoltergeistModel, IRhythmPartPanelModel, IHomingObjectCustomizeModel, IMissGhostAttackCustomizeModel, IMissileDirectAnimManagerBCustomizeModel, ICommonPanelModel, IFadeImageModel
     {
         /// <summary>【探索／シャウトチャンス／リズム】パート情報管理テーブル</summary>
         public InteractionPartTable InteractionPartTable { get; set; }
@@ -62,6 +62,13 @@ namespace Mains.Models
         private Vector2 _targetCrossAnchoredPosition;
         /// <summary>ターゲットクロスアンカー位置</summary>
         public Vector2 TargetCrossAnchoredPosition => _targetCrossAnchoredPosition;
+        private ReactiveCommand<int> _selectedStageIndex = new ReactiveCommand<int>();
+        /// <summary>選択されたステージ番号</summary>
+        public ReactiveCommand<int> SelectedStageIndex => _selectedStageIndex;
+        /// <summary>ステージ開始演出が完了したか</summary>
+        private ReactiveCommand<bool> _isCompletedStartDirection = new ReactiveCommand<bool>();
+        /// <summary>ステージ開始演出が完了したか</summary>
+        public ReactiveCommand<bool> IsCompletedStartDirection => _isCompletedStartDirection;
 
         private void Start()
         {
@@ -74,6 +81,7 @@ namespace Mains.Models
                     InteractionPartTable.interactionPart.Value = InteractionPart.Search;
                 })
                 .AddTo(ref _disposableBag);
+            _selectedStageIndex.Execute(-1);
         }
 
         private void OnDestroy()
@@ -243,7 +251,10 @@ namespace Mains.Models
                 }
                 if (-1 < index)
                 {
-                    missileDirectAnimCustomizeStructs[index] = missileDirectAnimCustomizeStruct;
+                    // 角度一致しているかのフラグのみ更新する
+                    var tmpMissileDirectAnimCustomizeStruct = missileDirectAnimCustomizeStructs[index];
+                    tmpMissileDirectAnimCustomizeStruct.isGoodStickDirection = missileDirectAnimCustomizeStruct.isGoodStickDirection;
+                    missileDirectAnimCustomizeStructs[index] = tmpMissileDirectAnimCustomizeStruct;
                 }
                 else
                 {
@@ -257,6 +268,72 @@ namespace Mains.Models
         public void SetTargetCrossAnchoredPosition(Vector2 targetCrossAnchoredPosition)
         {
             _targetCrossAnchoredPosition = targetCrossAnchoredPosition;
+        }
+
+        public void AddOrSetOnEnabledTime(MissileDirectAnimCustomizeStruct missileDirectAnimCustomizeStruct)
+        {
+            List<MissileDirectAnimCustomizeStruct> missileDirectAnimCustomizeStructs = null;
+            if (_missileDirectAnimCustomizeStructs == null)
+            {
+                missileDirectAnimCustomizeStructs = new List<MissileDirectAnimCustomizeStruct>();
+                missileDirectAnimCustomizeStructs.Add(missileDirectAnimCustomizeStruct);
+            }
+            else
+            {
+                missileDirectAnimCustomizeStructs = _missileDirectAnimCustomizeStructs.ToList();
+                var index = -1;
+                for (int i = 0; i < missileDirectAnimCustomizeStructs.Count; i++)
+                {
+                    if (missileDirectAnimCustomizeStructs[i].transform.GetInstanceID() == missileDirectAnimCustomizeStruct.transform.GetInstanceID())
+                    {
+                        index = i;
+                        break;
+                    }
+                }
+                if (-1 < index)
+                {
+                    // 有効になった際のゲーム時間のみ更新する
+                    var tmpMissileDirectAnimCustomizeStruct = missileDirectAnimCustomizeStructs[index];
+                    tmpMissileDirectAnimCustomizeStruct.onEnabledTime = missileDirectAnimCustomizeStruct.onEnabledTime;
+                    missileDirectAnimCustomizeStructs[index] = tmpMissileDirectAnimCustomizeStruct;
+                }
+                else
+                {
+                    missileDirectAnimCustomizeStructs.Add(missileDirectAnimCustomizeStruct);
+                }
+            }
+
+            _missileDirectAnimCustomizeStructs = missileDirectAnimCustomizeStructs.ToArray();
+        }
+
+        public bool IsFrontMissileDirectAnim(Transform transform)
+        {
+            if (_missileDirectAnimCustomizeStructs == null ||
+                _missileDirectAnimCustomizeStructs.Length < 1)
+            {
+                return false;
+            }
+            var orderStructs = _missileDirectAnimCustomizeStructs.Where(x => 0f < x.onEnabledTime)
+                .OrderBy(x => x.onEnabledTime)
+                .ToArray();
+            if (0 < orderStructs.Length)
+            {
+                var orderStruct = orderStructs[0];
+
+                return transform.GetInstanceID() == orderStruct.transform.GetInstanceID();
+            }
+
+            return false;
+        }
+
+        public void SetSelectedStageIndex(int selectedStageIndex)
+        {
+            _selectedStageIndex.Execute(selectedStageIndex);
+        }
+
+        public void SetIsCompletedStartDirection(bool isCompleted)
+        {
+            _isCompletedStartDirection.Execute(isCompleted);
         }
     }
 
@@ -414,6 +491,42 @@ namespace Mains.Models
         /// <summary>
         /// MissileDirectAnimManagerBのカスタマイズ構造体リストへ追加
         /// </summary>
+        /// <param name="missileDirectAnimCustomizeStruct">MissileDirectAnimManagerBのカスタマイズ構造体</param>
     	public void AddMissileDirectAnimCustomizeStructs(MissileDirectAnimCustomizeStruct missileDirectAnimCustomizeStruct);
+        /// <summary>
+        /// 有効になった際のゲーム時間をセット
+        /// </summary>
+        /// <param name="missileDirectAnimCustomizeStruct">MissileDirectAnimManagerBのカスタマイズ構造体</param>
+        public void AddOrSetOnEnabledTime(MissileDirectAnimCustomizeStruct missileDirectAnimCustomizeStruct);
+        /// <summary>
+        /// MissileDirectAnimManagerBが最前面に存在するか
+        /// </summary>
+        /// <param name="transform">トランスフォーム</param>
+        /// <returns>最前面に存在するか</returns>
+        public bool IsFrontMissileDirectAnim(Transform transform);
+    }
+
+    /// <summary>
+    /// 共通UIのモデルインターフェース
+    /// </summary>
+    public interface ICommonPanelModel
+    {
+        /// <summary>
+        /// 選択されたステージ番号をセット
+        /// </summary>
+        /// <param name="selectedStageIndex">選択されたステージ番号</param>
+        public void SetSelectedStageIndex(int selectedStageIndex);
+    }
+
+    /// <summary>
+    /// フェードイメージのモデルインターフェース
+    /// </summary>
+    public interface IFadeImageModel
+    {
+        /// <summary>
+        /// ステージ開始演出が完了したかをセット
+        /// </summary>
+        /// <param name="isCompleted">ステージ開始演出が完了したか</param>
+        public void SetIsCompletedStartDirection(bool isCompleted);
     }
 }
