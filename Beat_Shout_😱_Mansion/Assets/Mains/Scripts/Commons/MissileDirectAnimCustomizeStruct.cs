@@ -11,5 +11,7 @@ namespace Mains.Commons
         public bool isGoodStickDirection;
         /// <summary>トランスフォーム</summary>
         public Transform transform;
+        /// <summary>有効になった際のゲーム時間</summary>
+        public float onEnabledTime;
     }
 }

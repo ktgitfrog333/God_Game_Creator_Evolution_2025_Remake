@@ -55,6 +55,8 @@ namespace Mains.ViewModels
         public ReactiveCommand<bool> IsFailed => _playerModel?.IsFailed ?? null;
         /// <summary>選択されたMissGhostAttack</summary>
         public Transform SelectedMissGhostAttackTransform => _playerModel?.SelectedMissGhostAttackTransform ?? null;
+        /// <summary>ステージ開始演出が完了したか</summary>
+        public ReactiveCommand<bool> IsCompletedStartDirection => _playerModel?.IsCompletedStartDirection ?? null;
 
         public PlayerViewModel(InteractionPartTable interactionPartTable)
         {

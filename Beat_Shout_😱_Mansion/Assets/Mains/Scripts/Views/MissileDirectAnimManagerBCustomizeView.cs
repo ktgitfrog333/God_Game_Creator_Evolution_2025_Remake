@@ -16,64 +16,82 @@ namespace Mains.Views
         [SerializeField] private Transform missileDirectAnimManagerBCustomizeInputPrefab;
         [SerializeField] private float 角度の許容範囲;
         [SerializeField] private float 接触判定の範囲;
+        /// <summary>シロさんのコンポーネントへアクセスするAPI</summary>
+        private Script_xyloApi _script_XyloApi;
+        /// <summary>MissileDirectAnimManagerBのカスタマイズビューモデル</summary>
+        private MissileDirectAnimManagerBCustomizeViewModel _viewModel;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
+        private void Awake()
+        {
+            _viewModel = new MissileDirectAnimManagerBCustomizeViewModel();
+            _script_XyloApi = new Script_xyloApi();
+            _script_XyloApi.SetMissileDirectAnimManagerB(transform);
+        }
+
+        private void OnEnable()
+        {
+            MissileDirectAnimCustomizeStruct missileDirectAnimCustomizeStruct = new MissileDirectAnimCustomizeStruct()
+            {
+                transform = _script_XyloApi.NoteTransform,
+                onEnabledTime = Time.time,
+            };
+            _viewModel.AddOrSetOnEnabledTime(missileDirectAnimCustomizeStruct);
+        }
+
         private void Start()
         {
-            Script_xyloApi script_XyloApi = new Script_xyloApi();
             Transform trans = transform;
-            script_XyloApi.SetMissileDirectAnimManagerB(trans);
             var player = ReInput.players.GetPlayer(0);
             MissileDirectAnimManagerBCustomizeInputView inputView = null;
             Transform mainCamera = Camera.main.transform;
-            MissileDirectAnimManagerBCustomizeViewModel viewModel = new MissileDirectAnimManagerBCustomizeViewModel();
             Observable.EveryUpdate()
                 .Subscribe(_ =>
                 {
                     // プールに戻す処理が開始されている場合は更新しない
-                    if (script_XyloApi.IsReturningToPool || script_XyloApi.IsForceReturning) return;
+                    if (_script_XyloApi.IsReturningToPool || _script_XyloApi.IsForceReturning) return;
 
-                    script_XyloApi.CheckUpdateUIPosition();
-                    bool isOverUIOfLine = IsOverUIOfAngleLine(viewModel.TargetCrossAnchoredPosition, script_XyloApi.NoteTransform as RectTransform, 接触判定の範囲);
+                    _script_XyloApi.CheckUpdateUIPosition();
+                    bool isOverUIOfLine = IsOverUIOfAngleLine(_viewModel.TargetCrossAnchoredPosition, _script_XyloApi.NoteTransform as RectTransform, 接触判定の範囲);
 
                     if (player.GetButtonDown("TapLight"))
                     {
-                        bool isOverUI = script_XyloApi.IsPointerOverUI;
+                        bool isOverUI = _script_XyloApi.IsPointerOverUI;
                         // UI上でのクリックの場合、ここでも直接処理してみる（緊急対応）
-                        if (isOverUIOfLine && isOverUI && script_XyloApi.EnableClickDetection && !script_XyloApi.IsFailed && !script_XyloApi.IsSuccessful)
+                        if (isOverUIOfLine && isOverUI && _script_XyloApi.EnableClickDetection && !_script_XyloApi.IsFailed && !_script_XyloApi.IsSuccessful)
                         {
-                            float elapsedTime = Time.time - script_XyloApi.ObjectCreationTime;
+                            float elapsedTime = Time.time - _script_XyloApi.ObjectCreationTime;
                             // 直接タイミング判定して処理
-                            script_XyloApi.ProcessClick(elapsedTime);
+                            _script_XyloApi.ProcessClick(elapsedTime);
                         }
                     }
                     // 2. 離した瞬間の判定（フレーム内で1回だけtrue）
                     if (player.GetButtonUp("TapLight"))
                     {
                         // 長押し終了やHoldノーツ解除判定などに使う
-                        bool isOverUI = script_XyloApi.IsPointerOverUI;
+                        bool isOverUI = _script_XyloApi.IsPointerOverUI;
                         // UI上でのリリースで、かつ長押しノーツの場合
-                        if (isOverUIOfLine && isOverUI && script_XyloApi.EnableClickDetection && !script_XyloApi.IsFailed && !script_XyloApi.IsSuccessful &&
-                            (script_XyloApi.NoteType == 2 ||
-                                script_XyloApi.NoteType == 3 ||
-                                script_XyloApi.NoteType == 4))
+                        if (isOverUIOfLine && isOverUI && _script_XyloApi.EnableClickDetection && !_script_XyloApi.IsFailed && !_script_XyloApi.IsSuccessful &&
+                            (_script_XyloApi.NoteType == 2 ||
+                                _script_XyloApi.NoteType == 3 ||
+                                _script_XyloApi.NoteType == 4))
                         {
-                            float elapsedTime = Time.time - script_XyloApi.ObjectCreationTime;
+                            float elapsedTime = Time.time - _script_XyloApi.ObjectCreationTime;
 
                             // 入力マネージャーにリリース処理を委任
-                            if (script_XyloApi.IsLongPressStarted)
+                            if (_script_XyloApi.IsLongPressStarted)
                             {
-                                script_XyloApi.HandleLongPressRelease(elapsedTime);
+                                _script_XyloApi.HandleLongPressRelease(elapsedTime);
                             }
                         }
                     }
                     MissileDirectAnimCustomizeStruct missileDirectAnimCustomizeStruct = new MissileDirectAnimCustomizeStruct()
                     {
                         isGoodStickDirection = isOverUIOfLine,
-                        transform = script_XyloApi.NoteTransform,
+                        transform = _script_XyloApi.NoteTransform,
                     };
-                    viewModel.AddMissileDirectAnimCustomizeStructs(missileDirectAnimCustomizeStruct);
+                    _viewModel.AddMissileDirectAnimCustomizeStructs(missileDirectAnimCustomizeStruct);
                 })
                 .AddTo(ref _disposableBag);
             var findInputView = FindAnyObjectByType<MissileDirectAnimManagerBCustomizeInputView>();
@@ -86,11 +104,29 @@ namespace Mains.Views
             {
                 inputView = findInputView;
             }
+            Observable.EveryUpdate()
+                .Select(_ => _viewModel.IsFrontMissileDirectAnim(_script_XyloApi.NoteTransform))
+                .Subscribe(isFrontMissileDirectAnim =>
+                {
+                    _script_XyloApi.SetEnableClickDetection(isFrontMissileDirectAnim);
+                })
+                .AddTo(ref _disposableBag);
+        }
+
+        private void OnDisable()
+        {
+            MissileDirectAnimCustomizeStruct missileDirectAnimCustomizeStruct = new MissileDirectAnimCustomizeStruct()
+            {
+                transform = _script_XyloApi.NoteTransform,
+                onEnabledTime = 0f,
+            };
+            _viewModel.AddOrSetOnEnabledTime(missileDirectAnimCustomizeStruct);
         }
 
         private void OnDestroy()
         {
             _disposableBag.Dispose();
+            _script_XyloApi?.Dispose();
         }
 
         /// <summary>
