@@ -529,23 +529,8 @@ namespace Mains.External
             if (_micInput_Criware == null)
                 return 0f;
 
-            // text フィールドの取得（MicInput_Criwareの public TextMeshProUGUI text）
-            var textField = _micInput_Criware.GetType().GetField("text", BindingFlags.Public | BindingFlags.Instance);
-            if (textField == null)
-                return 0f;
-
-            var textMesh = textField.GetValue(_micInput_Criware) as TMPro.TextMeshProUGUI;
-            if (textMesh == null || string.IsNullOrEmpty(textMesh.text))
-                return 0f;
-
-            // 正規表現で "Vol: 数値" を抽出
-            var match = Regex.Match(textMesh.text, @"Vol:\s*([0-9.]+).*");
-            if (match.Success && float.TryParse(match.Groups[1].Value, out float volume))
-            {
-                return volume;
-            }
-
-            return 0f;
+            var volumeSlider = _micInput_Criware.volumeSlider;
+            return volumeSlider.value;
         }
 
         public void ChangeBgmA()
