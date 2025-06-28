@@ -32,6 +32,41 @@ public class SE_Picker : MonoBehaviour
     public string FootStep; // ë´âπSE
     public string SubmitL;
     public string SubmitS;
+    private string BatteryGet1;
+    private string BatteryGet2;
+    private string BatteryGet3;
+    private string BatteryLost1;
+    private string BatteryLost2;
+    private string BatteryLost3;
+    private string DoorOpen1;
+    private string DoorOpen2;
+    private string DoorOpen3;
+    private string GhostLaugh1;
+    private string GhostLaugh2;
+    private string GhostLaugh3;
+    private string GhostLaugh4;
+    private string Cancel1;
+    private string Cancel2;
+    private string Cancel3;
+    private string Cancel4;
+    private string Cancel5;
+    private string Submit1;
+    private string Submit2;
+    private string Submit3;
+    private string Submit4;
+    private string Submit5;
+    private string Move1;
+    private string Move2;
+    private string Move3;
+    private string Move4;
+    private string Move5;
+    private string Damage1;
+    private string Damage2;
+    private string Damage3;
+    private string HitSuccess1;
+    private string HitSuccess2;
+    private string HitSuccess3;
+
 
     private void OnEnable()
     {
@@ -71,8 +106,50 @@ public class SE_Picker : MonoBehaviour
 
         ActiveNow = true;
 
-        // ï€ë∂Ç≥ÇÍÇƒÇ¢ÇÈSEâπó Çì«Ç›çûÇﬁ
-        LoadMasterSEVolume();
+   FootStep ="footstep"; // ë´âπSE
+   SubmitL= "SubmitL_KoukaonLab";
+   SubmitS= "SubmitS_KoukaonLab";
+        BatteryGet1 = "BatteryGet1";
+        BatteryGet2 = "BatteryGet2";
+        BatteryGet3 = "BatteryGet3";
+ BatteryLost1= "BatteryLost1";
+BatteryLost2= "BatteryLost2";
+ BatteryLost3 = "BatteryLost3";
+ DoorOpen1 = "DoorOpen1";
+ DoorOpen2 = "DoorOpen2";
+ DoorOpen3 = "DoorOpen3";
+ GhostLaugh1 = "GhostLaugh1";
+ GhostLaugh2 = "GhostLaugh2";
+ GhostLaugh3 = "GhostLaugh3";
+GhostLaugh4 = "GhostLaugh4";
+ Cancel1 = "Cancel1";
+ Cancel2 = "Cancel2";
+ Cancel3 = "Cancel3";
+ Cancel4 = "Cancel4";
+ Cancel5 = "Cancel5";
+ Submit1 = "Submit1";
+ Submit2 = "Submit2";
+ Submit3 = "Submit3";
+ Submit4 = "Submit4";
+ Submit5 = "Submit5";
+ Move1 = "Move1";
+ Move2 = "Move2";
+ Move3 = "Move3";
+Move4 = "Move4";
+ Move5 = "Move5";
+ Damage1 = "Damage1";
+ Damage2 = "Damage2";
+ Damage3 = "Damage3";
+ HitSuccess1 = "HitSuccess1";
+ HitSuccess2 = "HitSuccess2";
+ HitSuccess3 = "HitSuccess3";
+
+
+
+
+
+    // ï€ë∂Ç≥ÇÍÇƒÇ¢ÇÈSEâπó Çì«Ç›çûÇﬁ
+    LoadMasterSEVolume();
     }
 
     /// <summary>
@@ -184,5 +261,142 @@ public class SE_Picker : MonoBehaviour
     public void PlaySubmitS(float volume)
     {
         PlaySound(SubmitS, volume);
+    }
+    public void PlayBatteryGet1(float volume)
+    {
+        PlaySound(BatteryGet1, volume);
+    }
+    public void PlayBatteryGet2(float volume)
+    {
+        PlaySound(BatteryGet2, volume);
+    }
+    public void PlayBatteryGet3(float volume)
+    {
+        PlaySound(BatteryGet3, volume);
+    }
+    public void PlayBatteryLost1(float volume)
+    {
+        PlaySound(BatteryLost1, volume);
+    }
+    public void PlayBatteryLost2(float volume)
+    {
+        PlaySound(BatteryLost2, volume);
+    }
+    public void PlayBatteryLost3(float volume)
+    {
+        PlaySound(BatteryLost3, volume);
+    }
+    public void PlayDoorOpen1(float volume)
+    {
+        PlaySound(DoorOpen1, volume);
+    }
+    public void PlayDoorOpen2(float volume)
+    {
+        PlaySound(DoorOpen2, volume);
+    }
+    public void PlayDoorOpen3(float volume)
+    {
+        PlaySound(DoorOpen3, volume);
+    }
+    public void PlayGhostLaugh1(float volume)
+    {
+        PlaySound(GhostLaugh1, volume);
+    }
+    public void PlayGhostLaugh2(float volume)
+    {
+        PlaySound(GhostLaugh2, volume);
+    }
+    public void PlayGhostLaugh3(float volume)
+    {
+        PlaySound(GhostLaugh3, volume);
+    }
+    public void PlayGhostLaugh4(float volume)
+    {
+        PlaySound(GhostLaugh4, volume);
+    }
+
+    public void PlayCancel1(float volume)
+    {
+        PlaySound(Cancel1, volume);
+    }
+    public void PlayCancel2(float volume)
+    {
+        PlaySound(Cancel2, volume);
+    }
+    public void PlayCancel3(float volume)
+    {
+        PlaySound(Cancel3, volume);
+    }
+    public void PlayCancel4(float volume)
+    {
+        PlaySound(Cancel4, volume);
+    }
+    public void PlayCancel5(float volume)
+    {
+        PlaySound(Cancel5, volume);
+    }
+    public void PlaySubmit1(float volume)
+    {
+        PlaySound(Submit1, volume);
+    }
+    public void PlaySubmit2(float volume)
+    {
+        PlaySound(Submit2, volume);
+    }
+    public void PlaySubmit3(float volume)
+    {
+        PlaySound(Submit3, volume);
+    }
+    public void PlaySubmit4(float volume)
+    {
+        PlaySound(Submit4, volume);
+    }
+    public void PlaySubmit5(float volume)
+    {
+        PlaySound(Submit5, volume);
+    }
+    public void PlayMove1(float volume)
+    {
+        PlaySound(Move1, volume);
+    }
+    public void PlayMove2(float volume)
+    {
+        PlaySound(Move2, volume);
+    }
+    public void PlayMove3(float volume)
+    {
+        PlaySound(Move3, volume);
+    }
+    public void PlayMove4(float volume)
+    {
+        PlaySound(Move4, volume);
+    }
+    public void PlayMove5(float volume)
+    {
+        PlaySound(Move5, volume);
+    }
+    public void PlayDamage1(float volume)
+    {
+        PlaySound(Damage1, volume);
+    }
+    public void PlayDamage2(float volume)
+    {
+        PlaySound(Damage2, volume);
+    }
+    public void PlayDamage3(float volume)
+    {
+        PlaySound(Damage3, volume);
+    }
+    public void PlayHitSuccess1(float volume)
+    {
+        PlaySound(HitSuccess1, volume);
+    }
+    public void PlayHitSuccess2(float volume)
+    {
+        PlaySound(HitSuccess1, volume);
+    }
+    public void PlayHitSuccess3(float volume)
+    {
+        PlaySound(HitSuccess1, volume);
     }
 }
