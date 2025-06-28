@@ -29,9 +29,9 @@ public class SE_Picker : MonoBehaviour
     public int maxPlayers = 10; // 再生機の数。限度を超えると最初のものが止まる。CRIWARE側で最大数を設定していればある程度は回避される
 
     [Header("SEキュー名")]
-    public string FootStep; // 足音SE
-    public string SubmitL;
-    public string SubmitS;
+    private string FootStep; // 足音SE
+    private string SubmitL;
+    private string SubmitS;
     private string BatteryGet1;
     private string BatteryGet2;
     private string BatteryGet3;
@@ -66,6 +66,11 @@ public class SE_Picker : MonoBehaviour
     private string HitSuccess1;
     private string HitSuccess2;
     private string HitSuccess3;
+    private string HitMiss1;
+    private string HitMiss2;
+    private string HitMiss3;
+    private string HitMiss4;
+    private string HitMiss5;
 
 
     private void OnEnable()
@@ -143,13 +148,15 @@ Move4 = "Move4";
  HitSuccess1 = "HitSuccess1";
  HitSuccess2 = "HitSuccess2";
  HitSuccess3 = "HitSuccess3";
+ HitMiss1 = "HitMiss1";
+        HitMiss2 = "HitMiss2";
+        HitMiss3 = "HitMiss3";
+        HitMiss4 = "HitMiss4";
+        HitMiss5 = "HitMiss5";
 
 
-
-
-
-    // 保存されているSE音量を読み込む
-    LoadMasterSEVolume();
+        // 保存されているSE音量を読み込む
+        LoadMasterSEVolume();
     }
 
     /// <summary>
@@ -399,4 +406,26 @@ Move4 = "Move4";
     {
         PlaySound(HitSuccess1, volume);
     }
+    public void PlayHitMiss1(float volume)
+    {
+        PlaySound(HitMiss1, volume);
+    }
+    public void PlayHitMiss2(float volume)
+    {
+        PlaySound(HitMiss2, volume);
+    }
+    public void PlayHitMiss3(float volume)
+    {
+        PlaySound(HitMiss3, volume);
+    }
+    public void PlayHitMiss4(float volume)
+    {
+        PlaySound(HitMiss4, volume);
+    }
+    public void PlayHitMiss5(float volume)
+    {
+        PlaySound(HitMiss5, volume);
+    }
+
+
 }
