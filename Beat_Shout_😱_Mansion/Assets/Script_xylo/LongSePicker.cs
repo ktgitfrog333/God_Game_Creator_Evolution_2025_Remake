@@ -19,6 +19,8 @@ public class LongSePicker : MonoBehaviour
     public int maxPlayers = 10; // 再生機の数。限度を超えると最初のものが止まる。CRIWARE側で最大数を設定していればある程度は回避される
     //ここから先は個別のSEの登録
     public string IntroStage01;
+
+    public bool isNotStage= false;
     private void OnEnable()
     {
         Invoke("Delay", 1.2f);
@@ -50,8 +52,10 @@ public class LongSePicker : MonoBehaviour
         }
         ActiveNow = true;
 
-
-        PlayIntroStage01(1,2f);
+        if (!isNotStage)
+        {
+            PlayIntroStage01(1, 2f);
+        }
     }
     private CriAtomExPlayer GetNextPlayer()
     {
