@@ -4,6 +4,7 @@ using R3;
 using ObservableCollections;
 using System.Collections.Generic;
 using System.Linq;
+using Mains.Manager;
 
 namespace Mains.Models
 {
@@ -31,6 +32,7 @@ namespace Mains.Models
         {
             healthPointMax = new ReactiveCommand<int>(),
             healthPoint = new ReactiveProperty<int>(),
+            horrorCount = new ReactiveCommand<float>(),
         };
         /// <summary>プレイヤープロパティの構造体</summary>
         public PlayerPropertiesStruct PlayerPropertiesStruct => _playerPropertiesStruct;
@@ -69,6 +71,8 @@ namespace Mains.Models
         private ReactiveCommand<bool> _isCompletedStartDirection = new ReactiveCommand<bool>();
         /// <summary>ステージ開始演出が完了したか</summary>
         public ReactiveCommand<bool> IsCompletedStartDirection => _isCompletedStartDirection;
+        /// <summary>恐怖値</summary>
+        private float _horrorCount;
 
         private void Start()
         {
@@ -335,6 +339,29 @@ namespace Mains.Models
         {
             _isCompletedStartDirection.Execute(isCompleted);
         }
+
+        public void AddHorrorCount(float horrorCount)
+        {
+            var owner = GameManager.Instance.LevelOwner;
+            if (owner == null)
+                return;
+
+            var max = owner.HorrorCountMax;
+            if (max == null)
+                return;
+
+            if (max.Value == _horrorCount)
+                // 1度MAXへ到達した後は更新しない
+                return;
+
+            var tmpHorrorCount = _horrorCount + horrorCount;
+            if (max.Value <= tmpHorrorCount)
+            {
+                tmpHorrorCount = max.Value;
+            }
+            _horrorCount = tmpHorrorCount;
+            _playerPropertiesStruct.horrorCount.Execute(_horrorCount);
+        }
     }
 
     /// <summary>
@@ -387,6 +414,11 @@ namespace Mains.Models
         /// </summary>
         /// <param name="isLockedUpdateHealthPoint">プレイヤーのHP更新ロック</param>
         public void SetIsLockedUpdateHealthPoint(bool isLockedUpdateHealthPoint);
+        /// <summary>
+        /// 恐怖値を加算
+        /// </summary>
+        /// <param name="horrorCount">恐怖値</param>
+        public void AddHorrorCount(float horrorCount);
     }
 
     /// <summary>

@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 1276839907994328918}
   - component: {fileID: 6250718602854639091}
   - component: {fileID: 5333036732507408222}
+  - component: {fileID: 313540807968321101}
   m_Layer: 0
   m_Name: TestSoundSphere
   m_TagString: Untagged
@@ -156,3 +157,15 @@ MonoBehaviour:
     - 0
   _cueName: footstep
   _cueSheet: SE_System
+--- !u!114 &313540807968321101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4104246457772026312}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2da90e8c46c5d448b0af2135e806ace, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

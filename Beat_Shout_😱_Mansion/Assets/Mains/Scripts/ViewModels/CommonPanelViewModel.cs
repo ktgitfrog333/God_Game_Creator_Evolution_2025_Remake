@@ -22,6 +22,8 @@ namespace Mains.ViewModels
         public ReactiveProperty<int> PlayerHealthPoint => _playerModel?.PlayerPropertiesStruct.healthPoint ?? null;
         /// <summary>プレイヤーの最大HP</summary>
         public ReactiveCommand<int> PlayerHealthPointMax => _playerModel?.PlayerPropertiesStruct.healthPointMax ?? null;
+        /// <summary>恐怖値</summary>
+        public ReactiveCommand<float> HorrorCount => _playerModel?.PlayerPropertiesStruct.horrorCount ?? null;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 

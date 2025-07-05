@@ -968,9 +968,9 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1982241540}
   - {fileID: 608013528}
   - {fileID: 1387954711}
+  - {fileID: 1982241540}
   - {fileID: 1237731672}
   - {fileID: 91962762}
   - {fileID: 793322163}
@@ -2520,6 +2520,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2155499481087706778, guid: a358affd96cb42140a5d17944515c1a4, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3391392540936925260, guid: a358affd96cb42140a5d17944515c1a4, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -2539,6 +2543,10 @@ PrefabInstance:
     - target: {fileID: 6266780223078806780, guid: a358affd96cb42140a5d17944515c1a4, type: 3}
       propertyPath: m_Name
       value: CommonPanel
+      objectReference: {fileID: 0}
+    - target: {fileID: 7120195887641546435, guid: a358affd96cb42140a5d17944515c1a4, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7969603215508203675, guid: a358affd96cb42140a5d17944515c1a4, type: 3}
       propertyPath: m_SizeDelta.x

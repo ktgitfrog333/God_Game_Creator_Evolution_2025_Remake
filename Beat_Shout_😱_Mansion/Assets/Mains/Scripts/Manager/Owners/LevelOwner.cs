@@ -28,6 +28,10 @@ namespace Mains.Manager.Owners
         private int? _playerHealthPointMax;
         /// <summary>プレイヤーの初期HP</summary>
         public int? PlayerHealthPointMax => _playerHealthPointMax;
+        /// <summary>恐怖値最大</summary>
+        public float? _horrorCountMax;
+        /// <summary>恐怖値最大</summary>
+        public float? HorrorCountMax => _horrorCountMax;
         /// <summary>初期処理の完了待ち</summary>
         private readonly ReactiveCommand<bool> _isCompleted = new ReactiveCommand<bool>();
         /// <summary>初期処理の完了待ち</summary>
@@ -51,6 +55,7 @@ namespace Mains.Manager.Owners
                 _instancedLevel = Instantiate(stage.transform, Vector3.zero, Quaternion.identity, _level).transform;
             }
             _playerHealthPointMax = レベル構造体リスト.FirstOrDefault(q => q.階層 == userBean.sceneIdx).開始時のプレイヤーの最大体力;
+            _horrorCountMax = レベル構造体リスト.FirstOrDefault(q => q.階層 == userBean.sceneIdx).恐怖値最大;
             var directionalLight = GameObject.Find("Directional Light").GetComponent<Light>();
             if (DirectionalLightを継承して再設定.Updateされる度に更新)
             {

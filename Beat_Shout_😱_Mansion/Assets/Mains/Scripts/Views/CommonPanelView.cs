@@ -10,6 +10,9 @@ using Rewired;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using DG.Tweening;
+using UnityEngine.UI;
+using Mains.Manager;
+using Mains.External;
 
 namespace Mains.Views
 {
@@ -18,6 +21,19 @@ namespace Mains.Views
     /// </summary>
     public class CommonPanelView : MonoBehaviour
     {
+        [Tooltip("CommonPanel > CenterFront1Panel > HorrorMokumokuFramePanel > HorrorMokumokuFrameImage をセット")]
+        /// <summary>恐怖もくもくフレームのイメージ</summary>
+        [SerializeField] private Image horrorMokumokuFrameImage;
+        /// <summary>フレームのアルファ値最小</summary>
+        [SerializeField] private float frameAlphaMin;
+        /// <summary>フレームのアルファ値最大</summary>
+        [SerializeField] private float frameAlphaMax;
+        /// <summary>心音最小</summary>
+        // [SerializeField] private float heartBeatMin;
+        /// <summary>心音最大</summary>
+        // [SerializeField] private float heartBeatMax;
+        /// <summary>心音プロパティ構造体</summary>
+        [SerializeField] private HeartBeatPropStruct[] heartBeatPropStructs;
         [Tooltip("CommonPanel > HeaderPanel > IconAndGuidePanel > GuideText をセット")]
         /// <summary>ミッションガイド概要のテキスト</summary>
         [SerializeField] private TextMeshProUGUI guideText;
@@ -27,6 +43,9 @@ namespace Mains.Views
         [Tooltip("CommonPanel > FooterPanel > IconHeartsPanel をセット")]
         /// <summary>ハートアイコンを表示する用のトランスフォーム</summary>
         [SerializeField] private RectTransform iconHeartsPanel;
+        [Tooltip("CommonPanel > FooterPanel > HorrorGaugeSlider をセット")]
+        /// <summary>恐怖ゲージのスライダー</summary>
+        [SerializeField] private Slider horrorGaugeSlider;
         [Tooltip("Assets/Mains/Prefabs/UIs/CommonPanels/IconHeartImage.prefab をセット")]
         /// <summary>iconHeartImageのプレハブ</summary>
         [SerializeField] private Transform iconHeartImagePrefab;
@@ -37,23 +56,31 @@ namespace Mains.Views
         /// <summary>STAGE CLEARのテキスト</summary>
         [SerializeField] private TextMeshProUGUI stageClearText;
         [SerializeField] private CommonPanelTemplateStruct 共通UIのテンプレート;
+        [Tooltip("Assets/Mains/Prefabs/Level/ObjectsPoolView.prefabをセットしておく。")]
+        [SerializeField] private GameObject objectsPoolViewPrefab;
         /// <summary>共通UIのビューモデル</summary>
         private CommonPanelViewModel _commonPanelViewModel;
+        /// <summary>シロさんのコンポーネントへアクセスするAPI</summary>
+        private Script_xyloApi _script_XyloApi;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
         private void Reset()
         {
+            if (horrorMokumokuFrameImage == null)
+                horrorMokumokuFrameImage = transform.GetChild(0).GetChild(0).GetComponentInChildren<Image>();
             if (guideText == null)
-                guideText = transform.GetChild(0).GetChild(0).GetComponentInChildren<TextMeshProUGUI>();
+                guideText = transform.GetChild(1).GetChild(0).GetComponentInChildren<TextMeshProUGUI>();
             if (missionText == null)
-                missionText = transform.GetChild(0).GetChild(1).GetComponent<TextMeshProUGUI>();
+                missionText = transform.GetChild(1).GetChild(1).GetComponent<TextMeshProUGUI>();
             if (iconHeartsPanel == null)
-                iconHeartsPanel = transform.GetChild(1).GetChild(0) as RectTransform;
+                iconHeartsPanel = transform.GetChild(2).GetChild(0) as RectTransform;
+            if (horrorGaugeSlider == null)
+                horrorGaugeSlider = transform.GetChild(2).GetChild(1).GetComponent<Slider>();
             if (stageClearPanel == null)
-                stageClearPanel = transform.GetChild(2).GetChild(0) as RectTransform;
+                stageClearPanel = transform.GetChild(3).GetChild(0) as RectTransform;
             if (stageClearText == null)
-                stageClearText = transform.GetChild(2).GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>();
+                stageClearText = transform.GetChild(3).GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>();
         }
 
         private void Start()
@@ -145,7 +172,7 @@ namespace Mains.Views
                                     .Select(x => x.Current)
                                     .Subscribe(currentHp =>
                                 {
-                                    CheckPlayerHealthPointAndDirectionGameOver(currentHp, player, fadeImageView);
+                                    CheckPlayerHealthPointAndDoDirectionGameOver(currentHp, player, fadeImageView);
                                 })
                                 .AddTo(ref _disposableBag);
                             }
@@ -154,39 +181,68 @@ namespace Mains.Views
                 })
                 .AddTo(ref _disposableBag);
             stageClearPanel.gameObject.SetActive(false);
+            _script_XyloApi = new Script_xyloApi();
+            // 恐怖もくもくフレームUIと恐怖ゲージUIを制御
+            var heartBeatPropStruct = heartBeatPropStructs[0];
+            Observable.EveryUpdate()
+                .Select(_ => _commonPanelViewModel.HorrorCount)
+                .Where(x => x != null)
+                .Take(1)
+                .Subscribe(x =>
+                {
+                    x.Subscribe(horrorCount =>
+                    {
+                        var max = GameManager.Instance.LevelOwner.HorrorCountMax;
+                        if (max != null)
+                        {
+                            RenderFrameImageAlpha(horrorCount, max.Value, frameAlphaMin, frameAlphaMax, horrorMokumokuFrameImage);
+                            SetHorrorGaugeSlider(horrorCount, max.Value, horrorGaugeSlider);
+                            heartBeatPropStruct = GetHeartBeatPropStruct(horrorCount, max.Value, heartBeatPropStructs);
+                            CheckHorrorCountAndDoDirectionGameOver(horrorCount, max.Value, player, fadeImageView, _script_XyloApi);
+                        }
+                    })
+                        .AddTo(ref _disposableBag);
+                })
+                .AddTo(ref _disposableBag);
+            // 一定のリズムでSEを再生。horrorCountが残り少ないほどビートが短くなっていく。
+            float heartBeatElapsedTime = 0f;
+            // オブジェクトプールビュー
+            var objectsPoolView = GameObject.FindAnyObjectByType<ObjectsPoolView>();
+            if (objectsPoolView == null)
+                objectsPoolView = Instantiate(objectsPoolViewPrefab).GetComponent<ObjectsPoolView>();
+            Se_3D_PickerCustomizeView t3DSoundPlayer = objectsPoolView.Get3DSoundPlayer();
+            Observable.EveryUpdate()
+                .Subscribe(_ =>
+                {
+                	if (heartBeatPropStruct.value <= heartBeatElapsedTime)
+                	{
+                        t3DSoundPlayer.PlaySound("footstep", heartBeatPropStruct.volumeLevel);
+                        heartBeatElapsedTime = 0f;
+
+                		return;
+                	}
+                	heartBeatElapsedTime += Time.deltaTime;
+                })
+                	.AddTo(ref _disposableBag);
         }
 
         private void OnDestroy()
         {
             _disposableBag.Dispose();
+            _script_XyloApi.Dispose();
         }
 
         /// <summary>
         /// プレイヤーのHPを監視してゲームオーバー演出を実行
         /// </summary>
-        private void CheckPlayerHealthPointAndDirectionGameOver(int healthPoint, Player player, FadeImageView fadeImageView)
+        /// <param name="healthPoint">プレイヤーのHP</param>
+        /// <param name="player">RewiredのPlayer</param>
+        /// <param name="fadeImageView">フェードイメージのビュー</param>
+        private void CheckPlayerHealthPointAndDoDirectionGameOver(int healthPoint, Player player, FadeImageView fadeImageView)
         {
             if (healthPoint < 1)
             {
-                // 時間を停止
-                Time.timeScale = 0f;
-                player.controllers.maps.SetMapsEnabled(false, "Default"); // ゲーム操作を無効化
-                Observable.Create<bool>(observer =>
-                {
-                    StartCoroutine(fadeImageView.PlayFadeInDirection(observer, 1.5f));
-                    return Disposable.Empty;
-                })
-                    .Subscribe(_ =>
-                    {
-                        Observable.Create<bool>(observer =>
-                        {
-                            StartCoroutine(LoadSceneCoroutine(observer, "MainScene"));
-                            return Disposable.Empty;
-                        })
-                            .Subscribe(_ => { })
-                            .AddTo(ref _disposableBag);
-                    })
-                    .AddTo(ref _disposableBag);
+                DirectionGameOver(player, fadeImageView);
             }
         }
 
@@ -246,6 +302,101 @@ namespace Mains.Views
                             .AddTo(ref _disposableBag);
                     });
             }
+        }
+
+        /// <summary>
+        /// 恐怖もくもくフレームのイメージを描画
+        /// </summary>
+        /// <param name="horrorCount">恐怖値</param>
+        /// <param name="horrorCountMax">恐怖値最大</param>
+        /// <param name="frameAlphaMin">フレームのアルファ値最小</param>
+        /// <param name="frameAlphaMax">フレームのアルファ値最大</param>
+        /// <param name="horrorMokumokuFrameImage">恐怖もくもくフレームのイメージ</param>
+        private void RenderFrameImageAlpha(float horrorCount, float horrorCountMax, float frameAlphaMin, float frameAlphaMax, Image horrorMokumokuFrameImage)
+        {
+            var horror = horrorCount / horrorCountMax;
+            var frameAlpha = frameAlphaMin + (frameAlphaMax - frameAlphaMin) * horror;
+            var color = horrorMokumokuFrameImage.color;
+            var tmpColor = new Color(color.r, color.g, color.b, frameAlpha);
+            horrorMokumokuFrameImage.color = tmpColor;
+        }
+
+        /// <summary>
+        /// 恐怖ゲージのスライダーの値をセット
+        /// </summary>
+        /// <param name="horrorCount">恐怖値</param>
+        /// <param name="horrorCountMax">恐怖値最大</param>
+        /// <param name="horrorGaugeSlider">恐怖ゲージのスライダー</param>
+        private void SetHorrorGaugeSlider(float horrorCount, float horrorCountMax, Slider horrorGaugeSlider)
+        {
+            var horror = horrorCount / horrorCountMax;
+            horrorGaugeSlider.value = horror;
+        }
+
+        /// <summary>
+        /// 心音プロパティ構造体を取得
+        /// </summary>
+        /// <param name="horrorCount">恐怖値</param>
+        /// <param name="horrorCountMax">恐怖値最大</param>
+        /// <param name="heartBeatPropStructs">心音プロパティ構造体</param>
+        /// <return>心音プロパティ構造体</return>
+        private HeartBeatPropStruct GetHeartBeatPropStruct(float horrorCount, float horrorCountMax, HeartBeatPropStruct[] heartBeatPropStructs)
+        {
+            // 小数点以下2桁に丸め込む
+            var horror = Mathf.Round((horrorCount / horrorCountMax) * 100f) / 100f;
+            var heartBeatPropStruct = heartBeatPropStructs.FirstOrDefault(x => x.from <= horror &&
+                horror <= x.to);
+
+            return heartBeatPropStruct;
+        }
+
+        /// <summary>
+        /// 恐怖値を監視してゲームオーバー演出を実行
+        /// </summary>
+        /// <param name="horrorCount">恐怖値</param>
+        /// <param name="horrorCountMax">恐怖値最大</param>
+        /// <param name="player">RewiredのPlayer</param>
+        /// <param name="fadeImageView">フェードイメージのビュー</param>
+        /// <param name="_script_XyloApi">シロさんのコンポーネントへアクセスするAPI</param>
+        private void CheckHorrorCountAndDoDirectionGameOver(float horrorCount, float horrorCountMax, Player player, FadeImageView fadeImageView, Script_xyloApi _script_XyloApi)
+        {
+            if (horrorCountMax <= horrorCount)
+            {
+                DirectionGameOver(player, fadeImageView, _script_XyloApi);
+            }
+        }
+
+        /// <summary>
+        /// ゲームオーバー演出
+        /// </summary>
+        /// <param name="player">RewiredのPlayer</param>
+        /// <param name="fadeImageView">フェードイメージのビュー</param>
+        /// <param name="_script_XyloApi">シロさんのコンポーネントへアクセスするAPI</param>
+        private void DirectionGameOver(Player player, FadeImageView fadeImageView, Script_xyloApi _script_XyloApi = null)
+        {
+            // 時間を停止
+            Time.timeScale = 0f;
+            player.controllers.maps.SetMapsEnabled(false, "Default"); // ゲーム操作を無効化
+            if (_script_XyloApi != null)
+            {
+                _script_XyloApi.SetMicrophoneActive(false);
+            }
+            Observable.Create<bool>(observer =>
+            {
+                StartCoroutine(fadeImageView.PlayFadeInDirection(observer, 1.5f));
+                return Disposable.Empty;
+            })
+                .Subscribe(_ =>
+                {
+                    Observable.Create<bool>(observer =>
+                    {
+                        StartCoroutine(LoadSceneCoroutine(observer, "MainScene"));
+                        return Disposable.Empty;
+                    })
+                        .Subscribe(_ => { })
+                        .AddTo(ref _disposableBag);
+                })
+                .AddTo(ref _disposableBag);
         }
 
         /// <summary>

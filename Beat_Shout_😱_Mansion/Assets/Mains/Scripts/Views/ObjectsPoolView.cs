@@ -15,7 +15,7 @@ namespace Mains.Views
         public Transform Transform => _transform != null ? _transform : _transform = transform;
         [SerializeField] private Transform _３D空間で発音するprefab;
         /// <summary>３D空間で発音するスクリプトコンポーネント配列</summary>
-        private List<Se_3D_Picker> _3DSoundPlayers = new();
+        private List<Se_3D_PickerCustomizeView> _3DSoundPlayers = new();
 
         #region 実装例 ①プレハブの宣言 ②カスタムコンポーネントのリストの宣言
         //[Tooltip("魔力弾のプレハブ")]
@@ -28,7 +28,7 @@ namespace Mains.Views
         /// ３D空間で発音するクローンを取得
         /// </summary>
         /// <returns>３D空間で発音するクローン</returns>
-        public Se_3D_Picker Get3DSoundPlayer()
+        public Se_3D_PickerCustomizeView Get3DSoundPlayer()
         {
             return GetInactiveComponent(_3DSoundPlayers, _３D空間で発音するprefab, Transform);
         }
