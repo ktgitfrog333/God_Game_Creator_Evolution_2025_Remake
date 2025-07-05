@@ -79,7 +79,7 @@ namespace Mains.Views
             var objectsPoolView = GameObject.FindAnyObjectByType<ObjectsPoolView>();
             if (objectsPoolView == null)
                 objectsPoolView = Instantiate(objectsPoolViewPrefab).GetComponent<ObjectsPoolView>();
-            Se_3D_Picker t3DSoundPlayer = objectsPoolView.Get3DSoundPlayer();
+            Se_3D_PickerCustomizeView t3DSoundPlayer = objectsPoolView.Get3DSoundPlayer();
             Observable.EveryUpdate()
                 .Select(_ => _poltergeistViewModel.InteractionPart)
                 .Where(x => x != null)

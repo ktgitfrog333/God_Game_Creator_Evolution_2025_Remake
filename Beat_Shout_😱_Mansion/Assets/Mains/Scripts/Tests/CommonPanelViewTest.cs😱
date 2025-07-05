@@ -3,6 +3,8 @@ using Mains.Models; // PlayerModel を使うために必要
 using Mains.Views;
 using TMPro;
 using System.Reflection;
+using UnityEngine.UI;
+using Mains.Commons;
 
 namespace Mains.Tests
 {
@@ -15,9 +17,75 @@ namespace Mains.Tests
         [SerializeField] private RectTransform stageClearPanel;
         [SerializeField] private TextMeshProUGUI stageClearText;
 
+        [SerializeField, Range(0f, 100f)] private float horrorCount;
+        [SerializeField] private float horrorCountMax = 900f;
+        [SerializeField] private float frameAlphaMin = .3f;
+        [SerializeField] private float frameAlphaMax = 1f;
+        [SerializeField] private Image horrorMokumokuFrameImage;
+
+        [SerializeField] private HeartBeatPropStruct[] heartBeatPropStructs;
+        [SerializeField] private HeartBeatPropStruct heartBeatPropStruct;
+
         private void OnGUI()
         {
             Rect buttonRect = new Rect(10, 70, 250, 50);
+
+            if (GUI.Button(buttonRect, "GetHeartBeatPropStruct Test"))
+            {
+                Debug.Log("[テスト] GetHeartBeatPropStruct をテスト実行");
+
+                CommonPanelView commonPanelView = FindAnyObjectByType<CommonPanelView>();
+                if (commonPanelView != null)
+                {
+                    MethodInfo methodInfo = commonPanelView.GetType().GetMethod("GetHeartBeatPropStruct", BindingFlags.NonPublic | BindingFlags.Instance);
+
+                    if (methodInfo != null)
+                    {
+                        object[] parameters = new object[] { horrorCount, horrorCountMax, heartBeatPropStructs };
+                        // メソッドを実行
+                        var heartBeatPropStructObj = methodInfo.Invoke(commonPanelView, parameters);
+                        heartBeatPropStruct = (HeartBeatPropStruct)heartBeatPropStructObj;
+                    }
+                    else
+                    {
+                        Debug.LogWarning("GetHeartBeatPropStruct メソッドが見つかりません。");
+                    }
+
+                    Debug.Log("[成功] GetHeartBeatPropStruct を呼び出しました");
+                }
+                else
+                {
+                    Debug.LogWarning("CommonPanelView がシーン内に見つかりませんでした。");
+                }
+            }
+
+            //if (GUI.Button(buttonRect, "RenderFrameImageAlpha Test"))
+            //{
+            //    Debug.Log("[テスト] RenderFrameImageAlpha をテスト実行");
+
+            //    CommonPanelView commonPanelView = FindAnyObjectByType<CommonPanelView>();
+            //    if (commonPanelView != null)
+            //    {
+            //        MethodInfo methodInfo = commonPanelView.GetType().GetMethod("RenderFrameImageAlpha", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            //        if (methodInfo != null)
+            //        {
+            //            object[] parameters = new object[] { horrorCount, horrorCountMax, frameAlphaMin, frameAlphaMax, horrorMokumokuFrameImage };
+            //            // メソッドを実行
+            //            methodInfo.Invoke(commonPanelView, parameters);
+            //        }
+            //        else
+            //        {
+            //            Debug.LogWarning("RenderFrameImageAlpha メソッドが見つかりません。");
+            //        }
+
+            //        Debug.Log("[成功] RenderFrameImageAlpha を呼び出しました");
+            //    }
+            //    else
+            //    {
+            //        Debug.LogWarning("CommonPanelView がシーン内に見つかりませんでした。");
+            //    }
+            //}
 
             //if (GUI.Button(buttonRect, $"Set HP Max to {testHealthPointMax}"))
             //{
@@ -74,36 +142,36 @@ namespace Mains.Tests
             //    }
             //}
 
-            if (GUI.Button(buttonRect, "CheckPlayerHealthPointAndDirectionGameOver Test"))
-            {
-                Debug.Log("[テスト] CheckPlayerHealthPointAndDirectionGameOver をテスト実行");
+            //if (GUI.Button(buttonRect, "CheckPlayerHealthPointAndDirectionGameOver Test"))
+            //{
+            //    Debug.Log("[テスト] CheckPlayerHealthPointAndDirectionGameOver をテスト実行");
 
-                CommonPanelView commonPanelView = FindAnyObjectByType<CommonPanelView>();
-                if (commonPanelView != null)
-                {
-                    var fadeImageView = FindAnyObjectByType<FadeImageView>();
-                    var player = Rewired.ReInput.players.GetPlayer(0); // 0番のプレイヤーを取得
+            //    CommonPanelView commonPanelView = FindAnyObjectByType<CommonPanelView>();
+            //    if (commonPanelView != null)
+            //    {
+            //        var fadeImageView = FindAnyObjectByType<FadeImageView>();
+            //        var player = Rewired.ReInput.players.GetPlayer(0); // 0番のプレイヤーを取得
 
-                    MethodInfo methodInfo = commonPanelView.GetType().GetMethod("CheckPlayerHealthPointAndDirectionGameOver", BindingFlags.NonPublic | BindingFlags.Instance);
+            //        MethodInfo methodInfo = commonPanelView.GetType().GetMethod("CheckPlayerHealthPointAndDirectionGameOver", BindingFlags.NonPublic | BindingFlags.Instance);
 
-                    if (methodInfo != null)
-                    {
-                        object[] parameters = new object[] { testHealthPoint, player, fadeImageView };
-                        // メソッドを実行
-                        methodInfo.Invoke(commonPanelView, parameters);
-                    }
-                    else
-                    {
-                        Debug.LogWarning("CheckPlayerHealthPointAndDirectionGameOver メソッドが見つかりません。");
-                    }
+            //        if (methodInfo != null)
+            //        {
+            //            object[] parameters = new object[] { testHealthPoint, player, fadeImageView };
+            //            // メソッドを実行
+            //            methodInfo.Invoke(commonPanelView, parameters);
+            //        }
+            //        else
+            //        {
+            //            Debug.LogWarning("CheckPlayerHealthPointAndDirectionGameOver メソッドが見つかりません。");
+            //        }
 
-                    Debug.Log("[成功] CheckPlayerHealthPointAndDirectionGameOver を呼び出しました");
-                }
-                else
-                {
-                    Debug.LogWarning("CommonPanelView がシーン内に見つかりませんでした。");
-                }
-            }
+            //        Debug.Log("[成功] CheckPlayerHealthPointAndDirectionGameOver を呼び出しました");
+            //    }
+            //    else
+            //    {
+            //        Debug.LogWarning("CommonPanelView がシーン内に見つかりませんでした。");
+            //    }
+            //}
 
             //Rect buttonRect1 = new Rect(10, 70 + 50 + 10, 250, 50);
 

@@ -259,6 +259,7 @@ namespace Mains.Views
             Vector3? successShoutPosition = null;
             // シャウトが成功したオイラー角度
             Vector3? successShoutEulerAngles = null;
+            _script_XyloApi.InitVolumeLevelReactive();
             Observable.EveryUpdate()
                 .Select(_ => _playerViewModel.InteractionPart)
                 .Where(x => x != null)
@@ -271,6 +272,7 @@ namespace Mains.Views
                     System.IDisposable observableUpdateIsFailedDisposable = null;
                     System.IDisposable observableIsFailedDisposable = null;
                     System.IDisposable observableTargetCrossPositionDisposable = null;
+                    System.IDisposable volumeLevelReactiveDisposable = null;
                     x.Pairwise()
                         .Subscribe(part =>
                         {
@@ -294,6 +296,17 @@ namespace Mains.Views
                                 observableUpdateIsFailedDisposable?.Dispose();
                                 observableIsFailedDisposable?.Dispose();
                                 observableTargetCrossPositionDisposable?.Dispose();
+                                // 恐怖値の加減補正値
+                                float correctionHorrorCount = 1f;
+                                var volumeLevelReactive = _script_XyloApi.VolumeLevelReactive;
+                                if (volumeLevelReactive != null)
+                                {
+                                    volumeLevelReactiveDisposable = volumeLevelReactive.Subscribe(volumeLevel =>
+                                    {
+                                        correctionHorrorCount = 1f * (1f - volumeLevel);
+                                    })
+                                        .AddTo(ref _disposableBag);
+                                }
                                 // 1. 探索、シャウト用の操作
                                 observablePlayerControllerDisposable = Observable.EveryUpdate()
                                     .Where(_ => characterController.enabled)
@@ -359,6 +372,7 @@ namespace Mains.Views
 
                                         bool isSwitchPart = player.GetButtonDown("SwitchPart");
                                         _playerViewModel.SetIsSwitchPart(isSwitchPart);
+                                        _playerViewModel.AddHorrorCount(correctionHorrorCount * Time.deltaTime);
                                     })
                                     .AddTo(ref _disposableBag);
                                 _playerViewModel.SetIsLockedUpdateHealthPoint(false);
@@ -367,6 +381,7 @@ namespace Mains.Views
                             {
                                 // 1. 探索、シャウト用の操作の監視を破棄
                                 observablePlayerControllerDisposable?.Dispose();
+                                volumeLevelReactiveDisposable?.Dispose();
                                 // 2. リズムパート用の操作
                                 //  X軸、Y軸（重力）、Z軸の位置移動は不可。
                                 //  コントローラーの場合は右スティック操作が左スティック操作に変わる。カメラの位置、角度の自動追尾が不可となり、固定となる。

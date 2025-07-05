@@ -17,5 +17,7 @@ namespace Mains.Commons
         public ReactiveCommand<int> healthPointMax;
         /// <summary>プレイヤーのHP更新ロック</summary>
         public bool isLockedUpdateHealthPoint;
+        /// <summary>恐怖値</summary>
+        public ReactiveCommand<float> horrorCount;
     }
 }

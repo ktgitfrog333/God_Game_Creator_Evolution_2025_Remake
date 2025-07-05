@@ -118,5 +118,11 @@ namespace Mains.ViewModels
             if (_playerModel != null)
                 _playerModel.SetIsLockedUpdateHealthPoint(isLockedUpdateHealthPoint);
         }
+
+        public void AddHorrorCount(float horrorCount)
+        {
+            if (_playerModel != null)
+                _playerModel.AddHorrorCount(horrorCount);
+        }
     }
 }

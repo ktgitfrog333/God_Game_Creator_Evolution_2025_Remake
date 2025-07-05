@@ -15,5 +15,6 @@ namespace Mains.Commons
         [Tooltip("Assets/Mains/Prefabs/Level/Stages/Stage_0.prefab 等を指定")]
         public GameObject Stage_xと書かれたプレハブ;
         public int 開始時のプレイヤーの最大体力;
+        public float 恐怖値最大;
     }
 }

@@ -1,3 +1,4 @@
+using CriWare;
 using R3;
 using System.Collections.Generic;
 using System.Linq;
@@ -529,23 +530,104 @@ namespace Mains.External
             if (_micInput_Criware == null)
                 return 0f;
 
-            // text フィールドの取得（MicInput_Criwareの public TextMeshProUGUI text）
-            var textField = _micInput_Criware.GetType().GetField("text", BindingFlags.Public | BindingFlags.Instance);
-            if (textField == null)
-                return 0f;
+            var volumeSlider = _micInput_Criware.volumeSlider;
+            return volumeSlider.value;
+        }
 
-            var textMesh = textField.GetValue(_micInput_Criware) as TMPro.TextMeshProUGUI;
-            if (textMesh == null || string.IsNullOrEmpty(textMesh.text))
-                return 0f;
+        private ReactiveCommand<float> _volumeLevelReactive = new ReactiveCommand<float>();
+        public ReactiveCommand<float> VolumeLevelReactive => _volumeLevelReactive;
 
-            // 正規表現で "Vol: 数値" を抽出
-            var match = Regex.Match(textMesh.text, @"Vol:\s*([0-9.]+).*");
-            if (match.Success && float.TryParse(match.Groups[1].Value, out float volume))
-            {
-                return volume;
-            }
+        /// <see cref="MicInput_Criware.Update"/>
+        /// <see cref="MicInput_Criware.CheckVolume"/>
+        public void InitVolumeLevelReactive()
+        {
+            Observable.EveryUpdate()
+                .Subscribe(_ =>
+                {
+                    // Update
+                    var fieldInfoIsMicActive = typeof(MicInput_Criware).GetField("isMicActive", BindingFlags.NonPublic | BindingFlags.Instance);
+                    var valueIsMicActive = fieldInfoIsMicActive.GetValue(_micInput_Criware);
+                    if (valueIsMicActive == null ||
+                        !(bool)valueIsMicActive)
+                        return;
 
-            return 0f;
+                    var fieldInfoMic = typeof(MicInput_Criware).GetField("mic", BindingFlags.NonPublic | BindingFlags.Instance);
+                    var valueMic = fieldInfoMic.GetValue(_micInput_Criware) as CriAtomExMic;
+                    if (valueMic == null)
+                        return;
+
+                    // CheckVolume
+                    var valueMic1 = fieldInfoMic.GetValue(_micInput_Criware) as CriAtomExMic;
+                    if (valueMic1 == null)
+                        return;
+                    
+                    float[] micBuffer = new float[_micInput_Criware.sampleSize];
+                    uint samplesRead = valueMic1.ReadData(micBuffer, (uint)_micInput_Criware.sampleSize);
+                    if (samplesRead > 0)
+                    {
+                        MethodInfo methodInfoCalculateRMS = _micInput_Criware.GetType().GetMethod("CalculateRMS", BindingFlags.NonPublic | BindingFlags.Instance);
+                        float instantVolume = 0f;
+                        if (methodInfoCalculateRMS != null)
+                        {
+                            object[] parameters = new object[] { micBuffer, (int)samplesRead };
+                            instantVolume = (float)methodInfoCalculateRMS.Invoke(_micInput_Criware, parameters);
+                        }
+                        // マイク感度を適用
+                        instantVolume *= _micInput_Criware.microphoneSensitivity;
+                        // BGM除去処理
+                        if (_micInput_Criware.enableBgmCancellation)
+                        {
+                            MethodInfo methodInfoApplyBgmCancellation = _micInput_Criware.GetType().GetMethod("ApplyBgmCancellation", BindingFlags.NonPublic | BindingFlags.Instance);
+                            if (methodInfoApplyBgmCancellation != null)
+                            {
+                                object[] parameters = new object[] { instantVolume };
+                                instantVolume = (float)methodInfoApplyBgmCancellation.Invoke(_micInput_Criware, parameters);
+                            }
+                        }
+                        // 音量履歴を更新（スライダー表示用）
+                        MethodInfo methodInfoUpdateVolumeHistory = _micInput_Criware.GetType().GetMethod("UpdateVolumeHistory", BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (methodInfoUpdateVolumeHistory != null)
+                        {
+                            object[] parameters = new object[] { instantVolume };
+                            methodInfoUpdateVolumeHistory.Invoke(_micInput_Criware, parameters);
+                        }
+                        // 変化検知用履歴を更新
+                        MethodInfo methodInfoUpdateChangeDetectionHistory = _micInput_Criware.GetType().GetMethod("UpdateChangeDetectionHistory", BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (methodInfoUpdateChangeDetectionHistory != null)
+                        {
+                            object[] parameters = new object[] { instantVolume };
+                            methodInfoUpdateChangeDetectionHistory.Invoke(_micInput_Criware, parameters);
+                        }
+                        // 平均音量を計算
+                        MethodInfo methodInfoGetAveragedVolume = _micInput_Criware.GetType().GetMethod("GetAveragedVolume", BindingFlags.NonPublic | BindingFlags.Instance);
+                        float averagedVolume = 0f;
+                        if (methodInfoGetAveragedVolume != null)
+                        {
+                            averagedVolume = (float)methodInfoGetAveragedVolume.Invoke(_micInput_Criware, null);
+                        }
+
+                        float level = 0f;
+                        MethodInfo methodInfoGetVolumeDisplayLevel = _micInput_Criware.GetType().GetMethod("GetVolumeDisplayLevel", BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (methodInfoGetVolumeDisplayLevel != null)
+                        {
+                        	object[] parameters = new object[] { averagedVolume };
+                        	int tmpLevel = (int)methodInfoGetVolumeDisplayLevel.Invoke(_micInput_Criware, parameters);
+                        	if (4 == tmpLevel)
+                        	{
+                        		// 0スタートの4段階なら最大は3でいい
+                        		tmpLevel = 3;
+                        	}
+                        	level = (float)tmpLevel / 3f;
+                        }
+                        _volumeLevelReactive.Execute(level);
+                    }
+                })
+                .AddTo(ref _disposableBag);
+        }
+
+        public void SetMicrophoneActive(bool active)
+        {
+            _micInput_Criware.SetMicrophoneActive(active);
         }
 
         public void ChangeBgmA()
@@ -756,6 +838,25 @@ namespace Mains.External
             if (objectPoolerXyloOther != null)
             {
                 _objectPoolerXyloOther = objectPoolerXyloOther;
+            }
+        }
+
+        private Se_3D_Picker _se_3D_Picker;
+        
+        public void InitializeSe_3D_Picker(Transform transform)
+        {
+            var se_3D_Picker = transform.GetComponent<Se_3D_Picker>();
+            if (se_3D_Picker != null)
+            {
+                _se_3D_Picker = se_3D_Picker;
+            }
+        }
+
+        public void PlaySound(string SeName, float volume)
+        {
+            if (_se_3D_Picker != null)
+            {
+                _se_3D_Picker.PlaySound(SeName, volume);
             }
         }
 
