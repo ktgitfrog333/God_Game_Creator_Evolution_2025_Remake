@@ -12,6 +12,7 @@ using static CriWare.CriAtomExBeatSync;
 public class CRIWARE_conductor : MonoBehaviour
 {
     public int ThisStageNumber = 0;
+    public bool NoIntroScene = false;
 
     [HideInInspector] public static CRIWARE_conductor Instance { get; private set; } // シングルトンを設定
 
@@ -123,8 +124,14 @@ public class CRIWARE_conductor : MonoBehaviour
 
             // 初期音量の設定
             ApplyVolumeToAllSources();
-
-            Invoke("DelayBGMLoopStart", 10.5f); // BGMのループ再生を遅らせる
+            if (!NoIntroScene)
+            {
+                Invoke("DelayBGMLoopStart", 10.5f); // BGMのループ再生を遅らせる
+            }
+            else
+            {
+                Invoke("DelayBGMLoopStart", 0.5f); // BGMのループ再生を遅らせる
+                            }
         }
         else
         {

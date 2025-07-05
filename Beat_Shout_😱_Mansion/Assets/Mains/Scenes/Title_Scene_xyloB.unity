@@ -890,9 +890,6 @@ MonoBehaviour:
   CueSheetName: SE_System
   AcbFilePath: SE_System.acb
   maxPlayers: 10
-  FootStep: footstep
-  SubmitL: SubmitL_KoukaonLab
-  SubmitS: SubmitS_KoukaonLab
 --- !u!1 &226955801
 GameObject:
   m_ObjectHideFlags: 0
@@ -2428,7 +2425,7 @@ MonoBehaviour:
     - 0
     - 0
     - 0
-  _cueName: search-part_A
+  _cueName: full_title_BPM95
   _cueSheet: BGM
 --- !u!114 &578952821
 MonoBehaviour:
@@ -2449,7 +2446,7 @@ MonoBehaviour:
   OnNoBgm: 0
   transitionDuration: 3
   transitionDuration2: 0.05
-  isAutoStart: 0
+  isAutoStart: 1
   bpm: 112
   startBeat: 5
 --- !u!114 &578952822
@@ -2465,6 +2462,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ThisStageNumber: 0
+  NoIntroScene: 1
   atomSourceA: {fileID: 578952820}
   atomSourceB: {fileID: 578952819}
   atomSourceC: {fileID: 578952819}
@@ -6252,6 +6250,7 @@ MonoBehaviour:
   AcbFilePath: SE_Long.acb
   maxPlayers: 5
   IntroStage01: search-part_Aintro
+  isNotStage: 1
 --- !u!1 &1376739486
 GameObject:
   m_ObjectHideFlags: 0
