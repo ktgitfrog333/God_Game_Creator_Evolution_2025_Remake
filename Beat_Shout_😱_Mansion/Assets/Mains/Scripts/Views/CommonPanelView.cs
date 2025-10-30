@@ -21,6 +21,7 @@ namespace Mains.Views
     /// </summary>
     public class CommonPanelView : MonoBehaviour
     {
+        [Header("恐怖フレーム・心音演出")]
         [Tooltip("CommonPanel > CenterFront1Panel > HorrorMokumokuFramePanel > HorrorMokumokuFrameImage をセット")]
         /// <summary>恐怖もくもくフレームのイメージ</summary>
         [SerializeField] private Image horrorMokumokuFrameImage;
@@ -28,12 +29,15 @@ namespace Mains.Views
         [SerializeField] private float frameAlphaMin;
         /// <summary>フレームのアルファ値最大</summary>
         [SerializeField] private float frameAlphaMax;
+        /// <summary>恐怖フレームカラー構造体の配列</summary>
+        [SerializeField] private HorrorMokuFrameColorStruct[] horrorMokuFrameColorStructs;
         /// <summary>心音最小</summary>
         // [SerializeField] private float heartBeatMin;
         /// <summary>心音最大</summary>
         // [SerializeField] private float heartBeatMax;
         /// <summary>心音プロパティ構造体</summary>
         [SerializeField] private HeartBeatPropStruct[] heartBeatPropStructs;
+        [Header("その他オプション")]
         [Tooltip("CommonPanel > HeaderPanel > IconAndGuidePanel > GuideText をセット")]
         /// <summary>ミッションガイド概要のテキスト</summary>
         [SerializeField] private TextMeshProUGUI guideText;
@@ -202,6 +206,35 @@ namespace Mains.Views
                         }
                     })
                         .AddTo(ref _disposableBag);
+                    // ① HorrorCount から「現在のカラー区間インデックス」を求め、変化時だけ流すストリーム
+                    x.Select(hc =>
+                    {
+                        // max が null の保険
+                        var maxLocal = GameManager.Instance.LevelOwner.HorrorCountMax;
+                        if (maxLocal == null) return (-1, (HorrorMokuFrameColorStruct)null);
+
+                        // HeartBeat と同様に小数2桁で丸めて比較（境界ブレ対策）
+                        // TODO:丸め補正&from~to範囲判定は一つにまとめる
+                        var ratio = Mathf.Round((hc / maxLocal.Value) * 100f) / 100f;
+
+                        for (int i = 0; i < horrorMokuFrameColorStructs.Length; i++)
+                        {
+                            var s = horrorMokuFrameColorStructs[i]; // s.from ～ s.to の区間に入っているか
+                            if (s.from <= ratio && ratio <= s.to)
+                                return (i, s);
+                        }
+                        return (-1, (HorrorMokuFrameColorStruct)null); // どの区間にも属さない
+                    })
+                    .DistinctUntilChangedBy(t => t.Item1)   // ★ 区間インデックスが変わった時だけ発火
+                    .Where(t => t.Item1 >= 0)             // 有効な区間だけ通す
+                    .Select(t => t.Item2)
+                    .Subscribe(horrorMokuFrameColorStruct =>
+                    {
+                        PlayRenderFrameImageColorAnimation(horrorMokuFrameColorStruct, horrorMokumokuFrameImage);
+                    })
+                    .AddTo(ref _disposableBag);
+
+                    x.Execute(0f);
                 })
                 .AddTo(ref _disposableBag);
             // 一定のリズムでSEを再生。horrorCountが残り少ないほどビートが短くなっていく。
@@ -224,6 +257,45 @@ namespace Mains.Views
                 	heartBeatElapsedTime += Time.deltaTime;
                 })
                 	.AddTo(ref _disposableBag);
+        }
+
+        /// <summary>
+        /// 恐怖もくもくフレームのイメージの描画アニメーションを再生
+        /// </summary>
+        /// <param name="horrorMokuFrameColorStruct">恐怖フレームカラー構造体</param>
+        /// <param name="horrorMokumokuFrameImage">恐怖もくもくフレームのイメージ</param>
+        private void PlayRenderFrameImageColorAnimation(HorrorMokuFrameColorStruct horrorMokuFrameColorStruct, Image horrorMokumokuFrameImage)
+        {
+            // ② フレームカラーの変更（アルファは RenderFrameImageAlpha が毎フレーム制御しているため保持）
+            var current = horrorMokumokuFrameImage.color;
+
+            // 既存のカラーTweenがあれば停止してから開始
+            horrorMokumokuFrameImage.DOKill();
+
+            if (horrorMokuFrameColorStruct.isLoop)
+            {
+                var targetFrom = new Color(horrorMokuFrameColorStruct.frameFromColor.r, horrorMokuFrameColorStruct.frameFromColor.g, horrorMokuFrameColorStruct.frameFromColor.b, current.a);
+                var targetTo = new Color(horrorMokuFrameColorStruct.frameToColor.r, horrorMokuFrameColorStruct.frameToColor.g, horrorMokuFrameColorStruct.frameToColor.b, current.a);
+                float dur = Mathf.Max(0f, horrorMokuFrameColorStruct.duration);
+                Sequence sequence = DOTween.Sequence()
+                    .Append(horrorMokumokuFrameImage.DOColor(targetTo, Mathf.Max(0f, dur)))
+                    .Append(horrorMokumokuFrameImage.DOColor(targetFrom, Mathf.Max(0f, dur)))
+                    .OnComplete(() =>
+                    {
+                        // 以降: From↔To の無限ヨーヨー（Sequence外なので警告出ない）
+                        horrorMokumokuFrameImage
+                            .DOColor(targetTo, dur)
+                            .From(targetFrom)
+                            .SetLoops(-1, LoopType.Yoyo);
+                    });
+            }
+            else
+            {
+                var target = new Color(horrorMokuFrameColorStruct.frameColor.r, horrorMokuFrameColorStruct.frameColor.g, horrorMokuFrameColorStruct.frameColor.b, current.a);
+                var tween = horrorMokumokuFrameImage
+                    .DOColor(target, Mathf.Max(0f, horrorMokuFrameColorStruct.duration))
+                    .SetEase(Ease.InOutBounce);
+            }
         }
 
         private void OnDestroy()
@@ -343,6 +415,7 @@ namespace Mains.Views
         private HeartBeatPropStruct GetHeartBeatPropStruct(float horrorCount, float horrorCountMax, HeartBeatPropStruct[] heartBeatPropStructs)
         {
             // 小数点以下2桁に丸め込む
+            // TODO:丸め補正&from~to範囲判定は一つにまとめる
             var horror = Mathf.Round((horrorCount / horrorCountMax) * 100f) / 100f;
             var heartBeatPropStruct = heartBeatPropStructs.FirstOrDefault(x => x.from <= horror &&
                 horror <= x.to);
