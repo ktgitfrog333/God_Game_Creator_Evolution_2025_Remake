@@ -16,7 +16,7 @@ namespace Mains.Views
     /// プレイヤーのビュー
     /// </summary>
     [RequireComponent(typeof(CharacterController))]
-    public class PlayerView : MonoBehaviour
+    public class PlayerView : MonoBehaviour, IDidStartProvider
     {
         /// <summary>キャラクター移動制御</summary>
         [SerializeField] private CharacterController characterController;
@@ -35,6 +35,8 @@ namespace Mains.Views
         [SerializeField] private PlayerRhythmStruct リズムパートで使用するプレイヤープロパティ;
         /// <summary>シロさんのコンポーネントへアクセスするAPI</summary>
         private Script_xyloApi _script_XyloApi;
+        /// <summary>Start完了を通知するObservable（Trueになったら1度だけ発火）</summary>
+        private Subject<Unit> _didStartAsObservable = new Subject<Unit>();
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -329,7 +331,7 @@ namespace Mains.Views
                                         Vector3 moveDirection = Quaternion.Euler(0f, currentYaw, 0f) * moveInput;
 
                                         // カメラの正面方向
-                                        Vector3 cameraForward = Camera.main.transform.forward;
+                                        Vector3 cameraForward = Camera.main != null ? Camera.main.transform.forward : Vector3.zero;
                                         cameraForward.y = 0; // 水平成分のみ使用
                                         cameraForward.Normalize();
 
@@ -552,6 +554,10 @@ namespace Mains.Views
                             }
                         })
                     .AddTo(ref _disposableBag);
+
+                    // 自力でExecute
+                    x.Value = InteractionPart.None;
+                    x.Value = InteractionPart.Search;
                 })
                 .AddTo(ref _disposableBag);
             // オバケが隠れている位置に接近した時に振動
@@ -790,6 +796,9 @@ namespace Mains.Views
                     hitTriggerTrans.position = followPlayerCameraView.transform.position;
                 })
                 .AddTo(ref _disposableBag);
+
+            _didStartAsObservable.OnNext(Unit.Default);
+            _didStartAsObservable.OnCompleted();
         }
 
         private void OnGUI()
@@ -809,6 +818,22 @@ namespace Mains.Views
         {
             _disposableBag.Dispose();
             _script_XyloApi?.Dispose();
+        }
+
+        public Observable<Unit> DidStartAsObservable()
+        {
+            return Observable.Create<Unit>(observer =>
+            {
+                _didStartAsObservable.Take(1)
+                    .Subscribe(_ =>
+                    {
+                        observer.OnNext(Unit.Default);
+                        observer.OnCompleted();
+                    })
+                    .AddTo(ref _disposableBag);
+
+                return Disposable.Empty;
+            });
         }
 
         /// <summary>

@@ -27,19 +27,20 @@ namespace Mains.ViewModels
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
-        public CommonPanelViewModel()
+        public CommonPanelViewModel(InteractionPartTable interactionPartTable)
         {
-            Observable.EveryUpdate()
-                .Select(_ => GameObject.FindAnyObjectByType<PlayerModel>())
-                .Where(x => x != null)
-                .Take(1)
-                .Subscribe(x =>
-                {
-                    _playerModel = x;
-                    // 1度のみ実行されれば良いので破棄しても問題なし
-                    _disposableBag.Dispose();
-                })
-                .AddTo(ref _disposableBag);
+            PlayerModel model = GameObject.FindAnyObjectByType<PlayerModel>();
+            if (model == null)
+            {
+                GameObject gameObject = new GameObject($"{typeof(PlayerModel).Name}");
+                _playerModel = gameObject.AddComponent<PlayerModel>();
+            }
+            else
+            {
+                _playerModel = model;
+            }
+            if (_playerModel.InteractionPartTable == null)
+                _playerModel.InteractionPartTable = interactionPartTable;
         }
     }
 }

@@ -716,6 +716,11 @@ namespace Mains.External
                         Debug.LogWarning($"監視先のオブジェクトがDestroy済みです。[{e.Message}]");
                         return;
                     }
+                    catch (System.NullReferenceException e)
+                    {
+                        Debug.LogWarning($"Renderer情報取得の失敗[{e.Message}]");
+                        return;
+                    }
                 })
                 .AddTo(ref _disposableBag);
         }

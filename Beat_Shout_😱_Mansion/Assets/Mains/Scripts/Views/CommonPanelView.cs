@@ -19,7 +19,7 @@ namespace Mains.Views
     /// <summary>
     /// 共通UIのビュー
     /// </summary>
-    public class CommonPanelView : MonoBehaviour
+    public class CommonPanelView : MonoBehaviour, IDidStartProvider
     {
         [Header("恐怖フレーム・心音演出")]
         [Tooltip("CommonPanel > CenterFront1Panel > HorrorMokumokuFramePanel > HorrorMokumokuFrameImage をセット")]
@@ -66,6 +66,9 @@ namespace Mains.Views
         private CommonPanelViewModel _commonPanelViewModel;
         /// <summary>シロさんのコンポーネントへアクセスするAPI</summary>
         private Script_xyloApi _script_XyloApi;
+        /// <summary>Start完了を通知するObservable（Trueになったら1度だけ発火）</summary>
+        private Subject<Unit> _didStartAsObservable = new Subject<Unit>();
+        [SerializeField] private InteractionPartTable 探索_シャウトチャンス_リズムパート情報管理テーブル;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -89,7 +92,7 @@ namespace Mains.Views
 
         private void Start()
         {
-            _commonPanelViewModel = new CommonPanelViewModel();
+            _commonPanelViewModel = new CommonPanelViewModel(探索_シャウトチャンス_リズムパート情報管理テーブル);
             var player = ReInput.players.GetPlayer(0);
             FadeImageView fadeImageView = FindAnyObjectByType<FadeImageView>();
             // オバケの家具入居管理の構造体リストから、オバケの数を全て取得してその合計をミッションガイド概要／詳細へ反映する処理を実装
@@ -257,51 +260,31 @@ namespace Mains.Views
                 	heartBeatElapsedTime += Time.deltaTime;
                 })
                 	.AddTo(ref _disposableBag);
-        }
 
-        /// <summary>
-        /// 恐怖もくもくフレームのイメージの描画アニメーションを再生
-        /// </summary>
-        /// <param name="horrorMokuFrameColorStruct">恐怖フレームカラー構造体</param>
-        /// <param name="horrorMokumokuFrameImage">恐怖もくもくフレームのイメージ</param>
-        private void PlayRenderFrameImageColorAnimation(HorrorMokuFrameColorStruct horrorMokuFrameColorStruct, Image horrorMokumokuFrameImage)
-        {
-            // ② フレームカラーの変更（アルファは RenderFrameImageAlpha が毎フレーム制御しているため保持）
-            var current = horrorMokumokuFrameImage.color;
-
-            // 既存のカラーTweenがあれば停止してから開始
-            horrorMokumokuFrameImage.DOKill();
-
-            if (horrorMokuFrameColorStruct.isLoop)
-            {
-                var targetFrom = new Color(horrorMokuFrameColorStruct.frameFromColor.r, horrorMokuFrameColorStruct.frameFromColor.g, horrorMokuFrameColorStruct.frameFromColor.b, current.a);
-                var targetTo = new Color(horrorMokuFrameColorStruct.frameToColor.r, horrorMokuFrameColorStruct.frameToColor.g, horrorMokuFrameColorStruct.frameToColor.b, current.a);
-                float dur = Mathf.Max(0f, horrorMokuFrameColorStruct.duration);
-                Sequence sequence = DOTween.Sequence()
-                    .Append(horrorMokumokuFrameImage.DOColor(targetTo, Mathf.Max(0f, dur)))
-                    .Append(horrorMokumokuFrameImage.DOColor(targetFrom, Mathf.Max(0f, dur)))
-                    .OnComplete(() =>
-                    {
-                        // 以降: From↔To の無限ヨーヨー（Sequence外なので警告出ない）
-                        horrorMokumokuFrameImage
-                            .DOColor(targetTo, dur)
-                            .From(targetFrom)
-                            .SetLoops(-1, LoopType.Yoyo);
-                    });
-            }
-            else
-            {
-                var target = new Color(horrorMokuFrameColorStruct.frameColor.r, horrorMokuFrameColorStruct.frameColor.g, horrorMokuFrameColorStruct.frameColor.b, current.a);
-                var tween = horrorMokumokuFrameImage
-                    .DOColor(target, Mathf.Max(0f, horrorMokuFrameColorStruct.duration))
-                    .SetEase(Ease.InOutBounce);
-            }
+            _didStartAsObservable.OnNext(Unit.Default);
+            _didStartAsObservable.OnCompleted();
         }
 
         private void OnDestroy()
         {
             _disposableBag.Dispose();
             _script_XyloApi.Dispose();
+        }
+
+        public Observable<Unit> DidStartAsObservable()
+        {
+            return Observable.Create<Unit>(observer =>
+            {
+                _didStartAsObservable.Take(1)
+                    .Subscribe(_ =>
+                    {
+                        observer.OnNext(Unit.Default);
+                        observer.OnCompleted();
+                    })
+                    .AddTo(ref _disposableBag);
+
+                return Disposable.Empty;
+            });
         }
 
         /// <summary>
@@ -483,16 +466,48 @@ namespace Mains.Views
         {
             // 時間を再生
             Time.timeScale = 1f;
-            AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
+            SceneManager.LoadScene(sceneName);
 
-            // 読み込みが終わるまで待機
-            while (!asyncLoad.isDone)
+            yield return null;
+        }
+
+        /// <summary>
+        /// 恐怖もくもくフレームのイメージの描画アニメーションを再生
+        /// </summary>
+        /// <param name="horrorMokuFrameColorStruct">恐怖フレームカラー構造体</param>
+        /// <param name="horrorMokumokuFrameImage">恐怖もくもくフレームのイメージ</param>
+        private void PlayRenderFrameImageColorAnimation(HorrorMokuFrameColorStruct horrorMokuFrameColorStruct, Image horrorMokumokuFrameImage)
+        {
+            // ② フレームカラーの変更（アルファは RenderFrameImageAlpha が毎フレーム制御しているため保持）
+            var current = horrorMokumokuFrameImage.color;
+
+            // 既存のカラーTweenがあれば停止してから開始
+            horrorMokumokuFrameImage.DOKill();
+
+            if (horrorMokuFrameColorStruct.isLoop)
             {
-                // ここでasyncLoad.progressを見てローディング演出もできる！
-                yield return null;
+                var targetFrom = new Color(horrorMokuFrameColorStruct.frameFromColor.r, horrorMokuFrameColorStruct.frameFromColor.g, horrorMokuFrameColorStruct.frameFromColor.b, current.a);
+                var targetTo = new Color(horrorMokuFrameColorStruct.frameToColor.r, horrorMokuFrameColorStruct.frameToColor.g, horrorMokuFrameColorStruct.frameToColor.b, current.a);
+                float dur = Mathf.Max(0f, horrorMokuFrameColorStruct.duration);
+                Sequence sequence = DOTween.Sequence()
+                    .Append(horrorMokumokuFrameImage.DOColor(targetTo, Mathf.Max(0f, dur)))
+                    .Append(horrorMokumokuFrameImage.DOColor(targetFrom, Mathf.Max(0f, dur)))
+                    .OnComplete(() =>
+                    {
+                        // 以降: From↔To の無限ヨーヨー（Sequence外なので警告出ない）
+                        horrorMokumokuFrameImage
+                            .DOColor(targetTo, dur)
+                            .From(targetFrom)
+                            .SetLoops(-1, LoopType.Yoyo);
+                    });
             }
-            observer.OnNext(true);
-            observer.OnCompleted();
+            else
+            {
+                var target = new Color(horrorMokuFrameColorStruct.frameColor.r, horrorMokuFrameColorStruct.frameColor.g, horrorMokuFrameColorStruct.frameColor.b, current.a);
+                var tween = horrorMokumokuFrameImage
+                    .DOColor(target, Mathf.Max(0f, horrorMokuFrameColorStruct.duration))
+                    .SetEase(Ease.InOutBounce);
+            }
         }
     }
 }

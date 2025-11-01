@@ -60,9 +60,18 @@ namespace Mains.ViewModels
 
         public PlayerViewModel(InteractionPartTable interactionPartTable)
         {
-            GameObject gameObject = new GameObject($"{typeof(PlayerModel).Name}");
-            _playerModel = gameObject.AddComponent<PlayerModel>();
-            _playerModel.InteractionPartTable = interactionPartTable;
+            PlayerModel model = GameObject.FindAnyObjectByType<PlayerModel>();
+            if (model == null)
+            {
+                GameObject gameObject = new GameObject($"{typeof(PlayerModel).Name}");
+                _playerModel = gameObject.AddComponent<PlayerModel>();
+            }
+            else
+            {
+                _playerModel = model;
+            }
+            if (_playerModel.InteractionPartTable == null)
+                _playerModel.InteractionPartTable = interactionPartTable;
         }
 
         public void SetIsSwitchPart(bool isSwitchPart)
