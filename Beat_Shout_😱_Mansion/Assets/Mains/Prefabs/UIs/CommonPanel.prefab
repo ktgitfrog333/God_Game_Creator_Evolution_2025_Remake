@@ -78,7 +78,7 @@ RectTransform:
   m_Father: {fileID: 7099576897522555012}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -683,9 +683,9 @@ RectTransform:
   - {fileID: 6092148748935327149}
   m_Father: {fileID: 2700221343193030077}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 270.32574, y: -40.872757}
   m_SizeDelta: {x: 539.8577, y: 72}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6626842512711864359
@@ -807,7 +807,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1980, y: 1080}
+  m_SizeDelta: {x: 1920, y: 1080}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2128162561486606444
 CanvasRenderer:
@@ -830,7 +830,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -970,9 +970,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2700221343193030077}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 270.32574, y: -116.61827}
   m_SizeDelta: {x: 539.8577, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6291396061522941662
@@ -1127,7 +1127,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2147915098625610467
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1174,6 +1174,28 @@ MonoBehaviour:
   horrorMokumokuFrameImage: {fileID: 5305990462594859407}
   frameAlphaMin: 0.3
   frameAlphaMax: 1
+  horrorMokuFrameColorStructs:
+  - from: 0
+    to: 0.4
+    frameColor: {r: 0, g: 0, b: 0, a: 0}
+    duration: 0
+    isLoop: 0
+    frameFromColor: {r: 0, g: 0, b: 0, a: 0}
+    frameToColor: {r: 0, g: 0, b: 0, a: 0}
+  - from: 0.41
+    to: 0.74
+    frameColor: {r: 1, g: 0.2901961, b: 0, a: 0}
+    duration: 1
+    isLoop: 0
+    frameFromColor: {r: 0, g: 0, b: 0, a: 0}
+    frameToColor: {r: 0, g: 0, b: 0, a: 0}
+  - from: 0.75
+    to: 1
+    frameColor: {r: 0, g: 0, b: 0, a: 0}
+    duration: 1
+    isLoop: 1
+    frameFromColor: {r: 0.4627451, g: 0, b: 0.19607843, a: 0}
+    frameToColor: {r: 1, g: 0, b: 0.41960785, a: 0}
   heartBeatPropStructs:
   - from: 0
     to: 0.4
@@ -1202,6 +1224,7 @@ MonoBehaviour:
     guideText: "\u3092 ${ghostAllMembersCount} \u4F53\u9000\u6CBB\u3059\u308B"
     missionText: ${ghostExitMembersCount} / ${ghostAllMembersCount}
   objectsPoolViewPrefab: {fileID: 9047147154769791731, guid: 0fcd19e76e96f9b46add68c72347b690, type: 3}
+  "\u63A2\u7D22_\u30B7\u30E3\u30A6\u30C8\u30C1\u30E3\u30F3\u30B9_\u30EA\u30BA\u30E0\u30D1\u30FC\u30C8\u60C5\u5831\u7BA1\u7406\u30C6\u30FC\u30D6\u30EB": {fileID: 11400000, guid: 29803e3e02d34024a99bd792e912398b, type: 2}
 --- !u!1 &6956493077225774597
 GameObject:
   m_ObjectHideFlags: 0
@@ -1235,7 +1258,7 @@ RectTransform:
   m_Father: {fileID: 1875978745200091238}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1313,7 +1336,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 158}
+  m_SizeDelta: {x: 32, y: 158}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &3946283085664222253
 CanvasRenderer:

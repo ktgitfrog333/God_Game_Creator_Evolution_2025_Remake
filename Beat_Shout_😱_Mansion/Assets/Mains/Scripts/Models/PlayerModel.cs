@@ -11,7 +11,8 @@ namespace Mains.Models
     /// <summary>
     /// プレイヤーのモデル
     /// </summary>
-    public class PlayerModel : MonoBehaviour, IPlayerModel, IPoltergeistModel, IRhythmPartPanelModel, IHomingObjectCustomizeModel, IMissGhostAttackCustomizeModel, IMissileDirectAnimManagerBCustomizeModel, ICommonPanelModel, IFadeImageModel
+    public class PlayerModel : MonoBehaviour, IPlayerModel, IPoltergeistModel, IRhythmPartPanelModel, IHomingObjectCustomizeModel,
+        IMissGhostAttackCustomizeModel, IMissileDirectAnimManagerBCustomizeModel, ICommonPanelModel, IFadeImageModel
     {
         /// <summary>【探索／シャウトチャンス／リズム】パート情報管理テーブル</summary>
         public InteractionPartTable InteractionPartTable { get; set; }
@@ -76,15 +77,6 @@ namespace Mains.Models
 
         private void Start()
         {
-            Observable.EveryUpdate()
-                .Select(_ => InteractionPartTable)
-                .Where(q => q != null)
-                .Take(1)
-                .Subscribe(q =>
-                {
-                    InteractionPartTable.interactionPart.Value = InteractionPart.Search;
-                })
-                .AddTo(ref _disposableBag);
             _selectedStageIndex.Execute(-1);
         }
 
