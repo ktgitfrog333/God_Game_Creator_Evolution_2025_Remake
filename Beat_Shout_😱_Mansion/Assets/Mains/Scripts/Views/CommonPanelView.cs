@@ -384,7 +384,7 @@ namespace Mains.Views
         /// <param name="horrorGaugeSlider">恐怖ゲージのスライダー</param>
         private void SetHorrorGaugeSlider(float horrorCount, float horrorCountMax, Slider horrorGaugeSlider)
         {
-            var horror = horrorCount / horrorCountMax;
+            var horror = (horrorCountMax - horrorCount) / horrorCountMax;
             horrorGaugeSlider.value = horror;
         }
 
