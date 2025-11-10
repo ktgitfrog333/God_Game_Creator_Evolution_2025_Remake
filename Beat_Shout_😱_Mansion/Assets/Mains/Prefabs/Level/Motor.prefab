@@ -128,6 +128,7 @@ MonoBehaviour:
   tiltThreshold: 0.1
   objectsPoolViewPrefab: {fileID: 9047147154769791731, guid: 0fcd19e76e96f9b46add68c72347b690, type: 3}
   maxDistance: 3
+  iconMicAlertLevel: 0.1
 --- !u!114 &2104906501159058204
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -57,8 +57,16 @@ namespace Mains.Views
         private Vector3 _initialLocalPosition;
         /// <summary>初期ローカルオイラー角度</summary>
         private Vector3 _initialLocalEulerAngles;
+        /// <summary>オブジェクトプールビュー</summary>
+        private ObjectsPoolView _objectsPoolView;
+        /// <summary>マイク点灯させるレベル</summary>
+        [SerializeField] private float iconMicAlertLevel;
+        /// <summary>驚くアニメーションを再生中</summary>
+        private bool _isPlayingFreakout;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
+        /// <summary>R3のリソース管理</summary>
+        private readonly CompositeDisposable _disposables = new();
 
         private void Reset()
         {
@@ -80,24 +88,48 @@ namespace Mains.Views
             if (objectsPoolView == null)
                 objectsPoolView = Instantiate(objectsPoolViewPrefab).GetComponent<ObjectsPoolView>();
             Se_3D_PickerCustomizeView t3DSoundPlayer = objectsPoolView.Get3DSoundPlayer();
+            _objectsPoolView = objectsPoolView;
             Observable.EveryUpdate()
                 .Select(_ => _poltergeistViewModel.InteractionPart)
                 .Where(x => x != null)
                 .Take(1)
                 .Subscribe(x =>
                 {
+                    CompositeDisposable disposables = new();
                     x.Subscribe(x =>
                     {
                         switch (x)
                         {
                             case InteractionPart.Search:
-                            case InteractionPart.ShoutChance:
-                                // 探索パートとシャウトチャンスパートはタップを有効
+                                // 探索パートはタップを有効
                                 animator.SetBool("Tap", true);
 
                                 break;
+                            case InteractionPart.ShoutChance:
+                                // シャウトチャンスパートとリズムパートはタップを無効
+                                animator.SetBool("Tap", false);
+                                // デシベルレベルを取得してマイクアイコン切り替え表示する処理を追加
+                                Observable.EveryUpdate()
+                                    .Select(_ => _poltergeistViewModel.DbLevel)
+                                    .Where(x => x != null)
+                                    .Take(1)
+                                    .Subscribe(x =>
+                                    {
+                                        // TODO: アラート発生レベルの判定を共通化する
+                                        x.Where(dbLevel => iconMicAlertLevel <= dbLevel &&
+                                            !_isPlayingFreakout)
+                                            .Subscribe(_ =>
+                                            {
+                                                _isPlayingFreakout = true;
+                                                animator.SetTrigger("Freakout");
+                                            })
+                                            .AddTo(disposables);
+                                    })
+                                    .AddTo(disposables);
+
+                                break;
                             case InteractionPart.Rhythm:
-                                // リズムパートはタップを無効
+                                // シャウトチャンスパートとリズムパートはタップを無効
                                 animator.SetBool("Tap", false);
 
                                 break;
@@ -109,33 +141,12 @@ namespace Mains.Views
             _onAction.Where(x => x)
                 .Subscribe(_ =>
                 {
-                    if (dustParticleInstance == null)
-                    {
-                        dustParticleInstance = GameObject.Instantiate(dustParticlePrefab).transform;
-                        dustParticleInstance.SetParent(_transform);
-                        dustParticleInstance.localPosition = Vector3.zero;
-                    }
-                    else
-                    {
-                        dustParticleInstance.gameObject.SetActive(false);
-                        dustParticleInstance.gameObject.SetActive(true);
-                    }
-                    if (_poltergeistViewModel.PlayerTransform != null)
-                    {
-                        // モーターの現在位置を取得
-                        Vector3 playerPosition = _transform.position;
-                        // 距離を計算
-                        float distance = Vector3.Distance(playerPosition, _poltergeistViewModel.PlayerTransform.position);
-                        // 一定距離に近づいたら振動させる
-                        if (distance <= maxDistance)
-                        {
-                            // 近いほど振動が強くなる（遠いと0、近いと1）
-                            float intensity = Mathf.Clamp01(1f - (distance / maxDistance));
+                    DoInstanceDustAndPlaySE(IsEnabledPoltergeist, dustParticlePrefab, _transform,
+                        dustParticleInstance,
+                        _poltergeistViewModel.PlayerTransform, maxDistance,
+                        t3DSoundPlayer,
+                        true);
 
-                            // 3D空間での音の出力
-                            t3DSoundPlayer.PlaySound("footstep", intensity);
-                        }
-                    }
                     // 実行後はリセットする
                     _onAction.Execute(false);
                 })
@@ -149,6 +160,7 @@ namespace Mains.Views
         {
             _disposableBag.Dispose();
             _script_XyloApi?.Dispose();
+            _disposables.Dispose();
         }
 
         private void OnDrawGizmosSelected()
@@ -163,8 +175,54 @@ namespace Mains.Views
         /// <see cref="Assets/Mains/Animations/Poltergeists/Poltergeist.controller"/>
         public void OnAction()
         {
-            if (!IsEnabledPoltergeist ||
-                _transform == null)
+            var objectsPoolView = _objectsPoolView;
+            if (objectsPoolView == null)
+                return;
+
+            Se_3D_PickerCustomizeView t3DSoundPlayer = objectsPoolView.Get3DSoundPlayer();
+            Transform dustParticleInstance = null;
+            DoInstanceDustAndPlaySE(IsEnabledPoltergeist, dustParticlePrefab, _transform,
+                dustParticleInstance,
+                _poltergeistViewModel.PlayerTransform, maxDistance,
+                t3DSoundPlayer);
+        }
+
+        /// <summary>
+        /// AnimarionClipからトリガー（アクション）の受信
+        /// </summary>
+        /// <see cref="Assets/Mains/Animations/Poltergeists/Poltergeist.controller"/>
+        public void OnActionFreakout()
+        {
+            PlayActionAnimation(IsEnabledPoltergeist, _transform, forceVariation, torqueMagnitude, _initialRotation, tiltThreshold,
+                rigidbody, _poltergeistViewModel, _onAction);
+        }
+
+        /// <summary>
+        /// AnimarionClipからトリガー（アクション）の受信
+        /// </summary>
+        /// <see cref="Assets/Mains/Animations/Poltergeists/Poltergeist.controller"/>
+        public void OnCompletedFreakout()
+        {
+            _isPlayingFreakout = false;
+        }
+
+        /// <summary>
+        /// アクションアニメーションを再生
+        /// </summary>
+        /// <param name="isEnabledPoltergeist">ポルターガイストが有効か</param>
+        /// <param name="transform">トランスフォーム</param>
+        /// <param name="forceVariation">ランダム補正</param>
+        /// <param name="torqueMagnitude">回転の強さ</param>
+        /// <param name="initialRotation">初期回転値</param>
+        /// <param name="tiltThreshold">角度しきい値（°）</param>
+        /// <param name="rigidbody">Rigidbody</param>
+        /// <param name="poltergeistViewModel">ポルターガイストのビューモデル</param>
+        /// <param name="onAction">アクション発火の監視</param>
+        private void PlayActionAnimation(bool isEnabledPoltergeist, Transform transform, float forceVariation, float torqueMagnitude, Quaternion initialRotation, float tiltThreshold,
+            Rigidbody rigidbody, PoltergeistViewModel poltergeistViewModel, ReactiveCommand<bool> onAction)
+        {
+            if (!isEnabledPoltergeist ||
+                transform == null)
                 return;
 
             // ランダムな方向への力
@@ -180,12 +238,64 @@ namespace Mains.Views
             );
             rigidbody.AddTorque(randomTorque, ForceMode.Impulse);
 
-            var angle = Quaternion.Angle(_initialRotation, _transform.rotation);
+            var angle = Quaternion.Angle(initialRotation, transform.rotation);
             if (tiltThreshold < angle)
             {
-                _poltergeistViewModel.SetOnActionPoltergeistPosition(_transform.position);
+                poltergeistViewModel.SetOnActionPoltergeistPosition(transform.position);
                 // アクション実行を通知
-                _onAction.Execute(true);
+                onAction.Execute(true);
+            }
+        }
+
+        /// <summary>
+        /// パーティクル生成及びSE再生
+        /// </summary>
+        /// <param name="isEnabledPoltergeist">ポルターガイストが有効か</param>
+        /// <param name="dustParticlePrefab">Assets/Mains/Prefabs/Effects/DustParticle.prefabをセットしておく。</param>
+        /// <param name="transform">トランスフォーム</param>
+        /// <param name="dustParticleInstance">DustParticleのInstance用</param>
+        /// <param name="playerTransform">プレイヤーのトランスフォーム</param>
+        /// <param name="maxDistance">振動を開始する最長距離</param>
+        /// <param name="t3DSoundPlayer">Se_3D_Pickerのカスタマイズビュー</param>
+        /// <param name="isInstanceDust">DustParticleを生成するか</param>
+        private void DoInstanceDustAndPlaySE(bool isEnabledPoltergeist, GameObject dustParticlePrefab, Transform transform,
+            Transform dustParticleInstance,
+            Transform playerTransform, float maxDistance,
+            Se_3D_PickerCustomizeView t3DSoundPlayer,
+            bool isInstanceDust = false)
+        {
+            if (!isEnabledPoltergeist)
+                return;
+
+            if (isInstanceDust)
+            {
+                if (dustParticleInstance == null)
+                {
+                    dustParticleInstance = GameObject.Instantiate(dustParticlePrefab).transform;
+                    dustParticleInstance.SetParent(transform);
+                    dustParticleInstance.localPosition = Vector3.zero;
+                }
+                else
+                {
+                    dustParticleInstance.gameObject.SetActive(false);
+                    dustParticleInstance.gameObject.SetActive(true);
+                }
+            }
+            if (playerTransform != null)
+            {
+                // モーターの現在位置を取得
+                Vector3 playerPosition = transform.position;
+                // 距離を計算
+                float distance = Vector3.Distance(playerPosition, playerTransform.position);
+                // 一定距離に近づいたら振動させる
+                if (distance <= maxDistance)
+                {
+                    // 近いほど振動が強くなる（遠いと0、近いと1）
+                    float intensity = Mathf.Clamp01(1f - (distance / maxDistance));
+
+                    // 3D空間での音の出力
+                    t3DSoundPlayer.PlaySound("footstep", intensity);
+                }
             }
         }
 
