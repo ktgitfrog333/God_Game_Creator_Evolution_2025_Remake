@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using Mains.Manager;
 using DG.Tweening;
 using System.Collections;
+using System.Threading.Tasks;
 
 namespace Mains.Views
 {
@@ -262,6 +263,8 @@ namespace Mains.Views
             // シャウトが成功したオイラー角度
             Vector3? successShoutEulerAngles = null;
             _script_XyloApi.InitVolumeLevelReactive();
+            // 恐怖値のカウントを停止する
+            bool isStopHorrorCount = false;
             Observable.EveryUpdate()
                 .Select(_ => _playerViewModel.InteractionPart)
                 .Where(x => x != null)
@@ -298,17 +301,6 @@ namespace Mains.Views
                                 observableUpdateIsFailedDisposable?.Dispose();
                                 observableIsFailedDisposable?.Dispose();
                                 observableTargetCrossPositionDisposable?.Dispose();
-                                // 恐怖値の加減補正値
-                                float correctionHorrorCount = 1f;
-                                var volumeLevelReactive = _script_XyloApi.VolumeLevelReactive;
-                                if (volumeLevelReactive != null)
-                                {
-                                    volumeLevelReactiveDisposable = volumeLevelReactive.Subscribe(volumeLevel =>
-                                    {
-                                        correctionHorrorCount = 1f * (1f - volumeLevel);
-                                    })
-                                        .AddTo(ref _disposableBag);
-                                }
                                 // 1. 探索、シャウト用の操作
                                 observablePlayerControllerDisposable = Observable.EveryUpdate()
                                     .Where(_ => characterController.enabled)
@@ -374,7 +366,10 @@ namespace Mains.Views
 
                                         bool isSwitchPart = player.GetButtonDown("SwitchPart");
                                         _playerViewModel.SetIsSwitchPart(isSwitchPart);
-                                        _playerViewModel.AddHorrorCount(correctionHorrorCount * Time.deltaTime);
+                                        if (!isStopHorrorCount)
+                                        {
+                                            _playerViewModel.AddHorrorCount(1f * Time.deltaTime);
+                                        }
                                     })
                                     .AddTo(ref _disposableBag);
                                 _playerViewModel.SetIsLockedUpdateHealthPoint(false);
@@ -668,6 +663,18 @@ namespace Mains.Views
                         }
                     })
                     .AddTo(ref _disposableBag);
+                })
+                .AddTo(ref _disposableBag);
+            // ブレイブシャウト用
+            // 一定のレベルを超えた際に一定時間減少を止める
+            dbLevel.Where(x => シャウトチャンスパートの共通パラメータ管理用テーブル.シャウト達成デシベル <= x &&
+                !isStopHorrorCount)
+                .Subscribe(async _ =>
+                {
+                    isStopHorrorCount = true;
+                    int time = (int)(シャウトチャンスパートの共通パラメータ管理用テーブル.恐怖値のカウント停止時間 * 1000f);
+                    await Task.Delay(time);
+                    isStopHorrorCount = false;
                 })
                 .AddTo(ref _disposableBag);
 
