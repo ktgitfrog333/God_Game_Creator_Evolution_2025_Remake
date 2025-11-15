@@ -59,8 +59,7 @@ namespace Mains.Views
         private Vector3 _initialLocalEulerAngles;
         /// <summary>オブジェクトプールビュー</summary>
         private ObjectsPoolView _objectsPoolView;
-        /// <summary>マイク点灯させるレベル</summary>
-        [SerializeField] private float iconMicAlertLevel;
+        [SerializeField] private PlayerShoutChanceTable シャウトチャンスパートの共通パラメータ管理用テーブル;
         /// <summary>驚くアニメーションを再生中</summary>
         private bool _isPlayingFreakout;
         /// <summary>R3のリソース管理</summary>
@@ -95,47 +94,58 @@ namespace Mains.Views
                 .Take(1)
                 .Subscribe(x =>
                 {
-                    CompositeDisposable disposables = new();
-                    x.Subscribe(x =>
-                    {
-                        switch (x)
+                    CompositeDisposable disposables = null;
+                    x.DistinctUntilChanged()
+                        .Subscribe(x =>
                         {
-                            case InteractionPart.Search:
-                                // 探索パートはタップを有効
-                                animator.SetBool("Tap", true);
+                            switch (x)
+                            {
+                                case InteractionPart.Search:
+                                    // 探索パートはタップを有効
+                                    animator.SetBool("Tap", true);
 
-                                break;
-                            case InteractionPart.ShoutChance:
-                                // シャウトチャンスパートとリズムパートはタップを無効
-                                animator.SetBool("Tap", false);
-                                // デシベルレベルを取得してマイクアイコン切り替え表示する処理を追加
-                                Observable.EveryUpdate()
-                                    .Select(_ => _poltergeistViewModel.DbLevel)
-                                    .Where(x => x != null)
-                                    .Take(1)
-                                    .Subscribe(x =>
-                                    {
-                                        // TODO: アラート発生レベルの判定を共通化する
-                                        x.Where(dbLevel => iconMicAlertLevel <= dbLevel &&
-                                            !_isPlayingFreakout)
-                                            .Subscribe(_ =>
-                                            {
-                                                _isPlayingFreakout = true;
-                                                animator.SetTrigger("Freakout");
-                                            })
-                                            .AddTo(disposables);
-                                    })
-                                    .AddTo(disposables);
+                                    break;
+                                case InteractionPart.ShoutChance:
+                                    // シャウトチャンスパートとリズムパートはタップを無効
+                                    animator.SetBool("Tap", false);
+                                    // デシベルレベルを取得してマイクアイコン切り替え表示する処理を追加
+                                    disposables = new();
+                                    Observable.EveryUpdate()
+                                        .Select(_ => _poltergeistViewModel.DbLevel)
+                                        .Where(x => x != null)
+                                        .Take(1)
+                                        .Subscribe(x =>
+                                        {
+                                            // TODO: アラート発生レベルの判定を共通化する
+                                            x.Where(dbLevel => シャウトチャンスパートの共通パラメータ管理用テーブル.シャウト達成デシベル <= dbLevel &&
+                                                !_isPlayingFreakout)
+                                                .Subscribe(_ =>
+                                                {
+                                                    _isPlayingFreakout = true;
+                                                    animator.SetTrigger("Freakout");
+                                                })
+                                                .AddTo(disposables);
+                                        })
+                                        .AddTo(disposables);
 
-                                break;
-                            case InteractionPart.Rhythm:
-                                // シャウトチャンスパートとリズムパートはタップを無効
-                                animator.SetBool("Tap", false);
+                                    break;
+                                case InteractionPart.Rhythm:
+                                    // シャウトチャンスパートとリズムパートはタップを無効
+                                    animator.SetBool("Tap", false);
 
-                                break;
-                        }
-                    })
-                    .AddTo(ref _disposableBag);
+                                    break;
+                            }
+                        })
+                        .AddTo(ref _disposableBag);
+                    // シャウトチャンスパート⇒シャウトチャンスパート以外へ遷移
+                    x.Pairwise()
+                        .Where(x => x.Previous.Equals(InteractionPart.ShoutChance) &&
+                            !x.Current.Equals(InteractionPart.ShoutChance))
+                        .Subscribe(_ =>
+                        {
+                            disposables?.Dispose();
+                        })
+                        .AddTo(ref _disposableBag);
                 })
                 .AddTo(ref _disposableBag);
             _onAction.Where(x => x)
