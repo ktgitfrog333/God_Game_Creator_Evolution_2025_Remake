@@ -71,6 +71,8 @@ public class SE_Picker : MonoBehaviour
     private string HitMiss3;
     private string HitMiss4;
     private string HitMiss5;
+    private string HeartbeatFast;
+    private string HeartbeatSlow;
 
 
     private void OnEnable()
@@ -153,10 +155,12 @@ Move4 = "Move4";
         HitMiss3 = "HitMiss3";
         HitMiss4 = "HitMiss4";
         HitMiss5 = "HitMiss5";
+        HeartbeatFast = "HeartbeatFast";
+        HeartbeatSlow = "HeartbeatSlow";
 
 
-        // •Û‘¶‚³‚ê‚Ä‚¢‚éSE‰¹—Ê‚ğ“Ç‚İ‚Ş
-        LoadMasterSEVolume();
+    // •Û‘¶‚³‚ê‚Ä‚¢‚éSE‰¹—Ê‚ğ“Ç‚İ‚Ş
+    LoadMasterSEVolume();
     }
 
     /// <summary>
@@ -425,6 +429,14 @@ Move4 = "Move4";
     public void PlayHitMiss5(float volume)
     {
         PlaySound(HitMiss5, volume);
+    }
+    public void PlayHeartbeatFast(float volume) 
+    {
+        PlaySound(HeartbeatFast, volume);
+    }
+    public void PlayHeartbeatSlow(float volume)
+    {
+        PlaySound(HeartbeatSlow, volume);
     }
 
 
