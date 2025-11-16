@@ -37,10 +37,6 @@ namespace Mains.Views
         // [SerializeField] private float heartBeatMax;
         /// <summary>心音プロパティ構造体</summary>
         [SerializeField] private HeartBeatPropStruct[] heartBeatPropStructs;
-        /// <summary>オーディオの仮実装用スタブ</summary>
-        [SerializeField] private AudioStubTable audioStubTable;
-        /// <summary>オーディオソース</summary>
-        [SerializeField] private AudioSource audioSource;
         [Header("その他オプション")]
         [Tooltip("CommonPanel > HeaderPanel > IconAndGuidePanel > GuideText をセット")]
         /// <summary>ミッションガイド概要のテキスト</summary>
@@ -256,21 +252,17 @@ namespace Mains.Views
                 {
                 	if (heartBeatPropStruct.value <= heartBeatElapsedTime)
                 	{
-                        // TODO: CRI追加後は修正する
-                        AudioClip clip = null;
                         switch (heartBeatPropStruct.type)
                         {
                             case 0:
-                                clip = audioStubTable.heartbeatSlow;
+                                _script_XyloApi.PlayHeartbeatSlow(1f);
 
                                 break;
                             case 1:
-                                clip = audioStubTable.heartbeatFast;
+                                _script_XyloApi.PlayHeartbeatFast(1f);
 
                                 break;
                         }
-                        audioSource.clip = clip;
-                        audioSource.Play();
                         heartBeatElapsedTime = 0f;
 
                 		return;

@@ -504,6 +504,26 @@ namespace Mains.External
             }
         }
 
+        public void PlayHeartbeatFast(float volume)
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            sePicker.PlayHeartbeatFast(volume);
+        }
+
+        public void PlayHeartbeatSlow(float volume)
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            sePicker.PlayHeartbeatSlow(volume);
+        }
+
         /// <summary>
         /// マイク入力中か
         /// </summary>
