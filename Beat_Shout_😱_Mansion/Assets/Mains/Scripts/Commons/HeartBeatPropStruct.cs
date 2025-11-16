@@ -19,5 +19,7 @@ namespace Mains.Commons
         public float volumeLevel;
         /// <summary>脈動値</summary>
         public float value;
+        /// <summary>SEタイプ（長、短）</summary>
+        public int type;
     }
 }

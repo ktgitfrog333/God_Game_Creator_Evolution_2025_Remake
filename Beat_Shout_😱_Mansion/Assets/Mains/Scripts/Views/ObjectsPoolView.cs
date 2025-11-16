@@ -30,7 +30,7 @@ namespace Mains.Views
         /// <returns>３D空間で発音するクローン</returns>
         public Se_3D_PickerCustomizeView Get3DSoundPlayer()
         {
-            return GetInactiveComponent(_3DSoundPlayers, _３D空間で発音するprefab, Transform);
+            return GetInactiveComponent(_3DSoundPlayers, _３D空間で発音するprefab, Transform, true);
         }
 
         #region 実装例 ③非アクティブなコンポーネントを取得
@@ -51,9 +51,9 @@ namespace Mains.Views
         /// <remarks>プール対象のクローンは役割を終えたら非アクティブになっている前提<br/>
         /// カスタムコンポーネントのリストから未使用のものを取得<br/>
         /// もし取得出来なかったらプレハブからクローンしてプールしておく</remarks>
-        private T GetInactiveComponent<T>(List<T> components, Transform prefab, Transform parent) where T : MonoBehaviour
+        private T GetInactiveComponent<T>(List<T> components, Transform prefab, Transform parent, bool ignoreActiveStatus = false) where T : MonoBehaviour
         {
-            var inactiveComponents = components.Where(q => !q.isActiveAndEnabled).ToArray();
+            var inactiveComponents = !ignoreActiveStatus ? components.Where(q => !q.isActiveAndEnabled).ToArray() : components.ToArray();
             if (inactiveComponents.Length < 1)
             {
                 var newComponent = GetClone(prefab, parent).GetComponent<T>();

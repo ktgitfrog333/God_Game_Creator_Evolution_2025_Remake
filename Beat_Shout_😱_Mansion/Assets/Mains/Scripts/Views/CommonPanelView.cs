@@ -37,6 +37,10 @@ namespace Mains.Views
         // [SerializeField] private float heartBeatMax;
         /// <summary>心音プロパティ構造体</summary>
         [SerializeField] private HeartBeatPropStruct[] heartBeatPropStructs;
+        /// <summary>オーディオの仮実装用スタブ</summary>
+        [SerializeField] private AudioStubTable audioStubTable;
+        /// <summary>オーディオソース</summary>
+        [SerializeField] private AudioSource audioSource;
         [Header("その他オプション")]
         [Tooltip("CommonPanel > HeaderPanel > IconAndGuidePanel > GuideText をセット")]
         /// <summary>ミッションガイド概要のテキスト</summary>
@@ -252,7 +256,21 @@ namespace Mains.Views
                 {
                 	if (heartBeatPropStruct.value <= heartBeatElapsedTime)
                 	{
-                        t3DSoundPlayer.PlaySound("footstep", heartBeatPropStruct.volumeLevel);
+                        // TODO: CRI追加後は修正する
+                        AudioClip clip = null;
+                        switch (heartBeatPropStruct.type)
+                        {
+                            case 0:
+                                clip = audioStubTable.heartbeatSlow;
+
+                                break;
+                            case 1:
+                                clip = audioStubTable.heartbeatFast;
+
+                                break;
+                        }
+                        audioSource.clip = clip;
+                        audioSource.Play();
                         heartBeatElapsedTime = 0f;
 
                 		return;
@@ -384,7 +402,7 @@ namespace Mains.Views
         /// <param name="horrorGaugeSlider">恐怖ゲージのスライダー</param>
         private void SetHorrorGaugeSlider(float horrorCount, float horrorCountMax, Slider horrorGaugeSlider)
         {
-            var horror = horrorCount / horrorCountMax;
+            var horror = (horrorCountMax - horrorCount) / horrorCountMax;
             horrorGaugeSlider.value = horror;
         }
 

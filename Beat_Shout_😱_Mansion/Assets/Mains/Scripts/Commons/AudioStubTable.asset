@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0c968ab14648494ba7c90c06fe69866, type: 3}
-  m_Name: PlayerShoutChanceTable
+  m_Script: {fileID: 11500000, guid: bd88c7d346008f34ea45f0f17ed1e2c2, type: 3}
+  m_Name: AudioStubTable
   m_EditorClassIdentifier: 
-  "\u30B7\u30E3\u30A6\u30C8\u9054\u6210\u30C7\u30B7\u30D9\u30EB": 2
-  "\u6050\u6016\u5024\u306E\u30AB\u30A6\u30F3\u30C8\u505C\u6B62\u6642\u9593": 1
+  heartbeatFast: {fileID: 8300000, guid: 816b55670a68bb34a92ed9e076963bd0, type: 3}
+  heartbeatSlow: {fileID: 8300000, guid: 50cd0502e7dd37f47bfe53007ef8a757, type: 3}

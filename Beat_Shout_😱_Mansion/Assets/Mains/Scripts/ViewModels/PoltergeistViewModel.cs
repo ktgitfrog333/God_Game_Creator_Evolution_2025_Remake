@@ -39,6 +39,8 @@ namespace Mains.ViewModels
         public GhostInStaticObjectStruct TransactionGhostInStaticObjectStruct => _playerModel?.TransactionGhostInStaticObjectStruct ?? new GhostInStaticObjectStruct();
         /// <summary>プレイヤーのHP</summary>
         public ReactiveProperty<int> PlayerHealthPoint => _playerModel?.PlayerPropertiesStruct.healthPoint ?? null;
+        /// <summary>デシベルレベル</summary>
+        public ReactiveCommand<float> DbLevel => _playerModel?.InteractionPartTable?.dbLevel ?? null;
 
         public PoltergeistViewModel(PoltergeistTable poltergeistTable)
         {

@@ -69,6 +69,7 @@ namespace Mains.Views
                                         dbLevelDisposable = x.Pairwise()
                                             .Subscribe(dbLevel =>
                                             {
+                                                // TODO: アラート発生レベルの判定を共通化する
                                                 if (iconMicAlertLevel <= dbLevel.Current)
                                                 {
                                                     if (!iconMicShoutImageView.IsPlaying)
