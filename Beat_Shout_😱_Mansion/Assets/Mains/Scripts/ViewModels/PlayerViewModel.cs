@@ -133,5 +133,11 @@ namespace Mains.ViewModels
             if (_playerModel != null)
                 _playerModel.AddHorrorCount(horrorCount);
         }
+
+        public void SetIsStopHorrorCount(bool isStopHorrorCount)
+        {
+            if (_playerModel != null)
+                _playerModel.SetIsStopHorrorCount(isStopHorrorCount);
+        }
     }
 }

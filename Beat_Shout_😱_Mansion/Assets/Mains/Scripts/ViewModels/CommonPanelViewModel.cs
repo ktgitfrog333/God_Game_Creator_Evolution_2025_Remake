@@ -24,6 +24,16 @@ namespace Mains.ViewModels
         public ReactiveCommand<int> PlayerHealthPointMax => _playerModel?.PlayerPropertiesStruct.healthPointMax ?? null;
         /// <summary>恐怖値</summary>
         public ReactiveCommand<float> HorrorCount => _playerModel?.PlayerPropertiesStruct.horrorCount ?? null;
+        /// <summary>恐怖値のカウントを停止中かのフラグ</summary>
+        public ReactiveCommand<bool> IsStopHorrorCount => _playerModel?.IsStopHorrorCount ?? null;
+        /// <summary>【探索／シャウトチャンス／リズム】パート</summary>
+        public ReactiveProperty<InteractionPart> InteractionPart
+        {
+            get
+            {
+                return _playerModel?.InteractionPartTable?.interactionPart ?? null;
+            }
+        }
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 

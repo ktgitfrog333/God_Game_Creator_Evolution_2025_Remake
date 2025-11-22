@@ -74,6 +74,10 @@ namespace Mains.Models
         public ReactiveCommand<bool> IsCompletedStartDirection => _isCompletedStartDirection;
         /// <summary>恐怖値</summary>
         private float _horrorCount;
+        /// <summary>恐怖値のカウントを停止中かのフラグ</summary>
+        private ReactiveCommand<bool> _isStopHorrorCount = new ReactiveCommand<bool>();
+        /// <summary>恐怖値のカウントを停止中かのフラグ</summary>
+        public ReactiveCommand<bool> IsStopHorrorCount => _isStopHorrorCount;
 
         private void Start()
         {
@@ -354,6 +358,11 @@ namespace Mains.Models
             _horrorCount = tmpHorrorCount;
             _playerPropertiesStruct.horrorCount.Execute(_horrorCount);
         }
+
+        public void SetIsStopHorrorCount(bool isStopHorrorCount)
+        {
+            _isStopHorrorCount.Execute(isStopHorrorCount);
+        }
     }
 
     /// <summary>
@@ -411,6 +420,11 @@ namespace Mains.Models
         /// </summary>
         /// <param name="horrorCount">恐怖値</param>
         public void AddHorrorCount(float horrorCount);
+        /// <summary>
+        /// 恐怖値のカウントを停止中かのフラグをセット
+        /// </summary>
+        /// <param name="isStopHorrorCount">恐怖値のカウントを停止中かのフラグ</param>
+        public void SetIsStopHorrorCount(bool isStopHorrorCount);
     }
 
     /// <summary>

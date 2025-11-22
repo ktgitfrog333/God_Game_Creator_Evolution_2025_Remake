@@ -672,9 +672,11 @@ namespace Mains.Views
                 .Subscribe(async _ =>
                 {
                     isStopHorrorCount = true;
+                    _playerViewModel.SetIsStopHorrorCount(isStopHorrorCount);
                     int time = (int)(シャウトチャンスパートの共通パラメータ管理用テーブル.恐怖値のカウント停止時間 * 1000f);
                     await Task.Delay(time);
                     isStopHorrorCount = false;
+                    _playerViewModel.SetIsStopHorrorCount(isStopHorrorCount);
                 })
                 .AddTo(ref _disposableBag);
 
