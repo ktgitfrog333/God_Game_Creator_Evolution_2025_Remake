@@ -1,8 +1,9 @@
-using UnityEngine;
+using DG.Tweening;
 using Mains.Commons;
 using Mains.Models;
 using ObservableCollections;
 using R3;
+using UnityEngine;
 
 namespace Mains.ViewModels
 {
@@ -34,6 +35,10 @@ namespace Mains.ViewModels
                 return _playerModel?.InteractionPartTable?.interactionPart ?? null;
             }
         }
+        /// <summary>恐怖値のカウントを停止中かのフラグ拡張版</summary>
+        private ReactiveCommand<bool> _isStopHorrorCountMore = new ReactiveCommand<bool>();
+        /// <summary>恐怖値のカウントを停止中かのフラグ拡張版</summary>
+        public ReactiveCommand<bool> IsStopHorrorCountMore => _isStopHorrorCountMore;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -51,6 +56,54 @@ namespace Mains.ViewModels
             }
             if (_playerModel.InteractionPartTable == null)
                 _playerModel.InteractionPartTable = interactionPartTable;
+            bool isStopOfRhythm = false;
+            // ブレイブシャウト成功中は点滅させる
+            Observable.EveryUpdate()
+                .Select(_ => IsStopHorrorCount)
+                .Where(x => x != null)
+                .Take(1)
+                .Subscribe(x =>
+                {
+                    x.DistinctUntilChanged()
+                        .Where(_ => !isStopOfRhythm)
+                        .Subscribe(x => _isStopHorrorCountMore.Execute(x))
+                        .AddTo(ref _disposableBag);
+                })
+                .AddTo(ref _disposableBag);
+            // リズムパート中は停止させる
+            Observable.EveryUpdate()
+                .Select(_ => InteractionPart)
+                .Where(x => x != null)
+                .Take(1)
+                .Subscribe(x =>
+                {
+                    x.DistinctUntilChanged()
+                        .Select(x =>
+                        {
+                            switch (x)
+                            {
+                                case Commons.InteractionPart.Search:
+                                case Commons.InteractionPart.ShoutChance:
+                                    // 探索パートとシャウトチャンスパートは恐怖ゲージ加算中
+                                    isStopOfRhythm = false;
+
+                                    return (0, false);
+                                case Commons.InteractionPart.Rhythm:
+                                    // リズムパートは停止中
+                                    isStopOfRhythm = true;
+
+                                    return (0, true);
+                                default:
+
+                                    return (-1, false);
+                            }
+                        })
+                        .Where(x => -1 < x.Item1)
+                        .Select(x => x.Item2)
+                        .Subscribe(x => _isStopHorrorCountMore.Execute(x))
+                        .AddTo(ref _disposableBag);
+                })
+                .AddTo(ref _disposableBag);
         }
     }
 }

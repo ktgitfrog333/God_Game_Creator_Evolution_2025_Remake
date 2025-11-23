@@ -69,6 +69,14 @@ namespace Mains.Views
         /// <summary>Start完了を通知するObservable（Trueになったら1度だけ発火）</summary>
         private Subject<Unit> _didStartAsObservable = new Subject<Unit>();
         [SerializeField] private InteractionPartTable 探索_シャウトチャンス_リズムパート情報管理テーブル;
+        // クラスフィールドとして追加
+        /// <summary>フィルアマウントのループアニメーションのコルーチン</summary>
+        private Coroutine _fillAmountLoopCoroutine;
+        /// <summary>恐怖ゲージスライダーのフィルとカラーの構造体</summary>
+        /// <remarks>フィルアマウントのループアニメーションの実行中設定</remarks>
+        private HorrorGaugeSliderFillColorStruct _currentGaugeFillConfig;
+        /// <summary>フィルアマウントのループアニメーションの実行中設定が存在するか</summary>
+        private bool _hasCurrentGaugeFillConfig;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -260,7 +268,6 @@ namespace Mains.Views
                     })
                     .AddTo(ref _disposableBag);
                     // ① HorrorCount から「現在のカラー区間インデックス」を求め、変化時だけ流すストリーム
-                    IEnumerator fillAmountLoopAnimation = null;
                     x.Select(hc =>
                     {
                         // max が null の保険
@@ -284,104 +291,61 @@ namespace Mains.Views
                     .Select(t => t.Item2)
                     .Subscribe(horrorGaugeSliderFillColorStruct =>
                     {
-                        RenderGaugeImageFillAndColor(horrorGaugeSliderFillColorStruct, horrorGaugeSliderFill, ref fillAmountLoopAnimation);
+                        RenderGaugeImageFillAndColor(horrorGaugeSliderFillColorStruct, horrorGaugeSliderFill);
                     })
                     .AddTo(ref _disposableBag);
 
                     x.Execute(0f);
                 })
                 .AddTo(ref _disposableBag);
-            // ブレイブシャウト成功中は点滅させる
-            Observable.EveryUpdate()
-                .Select(_ => _commonPanelViewModel.IsStopHorrorCount)
-                .Where(x => x != null)
-                .Take(1)
-                .Subscribe(x =>
+            // ブレイブシャウト成功中とリズムパート中は点滅させる
+            var isStopHorrorCountMore = _commonPanelViewModel.IsStopHorrorCountMore;
+            Tweener tweenerFill = null;
+            Tweener tweenerText = null;
+            // 停止中
+            isStopHorrorCountMore.DistinctUntilChanged()
+                .Where(x => x)
+                .Subscribe(_ =>
                 {
-                    Tweener tweenerFill = null;
-                    Tweener tweenerText = null;
-                    // 停止中
-                    x.DistinctUntilChanged()
-                        .Where(x => x)
-                        .Subscribe(_ =>
-                        {
-                            tweenerFill = horrorGaugeSliderFill.DOFade(0f, .5f)
-                                .From(1f)
-                                .SetLoops(-1, LoopType.Yoyo);
-                            tweenerText = horrorGaugeSliderNumberText.DOFade(0f, .5f)
-                                .From(1f)
-                                .SetLoops(-1, LoopType.Yoyo);
-                        })
-                        .AddTo(ref _disposableBag);
-                    // 恐怖ゲージ加算中
-                    x.DistinctUntilChanged()
-                        .Where(x => !x)
-                        .Subscribe(_ =>
-                        {
-                            if (tweenerFill != null && tweenerFill.IsPlaying())
-                            {
-                                tweenerFill.Complete();
-                                tweenerFill.Rewind();
-                                tweenerFill.Kill();
-                                tweenerFill = null;
-                            }
-                            if (tweenerText != null && tweenerText.IsPlaying())
-                            {
-                                tweenerText.Complete();
-                                tweenerText.Rewind();
-                                tweenerText.Kill();
-                                tweenerText = null;
-                            }
-                        })
-                        .AddTo(ref _disposableBag);
+                    tweenerFill = horrorGaugeSliderFill.DOFade(0f, .5f)
+                        .From(1f)
+                        .SetLoops(-1, LoopType.Yoyo);
+                    tweenerText = horrorGaugeSliderNumberText.DOFade(0f, .5f)
+                        .From(1f)
+                        .SetLoops(-1, LoopType.Yoyo);
+                    if (_hasCurrentGaugeFillConfig)
+                    {
+                        StopFillAmountLoop(_currentGaugeFillConfig.fillAmountFrom, horrorGaugeSliderFill);
+                    }
                 })
                 .AddTo(ref _disposableBag);
-            // リズムパート中は停止させる
-            Observable.EveryUpdate()
-                .Select(_ => _commonPanelViewModel.InteractionPart)
-                .Where(x => x != null)
-                .Take(1)
-                .Subscribe(x =>
+            // 恐怖ゲージ加算中
+            isStopHorrorCountMore.DistinctUntilChanged()
+                .Where(x => !x)
+                .Subscribe(_ =>
                 {
-                    Tweener tweenerFill = null;
-                    Tweener tweenerText = null;
-                    x.DistinctUntilChanged()
-                        .Subscribe(x =>
-                        {
-                            switch (x)
-                            {
-                                case InteractionPart.Search:
-                                case InteractionPart.ShoutChance:
-                                    // 探索パートとシャウトチャンスパートは恐怖ゲージ加算中
-                                    if (tweenerFill != null && tweenerFill.IsPlaying())
-                                    {
-                                        tweenerFill.Complete();
-                                        tweenerFill.Rewind();
-                                        tweenerFill.Kill();
-                                        tweenerFill = null;
-                                    }
-                                    if (tweenerText != null && tweenerText.IsPlaying())
-                                    {
-                                        tweenerText.Complete();
-                                        tweenerText.Rewind();
-                                        tweenerText.Kill();
-                                        tweenerText = null;
-                                    }
-
-                                    break;
-                                case InteractionPart.Rhythm:
-                                    // リズムパートは停止中
-                                    tweenerFill = horrorGaugeSliderFill.DOFade(0f, .5f)
-                                        .From(1f)
-                                        .SetLoops(-1, LoopType.Yoyo);
-                                    tweenerText = horrorGaugeSliderNumberText.DOFade(0f, .5f)
-                                        .From(1f)
-                                        .SetLoops(-1, LoopType.Yoyo);
-
-                                    break;
-                            }
-                        })
-                        .AddTo(ref _disposableBag);
+                    if (tweenerFill != null && tweenerFill.IsPlaying())
+                    {
+                        tweenerFill.Complete();
+                        tweenerFill.Rewind();
+                        tweenerFill.Kill();
+                        tweenerFill = null;
+                    }
+                    if (tweenerText != null && tweenerText.IsPlaying())
+                    {
+                        tweenerText.Complete();
+                        tweenerText.Rewind();
+                        tweenerText.Kill();
+                        tweenerText = null;
+                    }
+                    if (_hasCurrentGaugeFillConfig)
+                    {
+                        StartFillAmountLoop(
+                            _currentGaugeFillConfig.fillAmountFrom,
+                            _currentGaugeFillConfig.fillAmountTo,
+                            horrorGaugeSliderFill
+                        );
+                    }
                 })
                 .AddTo(ref _disposableBag);
             // 一定のリズムでSEを再生。horrorCountが残り少ないほどビートが短くなっていく。
@@ -670,18 +634,61 @@ namespace Mains.Views
         /// </summary>
         /// <param name="horrorGaugeSliderFillColorStruct">恐怖ゲージスライダーのフィルとカラーの構造体</param>
         /// <param name="horrorGaugeSliderFill">恐怖ゲージのフィル</param>
-        /// <param name="fillAmountLoopAnimation">ループアニメーションのコルーチン</param>
-        private void RenderGaugeImageFillAndColor(HorrorGaugeSliderFillColorStruct horrorGaugeSliderFillColorStruct, Image horrorGaugeSliderFill, ref IEnumerator fillAmountLoopAnimation)
+        private void RenderGaugeImageFillAndColor(
+            HorrorGaugeSliderFillColorStruct horrorGaugeSliderFillColorStruct,
+            Image horrorGaugeSliderFill)
         {
+            // 今の設定を覚えておく（再開時に使う）
+            _currentGaugeFillConfig = horrorGaugeSliderFillColorStruct;
+            _hasCurrentGaugeFillConfig = true;
+
+            // ループアニメーションを更新
+            StartFillAmountLoop(
+                horrorGaugeSliderFillColorStruct.fillAmountFrom,
+                horrorGaugeSliderFillColorStruct.fillAmountTo,
+                horrorGaugeSliderFill
+            );
+
+            // 色も更新
             var color = horrorGaugeSliderFillColorStruct.gaugeColor;
-            if (fillAmountLoopAnimation != null)
-            {
-                StopCoroutine(fillAmountLoopAnimation);
-            }
-            fillAmountLoopAnimation = PlayFillAmountLoopAnimation(horrorGaugeSliderFillColorStruct.fillAmountFrom, horrorGaugeSliderFillColorStruct.fillAmountTo, horrorGaugeSliderFill);
-            StartCoroutine(fillAmountLoopAnimation);
             if (color != horrorGaugeSliderFill.color)
                 horrorGaugeSliderFill.color = color;
+        }
+
+
+        /// <summary>
+        /// フィルアマウントのループアニメーションのコルーチン開始ラップ
+        /// </summary>
+        /// <param name="from">フィル値 〜から</param>
+        /// <param name="to">フィル値 〜まで</param>
+        /// <param name="horrorGaugeSliderFill">恐怖ゲージのフィル</param>
+        private void StartFillAmountLoop(float from, float to, Image horrorGaugeSliderFill)
+        {
+            // 既存があれば止める
+            if (_fillAmountLoopCoroutine != null)
+            {
+                StopCoroutine(_fillAmountLoopCoroutine);
+                _fillAmountLoopCoroutine = null;
+            }
+
+            _fillAmountLoopCoroutine = StartCoroutine(
+                PlayFillAmountLoopAnimation(from, to, horrorGaugeSliderFill)
+            );
+        }
+
+        /// <summary>
+        /// フィルアマウントのループアニメーションのコルーチン停止ラップ
+        /// </summary>
+        /// <param name="from">フィル値 〜から</param>
+        /// <param name="horrorGaugeSliderFill">恐怖ゲージのフィル</param>
+        private void StopFillAmountLoop(float from, Image horrorGaugeSliderFill)
+        {
+            if (_fillAmountLoopCoroutine != null)
+            {
+                StopCoroutine(_fillAmountLoopCoroutine);
+                _fillAmountLoopCoroutine = null;
+                horrorGaugeSliderFill.fillAmount = from;
+            }
         }
 
         /// <summary>
