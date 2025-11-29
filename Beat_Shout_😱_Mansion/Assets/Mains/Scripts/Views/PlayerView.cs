@@ -683,10 +683,9 @@ namespace Mains.Views
             // 吸気入力監視用
             bool isInhaling = false;
             bool isDualInhaling = false;
-            float inhaleStartTime = 0f;
-            float inhaleDurationThreshold = 1.0f; // 例：1秒以上
 
             Observable.EveryUpdate()
+                .Where(_ => characterController.enabled)
                 .Subscribe(_ =>
                 {
                     bool inhaleHeld = player.GetButton("Inhale");
@@ -703,23 +702,14 @@ namespace Mains.Views
                         if (!isInhaling)
                         {
                             isInhaling = true;
-                            inhaleStartTime = Time.time;
+                            // キー／トリガー入力のためそれっぽいMAX値をセット
+                            dbLevel.Value = シャウトチャンスパートの共通パラメータ管理用テーブル.シャウト達成デシベル;
                         }
                     }
                     else
                     {
                         if (isInhaling)
                         {
-                            float duration = Time.time - inhaleStartTime;
-                            if (duration >= inhaleDurationThreshold)
-                            {
-                                // キー／トリガー入力のためそれっぽいMAX値をセット
-                                dbLevel.Value = シャウトチャンスパートの共通パラメータ管理用テーブル.シャウト達成デシベル;
-                            }
-                            else
-                            {
-                                dbLevel.Value = 0f;
-                            }
                             isInhaling = false;
                         }
                     }
@@ -733,23 +723,14 @@ namespace Mains.Views
                         if (!isDualInhaling)
                         {
                             isDualInhaling = true;
-                            inhaleStartTime = Time.time;
+                            // キー／トリガー入力のためそれっぽいMAX値をセット
+                            dbLevel.Value = シャウトチャンスパートの共通パラメータ管理用テーブル.シャウト達成デシベル;
                         }
                     }
                     else
                     {
                         if (isDualInhaling)
                         {
-                            float duration = Time.time - inhaleStartTime;
-                            if (duration >= inhaleDurationThreshold)
-                            {
-                                // キー／トリガー入力のためそれっぽいMAX値をセット
-                                dbLevel.Value = シャウトチャンスパートの共通パラメータ管理用テーブル.シャウト達成デシベル;
-                            }
-                            else
-                            {
-                                dbLevel.Value = 0f;
-                            }
                             isDualInhaling = false;
                         }
                     }
