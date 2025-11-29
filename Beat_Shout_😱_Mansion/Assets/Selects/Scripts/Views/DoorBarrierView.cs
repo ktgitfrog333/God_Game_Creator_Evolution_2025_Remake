@@ -1,3 +1,4 @@
+using DG.Tweening;
 using R3;
 using Selects.Commons;
 using Selects.ViewModels;
@@ -8,21 +9,21 @@ using Universal.Utilities;
 namespace Selects.Views
 {
     /// <summary>
-    /// 黒煙パーティクルビュー
+    /// ドアの通行禁止マテリアル用ビュー
     /// </summary>
-    public class RisingSmokeParticleView : MonoBehaviour
+    public class DoorBarrierView : MonoBehaviour
     {
         [SerializeField] private LevelStruct レベル構造体;
-        /// <summary>黒煙パーティクルビューモデル</summary>
-        private RisingSmokeParticleViewModel _viewModel;
-        /// <summary>パーティクルシステム</summary>
-        [SerializeField] private ParticleSystem risingParticleSystem;
+        /// <summary>ドアの通行禁止マテリアル用ビューモデル</summary>
+        private DoorBarrierViewModel _viewModel;
+        /// <summary>マテリアルのレンダラー</summary>
+        [SerializeField] private Renderer doorRenderer;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
         private void Reset()
         {
-            risingParticleSystem = GetComponent<ParticleSystem>();
+            doorRenderer = GetComponent<Renderer>();
         }
 
         private void Start()
@@ -30,7 +31,9 @@ namespace Selects.Views
             ResourcesUtility utility = new ResourcesUtility();
             UserBean userBean = utility.LoadSaveDatasJsonOfUserBean(ConstResorcesNames.USER_DATA);
             var index = レベル構造体.階層;
-            _viewModel = new RisingSmokeParticleViewModel();
+            _viewModel = new DoorBarrierViewModel();
+            Material material = doorRenderer.material;
+            int FadeID = Shader.PropertyToID("_Fade");
             _viewModel.IsOnTriggerEnterSearchRangeIndex.Where(x => x == index)
                 .Take(1)
                 .Subscribe(_ =>
@@ -40,7 +43,8 @@ namespace Selects.Views
                         var status = userBean.state[index];
                         if (0 < status)
                         {
-                            risingParticleSystem.Stop();
+                            material.DOFloat(0f, FadeID, .5f)
+                                .From(1f);
                         }
                     }
                 })

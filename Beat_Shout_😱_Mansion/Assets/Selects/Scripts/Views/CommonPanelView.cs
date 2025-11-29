@@ -35,6 +35,14 @@ namespace Selects.Views
         [SerializeField] private float cursorIconImageのマージン;
         [SerializeField] private CommonPanelTemplateStruct 共通UIのテンプレート;
         [SerializeField] private LevelStruct[] レベル構造体リスト;
+        [Tooltip("CommonPanel > CenterPanel > InteractPanelPC をセット")]
+        [SerializeField] private RectTransform interactPanelPC;
+        [Tooltip("CommonPanel > CenterPanel > InteractPanelXbox360Con をセット")]
+        [SerializeField] private RectTransform interactPanelXbox360Con;
+        /// <summary>共通UIのビューモデル</summary>
+        private CommonPanelViewModel _viewModel;
+        /// <summary>R3のリソース管理</summary>
+        private readonly SerialDisposable _currentInputTypeDisposable = new SerialDisposable();
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -52,16 +60,40 @@ namespace Selects.Views
                 confirmPanel = transform.GetChild(1).GetChild(2) as RectTransform;
             if (cursorIconImage == null)
                 cursorIconImage = transform.GetChild(1).GetChild(2).GetChild(2) as RectTransform;
+            foreach (Transform child in transform)
+            {
+                if (child.name.Equals("CenterPanel"))
+                {
+                    foreach (Transform item in child)
+                    {
+                        if (item.name.Equals("InteractPanelPC"))
+                        {
+                            if (interactPanelPC == null)
+                                interactPanelPC = item as RectTransform;
+                        }
+                        if (item.name.Equals("InteractPanelXbox360Con"))
+                        {
+                            if (interactPanelXbox360Con == null)
+                                interactPanelXbox360Con = item as RectTransform;
+                        }
+                    }
+                }
+            }
         }
 
         private void Start()
         {
             controlGuidePanelXbox360Con.gameObject.SetActive(false);
+            interactPanelPC.gameObject.SetActive(false);
+            interactPanelXbox360Con.gameObject.SetActive(false);
             var player = ReInput.players.GetPlayer(0);
+            // 現在の入力タイプ
+            ReactiveProperty<int> currentInputType = new ReactiveProperty<int>();
             Observable.EveryUpdate()
-                .Subscribe(_ =>
+                .Select(_ => GetInputType(player))
+                .DistinctUntilChanged()
+                .Subscribe(inputType =>
                 {
-                    var inputType = GetInputType(player);
                     switch (inputType)
                     {
                         case 0:
@@ -75,9 +107,10 @@ namespace Selects.Views
 
                             break;
                     }
+                    currentInputType.Value = inputType;
                 })
                 .AddTo(ref _disposableBag);
-            CommonPanelViewModel viewModel = new CommonPanelViewModel();
+            _viewModel = new CommonPanelViewModel();
             var enterRoomText = enterRoomPanel.GetComponentInChildren<TextMeshProUGUI>();
             // 移動先のステージ番号
             int targetStageIndex = -1;
@@ -85,7 +118,7 @@ namespace Selects.Views
             YesNoTextView[] yesNoTextViews = confirmPanel.GetComponentsInChildren<YesNoTextView>();
             Vector3 cursorIconImageDefaultPosition = cursorIconImage.transform.position;
             Observable.EveryUpdate()
-                .Select(_ => viewModel.SelectedStageIndex)
+                .Select(_ => _viewModel.SelectedStageIndex)
                 .Where(x => x != null)
                 .Take(1)
                 .Subscribe(selectedStageIndexReactive =>
@@ -134,6 +167,53 @@ namespace Selects.Views
                         targetStageIndex = selectedStageIndex;
                     })
                     .AddTo(ref _disposableBag);
+                    // インタラクトパネルはステージが選択されたら非表示にする
+                    selectedStageIndexReactive.Select(x => -1 < x)
+                        .Pairwise()
+                        .Select(x =>
+                        {
+                            if (!x.Previous &&
+                                x.Current)
+                            {
+                                return (1, true);
+                            } else if (x.Previous &&
+                                !x.Current)
+                            {
+                                return (1, false);
+                            }
+
+                            return (0, false);
+                        })
+                        .Where(x => 0 < x.Item1)
+                        .Select(x => x.Item2)
+                        .Subscribe(isSelected =>
+                        {
+                            if (isSelected)
+                            {
+                                if (interactPanelPC.gameObject.activeSelf)
+                                    interactPanelPC.gameObject.SetActive(false);
+                                if (interactPanelXbox360Con.gameObject.activeSelf)
+                                    interactPanelXbox360Con.gameObject.SetActive(false);
+                            }
+                            else
+                            {
+                                switch (currentInputType.Value)
+                                {
+                                    case 0:
+                                        if (!interactPanelPC.gameObject.activeSelf)
+                                            interactPanelPC.gameObject.SetActive(true);
+
+                                        break;
+                                    case 1:
+                                        if (!interactPanelXbox360Con.gameObject.activeSelf)
+                                            interactPanelXbox360Con.gameObject.SetActive(true);
+
+                                        break;
+                                }
+                            }
+                        })
+                        .AddTo(ref _disposableBag);
+                    selectedStageIndexReactive.Execute(-1);
                 })
                 .AddTo(ref _disposableBag);
             FadeImageView fadeImageView = FindAnyObjectByType<FadeImageView>();
@@ -149,22 +229,39 @@ namespace Selects.Views
 
                             break;
                         case EnumEventCommand.Submited:
-                            DoLoadSceneOrResetSelectedStageIndex(yesNoTextView.Index, targetStageIndex, yesNoTextViews, fadeImageView, viewModel);
+                            DoLoadSceneOrResetSelectedStageIndex(yesNoTextView.Index, targetStageIndex, yesNoTextViews, fadeImageView, _viewModel);
 
                             break;
                         case EnumEventCommand.Canceled:
-                            ResetSelectedStageIndex(viewModel);
+                            ResetSelectedStageIndex(_viewModel);
 
                             break;
                     }
                 })
                     .AddTo(ref _disposableBag);
             }
+            // 部屋の扉の前で調べる当たり判定に触れたら調べるコマンドUIを出す
+            _viewModel.IsOnTriggerEnterSearchRangeIndex.Select(x => -1 < x)
+                .DistinctUntilChanged()
+                .Subscribe(x =>
+                {
+                    // ステージが選択されていない間だけ切り替えを行う
+                    _currentInputTypeDisposable.Disposable = currentInputType.Where(_ => targetStageIndex < 0)
+                        .Subscribe(inputType =>
+                    {
+                        RenderInteractPanel(x, inputType, interactPanelPC, interactPanelXbox360Con);
+                    });
+                    RenderInteractPanel(x, currentInputType.Value, interactPanelPC, interactPanelXbox360Con);
+                })
+                .AddTo(ref _disposableBag);
+            _viewModel.IsOnTriggerEnterSearchRangeIndex.Execute(-1);
         }
 
         private void OnDestroy()
         {
             _disposableBag.Dispose();
+            _viewModel?.Dispose();
+            _currentInputTypeDisposable.Disposable = null;
         }
 
         /// <summary>
@@ -304,6 +401,44 @@ namespace Selects.Views
             }
             observer.OnNext(true);
             observer.OnCompleted();
+        }
+
+        /// <summary>
+        /// インタラクトパネルを描画
+        /// </summary>
+        /// <param name="isOnTriggerEnterSearchRange">部屋の扉の前で調べる当たり判定に触れたか</param>
+        /// <param name="inputType">現在の入力タイプ</param>
+        /// <param name="interactPanelPC">インタラクトパネルPC</param>
+        /// <param name="interactPanelXbox360Con">インタラクトパネルXbox360コン</param>
+        private void RenderInteractPanel(bool isOnTriggerEnterSearchRange, int inputType, RectTransform interactPanelPC, RectTransform interactPanelXbox360Con)
+        {
+            if (isOnTriggerEnterSearchRange)
+            {
+                switch (inputType)
+                {
+                    case 0:
+                        if (!interactPanelPC.gameObject.activeSelf)
+                            interactPanelPC.gameObject.SetActive(true);
+                        if (interactPanelXbox360Con.gameObject.activeSelf)
+                            interactPanelXbox360Con.gameObject.SetActive(false);
+
+                        break;
+                    case 1:
+                        if (interactPanelPC.gameObject.activeSelf)
+                            interactPanelPC.gameObject.SetActive(false);
+                        if (!interactPanelXbox360Con.gameObject.activeSelf)
+                            interactPanelXbox360Con.gameObject.SetActive(true);
+
+                        break;
+                }
+            }
+            else
+            {
+                if (interactPanelPC.gameObject.activeSelf)
+                    interactPanelPC.gameObject.SetActive(false);
+                if (interactPanelXbox360Con.gameObject.activeSelf)
+                    interactPanelXbox360Con.gameObject.SetActive(false);
+            }
         }
     }
 }
