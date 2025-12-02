@@ -1,7 +1,9 @@
+using Mains.Commons;
 using Mains.External;
-using UnityEngine;
-using R3;
 using Mains.ViewModels;
+using R3;
+using R3.Triggers;
+using UnityEngine;
 
 namespace Mains.Views
 {
@@ -20,6 +22,10 @@ namespace Mains.Views
         [SerializeField] private Transform badParticleSysPrefab;
         [Tooltip("オバケの3Dモデルレンダラー GhostBodyModel/ghost_normal")]
         [SerializeField] private Renderer modelRenderer;
+        /// <summary>シロさんのコンポーネントへアクセスするAPI</summary>
+        private Script_xyloApi _script_XyloApi;
+        /// <summary>オブジェクトをホーミングする処理のカスタマイズビューモデル</summary>
+        private HomingObjectCustomizeViewModel _viewModel;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -31,41 +37,58 @@ namespace Mains.Views
 
         private void Start()
 		{
-			Script_xyloApi script_XyloApi = new();
+            _script_XyloApi = new Script_xyloApi();
             Transform trans = transform;
             var canvasTransform = GameObject.Find("OverlayCanvas").transform;
-            script_XyloApi.SetMissileDirectAnimManagerB(trans);
-            HomingObjectCustomizeViewModel viewModel = new HomingObjectCustomizeViewModel();
-            script_XyloApi.IsSuccessfulReactive.Where(x => x)
+            _script_XyloApi.SetMissileDirectAnimManagerB(trans);
+            _viewModel = new HomingObjectCustomizeViewModel();
+            _script_XyloApi.IsSuccessfulReactive.Where(x => x)
                 .Subscribe(_ =>
                 {
-                    ShowUIPanelAtObjectPosition(goodPanelPrefab, canvasTransform, goodParticleSysPrefab, script_XyloApi.NoteTransform, trans);
-                    DoSubtractionTransactionGhostInStaticObjectStruct(viewModel);
+                    ShowUIPanelAtObjectPosition(goodPanelPrefab, canvasTransform, goodParticleSysPrefab, _script_XyloApi.NoteTransform, trans);
+                    DoSubtractionTransactionGhostInStaticObjectStruct(_viewModel);
+                    _script_XyloApi.PlayHitSuccess3();
                 })
                 .AddTo(ref _disposableBag);
-            script_XyloApi.IsFailedReactive.Where(x => x)
+            _script_XyloApi.IsFailedReactive.Where(x => x &&
+                gameObject.activeSelf)
                 .Subscribe(_ =>
                 {
-                    ShowUIPanelAtObjectPosition(badPanelPrefab, canvasTransform, badParticleSysPrefab, script_XyloApi.NoteTransform, trans);
+                    ShowUIPanelAtObjectPosition(badPanelPrefab, canvasTransform, badParticleSysPrefab, _script_XyloApi.NoteTransform, trans);
+                    _script_XyloApi.PlayHitMiss3();
                 })
                 .AddTo(ref _disposableBag);
-            script_XyloApi.IsFailedReactive.Subscribe(isFailed =>
+            _script_XyloApi.IsFailedReactive.Where(_ => gameObject.activeSelf)
+                .Subscribe(isFailed =>
                 {
-                    viewModel.SetIsFailed(isFailed);
+                    _viewModel.SetIsFailed(isFailed);
                 })
                 .AddTo(ref _disposableBag);
-            script_XyloApi.SetMissileRendererColor();
+            _script_XyloApi.SetMissileRendererColor();
             // MissileDirectAnimManagerBのmissileRendererを監視して、それをオバケのモデル側のRendererへ反映
-            script_XyloApi.MissileRendererColor.Subscribe(color =>
+            _script_XyloApi.MissileRendererColor.Subscribe(color =>
             {
                 SetRendererColor(modelRenderer, color);
             })
+                .AddTo(ref _disposableBag);
+            this.OnEnableAsObservable()
+                .Subscribe(_ =>
+                {
+                    float dice = Random.value; // 0.0〜1.0 の乱数
+                    // 30%の確率で再生
+                    if (dice <= .3f)
+                    {
+                        _script_XyloApi.PlayGhostLaugh3();
+                    }
+                })
                 .AddTo(ref _disposableBag);
         }
 
         private void OnDestroy()
         {
             _disposableBag.Dispose();
+            _script_XyloApi?.Dispose();
+            _viewModel?.Dispose();
         }
 
         /// <summary>

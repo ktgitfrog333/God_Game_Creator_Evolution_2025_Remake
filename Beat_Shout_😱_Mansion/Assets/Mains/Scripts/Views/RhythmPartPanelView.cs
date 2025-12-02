@@ -56,6 +56,15 @@ namespace Mains.Views
                                 int layerMaskGhost = 1 << LayerMask.NameToLayer("Ghost");
                                 // マウスポインターへ追従
                                 targetCrossDisposable = Observable.EveryUpdate()
+                                    .Select(_ =>
+                                    {
+                                        bool isDefaultMapEnabled =
+                                            player.controllers.maps.GetAllMapsInCategory("Default")
+                                                  .Any(m => m.enabled);
+
+                                        return isDefaultMapEnabled;
+                                    })
+                                    .Where(x => x)
                                     .Subscribe(_ =>
                                     {
                                         Vector2 mousePos = Input.mousePosition;

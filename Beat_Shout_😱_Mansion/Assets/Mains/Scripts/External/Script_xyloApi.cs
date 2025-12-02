@@ -1,5 +1,6 @@
 using CriWare;
 using R3;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -504,24 +505,224 @@ namespace Mains.External
             }
         }
 
-        public void PlayHeartbeatFast(float volume)
+        public void PlayMove5()
         {
             var sePicker = SE_Picker.Instance;
             if (sePicker == null)
             {
                 return;
             }
-            sePicker.PlayHeartbeatFast(volume);
+            var manager = Selects.Manager.GameManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
+            sePicker.PlayMove5(seVolumeIndex);
         }
 
-        public void PlayHeartbeatSlow(float volume)
+        public void PlaySubmit2()
         {
             var sePicker = SE_Picker.Instance;
             if (sePicker == null)
             {
                 return;
             }
-            sePicker.PlayHeartbeatSlow(volume);
+            var manager = Selects.Manager.GameManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
+            sePicker.PlaySubmit2(seVolumeIndex);
+        }
+
+        public void PlayCancel4()
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            var manager = Selects.Manager.GameManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
+            sePicker.PlayCancel4(seVolumeIndex);
+        }
+
+        public void PlayHeartbeatFast()
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            var manager = Manager.GameManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
+            sePicker.PlayHeartbeatFast(seVolumeIndex);
+        }
+
+        public void PlayHeartbeatSlow()
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            var manager = Manager.GameManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
+            sePicker.PlayHeartbeatSlow(seVolumeIndex);
+        }
+
+        public void PlayHitSuccess3()
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            var manager = Manager.GameManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
+            sePicker.PlayHitSuccess3(seVolumeIndex);
+        }
+
+        public void PlayHitMiss3()
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            var manager = Manager.GameManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
+            sePicker.PlayHitMiss3(seVolumeIndex);
+        }
+
+        public void PlayBatteryLost1()
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            var manager = Manager.GameManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
+            sePicker.PlayBatteryLost1(seVolumeIndex);
+        }
+
+        public void PlayBatteryGet3()
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            var manager = Manager.GameManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
+            sePicker.PlayBatteryGet3(seVolumeIndex);
+        }
+
+        public void PlayDamage1()
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            var manager = Manager.GameManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
+            sePicker.PlayDamage1(seVolumeIndex);
+        }
+
+        public void PlayGhostLaugh3()
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            var manager = Manager.GameManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
+            sePicker.PlayGhostLaugh3(seVolumeIndex);
+        }
+
+        /// <summary>
+        /// ヘルパー関数StartManagedCoroutineにReturnToPoolWithDelayを渡して実行する
+        /// </summary>
+        public void StartManagedCoroutineInReturnToPoolWithDelay()
+        {
+            var missileDirectAnimManagerB = _missileDirectAnimManagerB;
+            if (missileDirectAnimManagerB == null)
+            {
+                Debug.LogWarning("MissileDirectAnimManagerB インスタンスが見つかりません。");
+                return;
+            }
+            MethodInfo methodInfo = missileDirectAnimManagerB.GetType().GetMethod("StartManagedCoroutine", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (methodInfo != null)
+            {
+                object[] parameters = { missileDirectAnimManagerB.ReturnToPoolWithDelay(0f) };
+                // メソッドを実行
+                methodInfo.Invoke(missileDirectAnimManagerB, parameters);
+            }
+            else
+            {
+                Debug.LogWarning("StartManagedCoroutine メソッドが見つかりません。");
+            }
+        }
+
+        private MissileTempoSpawner _missileTempoSpawner;
+
+        public void SetMissileTempoSpawner(Transform transform)
+        {
+            var missileTempoSpawner = transform.GetComponent<MissileTempoSpawner>();
+            if (missileTempoSpawner != null)
+            {
+                _missileTempoSpawner = missileTempoSpawner;
+            }
+        }
+
+        public void SetActiveMissileTempoSpawner(bool isEnabled)
+        {
+            if (_missileTempoSpawner != null)
+            {
+                _missileTempoSpawner.gameObject.SetActive(isEnabled);
+                Debug.LogWarning($"_missileTempoSpawner: [{_missileTempoSpawner.gameObject.activeSelf}]");
+            }
         }
 
         /// <summary>
@@ -855,6 +1056,28 @@ namespace Mains.External
 
             // フィールドに新しい値を設定
             fieldInfo.SetValue(_missileObjectPooler, activeObjectCount);
+        }
+
+        public void ReturnAllMissilesToPool()
+        {
+            var missileObjectPooler = _missileObjectPooler;
+            if (missileObjectPooler == null)
+            {
+                Debug.LogWarning("MissileObjectPoolerがセットされていません。");
+                return;
+            }
+            // 下記バグありのため代替処理
+            //missileObjectPooler.ReturnAllMissilesToPool();
+            var missileDirectAnimManagerBs = GameObject.FindObjectsByType<MissileDirectAnimManagerB>(FindObjectsSortMode.None);
+            foreach (var missileDirectAnimManagerB in missileDirectAnimManagerBs)
+            {
+                missileDirectAnimManagerB.gameObject.SetActive(false);
+            }
+            var missileDirectAnimManagers = GameObject.FindObjectsByType<MissileDirectAnimManager>(FindObjectsSortMode.None);
+            foreach (var missileDirectAnimManager in missileDirectAnimManagers)
+            {
+                missileDirectAnimManager.gameObject.SetActive(false);
+            }
         }
 
         public void SetObjectPoolerXyloOther(Transform transform)

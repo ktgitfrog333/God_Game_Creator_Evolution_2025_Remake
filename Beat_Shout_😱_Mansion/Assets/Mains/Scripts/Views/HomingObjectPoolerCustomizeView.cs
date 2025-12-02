@@ -93,21 +93,7 @@ namespace Mains.Views
         /// </summary>
         public void DoReturnAllMissilesToPool()
         {
-            var missileGameObjects = _script_XyloApi.MissileGameObjects;
-            if (missileGameObjects != null)
-            {
-                foreach (var queue in missileGameObjects)
-                {
-                    foreach (var gameObject in queue)
-                    {
-                        if (gameObject != null)
-                        {
-                            if (gameObject.activeSelf)
-                                gameObject.SetActive(false);
-                        }
-                    }
-                }
-            }
+            _script_XyloApi.ReturnAllMissilesToPool();
             _script_XyloApi.SetActiveObjectCount(0);
         }
     }

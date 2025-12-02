@@ -256,7 +256,7 @@ namespace Mains.Views
                         // 後処理
                         ReactiveProperty<int> processStepCnt = new ReactiveProperty<int>();
                         disposables.Add(
-                            processStepCnt.Where(x => 1 < x)
+                            processStepCnt.Where(x => 2 < x)
                                 .Subscribe(_ =>
                                 {
                                     // パート切り替え
@@ -296,7 +296,7 @@ namespace Mains.Views
                                 disposable.Dispose();
                         }
                         // スポナーの削除
-                        FindMissileTempoSpawnerInstanceAndDestroy(_missileTempoSpawnerInstance);
+                        _missileTempoSpawnerInstance.gameObject.SetActive(false);
                         // オバケが残っていたらプールへ戻す
                         _homingObjectPoolerCustomizeView.DoReturnAllMissilesToPool();
                         // オバケが残っていたらプールへ戻す（Other）
@@ -312,6 +312,8 @@ namespace Mains.Views
                                 })
                                 .AddTo(ref _disposableBag)
                         );
+                        FindMissileTempoSpawnerInstanceAndDestroy(_missileTempoSpawnerInstance);
+                        processStepCnt.Value++;
                     })
                     .AddTo(ref _disposableBag)
             );

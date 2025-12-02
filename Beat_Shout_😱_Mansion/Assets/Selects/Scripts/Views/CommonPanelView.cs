@@ -1,4 +1,5 @@
 using DG.Tweening;
+using Mains.External;
 using ObservableCollections;
 using R3;
 using Rewired;
@@ -41,6 +42,8 @@ namespace Selects.Views
         [SerializeField] private RectTransform interactPanelXbox360Con;
         /// <summary>共通UIのビューモデル</summary>
         private CommonPanelViewModel _viewModel;
+        /// <summary>シロさんのコンポーネントへアクセスするAPI</summary>
+        private Script_xyloApi _script_XyloApi;
         /// <summary>R3のリソース管理</summary>
         private readonly SerialDisposable _currentInputTypeDisposable = new SerialDisposable();
         /// <summary>R3のリソース管理</summary>
@@ -217,6 +220,7 @@ namespace Selects.Views
                 })
                 .AddTo(ref _disposableBag);
             FadeImageView fadeImageView = FindAnyObjectByType<FadeImageView>();
+            _script_XyloApi = new Script_xyloApi();
             foreach (var yesNoTextView in yesNoTextViews.Select((p, i) => new { Content = p, Index = i }))
             {
                 yesNoTextView.Content.EventState.Subscribe(eventSatte =>
@@ -226,14 +230,16 @@ namespace Selects.Views
                         case EnumEventCommand.Selected:
                             cursorIconImage.DOMove(yesNoTextViews[yesNoTextView.Index].transform.position + Vector3.left * cursorIconImageのマージン, .35f)
                                 .SetUpdate(true);
+                            _script_XyloApi.PlayMove5();
 
                             break;
                         case EnumEventCommand.Submited:
-                            DoLoadSceneOrResetSelectedStageIndex(yesNoTextView.Index, targetStageIndex, yesNoTextViews, fadeImageView, _viewModel);
+                            DoLoadSceneOrResetSelectedStageIndex(yesNoTextView.Index, targetStageIndex, yesNoTextViews, fadeImageView, _viewModel, _script_XyloApi);
 
                             break;
                         case EnumEventCommand.Canceled:
                             ResetSelectedStageIndex(_viewModel);
+                            _script_XyloApi.PlayCancel4();
 
                             break;
                     }
@@ -262,6 +268,7 @@ namespace Selects.Views
             _disposableBag.Dispose();
             _viewModel?.Dispose();
             _currentInputTypeDisposable.Disposable = null;
+            _script_XyloApi?.Dispose();
         }
 
         /// <summary>
@@ -304,6 +311,7 @@ namespace Selects.Views
         /// <param name="yesNoTextViews">YesText/NoText それぞれのボタン制御</param>
         /// <param name="fadeImageView">フェードイメージのビュー</param>
         /// <param name="viewModel">共通UIのビューモデル</param>
+        /// <param name="script_XyloApi">シロさんのコンポーネントへアクセスするAPI</param>
         /// <remarks>はい／いいえで処理を分岐<br/>
         /// <br/>
         /// [はい]：<br/>
@@ -313,7 +321,8 @@ namespace Selects.Views
         /// __●移動先のステージ番号によって各ステージまたはタイトル画面のシーンをロード<br/>
         /// [いいえ]：<br/>
         /// __●ビューモデル経由で選択ステージ番号をリセット</remarks>
-        private void DoLoadSceneOrResetSelectedStageIndex(int index, int targetStageIndex, YesNoTextView[] yesNoTextViews, FadeImageView fadeImageView, CommonPanelViewModel viewModel)
+        private void DoLoadSceneOrResetSelectedStageIndex(int index, int targetStageIndex, YesNoTextView[] yesNoTextViews, FadeImageView fadeImageView, CommonPanelViewModel viewModel,
+            Script_xyloApi script_XyloApi)
         {
             switch (index)
             {
@@ -361,11 +370,13 @@ namespace Selects.Views
                     UserBean userBean = utility.LoadSaveDatasJsonOfUserBean(ConstResorcesNames.USER_DATA);
                     userBean.sceneIdx = targetStageIndex;
                     utility.SaveDatasJsonOfUserBean(ConstResorcesNames.USER_DATA, userBean);
+                    script_XyloApi.PlaySubmit2();
                     startLoadCnt.Value++;
 
                     break;
                 case 1:
                     ResetSelectedStageIndex(viewModel);
+                    script_XyloApi.PlayCancel4();
 
                     break;
             }

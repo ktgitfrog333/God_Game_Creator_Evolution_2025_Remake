@@ -22,6 +22,10 @@ namespace Mains.Manager
         [SerializeField] private UIOwner uiOwner;
         /// <summary>UIオーナー</summary>
         public UIOwner UIOwner => uiOwner;
+        /// <summary>オーディオオーナー</summary>
+        [SerializeField] private AudioOwner audioOwner;
+        /// <summary>オーディオオーナー</summary>
+        public AudioOwner AudioOwner => audioOwner;
 
         private void Reset()
         {
@@ -29,6 +33,8 @@ namespace Mains.Manager
                 levelOwner = GetComponent<LevelOwner>();
             if (uiOwner == null)
                 uiOwner = GetComponent<UIOwner>();
+            if (audioOwner == null)
+                audioOwner = GetComponent<AudioOwner>();
         }
 
         private void Start()

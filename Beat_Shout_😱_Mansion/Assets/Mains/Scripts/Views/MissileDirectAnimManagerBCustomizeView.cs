@@ -127,6 +127,7 @@ namespace Mains.Views
         {
             _disposableBag.Dispose();
             _script_XyloApi?.Dispose();
+            _viewModel?.Dispose();
         }
 
         /// <summary>

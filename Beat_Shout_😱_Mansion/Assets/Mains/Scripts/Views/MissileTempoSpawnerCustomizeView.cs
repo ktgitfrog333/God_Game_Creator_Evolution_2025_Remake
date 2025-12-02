@@ -10,15 +10,17 @@ namespace Mains.Views
     /// </summary>
     public class MissileTempoSpawnerCustomizeView : MonoBehaviour
     {
+        /// <summary>MissileTempoSpawnerのカスタマイズのビューモデル</summary>
+        private MissileTempoSpawnerCustomizeViewModel _viewModel;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
         private void Start()
         {
-            MissileTempoSpawnerCustomizeViewModel missileTempoSpawnerCustomizeViewModel = new MissileTempoSpawnerCustomizeViewModel();
+            _viewModel = new MissileTempoSpawnerCustomizeViewModel();
             Transform[] missileEffectContainers = null;
             Observable.EveryUpdate()
-                .Select(_ => missileTempoSpawnerCustomizeViewModel.BatteryTransform)
+                .Select(_ => _viewModel.BatteryTransform)
                 .Where(_ => missileEffectContainers != null &&
                     0 < missileEffectContainers.Length)
                 .Subscribe(batteryTransform =>
@@ -68,6 +70,7 @@ namespace Mains.Views
         private void OnDestroy()
         {
             _disposableBag.Dispose();
+            _viewModel?.Dispose();
         }
     }
 }

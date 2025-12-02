@@ -8,26 +8,26 @@ namespace Mains.ViewModels
     /// <summary>
     /// MissileDirectAnimManagerBのカスタマイズビューモデル
     /// </summary>
-    public class MissileDirectAnimManagerBCustomizeViewModel : IMissileDirectAnimManagerBCustomizeModel
+    public class MissileDirectAnimManagerBCustomizeViewModel : IMissileDirectAnimManagerBCustomizeModel, System.IDisposable
     {
         /// <summary>プレイヤーのモデル</summary>
         private PlayerModel _playerModel;
         /// <summary>ターゲットクロスアンカー位置</summary>
         public Vector2 TargetCrossAnchoredPosition => _playerModel?.TargetCrossAnchoredPosition ?? Vector2.zero;
+        /// <summary>R3のリソース管理</summary>
+        private DisposableBag _disposableBag = new DisposableBag();
 
         public MissileDirectAnimManagerBCustomizeViewModel()
         {
-            System.IDisposable disposable = null;
-            disposable = Observable.EveryUpdate()
+            Observable.EveryUpdate()
                 .Select(_ => GameObject.FindAnyObjectByType<PlayerModel>())
                 .Where(x => x != null)
                 .Take(1)
                 .Subscribe(x =>
                 {
                     _playerModel = x;
-                    // 1度のみ実行されれば良いので破棄しても問題なし
-                    disposable.Dispose();
-                });
+                })
+                .AddTo(ref _disposableBag);
         }
 
         public void AddMissileDirectAnimCustomizeStructs(MissileDirectAnimCustomizeStruct missileDirectAnimCustomizeStruct)
@@ -54,6 +54,11 @@ namespace Mains.ViewModels
             }
 
             return false;
+        }
+
+        public void Dispose()
+        {
+            _disposableBag.Dispose();
         }
     }
 }

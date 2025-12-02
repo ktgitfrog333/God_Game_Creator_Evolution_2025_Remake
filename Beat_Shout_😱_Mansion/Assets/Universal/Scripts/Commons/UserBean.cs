@@ -27,9 +27,9 @@ namespace Universal.Commons
         /// デフォルト:5</remarks>
         public int bgmVolumeIndex = 5;
         /// <summary>SEボリュームインデックス</summary>
-        /// <remarks>範囲:0～10<br/>
-        /// デフォルト:5</remarks>
-        public int seVolumeIndex = 5;
+        /// <remarks>範囲:0.0 - 1.0<br/>
+        /// デフォルト:1.0</remarks>
+        public float seVolumeIndex = 1.0f;
         /// <summary>振動有効インデックス</summary>
         /// <remarks>0:振動オフ<br/>
         /// 1:振動オン</remarks>
@@ -77,7 +77,7 @@ namespace Universal.Commons
                     break;
                 case EnumLoadMode.Default1:
                     bgmVolumeIndex = 5;
-                    seVolumeIndex = 5;
+                    seVolumeIndex = 1.0f;
                     vibrationEnableIndex = 1;
 
                     break;

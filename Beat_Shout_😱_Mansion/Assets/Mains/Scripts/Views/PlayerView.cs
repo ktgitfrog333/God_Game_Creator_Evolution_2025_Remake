@@ -439,6 +439,7 @@ namespace Mains.Views
                                                 {
                                                     BatteryView batteryView = batteryTransform.GetComponent<BatteryView>();
                                                     batteryView.GetBattery();
+                                                    _script_XyloApi.PlayBatteryGet3();
                                                 }
                                             }
                                             if (_playerViewModel.BatteryTransform == null &&
@@ -458,6 +459,7 @@ namespace Mains.Views
                                                 {
                                                     BatteryView batteryView = batteryTransform.GetComponent<BatteryView>();
                                                     batteryView.GetBattery();
+                                                    _script_XyloApi.PlayBatteryGet3();
                                                 }
                                             }
                                             if (_playerViewModel.BatteryTransform == null &&
@@ -896,6 +898,7 @@ namespace Mains.Views
                     {
                         battery.rotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
                     }
+                    _script_XyloApi.PlayBatteryLost1();
                     batteryView.SetEnabledCollider(true);
                 })
                 .Play();

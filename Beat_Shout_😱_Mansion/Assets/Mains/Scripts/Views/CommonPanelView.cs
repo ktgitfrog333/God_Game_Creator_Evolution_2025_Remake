@@ -363,11 +363,11 @@ namespace Mains.Views
                         switch (heartBeatPropStruct.type)
                         {
                             case 0:
-                                _script_XyloApi.PlayHeartbeatSlow(1f);
+                                _script_XyloApi.PlayHeartbeatSlow();
 
                                 break;
                             case 1:
-                                _script_XyloApi.PlayHeartbeatFast(1f);
+                                _script_XyloApi.PlayHeartbeatFast();
 
                                 break;
                         }
