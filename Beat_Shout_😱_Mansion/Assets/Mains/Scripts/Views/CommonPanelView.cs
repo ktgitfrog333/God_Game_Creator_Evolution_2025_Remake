@@ -69,6 +69,9 @@ namespace Mains.Views
         /// <summary>Start完了を通知するObservable（Trueになったら1度だけ発火）</summary>
         private Subject<Unit> _didStartAsObservable = new Subject<Unit>();
         [SerializeField] private InteractionPartTable 探索_シャウトチャンス_リズムパート情報管理テーブル;
+        [Header("フェード設定")]
+        /// <summary>前に戻るシーン名</summary>
+        [SerializeField] private string gameSceneNameBack;
         // クラスフィールドとして追加
         /// <summary>フィルアマウントのループアニメーションのコルーチン</summary>
         private Coroutine _fillAmountLoopCoroutine;
@@ -159,7 +162,7 @@ namespace Mains.Views
                             var ghostExitMembersCount = ghostAllMembersCount - ghostAllMembersUpdCount;
                             missionText.text = 共通UIのテンプレート.missionText.Replace("${ghostAllMembersCount}", $"{ghostAllMembersCount}")
                                 .Replace("${ghostExitMembersCount}", $"{ghostExitMembersCount}");
-                            CheckMissionStatusAndDirectionClear(ghostAllMembersUpdCount, stageClearPanel, stageClearText, player, fadeImageView);
+                            CheckMissionStatusAndDirectionClear(ghostAllMembersUpdCount, gameSceneNameBack, stageClearPanel, stageClearText, player, fadeImageView);
                         })
                         .AddTo(ref _disposableBag);
                 })
@@ -423,11 +426,13 @@ namespace Mains.Views
         /// ミッション情報を監視してクリア演出を実行
         /// </summary>
         /// <param name="ghostAllMembersUpdCount">利用総人数（更新後）</param>
+        /// <param name="gameSceneNameBack">前に戻るシーン名</param>
         /// <param name="stageClearPanel">STAGE CLEARのパネル</param>
         /// <param name="stageClearText">STAGE CLEARのテキスト</param>
         /// <param name="player">ReInputのPlayer</param>
         /// <param name="fadeImageView">フェードイメージのビュー</param>
-        private void CheckMissionStatusAndDirectionClear(int ghostAllMembersUpdCount, RectTransform stageClearPanel, TextMeshProUGUI stageClearText, Player player, FadeImageView fadeImageView)
+        private void CheckMissionStatusAndDirectionClear(int ghostAllMembersUpdCount, string gameSceneNameBack,
+            RectTransform stageClearPanel, TextMeshProUGUI stageClearText, Player player, FadeImageView fadeImageView)
         {
             if (ghostAllMembersUpdCount < 1)
             {
@@ -464,7 +469,7 @@ namespace Mains.Views
                                     {
                                         Observable.Create<bool>(observer =>
                                         {
-                                            StartCoroutine(LoadSceneCoroutine(observer, "MainScene"));
+                                            StartCoroutine(LoadSceneCoroutine(observer, gameSceneNameBack));
                                             return Disposable.Empty;
                                         })
                                             .Subscribe(_ => { })
@@ -565,7 +570,8 @@ namespace Mains.Views
                 {
                     Observable.Create<bool>(observer =>
                     {
-                        StartCoroutine(LoadSceneCoroutine(observer, "MainScene"));
+                        string sceneName = SceneManager.GetActiveScene().name;
+                        StartCoroutine(LoadSceneCoroutine(observer, sceneName));
                         return Disposable.Empty;
                     })
                         .Subscribe(_ => { })

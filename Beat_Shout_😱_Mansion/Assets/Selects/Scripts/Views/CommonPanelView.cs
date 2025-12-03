@@ -40,6 +40,9 @@ namespace Selects.Views
         [SerializeField] private RectTransform interactPanelPC;
         [Tooltip("CommonPanel > CenterPanel > InteractPanelXbox360Con をセット")]
         [SerializeField] private RectTransform interactPanelXbox360Con;
+        [Header("フェード設定")]
+        /// <summary>前に戻るシーン名</summary>
+        [SerializeField] private string gameSceneNameBack;
         /// <summary>共通UIのビューモデル</summary>
         private CommonPanelViewModel _viewModel;
         /// <summary>シロさんのコンポーネントへアクセスするAPI</summary>
@@ -234,7 +237,8 @@ namespace Selects.Views
 
                             break;
                         case EnumEventCommand.Submited:
-                            DoLoadSceneOrResetSelectedStageIndex(yesNoTextView.Index, targetStageIndex, yesNoTextViews, fadeImageView, _viewModel, _script_XyloApi);
+                            DoLoadSceneOrResetSelectedStageIndex(yesNoTextView.Index, targetStageIndex, レベル構造体リスト, gameSceneNameBack,
+                                yesNoTextViews, fadeImageView, _viewModel, _script_XyloApi);
 
                             break;
                         case EnumEventCommand.Canceled:
@@ -308,6 +312,8 @@ namespace Selects.Views
         /// </summary>
         /// <param name="index">はい／いいえのインデックス</param>
         /// <param name="targetStageIndex">移動先のステージ番号</param>
+        /// <param name="levelStructs">レベル構造体リスト</param>
+        /// <param name="gameSceneNameBack">前に戻るシーン名</param>
         /// <param name="yesNoTextViews">YesText/NoText それぞれのボタン制御</param>
         /// <param name="fadeImageView">フェードイメージのビュー</param>
         /// <param name="viewModel">共通UIのビューモデル</param>
@@ -321,7 +327,8 @@ namespace Selects.Views
         /// __●移動先のステージ番号によって各ステージまたはタイトル画面のシーンをロード<br/>
         /// [いいえ]：<br/>
         /// __●ビューモデル経由で選択ステージ番号をリセット</remarks>
-        private void DoLoadSceneOrResetSelectedStageIndex(int index, int targetStageIndex, YesNoTextView[] yesNoTextViews, FadeImageView fadeImageView, CommonPanelViewModel viewModel,
+        private void DoLoadSceneOrResetSelectedStageIndex(int index, int targetStageIndex, LevelStruct[] levelStructs, string gameSceneNameBack,
+            YesNoTextView[] yesNoTextViews, FadeImageView fadeImageView, CommonPanelViewModel viewModel,
             Script_xyloApi script_XyloApi)
         {
             switch (index)
@@ -341,11 +348,18 @@ namespace Selects.Views
                                 switch (targetStageIndex)
                                 {
                                     case 5:
-                                        sceneName = "TitleScene";
+                                        sceneName = gameSceneNameBack;
 
                                         break;
                                     default:
-                                        sceneName = "MainScene";
+                                        sceneName = levelStructs.Where(x => x.階層 == targetStageIndex)
+                                            .Select(x => x.ステージ名称_物理名)
+                                            .FirstOrDefault();
+                                        if (string.IsNullOrEmpty(sceneName))
+                                        {
+                                            Debug.LogWarning("ステージ名称_物理名のマッピング失敗のためステージ1を読み込みます");
+                                            sceneName = "MainScene_Stage1_Living";
+                                        }
 
                                         break;
                                 }
