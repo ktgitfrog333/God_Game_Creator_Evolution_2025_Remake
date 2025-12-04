@@ -54,8 +54,16 @@ namespace Mains.Manager.Owners
 
                 _instancedLevel = Instantiate(stage.transform, Vector3.zero, Quaternion.identity, _level).transform;
             }
-            _playerHealthPointMax = レベル構造体リスト.FirstOrDefault(q => q.階層 == userBean.sceneIdx).開始時のプレイヤーの最大体力;
-            _horrorCountMax = レベル構造体リスト.FirstOrDefault(q => q.階層 == userBean.sceneIdx).恐怖値最大;
+            var sceneIdx = userBean.sceneIdx;
+            var levelStruct = レベル構造体リスト.FirstOrDefault(q => q.階層 == sceneIdx);
+            if (levelStruct.Stage_xと書かれたプレハブ == null)
+            {
+                Debug.LogError($"条件に一致するステージインデックス [{sceneIdx}] が見つかりませんでした。");
+                sceneIdx = 0;
+                levelStruct = レベル構造体リスト.FirstOrDefault(q => q.階層 == sceneIdx);
+            }
+            _playerHealthPointMax = levelStruct.開始時のプレイヤーの最大体力;
+            _horrorCountMax = levelStruct.恐怖値最大;
             var directionalLight = GameObject.Find("Directional Light").GetComponent<Light>();
             if (DirectionalLightを継承して再設定.Updateされる度に更新)
             {

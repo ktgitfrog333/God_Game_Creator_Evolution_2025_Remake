@@ -594,6 +594,8 @@ namespace Mains.Views
             // + マイク音量 or キーボード長押し⇒解放 or コントローラー長押し⇒解放
             ReactiveProperty<float> dbLevel = new ReactiveProperty<float>();
             System.IDisposable disposableDbLevel = null;
+            // シャウト成功判定が既に実行されたかどうかを追跡
+            bool isShoutSuccessProcessed = false;
             Observable.EveryUpdate()
                 .Select(_ => _playerViewModel.InteractionPart)
                 .Where(x => x != null)
@@ -603,6 +605,9 @@ namespace Mains.Views
                     x.Subscribe(x =>
                     {
                         disposableShoutChanceRangesSetter?.Dispose();
+                        disposableDbLevel?.Dispose();
+                        // パートが変わったら成功判定フラグをリセット
+                        isShoutSuccessProcessed = false;
                         switch (x)
                         {
                             case InteractionPart.ShoutChance:
@@ -625,7 +630,8 @@ namespace Mains.Views
                                             if (hit.collider != null && hit.collider.name.StartsWith("ShoutChanceRange"))
                                             {
                                                 Transform t = hit.collider.transform;
-                                                if (!shoutChanceRanges.Contains(t))
+                                                if (!shoutChanceRanges.Contains(t) &&
+                                                    t.GetComponentInChildren<PoltergeistView>().GhostInStaticObjectStruct.useStatus.Equals(UseStatus.Using))
                                                 {
                                                     shoutChanceRanges.Add(t);
                                                 }
@@ -634,30 +640,28 @@ namespace Mains.Views
                                     })
                                     .AddTo(ref _disposableBag);
 
-                                disposableDbLevel?.Dispose();
-                                disposableDbLevel = dbLevel.Where(x => シャウトチャンスパートの共通パラメータ管理用テーブル.シャウト達成デシベル <= x &&
-                                    0 < shoutChanceRanges.Count)
+                                // 毎フレーム条件をチェックする方式に変更（タイミングずれ問題を解決）
+                                disposableDbLevel = Observable.EveryUpdate()
+                                    .Where(_ => !isShoutSuccessProcessed)
+                                    .Where(_ => シャウトチャンスパートの共通パラメータ管理用テーブル.シャウト達成デシベル <= dbLevel.Value &&
+                                        0 < shoutChanceRanges.Count)
                                     .Take(1)
                                     .Subscribe(_ =>
                                     {
+                                        isShoutSuccessProcessed = true;
                                         successShoutPosition = trans.position;
                                         successShoutEulerAngles = trans.eulerAngles;
                                         // [シャウト成功インタラクション] 1. シャウトチャンスレンジの中でオバケが潜んでいる家具かつ、一番近いコライダーからポルターガイストビューを取得
                                         poltergeistView = shoutChanceRanges
-                                            .Where(q => q.GetComponentInChildren<PoltergeistView>().GhostInStaticObjectStruct.useStatus.Equals(UseStatus.Using))
                                             .OrderBy(t => Vector3.SqrMagnitude(t.position - transform.position))
                                             .Select(q => q.GetComponentInChildren<PoltergeistView>())
                                             .FirstOrDefault();
-
                                         // [シャウト成功インタラクション] 2. オバケが飛び出すエフェクト生成
-                                        if (poltergeistView != null)
-                                        {
-                                            poltergeistView.AsyncDoBurstGhosts();
-                                            poltergeistView.InstanceMissileTempoSpawner();
-                                            // BGM再生はトランザクション開始処理の中で実施
-                                            poltergeistView.BeginTransactionGhostInStaticObjectStruct();
-                                            _playerViewModel.SetInteractionPart(InteractionPart.Rhythm);
-                                        }
+                                        poltergeistView.AsyncDoBurstGhosts();
+                                        poltergeistView.InstanceMissileTempoSpawner();
+                                        // BGM再生はトランザクション開始処理の中で実施
+                                        poltergeistView.BeginTransactionGhostInStaticObjectStruct();
+                                        _playerViewModel.SetInteractionPart(InteractionPart.Rhythm);
                                     })
                                     .AddTo(ref _disposableBag);
 
