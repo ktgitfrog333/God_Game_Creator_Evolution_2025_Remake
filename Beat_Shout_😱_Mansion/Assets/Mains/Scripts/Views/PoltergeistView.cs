@@ -254,66 +254,104 @@ namespace Mains.Views
                         _script_XyloApi.ChangeBgmA();
                         CommitTransactionGhostInStaticObjectStruct(_poltergeistViewModel);
                         // 後処理
-                        ReactiveProperty<int> processStepCnt = new ReactiveProperty<int>();
-                        disposables.Add(
-                            processStepCnt.Where(x => 2 < x)
-                                .Subscribe(_ =>
-                                {
-                                    // パート切り替え
-                                    _poltergeistViewModel.SetInteractionPartToSearch();
-                                    foreach (var disposable in disposables)
-                                        disposable.Dispose();
-                                })
-                                .AddTo(ref _disposableBag)
-                        );
-                        // 暗幕フェード
-                        // 利用総人数が0なら暗幕以降の演出は実行しない
+                        // 各処理をObservableに変換して、全て完了したら次に進む
+                        List<Observable<bool>> completionObservables = new List<Observable<bool>>();
+                        
+                        // 1. 暗幕フェード処理（条件付き）
                         var ghostStructs = _poltergeistViewModel.GhostInStaticObjectStructs;
                         var cnt = ghostStructs.Select(q => q.membersCount).Sum();
-                        // プレイヤーのHPが0なら暗幕以降の演出は実行しない
                         var healthPoint = _poltergeistViewModel.PlayerHealthPoint.Value;
-                        if (0 < cnt &&
-                            0 < healthPoint)
+                        if (0 < cnt && 0 < healthPoint)
                         {
-                            disposables.Add(
+                            completionObservables.Add(
                                 Observable.Create<bool>(observer =>
                                 {
                                     StartCoroutine(_fadeImageView.PlayFadeInDirection(observer));
                                     return Disposable.Empty;
                                 })
-                                    .Subscribe(_ =>
-                                    {
-                                        _motorView?.DoStopFloaterAnimation();
-                                        ResetMovePosition(_initialPosition, _initialEulerAngles, _noTriggerColliders, _rigidbody);
-                                        processStepCnt.Value++;
-                                    })
-                                    .AddTo(ref _disposableBag)
+                                .Do(_ =>
+                                {
+                                    _motorView?.DoStopFloaterAnimation();
+                                    ResetMovePosition(_initialPosition, _initialEulerAngles, _noTriggerColliders, _rigidbody);
+                                })
                             );
                         }
                         else
                         {
-                            foreach (var disposable in disposables)
-                                disposable.Dispose();
+                            // 条件を満たさない場合は即座に完了するObservableを追加
+                            completionObservables.Add(Observable.Return(true));
                         }
-                        // スポナーの削除
-                        _missileTempoSpawnerInstance.gameObject.SetActive(false);
-                        // オバケが残っていたらプールへ戻す
-                        _homingObjectPoolerCustomizeView.DoReturnAllMissilesToPool();
-                        // オバケが残っていたらプールへ戻す（Other）
-                        disposables.Add(
+                        
+                        // 2. オバケが残っていたらプールへ戻す（Other）
+                        completionObservables.Add(
                             Observable.Create<bool>(observer =>
                             {
                                 StartCoroutine(_objectPoolerXyloOtherCustomizeView.AllDisabled(observer));
                                 return Disposable.Empty;
                             })
-                                .Subscribe(_ =>
-                                {
-                                    processStepCnt.Value++;
-                                })
-                                .AddTo(ref _disposableBag)
                         );
-                        FindMissileTempoSpawnerInstanceAndDestroy(_missileTempoSpawnerInstance);
-                        processStepCnt.Value++;
+                        
+                        // 3. スポナーの削除（同期的処理をObservableに変換）
+                        completionObservables.Add(
+                            Observable.Create<bool>(observer =>
+                            {
+                                _missileTempoSpawnerInstance.gameObject.SetActive(false);
+                                _homingObjectPoolerCustomizeView.DoReturnAllMissilesToPool();
+                                FindMissileTempoSpawnerInstanceAndDestroy(_missileTempoSpawnerInstance);
+                                observer.OnNext(true);
+                                observer.OnCompleted();
+                                return Disposable.Empty;
+                            })
+                        );
+                        
+                        // 全てのObservableが完了したら次に進む
+                        // Observable.Createで全てのObservableの完了を待つ
+                        disposables.Add(
+                            Observable.Create<bool>(observer =>
+                            {
+                                if (completionObservables.Count == 0)
+                                {
+                                    observer.OnNext(true);
+                                    observer.OnCompleted();
+                                    return Disposable.Empty;
+                                }
+                                
+                                int completedCount = 0;
+                                int totalCount = completionObservables.Count;
+                                List<System.IDisposable> innerDisposables = new List<System.IDisposable>();
+                                
+                                foreach (var obs in completionObservables)
+                                {
+                                    innerDisposables.Add(
+                                        obs.Take(1)
+                                            .Subscribe(_ =>
+                                            {
+                                                completedCount++;
+                                                if (completedCount >= totalCount)
+                                                {
+                                                    observer.OnNext(true);
+                                                    observer.OnCompleted();
+                                                }
+                                            })
+                                    );
+                                }
+                                
+                                return Disposable.Create(() =>
+                                {
+                                    foreach (var d in innerDisposables)
+                                        d?.Dispose();
+                                });
+                            })
+                            .Take(1)
+                            .Subscribe(_ =>
+                            {
+                                // 全て完了したらパート切り替え
+                                _poltergeistViewModel.SetInteractionPartToSearch();
+                                foreach (var disposable in disposables)
+                                    disposable.Dispose();
+                            })
+                            .AddTo(ref _disposableBag)
+                        );
                     })
                     .AddTo(ref _disposableBag)
             );

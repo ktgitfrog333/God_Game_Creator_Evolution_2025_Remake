@@ -735,7 +735,7 @@ namespace Mains.External
         /// <see cref="MicInput_Criware.CheckVolume"/>
         public bool IsMicInput()
         {
-            return .2f < GetDBLevel();
+            return 0f < GetDBLevel();
         }
 
         /// <summary>

@@ -75,28 +75,25 @@ namespace Mains.Views
                                                     if (!iconMicShoutImageView.IsPlaying)
                                                         StartCoroutine(iconMicShoutImageView.PlayShoutEffect());
                                                 }
-                                                if (dbLevel.Previous < dbLevel.Current)
+                                                // fillAmount値の算出（0～1へ正規化）
+                                                float normalized = Mathf.Clamp01(dbLevel.Current / シャウトチャンスパートの共通パラメータ管理用テーブル.シャウト達成デシベル);
+
+                                                // すでにTweenが動いていて、目標値が近いならスキップ（不要な上書き防止）
+                                                if (fillSequence != null && fillSequence.IsActive() && fillSequence.IsPlaying())
                                                 {
-                                                    // fillAmount値の算出（0～1へ正規化）
-                                                    float normalized = Mathf.Clamp01(dbLevel.Current / シャウトチャンスパートの共通パラメータ管理用テーブル.シャウト達成デシベル);
+                                                    float currentTarget = normalizedPrev == null ? -1f : normalizedPrev.Value;
+                                                    if (Mathf.Abs(currentTarget - normalized) <= 0.1f) return;
 
-                                                    // すでにTweenが動いていて、目標値が近いならスキップ（不要な上書き防止）
-                                                    if (fillSequence != null && fillSequence.IsActive() && fillSequence.IsPlaying())
-                                                    {
-                                                        float currentTarget = normalizedPrev == null ? -1f : normalizedPrev.Value;
-                                                        if (Mathf.Approximately(currentTarget, normalized)) return;
-
-                                                        fillSequence.Kill(); // 上書きしたい場合は Kill
-                                                    }
-
-                                                    // DOTweenアニメーションでfillAmountを更新
-                                                    fillSequence = DOTween.Sequence()
-                                                        .Append(shoutPowerGaugeImage.DOFillAmount(normalized, 0.3f))
-                                                        .AppendInterval(.05f)
-                                                        .Append(shoutPowerGaugeImage.DOFillAmount(0f, 0.8f).SetEase(Ease.InOutSine));
-                                                    fillSequence.Play();
-                                                    normalizedPrev = normalized;
+                                                    fillSequence.Kill(); // 上書きしたい場合は Kill
                                                 }
+
+                                                // DOTweenアニメーションでfillAmountを更新
+                                                fillSequence = DOTween.Sequence()
+                                                    .Append(shoutPowerGaugeImage.DOFillAmount(normalized, 0.3f))
+                                                    .AppendInterval(.05f)
+                                                    .Append(shoutPowerGaugeImage.DOFillAmount(0f, 0.8f).SetEase(Ease.InOutSine));
+                                                fillSequence.Play();
+                                                normalizedPrev = normalized;
                                             })
                                             .AddTo(ref _disposableBag);
                                     })
