@@ -1921,21 +1921,27 @@ MonoBehaviour:
   "\u30EC\u30D9\u30EB\u69CB\u9020\u4F53\u30EA\u30B9\u30C8":
   - "\u30EC\u30D9\u30EBID": 0
     "\u30B9\u30C6\u30FC\u30B8\u540D\u79F0": "\u30EA\u30D3\u30F3\u30B0"
+    "\u30B9\u30C6\u30FC\u30B8\u540D\u79F0_\u7269\u7406\u540D": MainScene_Stage1_Living
     "\u968E\u5C64": 0
   - "\u30EC\u30D9\u30EBID": 1
     "\u30B9\u30C6\u30FC\u30B8\u540D\u79F0": "\u98DF\u5802"
+    "\u30B9\u30C6\u30FC\u30B8\u540D\u79F0_\u7269\u7406\u540D": MainScene_Stage2_Kitchen
     "\u968E\u5C64": 1
   - "\u30EC\u30D9\u30EBID": 2
     "\u30B9\u30C6\u30FC\u30B8\u540D\u79F0": "\u5BDD\u5BA4"
+    "\u30B9\u30C6\u30FC\u30B8\u540D\u79F0_\u7269\u7406\u540D": MainScene_Stage3_BedRoom
     "\u968E\u5C64": 2
   - "\u30EC\u30D9\u30EBID": 3
     "\u30B9\u30C6\u30FC\u30B8\u540D\u79F0": "\u66F8\u5EAB"
+    "\u30B9\u30C6\u30FC\u30B8\u540D\u79F0_\u7269\u7406\u540D": MainScene_Stage4_Library
     "\u968E\u5C64": 3
   - "\u30EC\u30D9\u30EBID": 4
     "\u30B9\u30C6\u30FC\u30B8\u540D\u79F0": "\u8AC7\u8A71\u5BA4"
+    "\u30B9\u30C6\u30FC\u30B8\u540D\u79F0_\u7269\u7406\u540D": MainScene_Stage4_Lounge
     "\u968E\u5C64": 4
   interactPanelPC: {fileID: 6562284233515549269}
   interactPanelXbox360Con: {fileID: 3238376293491131001}
+  gameSceneNameBack: TitleScene
 --- !u!1 &7457798554484105582
 GameObject:
   m_ObjectHideFlags: 0

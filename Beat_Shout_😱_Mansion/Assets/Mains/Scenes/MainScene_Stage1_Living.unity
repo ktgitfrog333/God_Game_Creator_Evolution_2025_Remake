@@ -2596,10 +2596,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5319130221711851135, guid: a358affd96cb42140a5d17944515c1a4, type: 3}
-      propertyPath: gameSceneNameBack
-      value: SelectScene
-      objectReference: {fileID: 0}
     - target: {fileID: 6266780223078806780, guid: a358affd96cb42140a5d17944515c1a4, type: 3}
       propertyPath: m_Name
       value: CommonPanel

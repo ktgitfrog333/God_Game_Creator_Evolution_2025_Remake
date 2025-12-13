@@ -863,8 +863,19 @@ namespace Mains.External
         public void ChangeBgmB()
         {
             var conductor = CRIWARE_conductor.Instance;
-            if (conductor != null)
+            var aisac = CRIWARE_AisacChange.Instance;
+            if (conductor != null && aisac != null)
             {
+                bool isCompletedIntro = aisac.IsCompletedPlayStart;
+                if (!isCompletedIntro)
+                {
+                    // イントロ再生のInvokeをキャンセル（探索パートBGMの再生を防ぐ）
+                    conductor.CancelInvoke("DelayBGMLoopStart");
+                    // TODO: デバッグを元にBGMのAのフレームの設定しているため、BPMが変わった場合は修正する
+                    conductor.frameRate = 85f;
+                    // イントロを停止
+                    StopIntro();
+                }
                 conductor.ChangeBgmB(3);
                 _currentSourceStatusDisposable?.Dispose();
                 _currentSourceStatusDisposable = Observable.EveryUpdate()
@@ -874,6 +885,35 @@ namespace Mains.External
                         _bgmBStatus.Execute((int)status);
                     })
                     .AddTo(ref _disposableBag);
+            }
+        }
+
+        /// <summary>
+        /// イントロを停止する
+        /// </summary>
+        public void StopIntro()
+        {
+            var longSePicker = LongSePicker.Instance;
+            if (longSePicker == null) return;
+
+            var longSePickerType = typeof(LongSePicker);
+            var atomExPlayersField = longSePickerType.GetField("atomExPlayers", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (atomExPlayersField == null)
+            {
+                Debug.LogWarning("atomExPlayers フィールドが見つかりませんでした。");
+                return;
+            }
+
+            var atomExPlayers = atomExPlayersField.GetValue(longSePicker) as List<CriAtomExPlayer>;
+            if (atomExPlayers == null) return;
+
+            // すべてのプレイヤーを停止
+            foreach (var player in atomExPlayers)
+            {
+                if (player != null)
+                {
+                    player.Stop();
+                }
             }
         }
 

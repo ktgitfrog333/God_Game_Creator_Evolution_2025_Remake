@@ -4707,26 +4707,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: CommonPanel
       objectReference: {fileID: 0}
-    - target: {fileID: 7273471993351883464, guid: 883b48c306f93354489adaf3287aee1c, type: 3}
-      propertyPath: "\u30EC\u30D9\u30EB\u69CB\u9020\u4F53\u30EA\u30B9\u30C8.Array.data[0].\u30B9\u30C6\u30FC\u30B8\u540D\u79F0_\u7269\u7406\u540D"
-      value: MainScene_Stage1_Living
-      objectReference: {fileID: 0}
-    - target: {fileID: 7273471993351883464, guid: 883b48c306f93354489adaf3287aee1c, type: 3}
-      propertyPath: "\u30EC\u30D9\u30EB\u69CB\u9020\u4F53\u30EA\u30B9\u30C8.Array.data[1].\u30B9\u30C6\u30FC\u30B8\u540D\u79F0_\u7269\u7406\u540D"
-      value: MainScene_Stage2_Kitchen
-      objectReference: {fileID: 0}
-    - target: {fileID: 7273471993351883464, guid: 883b48c306f93354489adaf3287aee1c, type: 3}
-      propertyPath: "\u30EC\u30D9\u30EB\u69CB\u9020\u4F53\u30EA\u30B9\u30C8.Array.data[2].\u30B9\u30C6\u30FC\u30B8\u540D\u79F0_\u7269\u7406\u540D"
-      value: MainScene_Stage3_BedRoom
-      objectReference: {fileID: 0}
-    - target: {fileID: 7273471993351883464, guid: 883b48c306f93354489adaf3287aee1c, type: 3}
-      propertyPath: "\u30EC\u30D9\u30EB\u69CB\u9020\u4F53\u30EA\u30B9\u30C8.Array.data[3].\u30B9\u30C6\u30FC\u30B8\u540D\u79F0_\u7269\u7406\u540D"
-      value: MainScene_Stage4_Library
-      objectReference: {fileID: 0}
-    - target: {fileID: 7273471993351883464, guid: 883b48c306f93354489adaf3287aee1c, type: 3}
-      propertyPath: "\u30EC\u30D9\u30EB\u69CB\u9020\u4F53\u30EA\u30B9\u30C8.Array.data[4].\u30B9\u30C6\u30FC\u30B8\u540D\u79F0_\u7269\u7406\u540D"
-      value: MainScene_Stage4_Lounge
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

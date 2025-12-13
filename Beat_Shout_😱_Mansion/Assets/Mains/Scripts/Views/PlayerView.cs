@@ -254,15 +254,7 @@ namespace Mains.Views
             _playerViewModel.SetPlayerTransform(transform);
             // イントロが完了するまではプレイヤー操作禁止
             characterController.enabled = false;
-            _script_XyloApi.FrameRateReactive
-                .Where(x => 0f < x)
-                .Subscribe(_ =>
-                {
-                    if (!characterController.enabled)
-                        characterController.enabled = true;
-                })
-                .AddTo(ref _disposableBag);
-            // [セレクト画面用]フェード処理が完了するまではプレイヤー操作禁止
+            // フェード処理が完了するまではプレイヤー操作禁止
             Observable.EveryUpdate()
                 .Select(_ => _playerViewModel.IsCompletedStartDirection)
                 .Where(x => x != null)
@@ -539,7 +531,7 @@ namespace Mains.Views
                                             if (followPlayerCameraView != null)
                                                 followPlayerCameraView.ResetFollowAndLookAt();
                                             // Rewairedで操作を禁止にする。着地したら暗幕フェードの透明度を元に戻す。
-                                            ReInput.players.GetPlayer(0).controllers.maps.SetMapsEnabled(false, "Default");
+                                            player.controllers.maps.SetMapsEnabled(false, "Default");
                                             if (isGrounded.Value)
                                             {
                                                 Observable.Create<bool>(observer =>
@@ -549,7 +541,7 @@ namespace Mains.Views
                                                 })
                                                     .Subscribe(_ => { })
                                                     .AddTo(ref _disposableBag);
-                                                ReInput.players.GetPlayer(0).controllers.maps.SetMapsEnabled(true, "Default");
+                                                player.controllers.maps.SetMapsEnabled(true, "Default");
                                             }
                                             else
                                             {
@@ -564,7 +556,7 @@ namespace Mains.Views
                                                         })
                                                             .Subscribe(_ => { })
                                                             .AddTo(ref _disposableBag);
-                                                        ReInput.players.GetPlayer(0).controllers.maps.SetMapsEnabled(true, "Default");
+                                                        player.controllers.maps.SetMapsEnabled(true, "Default");
                                                     })
                                                     .AddTo(ref _disposableBag);
                                             }
