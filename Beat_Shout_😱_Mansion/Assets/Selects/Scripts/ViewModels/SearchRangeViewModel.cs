@@ -32,5 +32,11 @@ namespace Selects.ViewModels
             if (_playerModel != null)
                 _playerModel.SetSelectedStageIndex(selectedStageIndex);
         }
+
+        public void SetIsOnTriggerEnterSearchRangeIndex(int isOnTriggerEnterSearchRangeIndex)
+        {
+            if (_playerModel != null)
+                _playerModel.SetIsOnTriggerEnterSearchRangeIndex(isOnTriggerEnterSearchRangeIndex);
+        }
     }
 }

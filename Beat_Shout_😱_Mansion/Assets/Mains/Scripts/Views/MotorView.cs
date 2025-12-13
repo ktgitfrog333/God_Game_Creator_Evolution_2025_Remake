@@ -155,6 +155,7 @@ namespace Mains.Views
                         dustParticleInstance,
                         _poltergeistViewModel.PlayerTransform, maxDistance,
                         t3DSoundPlayer,
+                        _poltergeistViewModel,
                         true);
 
                     // 実行後はリセットする
@@ -194,7 +195,8 @@ namespace Mains.Views
             DoInstanceDustAndPlaySE(IsEnabledPoltergeist, dustParticlePrefab, _transform,
                 dustParticleInstance,
                 _poltergeistViewModel.PlayerTransform, maxDistance,
-                t3DSoundPlayer);
+                t3DSoundPlayer,
+                _poltergeistViewModel);
         }
 
         /// <summary>
@@ -251,7 +253,6 @@ namespace Mains.Views
             var angle = Quaternion.Angle(initialRotation, transform.rotation);
             if (tiltThreshold < angle)
             {
-                poltergeistViewModel.SetOnActionPoltergeistPosition(transform.position);
                 // アクション実行を通知
                 onAction.Execute(true);
             }
@@ -272,6 +273,7 @@ namespace Mains.Views
             Transform dustParticleInstance,
             Transform playerTransform, float maxDistance,
             Se_3D_PickerCustomizeView t3DSoundPlayer,
+            PoltergeistViewModel poltergeistViewModel,
             bool isInstanceDust = false)
         {
             if (!isEnabledPoltergeist)
@@ -294,9 +296,9 @@ namespace Mains.Views
             if (playerTransform != null)
             {
                 // モーターの現在位置を取得
-                Vector3 playerPosition = transform.position;
+                Vector3 motorPosition = transform.position;
                 // 距離を計算
-                float distance = Vector3.Distance(playerPosition, playerTransform.position);
+                float distance = Vector3.Distance(motorPosition, playerTransform.position);
                 // 一定距離に近づいたら振動させる
                 if (distance <= maxDistance)
                 {
@@ -306,6 +308,7 @@ namespace Mains.Views
                     // 3D空間での音の出力
                     t3DSoundPlayer.PlaySound("footstep", intensity);
                 }
+                poltergeistViewModel.SetOnActionPoltergeistPosition(motorPosition);
             }
         }
 

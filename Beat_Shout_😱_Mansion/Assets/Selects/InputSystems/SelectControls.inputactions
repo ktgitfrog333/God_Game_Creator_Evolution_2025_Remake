@@ -223,6 +223,17 @@
                 },
                 {
                     "name": "",
+                    "id": "a87e0b31-ecb0-4d66-8eec-92e99c455aa1",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Submit",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "593d1dc5-4e6e-4138-a3b8-b281190b8197",
                     "path": "<Keyboard>/backspace",
                     "interactions": "",

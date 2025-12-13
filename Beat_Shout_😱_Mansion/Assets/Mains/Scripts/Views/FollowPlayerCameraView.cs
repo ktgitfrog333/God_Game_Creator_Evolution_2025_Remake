@@ -30,7 +30,7 @@ namespace Mains.Views
                 .Take(1)
                 .Subscribe(q =>
                 {
-                    _target = q.transform;
+                    _target = q.HeadTrans;
                     cinemachineCamera.Follow = _target;
                     cinemachineCamera.LookAt = _target;
                 })

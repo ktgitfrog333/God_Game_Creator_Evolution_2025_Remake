@@ -1,10 +1,11 @@
+using DG.Tweening;
+using Mains.External;
+using Mains.Manager;
+using Mains.ViewModels;
+using R3;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-using DG.Tweening;
-using R3;
-using Mains.External;
-using Mains.Manager;
 
 namespace Mains.Views
 {
@@ -16,8 +17,13 @@ namespace Mains.Views
     {
         /// <summary>イメージ</summary>
         [SerializeField] private Image image;
+        /// <summary>演出を有効</summary>
+        /// <remarks>演出が未実装の間はFalseにしておく</remarks>
+        [SerializeField] private bool isEnableDirection;
         /// <summary>シロさんのコンポーネントへアクセスするAPI</summary>
         private Script_xyloApi _script_XyloApi;
+        /// <summary>フェードイメージのビューモデル</summary>
+        private FadeImageViewModel _viewModel;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -29,6 +35,7 @@ namespace Mains.Views
 
         private void Start()
         {
+            _viewModel = new FadeImageViewModel();
             Observable.EveryUpdate()
                 .Select(_ => GameManager.Instance)
                 .Where(x => x != null)
@@ -39,29 +46,49 @@ namespace Mains.Views
                     owner.IsCompleted.Where(x => x)
                         .Subscribe(_ =>
                         {
-                            Color startColor = image.color;
-                            if (0f < startColor.a)
+                            if (isEnableDirection)
                             {
-                                startColor.a = 0;
-                                image.color = startColor;
-                            }
-                            // 1. fade.6～.9 の間をゆったりとしたカーブでYoYoのループDOTweenアニメーション
-                            image.DOFade(0.9f, 1.5f)
-                                .SetEase(Ease.InOutSine)
-                                .SetLoops(-1, LoopType.Yoyo)
-                                .From(0.6f)
-                                .SetId("LoopFade");
-                            _script_XyloApi = new Script_xyloApi();
-                            _script_XyloApi.FrameRateReactive
-                                .Where(x => 0f < x)
-                                .Subscribe(_ =>
+                                Color startColor = image.color;
+                                if (0f < startColor.a)
                                 {
-                                    // 2. このタイミングで一気に fade0にするDOTweenアニメーション
-                                    DOTween.Kill("LoopFade"); // ループ停止
-                                    image.DOFade(0f, 0.3f)
-                                        .SetEase(Ease.OutQuad);
+                                    startColor.a = 0;
+                                    image.color = startColor;
+                                }
+                                // 1. fade.6～.9 の間をゆったりとしたカーブでYoYoのループDOTweenアニメーション
+                                image.DOFade(0.9f, 1.5f)
+                                    .SetEase(Ease.InOutSine)
+                                    .SetLoops(-1, LoopType.Yoyo)
+                                    .From(0.6f)
+                                    .SetId("LoopFade");
+                                _script_XyloApi = new Script_xyloApi();
+                                _script_XyloApi.FrameRateReactive
+                                    .Where(x => 0f < x)
+                                    .Subscribe(_ =>
+                                    {
+                                        // 2. このタイミングで一気に fade0にするDOTweenアニメーション
+                                        DOTween.Kill("LoopFade"); // ループ停止
+                                        image.DOFade(0f, 0.3f)
+                                            .SetEase(Ease.OutQuad)
+                                            .OnComplete(() =>
+                                            {
+                                                _viewModel.SetIsCompletedStartDirection(true);
+                                            });
+                                    })
+                                    .AddTo(ref _disposableBag);
+                            }
+                            else
+                            {
+                                Observable.Create<bool>(observer =>
+                                {
+                                    StartCoroutine(PlayFadeOutDirection(observer, 1.5f, false));
+                                    return Disposable.Empty;
                                 })
-                                .AddTo(ref _disposableBag);
+                                    .Subscribe(_ =>
+                                    {
+                                        _viewModel.SetIsCompletedStartDirection(true);
+                                    })
+                                    .AddTo(ref _disposableBag);
+                            }
                         })
                         .AddTo(ref _disposableBag);
                 })
@@ -72,6 +99,7 @@ namespace Mains.Views
         {
             _disposableBag.Dispose();
             _script_XyloApi?.Dispose();
+            _viewModel?.Dispose();
         }
 
         /// <summary>

@@ -65,6 +65,7 @@ namespace Selects.Views
                     if (!isOnTriggerEnter)
                     {
                         isOnTriggerEnter = true;
+                        viewModel.SetIsOnTriggerEnterSearchRangeIndex(index);
                     }
                 })
                 .AddTo(ref _disposableBag);
@@ -74,6 +75,7 @@ namespace Selects.Views
                     if (isOnTriggerEnter)
                     {
                         isOnTriggerEnter = false;
+                        viewModel.SetIsOnTriggerEnterSearchRangeIndex(-1);
                     }
                 })
                 .AddTo(ref _disposableBag);

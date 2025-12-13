@@ -24,6 +24,7 @@ namespace Mains.Manager.Owners
 #else
     Cursor.visible = false;
 #endif
+            Cursor.lockState = CursorLockMode.Confined;
         }
     }
 }

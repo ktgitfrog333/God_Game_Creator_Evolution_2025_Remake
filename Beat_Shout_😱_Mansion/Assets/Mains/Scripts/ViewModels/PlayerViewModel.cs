@@ -133,5 +133,64 @@ namespace Mains.ViewModels
             if (_playerModel != null)
                 _playerModel.AddHorrorCount(horrorCount);
         }
+
+        public void SetIsStopHorrorCount(bool isStopHorrorCount)
+        {
+            if (_playerModel != null)
+                _playerModel.SetIsStopHorrorCount(isStopHorrorCount);
+        }
+
+        /// <summary>
+        /// 地面の接触判定
+        /// </summary>
+        /// <param name="characterController">キャラクター移動制御</param>
+        /// <param name="distanceToGround">地面との距離</param>
+        /// <param name="groundLayerMask">接地判定の対象レイヤー</param>
+        /// <returns>地面に接触しているか</returns>
+        public bool IsGrounded(CharacterController characterController, float distanceToGround, LayerMask groundLayerMask)
+        {
+            // CharacterControllerのisGroundedプロパティを優先的に使用
+            // Move()の後に自動的に更新されるため、より正確
+            if (characterController.isGrounded)
+            {
+                return true;
+            }
+
+            // CharacterControllerが無効な場合や、より詳細な判定が必要な場合のフォールバック
+            float radius = characterController.radius;
+            float skinWidth = characterController.skinWidth;
+            // raycastDistanceの計算を改善：固定値0.83fを削除し、より適切な値に調整
+            float raycastDistance = characterController.height / 2f - radius + skinWidth + distanceToGround;
+            Vector3 rayOrigin = characterController.transform.position + Vector3.up * (radius - skinWidth);
+
+            // SphereCastで接地判定（指定されたレイヤーのみを対象）
+            bool sphereCastHit = Physics.SphereCast(rayOrigin, radius, Vector3.down, out RaycastHit hit, raycastDistance, groundLayerMask);
+            // デバッグ：SceneビューにSphereCastのレイを描画
+            Debug.DrawRay(rayOrigin, Vector3.down * raycastDistance, Color.yellow);
+
+            // より確実な判定のため、追加でRaycastも実行
+            if (!sphereCastHit)
+            {
+                float rayDistance = characterController.height / 2f + distanceToGround;
+                // デバッグ：SceneビューにRaycastのレイを描画
+                Debug.DrawRay(rayOrigin, Vector3.down * rayDistance, Color.cyan);
+                return Physics.Raycast(rayOrigin, Vector3.down, rayDistance, groundLayerMask);
+            }
+
+            return sphereCastHit;
+        }
+
+        /// <summary>
+        /// 調べるコマンドが有効かを取得
+        /// </summary>
+        /// <param name="eulerAngles">カメラ視線用のトランスフォームのオイラー角度</param>
+        /// <param name="searchAngleMin">調べるコマンド_角度レベル最小</param>
+        /// <param name="searchAngleMax">調べるコマンド_角度レベル最大</param>
+        /// <returns>調べるコマンドが有効か</returns>
+        public bool IsEnabledSearchAngle(Vector3 eulerAngles, float searchAngleMin, float searchAngleMax)
+        {
+            return searchAngleMin <= eulerAngles.x &&
+                eulerAngles.x <= searchAngleMax;
+        }
     }
 }

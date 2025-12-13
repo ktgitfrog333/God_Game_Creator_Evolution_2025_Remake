@@ -34,6 +34,15 @@ public class CRIWARE_AisacChange : MonoBehaviour
     public float bpm = 120.0f;
     public int startBeat = 0; // 初期値はゼロ拍目から
 
+    /// <summary>最初に呼ばれる再生処理が完了しているか</summary>
+    /// <remarks>[Amagata]下記の非正規ルートへ入った際に初期化処理が不完全となってしまうため、回避用フラグ<br/>
+    /// ●正規ルート：イントロSE→探索BGM→リズムBGM<br/>
+    /// ●非正規ルート：イントロSE→リズムBGM
+    /// </remarks>
+    private bool _isCompletedPlayStart;
+    /// <summary>最初に呼ばれる再生処理が完了しているか</summary>
+    public bool IsCompletedPlayStart => _isCompletedPlayStart;
+
     void Start()
     {
         // シングルトンの処理
@@ -87,6 +96,7 @@ public class CRIWARE_AisacChange : MonoBehaviour
         atomExPlayer.SetStartTime((long)(startTimeInSeconds * 1000)); // ミリ秒単位で設定
         currentSource.Play();
         Debug.Log("再生開始");
+        _isCompletedPlayStart = true;
     }
 
     private void OnDisable()

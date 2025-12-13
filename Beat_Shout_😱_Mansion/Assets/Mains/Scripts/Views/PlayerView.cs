@@ -19,12 +19,14 @@ namespace Mains.Views
     [RequireComponent(typeof(CharacterController))]
     public class PlayerView : MonoBehaviour, IDidStartProvider
     {
+        [Header("全パート共通")]
+        [SerializeField] private InteractionPartTable 探索_シャウトチャンス_リズムパート情報管理テーブル;
+        [Header("探索パート／シャウトチャンスパート")]
         /// <summary>キャラクター移動制御</summary>
         [SerializeField] private CharacterController characterController;
         [SerializeField] private float トップ_移動速度;
         [SerializeField] private float 視点速度補正;
         [SerializeField] private float 重力 = 9.81f;
-        [SerializeField] private InteractionPartTable 探索_シャウトチャンス_リズムパート情報管理テーブル;
         [SerializeField] private float ロー_切り替え時間_秒;
         [SerializeField] private float ロー_歩幅;
         [SerializeField] private float トップ_歩幅;
@@ -33,6 +35,15 @@ namespace Mains.Views
         private PlayerViewModel _playerViewModel;
         /// <summary>フェードイメージのビュー</summary>
         private FadeImageView _fadeImageView;
+        /// <summary>地面との距離</summary>
+        [SerializeField] private float distanceToGround;
+        /// <summary>接地判定の対象レイヤー</summary>
+        [SerializeField] private LayerMask groundLayerMask;
+        /// <summary>カメラ視線用のトランスフォーム</summary>
+        [SerializeField] private Transform headTrans;
+        /// <summary>カメラ視線用のトランスフォーム</summary>
+        public Transform HeadTrans => headTrans;
+        [Header("リズムパート")]
         [SerializeField] private PlayerRhythmStruct リズムパートで使用するプレイヤープロパティ;
         /// <summary>シロさんのコンポーネントへアクセスするAPI</summary>
         private Script_xyloApi _script_XyloApi;
@@ -53,6 +64,14 @@ namespace Mains.Views
                 リズムパートで使用するプレイヤープロパティ.spotLightLightTrans = transform.GetChild(0).GetChild(0).GetChild(0).GetChild(0).GetChild(0);
             if (リズムパートで使用するプレイヤープロパティ.hitTrigger == null)
                 リズムパートで使用するプレイヤープロパティ.hitTrigger = transform.GetChild(1).GetComponent<SphereCollider>();
+            foreach (Transform child in transform)
+            {
+                if (child.name.Equals("Head"))
+                {
+                    if (headTrans == null)
+                        headTrans = child;
+                }
+            }
         }
 
         private void Start()
@@ -60,14 +79,16 @@ namespace Mains.Views
             _script_XyloApi = new Script_xyloApi();
             // 着地した瞬間も足音を鳴らす
             ReactiveProperty<bool> isGrounded = new();
-            isGrounded.Pairwise()
-                .Where(x => x.Previous != x.Current &&
-                    x.Current)
-                .Subscribe(_ => _script_XyloApi.PlayFootStep())
+            isGrounded.DistinctUntilChanged()
+                .Where(x => x)
+                .Subscribe(_ =>
+                {
+                    _script_XyloApi.PlayFootStep();
+                })
                 .AddTo(ref _disposableBag);
+            _playerViewModel = new(探索_シャウトチャンス_リズムパート情報管理テーブル);
             Observable.EveryUpdate()
-                .Select(_ => IsGrounded())
-                .DistinctUntilChanged() // 連続で同じ値が来たら無視
+                .Select(_ => _playerViewModel.IsGrounded(characterController, distanceToGround, groundLayerMask))
                 .Subscribe(grounded => isGrounded.Value = grounded)
                 .AddTo(ref _disposableBag);
             // 正面移動かどうかのステータス管理
@@ -142,9 +163,9 @@ namespace Mains.Views
             var player = ReInput.players.GetPlayer(0);
             player.controllers.maps.SetMapsEnabled(true, "Default"); // ゲーム操作を無効化
             // 現在のY軸回転角度 (左右回転)
-            float currentYaw = trans.rotation.eulerAngles.y;
+            float currentYaw = headTrans.rotation.eulerAngles.y;
             // 現在のX軸回転角度 (上下回転)
-            float currentPitch = trans.rotation.eulerAngles.x;
+            float currentPitch = headTrans.rotation.eulerAngles.x;
             // ターゲットとなるポルターガイストビュー
             PoltergeistView poltergeistView = null;
             FollowPlayerCameraView followPlayerCameraView = null;
@@ -200,14 +221,14 @@ namespace Mains.Views
                                 // [シャウト成功インタラクション] 3-b. プレイヤー回転アニメーション
                                 Observable.Create<bool>(observer =>
                                 {
-                                    StartCoroutine(LookAtLoopPoltergeist(observer, trans, poltergeistView.transform, 1f));
+                                    StartCoroutine(LookAtLoopPoltergeist(observer, headTrans, poltergeistView.transform, 1f));
 
                                     return Disposable.Empty;
                                 })
                                     .Subscribe(_ =>
                                     {
-                                        trans.eulerAngles = poltergeistView.RhythmPartEulerAngles;
-                                        currentYaw = trans.eulerAngles.y;
+                                        headTrans.eulerAngles = poltergeistView.RhythmPartEulerAngles;
+                                        currentYaw = headTrans.eulerAngles.y;
                                         movePlayerAndpoltergeistProcessCnt.Value++;
                                     })
                                     .AddTo(ref _disposableBag);
@@ -230,19 +251,10 @@ namespace Mains.Views
                 .AddTo(ref _disposableBag);
             // 重力管理用のVelocity
             Vector3 velocity = Vector3.zero;
-            _playerViewModel = new(探索_シャウトチャンス_リズムパート情報管理テーブル);
             _playerViewModel.SetPlayerTransform(transform);
             // イントロが完了するまではプレイヤー操作禁止
             characterController.enabled = false;
-            _script_XyloApi.FrameRateReactive
-                .Where(x => 0f < x)
-                .Subscribe(_ =>
-                {
-                    if (!characterController.enabled)
-                        characterController.enabled = true;
-                })
-                .AddTo(ref _disposableBag);
-            // [セレクト画面用]フェード処理が完了するまではプレイヤー操作禁止
+            // フェード処理が完了するまではプレイヤー操作禁止
             Observable.EveryUpdate()
                 .Select(_ => _playerViewModel.IsCompletedStartDirection)
                 .Where(x => x != null)
@@ -339,7 +351,7 @@ namespace Mains.Views
 
                                         // 実際の移動ベクトル
                                         Vector3 move = moveDirection * adjustedMoveSpeed;
-                                        // 重力処理
+                                        // 重力処理（Move()の前に適用）
                                         if (!isGrounded.Value)
                                         {
                                             velocity.y -= 重力 * Time.deltaTime;
@@ -349,6 +361,25 @@ namespace Mains.Views
                                             velocity.y = 0; // 地面にいる場合、Y方向の速度をリセット
                                         }
                                         characterController.Move((move + velocity) * Time.deltaTime);
+                                        // Move()の後にCharacterControllerの接地状態を確認
+                                        // CharacterController.isGroundedはMove()の後に自動的に更新されるため、より正確
+                                        if (!characterController.isGrounded)
+                                        {
+                                            // 実際に接地していない場合は、次のフレームで確実に落下させるためvelocity.yを更新
+                                            // 接地していない場合、velocity.yが正の値（上昇中）でない限り、重力を適用
+                                            if (velocity.y <= 0)
+                                            {
+                                                velocity.y -= 重力 * Time.deltaTime;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            // 接地している場合は速度をリセット（下向きの速度のみ）
+                                            if (velocity.y < 0)
+                                            {
+                                                velocity.y = 0;
+                                            }
+                                        }
                                         // 視点移動入力
                                         float aimX = player.GetAxis("AimMoveHorizontal");
                                         float aimY = player.GetAxis("AimMoveVertical");
@@ -362,7 +393,7 @@ namespace Mains.Views
                                         currentPitch = Mathf.Clamp(currentPitch, -90f, 90f);
 
                                         // 回転を適用
-                                        trans.rotation = Quaternion.Euler(currentPitch, currentYaw, 0f);
+                                        headTrans.rotation = Quaternion.Euler(currentPitch, currentYaw, 0f);
 
                                         bool isSwitchPart = player.GetButtonDown("SwitchPart");
                                         _playerViewModel.SetIsSwitchPart(isSwitchPart);
@@ -439,6 +470,7 @@ namespace Mains.Views
                                                 {
                                                     BatteryView batteryView = batteryTransform.GetComponent<BatteryView>();
                                                     batteryView.GetBattery();
+                                                    _script_XyloApi.PlayBatteryGet3();
                                                 }
                                             }
                                             if (_playerViewModel.BatteryTransform == null &&
@@ -458,6 +490,7 @@ namespace Mains.Views
                                                 {
                                                     BatteryView batteryView = batteryTransform.GetComponent<BatteryView>();
                                                     batteryView.GetBattery();
+                                                    _script_XyloApi.PlayBatteryGet3();
                                                 }
                                             }
                                             if (_playerViewModel.BatteryTransform == null &&
@@ -480,7 +513,7 @@ namespace Mains.Views
                                                 // [Miss]失敗を購読した場合は電池を落とす
                                                 if (_playerViewModel.BatteryTransform == null)
                                                 {
-                                                    Transform battery = DropBattery(trans, リズムパートで使用するプレイヤープロパティ.spotLightLightTrans);
+                                                    Transform battery = DropBattery(headTrans, リズムパートで使用するプレイヤープロパティ.spotLightLightTrans);
                                                     _playerViewModel.SetBatteryTransform(battery);
                                                 }
                                             })
@@ -498,7 +531,7 @@ namespace Mains.Views
                                             if (followPlayerCameraView != null)
                                                 followPlayerCameraView.ResetFollowAndLookAt();
                                             // Rewairedで操作を禁止にする。着地したら暗幕フェードの透明度を元に戻す。
-                                            ReInput.players.GetPlayer(0).controllers.maps.SetMapsEnabled(false, "Default");
+                                            player.controllers.maps.SetMapsEnabled(false, "Default");
                                             if (isGrounded.Value)
                                             {
                                                 Observable.Create<bool>(observer =>
@@ -508,13 +541,12 @@ namespace Mains.Views
                                                 })
                                                     .Subscribe(_ => { })
                                                     .AddTo(ref _disposableBag);
-                                                ReInput.players.GetPlayer(0).controllers.maps.SetMapsEnabled(true, "Default");
+                                                player.controllers.maps.SetMapsEnabled(true, "Default");
                                             }
                                             else
                                             {
-                                                isGrounded.Pairwise()
-                                                    .Where(x => x.Previous != x.Current &&
-                                                        x.Current)
+                                                isGrounded.DistinctUntilChanged()
+                                                    .Where(x => x)
                                                     .Subscribe(_ =>
                                                     {
                                                         Observable.Create<bool>(observer =>
@@ -524,7 +556,7 @@ namespace Mains.Views
                                                         })
                                                             .Subscribe(_ => { })
                                                             .AddTo(ref _disposableBag);
-                                                        ReInput.players.GetPlayer(0).controllers.maps.SetMapsEnabled(true, "Default");
+                                                        player.controllers.maps.SetMapsEnabled(true, "Default");
                                                     })
                                                     .AddTo(ref _disposableBag);
                                             }
@@ -592,6 +624,8 @@ namespace Mains.Views
             // + マイク音量 or キーボード長押し⇒解放 or コントローラー長押し⇒解放
             ReactiveProperty<float> dbLevel = new ReactiveProperty<float>();
             System.IDisposable disposableDbLevel = null;
+            // シャウト成功判定が既に実行されたかどうかを追跡
+            bool isShoutSuccessProcessed = false;
             Observable.EveryUpdate()
                 .Select(_ => _playerViewModel.InteractionPart)
                 .Where(x => x != null)
@@ -601,6 +635,9 @@ namespace Mains.Views
                     x.Subscribe(x =>
                     {
                         disposableShoutChanceRangesSetter?.Dispose();
+                        disposableDbLevel?.Dispose();
+                        // パートが変わったら成功判定フラグをリセット
+                        isShoutSuccessProcessed = false;
                         switch (x)
                         {
                             case InteractionPart.ShoutChance:
@@ -611,8 +648,8 @@ namespace Mains.Views
                                     {
                                         shoutChanceRanges.Clear();
 
-                                        Vector3 origin = transform.position + Vector3.up * 0.5f; // 目線の高さ
-                                        Vector3 direction = transform.forward;
+                                        Vector3 origin = headTrans.position; // 目線の高さ
+                                        Vector3 direction = headTrans.forward;
                                         
                                         // デバッグ：Sceneビューに赤線を描画
                                         Debug.DrawRay(origin, direction * rayLength, Color.red);
@@ -623,7 +660,8 @@ namespace Mains.Views
                                             if (hit.collider != null && hit.collider.name.StartsWith("ShoutChanceRange"))
                                             {
                                                 Transform t = hit.collider.transform;
-                                                if (!shoutChanceRanges.Contains(t))
+                                                if (!shoutChanceRanges.Contains(t) &&
+                                                    t.GetComponentInChildren<PoltergeistView>().GhostInStaticObjectStruct.useStatus.Equals(UseStatus.Using))
                                                 {
                                                     shoutChanceRanges.Add(t);
                                                 }
@@ -632,30 +670,28 @@ namespace Mains.Views
                                     })
                                     .AddTo(ref _disposableBag);
 
-                                disposableDbLevel?.Dispose();
-                                disposableDbLevel = dbLevel.Where(x => シャウトチャンスパートの共通パラメータ管理用テーブル.シャウト達成デシベル <= x &&
-                                    0 < shoutChanceRanges.Count)
+                                // 毎フレーム条件をチェックする方式に変更（タイミングずれ問題を解決）
+                                disposableDbLevel = Observable.EveryUpdate()
+                                    .Where(_ => !isShoutSuccessProcessed)
+                                    .Where(_ => シャウトチャンスパートの共通パラメータ管理用テーブル.シャウト達成デシベル <= dbLevel.Value &&
+                                        0 < shoutChanceRanges.Count)
                                     .Take(1)
                                     .Subscribe(_ =>
                                     {
+                                        isShoutSuccessProcessed = true;
                                         successShoutPosition = trans.position;
                                         successShoutEulerAngles = trans.eulerAngles;
                                         // [シャウト成功インタラクション] 1. シャウトチャンスレンジの中でオバケが潜んでいる家具かつ、一番近いコライダーからポルターガイストビューを取得
                                         poltergeistView = shoutChanceRanges
-                                            .Where(q => q.GetComponentInChildren<PoltergeistView>().GhostInStaticObjectStruct.useStatus.Equals(UseStatus.Using))
-                                            .OrderBy(t => Vector3.SqrMagnitude(t.position - transform.position))
+                                            .OrderBy(t => Vector3.SqrMagnitude(t.position - headTrans.position))
                                             .Select(q => q.GetComponentInChildren<PoltergeistView>())
                                             .FirstOrDefault();
-
                                         // [シャウト成功インタラクション] 2. オバケが飛び出すエフェクト生成
-                                        if (poltergeistView != null)
-                                        {
-                                            poltergeistView.AsyncDoBurstGhosts();
-                                            poltergeistView.InstanceMissileTempoSpawner();
-                                            // BGM再生はトランザクション開始処理の中で実施
-                                            poltergeistView.BeginTransactionGhostInStaticObjectStruct();
-                                            _playerViewModel.SetInteractionPart(InteractionPart.Rhythm);
-                                        }
+                                        poltergeistView.AsyncDoBurstGhosts();
+                                        poltergeistView.InstanceMissileTempoSpawner();
+                                        // BGM再生はトランザクション開始処理の中で実施
+                                        poltergeistView.BeginTransactionGhostInStaticObjectStruct();
+                                        _playerViewModel.SetInteractionPart(InteractionPart.Rhythm);
                                     })
                                     .AddTo(ref _disposableBag);
 
@@ -672,19 +708,20 @@ namespace Mains.Views
                 .Subscribe(async _ =>
                 {
                     isStopHorrorCount = true;
+                    _playerViewModel.SetIsStopHorrorCount(isStopHorrorCount);
                     int time = (int)(シャウトチャンスパートの共通パラメータ管理用テーブル.恐怖値のカウント停止時間 * 1000f);
                     await Task.Delay(time);
                     isStopHorrorCount = false;
+                    _playerViewModel.SetIsStopHorrorCount(isStopHorrorCount);
                 })
                 .AddTo(ref _disposableBag);
 
             // 吸気入力監視用
             bool isInhaling = false;
             bool isDualInhaling = false;
-            float inhaleStartTime = 0f;
-            float inhaleDurationThreshold = 1.0f; // 例：1秒以上
 
             Observable.EveryUpdate()
+                .Where(_ => characterController.enabled)
                 .Subscribe(_ =>
                 {
                     bool inhaleHeld = player.GetButton("Inhale");
@@ -701,23 +738,14 @@ namespace Mains.Views
                         if (!isInhaling)
                         {
                             isInhaling = true;
-                            inhaleStartTime = Time.time;
+                            // キー／トリガー入力のためそれっぽいMAX値をセット
+                            dbLevel.Value = シャウトチャンスパートの共通パラメータ管理用テーブル.シャウト達成デシベル;
                         }
                     }
                     else
                     {
                         if (isInhaling)
                         {
-                            float duration = Time.time - inhaleStartTime;
-                            if (duration >= inhaleDurationThreshold)
-                            {
-                                // キー／トリガー入力のためそれっぽいMAX値をセット
-                                dbLevel.Value = シャウトチャンスパートの共通パラメータ管理用テーブル.シャウト達成デシベル;
-                            }
-                            else
-                            {
-                                dbLevel.Value = 0f;
-                            }
                             isInhaling = false;
                         }
                     }
@@ -731,23 +759,14 @@ namespace Mains.Views
                         if (!isDualInhaling)
                         {
                             isDualInhaling = true;
-                            inhaleStartTime = Time.time;
+                            // キー／トリガー入力のためそれっぽいMAX値をセット
+                            dbLevel.Value = シャウトチャンスパートの共通パラメータ管理用テーブル.シャウト達成デシベル;
                         }
                     }
                     else
                     {
                         if (isDualInhaling)
                         {
-                            float duration = Time.time - inhaleStartTime;
-                            if (duration >= inhaleDurationThreshold)
-                            {
-                                // キー／トリガー入力のためそれっぽいMAX値をセット
-                                dbLevel.Value = シャウトチャンスパートの共通パラメータ管理用テーブル.シャウト達成デシベル;
-                            }
-                            else
-                            {
-                                dbLevel.Value = 0f;
-                            }
                             isDualInhaling = false;
                         }
                     }
@@ -870,10 +889,10 @@ namespace Mains.Views
         /// <summary>
         /// 電池を落とす
         /// </summary>
-        /// <param name="playerTransform">プレイヤーのトランスフォーム</param>
+        /// <param name="headTrans">カメラ視線用のトランスフォーム</param>
         /// <param name="spotLightLightTrans">スポットライトのトランスフォーム</param>
         /// <returns>バッテリーのトランスフォーム</returns>
-        private Transform DropBattery(Transform playerTransform, Transform spotLightLightTrans)
+        private Transform DropBattery(Transform headTrans, Transform spotLightLightTrans)
         {
             if (リズムパートで使用するプレイヤープロパティ.batteryPrefab == null)
             {
@@ -882,17 +901,17 @@ namespace Mains.Views
             }
 
             // プレイヤーの正面方向
-            Vector3 forward = playerTransform.forward;
+            Vector3 forward = headTrans.forward;
 
             // プレイヤーの向き（Y軸）に基づく角度にランダム±20度を加える
-            float baseYaw = playerTransform.rotation.eulerAngles.y;
+            float baseYaw = headTrans.rotation.eulerAngles.y;
             float randomOffset = Random.Range(-20f, 20f);
             float finalYaw = baseYaw + randomOffset;
 
             Quaternion rotation = Quaternion.Euler(0, finalYaw, 0);
             Vector3 offsetDirection = rotation * Vector3.forward;
 
-            Vector3 spawnPosition = playerTransform.position + offsetDirection.normalized * 1f + Vector3.up * 0.8f;
+            Vector3 spawnPosition = headTrans.position + offsetDirection.normalized * 1f + Vector3.down * 0.2f;
 
             // 電池を生成
             Transform battery = Instantiate(リズムパートで使用するプレイヤープロパティ.batteryPrefab, spotLightLightTrans.position, Quaternion.identity);
@@ -913,6 +932,7 @@ namespace Mains.Views
                     {
                         battery.rotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
                     }
+                    _script_XyloApi.PlayBatteryLost1();
                     batteryView.SetEnabledCollider(true);
                 })
                 .Play();
@@ -962,20 +982,6 @@ namespace Mains.Views
             // ViewのIDとpoltergeistViewsのGetInstanceIdを検索
             var poltergeistView = poltergeistViews.FirstOrDefault(q => q.GhostInStaticObjectStruct.poltergeistViewID == targetPoltergeistViewID);
             return poltergeistView;
-        }
-
-        /// <summary>
-        /// 地面の接触判定
-        /// </summary>
-        /// <returns>地面に接触しているか</returns>
-        private bool IsGrounded()
-        {
-            float radius = characterController.radius;
-            float skinWidth = characterController.skinWidth;
-            float raycastDistance = characterController.height / 2f - radius + skinWidth + 0.1f + .83f; // 余裕を持たせる
-            Vector3 rayOrigin = characterController.transform.position + Vector3.up * (radius - skinWidth);
-
-            return Physics.SphereCast(rayOrigin, radius, Vector3.down, out RaycastHit hit, raycastDistance);
         }
     }
 }

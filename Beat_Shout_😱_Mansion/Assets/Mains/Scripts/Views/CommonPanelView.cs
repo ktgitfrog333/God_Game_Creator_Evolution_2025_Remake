@@ -1,18 +1,18 @@
+using DG.Tweening;
 using Mains.Commons;
+using Mains.External;
+using Mains.Manager;
 using Mains.ViewModels;
+using ObservableCollections;
+using R3;
+using Rewired;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
-using R3;
-using ObservableCollections;
-using System.Linq;
-using System.Collections.Generic;
-using Rewired;
 using UnityEngine.SceneManagement;
-using System.Collections;
-using DG.Tweening;
 using UnityEngine.UI;
-using Mains.Manager;
-using Mains.External;
 
 namespace Mains.Views
 {
@@ -31,16 +31,15 @@ namespace Mains.Views
         [SerializeField] private float frameAlphaMax;
         /// <summary>恐怖フレームカラー構造体の配列</summary>
         [SerializeField] private HorrorMokuFrameColorStruct[] horrorMokuFrameColorStructs;
-        /// <summary>心音最小</summary>
-        // [SerializeField] private float heartBeatMin;
-        /// <summary>心音最大</summary>
-        // [SerializeField] private float heartBeatMax;
         /// <summary>心音プロパティ構造体</summary>
         [SerializeField] private HeartBeatPropStruct[] heartBeatPropStructs;
-        /// <summary>オーディオの仮実装用スタブ</summary>
-        [SerializeField] private AudioStubTable audioStubTable;
-        /// <summary>オーディオソース</summary>
-        [SerializeField] private AudioSource audioSource;
+        [Header("恐怖ゲージ")]
+        /// <summary>恐怖ゲージのフィル</summary>
+        [SerializeField] private Image horrorGaugeSliderFill;
+        /// <summary>恐怖ゲージの数値テキスト</summary>
+        [SerializeField] private TextMeshProUGUI horrorGaugeSliderNumberText;
+        /// <summary>恐怖ゲージスライダーのフィルとカラーの構造体</summary>
+        [SerializeField] private HorrorGaugeSliderFillColorStruct[] horrorGaugeSliderFillColorStructs;
         [Header("その他オプション")]
         [Tooltip("CommonPanel > HeaderPanel > IconAndGuidePanel > GuideText をセット")]
         /// <summary>ミッションガイド概要のテキスト</summary>
@@ -51,9 +50,6 @@ namespace Mains.Views
         [Tooltip("CommonPanel > FooterPanel > IconHeartsPanel をセット")]
         /// <summary>ハートアイコンを表示する用のトランスフォーム</summary>
         [SerializeField] private RectTransform iconHeartsPanel;
-        [Tooltip("CommonPanel > FooterPanel > HorrorGaugeSlider をセット")]
-        /// <summary>恐怖ゲージのスライダー</summary>
-        [SerializeField] private Slider horrorGaugeSlider;
         [Tooltip("Assets/Mains/Prefabs/UIs/CommonPanels/IconHeartImage.prefab をセット")]
         /// <summary>iconHeartImageのプレハブ</summary>
         [SerializeField] private Transform iconHeartImagePrefab;
@@ -73,6 +69,17 @@ namespace Mains.Views
         /// <summary>Start完了を通知するObservable（Trueになったら1度だけ発火）</summary>
         private Subject<Unit> _didStartAsObservable = new Subject<Unit>();
         [SerializeField] private InteractionPartTable 探索_シャウトチャンス_リズムパート情報管理テーブル;
+        [Header("フェード設定")]
+        /// <summary>前に戻るシーン名</summary>
+        [SerializeField] private string gameSceneNameBack;
+        // クラスフィールドとして追加
+        /// <summary>フィルアマウントのループアニメーションのコルーチン</summary>
+        private Coroutine _fillAmountLoopCoroutine;
+        /// <summary>恐怖ゲージスライダーのフィルとカラーの構造体</summary>
+        /// <remarks>フィルアマウントのループアニメーションの実行中設定</remarks>
+        private HorrorGaugeSliderFillColorStruct _currentGaugeFillConfig;
+        /// <summary>フィルアマウントのループアニメーションの実行中設定が存在するか</summary>
+        private bool _hasCurrentGaugeFillConfig;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -86,8 +93,31 @@ namespace Mains.Views
                 missionText = transform.GetChild(1).GetChild(1).GetComponent<TextMeshProUGUI>();
             if (iconHeartsPanel == null)
                 iconHeartsPanel = transform.GetChild(2).GetChild(0) as RectTransform;
-            if (horrorGaugeSlider == null)
-                horrorGaugeSlider = transform.GetChild(2).GetChild(1).GetComponent<Slider>();
+            foreach (Transform child in transform)
+            {
+                if (child.name.Equals("FooterPanel"))
+                {
+                    foreach (Transform item in child)
+                    {
+                        if (item.name.Equals("HorrorGaugeSlider"))
+                        {
+                            foreach (Transform item1 in item)
+                            {
+                                if (item1.name.Equals("Fill"))
+                                {
+                                    if (horrorGaugeSliderFill == null)
+                                        horrorGaugeSliderFill = item1.GetComponent<Image>();
+                                }
+                                if (item1.name.Equals("NumberText"))
+                                {
+                                    if (horrorGaugeSliderNumberText == null)
+                                        horrorGaugeSliderNumberText = item1.GetComponent<TextMeshProUGUI>();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             if (stageClearPanel == null)
                 stageClearPanel = transform.GetChild(3).GetChild(0) as RectTransform;
             if (stageClearText == null)
@@ -132,7 +162,7 @@ namespace Mains.Views
                             var ghostExitMembersCount = ghostAllMembersCount - ghostAllMembersUpdCount;
                             missionText.text = 共通UIのテンプレート.missionText.Replace("${ghostAllMembersCount}", $"{ghostAllMembersCount}")
                                 .Replace("${ghostExitMembersCount}", $"{ghostExitMembersCount}");
-                            CheckMissionStatusAndDirectionClear(ghostAllMembersUpdCount, stageClearPanel, stageClearText, player, fadeImageView);
+                            CheckMissionStatusAndDirectionClear(ghostAllMembersUpdCount, gameSceneNameBack, stageClearPanel, stageClearText, player, fadeImageView);
                         })
                         .AddTo(ref _disposableBag);
                 })
@@ -207,7 +237,7 @@ namespace Mains.Views
                         if (max != null)
                         {
                             RenderFrameImageAlpha(horrorCount, max.Value, frameAlphaMin, frameAlphaMax, horrorMokumokuFrameImage);
-                            SetHorrorGaugeSlider(horrorCount, max.Value, horrorGaugeSlider);
+                            SetHorrorGaugeSliderNumberText(horrorCount, max.Value, horrorGaugeSliderNumberText);
                             heartBeatPropStruct = GetHeartBeatPropStruct(horrorCount, max.Value, heartBeatPropStructs);
                             CheckHorrorCountAndDoDirectionGameOver(horrorCount, max.Value, player, fadeImageView, _script_XyloApi);
                         }
@@ -240,8 +270,85 @@ namespace Mains.Views
                         PlayRenderFrameImageColorAnimation(horrorMokuFrameColorStruct, horrorMokumokuFrameImage);
                     })
                     .AddTo(ref _disposableBag);
+                    // ① HorrorCount から「現在のカラー区間インデックス」を求め、変化時だけ流すストリーム
+                    x.Select(hc =>
+                    {
+                        // max が null の保険
+                        var maxLocal = GameManager.Instance.LevelOwner.HorrorCountMax;
+                        if (maxLocal == null) return (-1, new HorrorGaugeSliderFillColorStruct());
+
+                        // HeartBeat と同様に小数2桁で丸めて比較（境界ブレ対策）
+                        // TODO:丸め補正&from~to範囲判定は一つにまとめる
+                        var ratio = Mathf.Round((hc / maxLocal.Value) * 100f) / 100f;
+
+                        for (int i = 0; i < horrorGaugeSliderFillColorStructs.Length; i++)
+                        {
+                            var s = horrorGaugeSliderFillColorStructs[i]; // s.from ～ s.to の区間に入っているか
+                            if (s.from <= ratio && ratio <= s.to)
+                                return (i, s);
+                        }
+                        return (-1, new HorrorGaugeSliderFillColorStruct()); // どの区間にも属さない
+                    })
+                    .DistinctUntilChangedBy(t => t.Item1)   // ★ 区間インデックスが変わった時だけ発火
+                    .Where(t => t.Item1 >= 0)             // 有効な区間だけ通す
+                    .Select(t => t.Item2)
+                    .Subscribe(horrorGaugeSliderFillColorStruct =>
+                    {
+                        RenderGaugeImageFillAndColor(horrorGaugeSliderFillColorStruct, horrorGaugeSliderFill);
+                    })
+                    .AddTo(ref _disposableBag);
 
                     x.Execute(0f);
+                })
+                .AddTo(ref _disposableBag);
+            // ブレイブシャウト成功中とリズムパート中は点滅させる
+            var isStopHorrorCountMore = _commonPanelViewModel.IsStopHorrorCountMore;
+            Tweener tweenerFill = null;
+            Tweener tweenerText = null;
+            // 停止中
+            isStopHorrorCountMore.DistinctUntilChanged()
+                .Where(x => x)
+                .Subscribe(_ =>
+                {
+                    tweenerFill = horrorGaugeSliderFill.DOFade(0f, .5f)
+                        .From(1f)
+                        .SetLoops(-1, LoopType.Yoyo);
+                    tweenerText = horrorGaugeSliderNumberText.DOFade(0f, .5f)
+                        .From(1f)
+                        .SetLoops(-1, LoopType.Yoyo);
+                    if (_hasCurrentGaugeFillConfig)
+                    {
+                        StopFillAmountLoop(_currentGaugeFillConfig.fillAmountFrom, horrorGaugeSliderFill);
+                    }
+                })
+                .AddTo(ref _disposableBag);
+            // 恐怖ゲージ加算中
+            isStopHorrorCountMore.DistinctUntilChanged()
+                .Where(x => !x)
+                .Subscribe(_ =>
+                {
+                    if (tweenerFill != null && tweenerFill.IsPlaying())
+                    {
+                        tweenerFill.Complete();
+                        tweenerFill.Rewind();
+                        tweenerFill.Kill();
+                        tweenerFill = null;
+                    }
+                    if (tweenerText != null && tweenerText.IsPlaying())
+                    {
+                        tweenerText.Complete();
+                        tweenerText.Rewind();
+                        tweenerText.Kill();
+                        tweenerText = null;
+                    }
+                    if (_hasCurrentGaugeFillConfig)
+                    {
+                        StartFillAmountLoop(
+                            _currentGaugeFillConfig.fillAmountFrom,
+                            _currentGaugeFillConfig.fillAmountTo,
+                            horrorGaugeSliderFill
+                        );
+                    }
                 })
                 .AddTo(ref _disposableBag);
             // 一定のリズムでSEを再生。horrorCountが残り少ないほどビートが短くなっていく。
@@ -256,21 +363,17 @@ namespace Mains.Views
                 {
                 	if (heartBeatPropStruct.value <= heartBeatElapsedTime)
                 	{
-                        // TODO: CRI追加後は修正する
-                        AudioClip clip = null;
                         switch (heartBeatPropStruct.type)
                         {
                             case 0:
-                                clip = audioStubTable.heartbeatSlow;
+                                _script_XyloApi.PlayHeartbeatSlow();
 
                                 break;
                             case 1:
-                                clip = audioStubTable.heartbeatFast;
+                                _script_XyloApi.PlayHeartbeatFast();
 
                                 break;
                         }
-                        audioSource.clip = clip;
-                        audioSource.Play();
                         heartBeatElapsedTime = 0f;
 
                 		return;
@@ -323,11 +426,13 @@ namespace Mains.Views
         /// ミッション情報を監視してクリア演出を実行
         /// </summary>
         /// <param name="ghostAllMembersUpdCount">利用総人数（更新後）</param>
+        /// <param name="gameSceneNameBack">前に戻るシーン名</param>
         /// <param name="stageClearPanel">STAGE CLEARのパネル</param>
         /// <param name="stageClearText">STAGE CLEARのテキスト</param>
         /// <param name="player">ReInputのPlayer</param>
         /// <param name="fadeImageView">フェードイメージのビュー</param>
-        private void CheckMissionStatusAndDirectionClear(int ghostAllMembersUpdCount, RectTransform stageClearPanel, TextMeshProUGUI stageClearText, Player player, FadeImageView fadeImageView)
+        private void CheckMissionStatusAndDirectionClear(int ghostAllMembersUpdCount, string gameSceneNameBack,
+            RectTransform stageClearPanel, TextMeshProUGUI stageClearText, Player player, FadeImageView fadeImageView)
         {
             if (ghostAllMembersUpdCount < 1)
             {
@@ -364,7 +469,7 @@ namespace Mains.Views
                                     {
                                         Observable.Create<bool>(observer =>
                                         {
-                                            StartCoroutine(LoadSceneCoroutine(observer, "MainScene"));
+                                            StartCoroutine(LoadSceneCoroutine(observer, gameSceneNameBack));
                                             return Disposable.Empty;
                                         })
                                             .Subscribe(_ => { })
@@ -399,11 +504,12 @@ namespace Mains.Views
         /// </summary>
         /// <param name="horrorCount">恐怖値</param>
         /// <param name="horrorCountMax">恐怖値最大</param>
-        /// <param name="horrorGaugeSlider">恐怖ゲージのスライダー</param>
-        private void SetHorrorGaugeSlider(float horrorCount, float horrorCountMax, Slider horrorGaugeSlider)
+        /// <param name="horrorGaugeSliderNumberText">恐怖ゲージの数値テキスト</param>
+        private void SetHorrorGaugeSliderNumberText(float horrorCount, float horrorCountMax, TextMeshProUGUI horrorGaugeSliderNumberText)
         {
-            var horror = (horrorCountMax - horrorCount) / horrorCountMax;
-            horrorGaugeSlider.value = horror;
+            var horror = (horrorCountMax - horrorCount) / horrorCountMax * 100;
+            var horrorFloor = Mathf.FloorToInt(horror);
+            horrorGaugeSliderNumberText.text = $"{horrorFloor}";
         }
 
         /// <summary>
@@ -464,7 +570,8 @@ namespace Mains.Views
                 {
                     Observable.Create<bool>(observer =>
                     {
-                        StartCoroutine(LoadSceneCoroutine(observer, "MainScene"));
+                        string sceneName = SceneManager.GetActiveScene().name;
+                        StartCoroutine(LoadSceneCoroutine(observer, sceneName));
                         return Disposable.Empty;
                     })
                         .Subscribe(_ => { })
@@ -525,6 +632,86 @@ namespace Mains.Views
                 var tween = horrorMokumokuFrameImage
                     .DOColor(target, Mathf.Max(0f, horrorMokuFrameColorStruct.duration))
                     .SetEase(Ease.InOutBounce);
+            }
+        }
+
+        /// <summary>
+        /// 恐怖ゲージスライダーのフィルとイメージを描画
+        /// </summary>
+        /// <param name="horrorGaugeSliderFillColorStruct">恐怖ゲージスライダーのフィルとカラーの構造体</param>
+        /// <param name="horrorGaugeSliderFill">恐怖ゲージのフィル</param>
+        private void RenderGaugeImageFillAndColor(
+            HorrorGaugeSliderFillColorStruct horrorGaugeSliderFillColorStruct,
+            Image horrorGaugeSliderFill)
+        {
+            // 今の設定を覚えておく（再開時に使う）
+            _currentGaugeFillConfig = horrorGaugeSliderFillColorStruct;
+            _hasCurrentGaugeFillConfig = true;
+
+            // ループアニメーションを更新
+            StartFillAmountLoop(
+                horrorGaugeSliderFillColorStruct.fillAmountFrom,
+                horrorGaugeSliderFillColorStruct.fillAmountTo,
+                horrorGaugeSliderFill
+            );
+
+            // 色も更新
+            var color = horrorGaugeSliderFillColorStruct.gaugeColor;
+            if (color != horrorGaugeSliderFill.color)
+                horrorGaugeSliderFill.color = color;
+        }
+
+
+        /// <summary>
+        /// フィルアマウントのループアニメーションのコルーチン開始ラップ
+        /// </summary>
+        /// <param name="from">フィル値 〜から</param>
+        /// <param name="to">フィル値 〜まで</param>
+        /// <param name="horrorGaugeSliderFill">恐怖ゲージのフィル</param>
+        private void StartFillAmountLoop(float from, float to, Image horrorGaugeSliderFill)
+        {
+            // 既存があれば止める
+            if (_fillAmountLoopCoroutine != null)
+            {
+                StopCoroutine(_fillAmountLoopCoroutine);
+                _fillAmountLoopCoroutine = null;
+            }
+
+            _fillAmountLoopCoroutine = StartCoroutine(
+                PlayFillAmountLoopAnimation(from, to, horrorGaugeSliderFill)
+            );
+        }
+
+        /// <summary>
+        /// フィルアマウントのループアニメーションのコルーチン停止ラップ
+        /// </summary>
+        /// <param name="from">フィル値 〜から</param>
+        /// <param name="horrorGaugeSliderFill">恐怖ゲージのフィル</param>
+        private void StopFillAmountLoop(float from, Image horrorGaugeSliderFill)
+        {
+            if (_fillAmountLoopCoroutine != null)
+            {
+                StopCoroutine(_fillAmountLoopCoroutine);
+                _fillAmountLoopCoroutine = null;
+                horrorGaugeSliderFill.fillAmount = from;
+            }
+        }
+
+        /// <summary>
+        /// フィルアマウントのループアニメーション
+        /// </summary>
+        /// <param name="fillAmountFrom">フィル値 〜から</param>
+        /// <param name="fillAmountTo">フィル値 〜まで</param>
+        /// <param name="horrorGaugeSliderFill">恐怖ゲージのフィル</param>
+        /// <returns>コルーチン</returns>
+        private IEnumerator PlayFillAmountLoopAnimation(float fillAmountFrom, float fillAmountTo, Image horrorGaugeSliderFill)
+        {
+            while (true)
+            {
+                horrorGaugeSliderFill.fillAmount = fillAmountFrom;
+                yield return new WaitForSeconds(1f);
+                horrorGaugeSliderFill.fillAmount = fillAmountTo;
+                yield return new WaitForSeconds(1f);
             }
         }
     }

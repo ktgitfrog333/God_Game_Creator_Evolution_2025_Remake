@@ -74,10 +74,17 @@ namespace Mains.Models
         public ReactiveCommand<bool> IsCompletedStartDirection => _isCompletedStartDirection;
         /// <summary>恐怖値</summary>
         private float _horrorCount;
+        /// <summary>恐怖値のカウントを停止中かのフラグ</summary>
+        private ReactiveCommand<bool> _isStopHorrorCount = new ReactiveCommand<bool>();
+        /// <summary>恐怖値のカウントを停止中かのフラグ</summary>
+        public ReactiveCommand<bool> IsStopHorrorCount => _isStopHorrorCount;
+        /// <summary>部屋の扉の前で調べる当たり判定に触れたか</summary>
+        private ReactiveCommand<int> _isOnTriggerEnterSearchRangeIndex = new ReactiveCommand<int>();
+        /// <summary>部屋の扉の前で調べる当たり判定に触れたか</summary>
+        public ReactiveCommand<int> IsOnTriggerEnterSearchRangeIndex => _isOnTriggerEnterSearchRangeIndex;
 
         private void Start()
         {
-            _selectedStageIndex.Execute(-1);
         }
 
         private void OnDestroy()
@@ -334,7 +341,11 @@ namespace Mains.Models
 
         public void AddHorrorCount(float horrorCount)
         {
-            var owner = GameManager.Instance.LevelOwner;
+            var manager = GameManager.Instance;
+            if (manager == null)
+                return;
+
+            var owner = manager.LevelOwner;
             if (owner == null)
                 return;
 
@@ -353,6 +364,16 @@ namespace Mains.Models
             }
             _horrorCount = tmpHorrorCount;
             _playerPropertiesStruct.horrorCount.Execute(_horrorCount);
+        }
+
+        public void SetIsStopHorrorCount(bool isStopHorrorCount)
+        {
+            _isStopHorrorCount.Execute(isStopHorrorCount);
+        }
+
+        public void SetIsOnTriggerEnterSearchRangeIndex(int isOnTriggerEnterSearchRangeIndex)
+        {
+            _isOnTriggerEnterSearchRangeIndex.Execute(isOnTriggerEnterSearchRangeIndex);
         }
     }
 
@@ -411,6 +432,11 @@ namespace Mains.Models
         /// </summary>
         /// <param name="horrorCount">恐怖値</param>
         public void AddHorrorCount(float horrorCount);
+        /// <summary>
+        /// 恐怖値のカウントを停止中かのフラグをセット
+        /// </summary>
+        /// <param name="isStopHorrorCount">恐怖値のカウントを停止中かのフラグ</param>
+        public void SetIsStopHorrorCount(bool isStopHorrorCount);
     }
 
     /// <summary>
@@ -540,6 +566,11 @@ namespace Mains.Models
         /// </summary>
         /// <param name="selectedStageIndex">選択されたステージ番号</param>
         public void SetSelectedStageIndex(int selectedStageIndex);
+        /// <summary>
+        /// 部屋の扉の前で調べる当たり判定に触れた階層をセット
+        /// </summary>
+        /// <param name="isOnTriggerEnterSearchRangeIndex">部屋の扉の前で調べる当たり判定に触れた階層</param>
+        public void SetIsOnTriggerEnterSearchRangeIndex(int isOnTriggerEnterSearchRangeIndex);
     }
 
     /// <summary>

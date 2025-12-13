@@ -1,4 +1,5 @@
 using Mains.Commons;
+using Mains.External;
 using Mains.ViewModels;
 using R3;
 using R3.Triggers;
@@ -13,6 +14,8 @@ namespace Mains.Views
     {
         /// <summary>ボックスコライダー</summary>
         [SerializeField] private BoxCollider boxCollider;
+        /// <summary>シロさんのコンポーネントへアクセスするAPI</summary>
+        private Script_xyloApi _script_XyloApi;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -63,6 +66,7 @@ namespace Mains.Views
                 })
                 .AddTo(ref _disposableBag);
             // boxColliderのOnTriggerStayでプレイヤーのHPを減らす
+            _script_XyloApi = new Script_xyloApi();
             if (boxCollider != null)
             {
                 bool isOnTriggerEnter = false;
@@ -73,6 +77,7 @@ namespace Mains.Views
                     .Subscribe(_ =>
                     {
                         isOnTriggerEnter = true;
+                        _script_XyloApi.PlayDamage1();
                         SubtractionPlayerHealth(viewModel);
                     })
                     .AddTo(ref _disposableBag);
@@ -89,6 +94,7 @@ namespace Mains.Views
         private void OnDestroy()
         {
             _disposableBag.Dispose();
+            _script_XyloApi?.Dispose();
         }
 
         /// <summary>

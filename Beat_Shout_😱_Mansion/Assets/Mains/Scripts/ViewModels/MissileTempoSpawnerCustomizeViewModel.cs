@@ -7,7 +7,7 @@ namespace Mains.ViewModels
     /// <summary>
     /// MissileTempoSpawnerのカスタマイズのビューモデル
     /// </summary>
-    public class MissileTempoSpawnerCustomizeViewModel
+    public class MissileTempoSpawnerCustomizeViewModel : System.IDisposable
     {
         /// <summary>プレイヤーのモデル</summary>
         private PlayerModel _playerModel;
@@ -25,10 +25,13 @@ namespace Mains.ViewModels
                 .Subscribe(x =>
                 {
                     _playerModel = x;
-                    // 1度のみ実行されれば良いので破棄しても問題なし
-                    _disposableBag.Dispose();
                 })
                 .AddTo(ref _disposableBag);
+        }
+
+        public void Dispose()
+        {
+            _disposableBag.Dispose();
         }
     }
 }
