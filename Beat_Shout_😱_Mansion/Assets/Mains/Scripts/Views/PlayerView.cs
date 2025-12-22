@@ -87,9 +87,14 @@ namespace Mains.Views
                 })
                 .AddTo(ref _disposableBag);
             _playerViewModel = new(探索_シャウトチャンス_リズムパート情報管理テーブル);
+            float lastFixedTimeForGrounded = 0f;
             Observable.EveryUpdate()
-                .Select(_ => _playerViewModel.IsGrounded(characterController, distanceToGround, groundLayerMask))
-                .Subscribe(grounded => isGrounded.Value = grounded)
+                .Where(_ => Time.time - lastFixedTimeForGrounded >= Time.fixedDeltaTime) // FixedUpdateと同じタイミング
+                .Subscribe(_ =>
+                {
+                    lastFixedTimeForGrounded = Time.time; // 次の実行タイミングを記録
+                    isGrounded.Value = _playerViewModel.IsGrounded(characterController, distanceToGround, groundLayerMask);
+                })
                 .AddTo(ref _disposableBag);
             // 正面移動かどうかのステータス管理
             ReactiveProperty<bool> isMovingForward = new ReactiveProperty<bool>();
@@ -290,6 +295,7 @@ namespace Mains.Views
                     System.IDisposable observableIsFailedDisposable = null;
                     System.IDisposable observableTargetCrossPositionDisposable = null;
                     System.IDisposable volumeLevelReactiveDisposable = null;
+                    Camera mainCamera = null;
                     x.Pairwise()
                         .Subscribe(part =>
                         {
@@ -335,7 +341,11 @@ namespace Mains.Views
                                         Vector3 moveDirection = Quaternion.Euler(0f, currentYaw, 0f) * moveInput;
 
                                         // カメラの正面方向
-                                        Vector3 cameraForward = Camera.main != null ? Camera.main.transform.forward : Vector3.zero;
+                                        if (mainCamera == null)
+                                        {
+                                            mainCamera = Camera.main;
+                                        }
+                                        Vector3 cameraForward = mainCamera.transform.forward;
                                         cameraForward.y = 0; // 水平成分のみ使用
                                         cameraForward.Normalize();
 
@@ -724,22 +734,21 @@ namespace Mains.Views
                 .Where(_ => characterController.enabled)
                 .Subscribe(_ =>
                 {
-                    bool inhaleHeld = player.GetButton("Inhale");
-                    bool inhaleLeftHeld = player.GetButton("InhaleHalfLeft");
-                    bool inhaleRightHeld = player.GetButton("InhaleHalfRight");
+                    bool inhaleHeld = player.GetButtonDown("Inhale");
+                    bool inhaleHeldCon = (player.GetButtonDown("InhaleHalfLeft") && player.GetButton("InhaleHalfRight")) ||
+                        (player.GetButton("InhaleHalfLeft") && player.GetButtonDown("InhaleHalfRight"));
                     bool isMicInput = _script_XyloApi.IsMicInput();
 
                     // Inhale 単体の入力
                     if (inhaleHeld &&
-                        !inhaleLeftHeld &&
-                        !inhaleRightHeld &&
+                        !inhaleHeldCon &&
                         !isMicInput)
                     {
                         if (!isInhaling)
                         {
                             isInhaling = true;
                             // キー／トリガー入力のためそれっぽいMAX値をセット
-                            dbLevel.Value = シャウトチャンスパートの共通パラメータ管理用テーブル.シャウト達成デシベル;
+                            dbLevel.Value = シャウトチャンスパートの共通パラメータ管理用テーブル.シャウトゲージスライダー最大値;
                         }
                     }
                     else
@@ -751,8 +760,7 @@ namespace Mains.Views
                     }
 
                     // 両方のHalfInhaleを長押し
-                    if (inhaleLeftHeld &&
-                        inhaleRightHeld &&
+                    if (inhaleHeldCon &&
                         !inhaleHeld &&
                         !isMicInput)
                     {
@@ -760,7 +768,7 @@ namespace Mains.Views
                         {
                             isDualInhaling = true;
                             // キー／トリガー入力のためそれっぽいMAX値をセット
-                            dbLevel.Value = シャウトチャンスパートの共通パラメータ管理用テーブル.シャウト達成デシベル;
+                            dbLevel.Value = シャウトチャンスパートの共通パラメータ管理用テーブル.シャウトゲージスライダー最大値;
                         }
                     }
                     else
@@ -773,8 +781,7 @@ namespace Mains.Views
 
                     // マイク入力の取得
                     if (!inhaleHeld &&
-                        !inhaleLeftHeld &&
-                        !inhaleRightHeld &&
+                        !inhaleHeldCon &&
                         isMicInput)
                     {
                         dbLevel.Value = _script_XyloApi.GetDBLevel();
@@ -782,7 +789,7 @@ namespace Mains.Views
 
                     _playerViewModel.SetDbLevel(dbLevel.Value);
                     // どちらも押されていない場合も毎フレーム 0 に戻す（押し直しに備える）
-                    if (!inhaleHeld && !(inhaleLeftHeld && inhaleRightHeld) &&
+                    if (!inhaleHeld && !inhaleHeldCon &&
                         !isMicInput)
                     {
                         if (!isInhaling && !isDualInhaling)

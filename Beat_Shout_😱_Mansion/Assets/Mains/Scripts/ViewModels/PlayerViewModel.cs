@@ -13,6 +13,8 @@ namespace Mains.ViewModels
     {
         /// <summary>プレイヤーのモデル</summary>
         private PlayerModel _playerModel;
+        /// <summary>SphereCast用のRaycastHit配列（再利用）</summary>
+        private RaycastHit[] _sphereCastHits = new RaycastHit[1];
         /// <summary>オバケの家具入居管理の構造体リスト</summary>
         public ObservableList<GhostInStaticObjectStruct> GhostInStaticObjectStructs => _playerModel?.GhostInStaticObjectStructs ?? null;
         /// <summary>ポルターガイストの発生位置</summary>
@@ -163,13 +165,13 @@ namespace Mains.ViewModels
             float raycastDistance = characterController.height / 2f - radius + skinWidth + distanceToGround;
             Vector3 rayOrigin = characterController.transform.position + Vector3.up * (radius - skinWidth);
 
-            // SphereCastで接地判定（指定されたレイヤーのみを対象）
-            bool sphereCastHit = Physics.SphereCast(rayOrigin, radius, Vector3.down, out RaycastHit hit, raycastDistance, groundLayerMask);
+            // SphereCastNonAllocで接地判定（指定されたレイヤーのみを対象）
+            int hitCount = Physics.SphereCastNonAlloc(rayOrigin, radius, Vector3.down, _sphereCastHits, raycastDistance, groundLayerMask);
             // デバッグ：SceneビューにSphereCastのレイを描画
             Debug.DrawRay(rayOrigin, Vector3.down * raycastDistance, Color.yellow);
 
             // より確実な判定のため、追加でRaycastも実行
-            if (!sphereCastHit)
+            if (hitCount == 0)
             {
                 float rayDistance = characterController.height / 2f + distanceToGround;
                 // デバッグ：SceneビューにRaycastのレイを描画
@@ -177,7 +179,7 @@ namespace Mains.ViewModels
                 return Physics.Raycast(rayOrigin, Vector3.down, rayDistance, groundLayerMask);
             }
 
-            return sphereCastHit;
+            return hitCount > 0;
         }
 
         /// <summary>

@@ -18,14 +18,14 @@ TagManager:
   - Player
   - DropItems
   - Ghost
-  - OverlayGhost
-  - OverlayDropItems
+  - 
+  - 
   - SearchRange
-  - OverlayFlashLight
-  - OverlayParticleSys
   - 
   - 
-  - 
+  - FG_Always
+  - FG_Rhythm
+  - FG_RhythmFX
   - 
   - 
   - 

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1466986997725288235}
   - component: {fileID: 1596829412409449295}
   - component: {fileID: 820778370534137584}
-  m_Layer: 13
+  m_Layer: 19
   m_Name: Point Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -147,14 +147,6 @@ PrefabInstance:
     - target: {fileID: 2652521226571307256, guid: 26922f3c26bc9ce4aa4d51a265fe5f92, type: 3}
       propertyPath: m_Name
       value: GhostBodyModel
-      objectReference: {fileID: 0}
-    - target: {fileID: 2652521226571307256, guid: 26922f3c26bc9ce4aa4d51a265fe5f92, type: 3}
-      propertyPath: m_Layer
-      value: 13
-      objectReference: {fileID: 0}
-    - target: {fileID: 5917371182972491181, guid: 26922f3c26bc9ce4aa4d51a265fe5f92, type: 3}
-      propertyPath: m_Layer
-      value: 13
       objectReference: {fileID: 0}
     - target: {fileID: 6853784894609534560, guid: 26922f3c26bc9ce4aa4d51a265fe5f92, type: 3}
       propertyPath: m_LocalPosition.x

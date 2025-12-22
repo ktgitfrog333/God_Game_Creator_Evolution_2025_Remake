@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Mains.External
 {
@@ -303,6 +304,17 @@ namespace Mains.External
                 return value is bool boolVal && boolVal;
             }
         }
+        /// <summary>ボリュームスライダーのMAX値が2fへセットされたか</summary>
+        /// <remarks>タイトル画面のスライダー設定では最終的にMAXは10になっているのでそれに合わせる必要がある<br/>
+        /// しかし、MicInputのディテクターではStartで2が設定されるためディテクターの後に呼ばないと2のままになってしまうため<br/>
+        /// MAX値を2へ更新されるのを待つためのリアクティブなフラグを追加</remarks>
+        /// <see cref="TitleScreenController.SetupOptionsSliders"/>
+        /// <see cref="MicInput_Criware.Start"/>
+        private ReactiveCommand<bool> _isVolumeSliderMaxValueToTwo = new();
+        /// <summary>ボリュームスライダーのMAX値が2fへセットされたか</summary>
+        public ReactiveCommand<bool> IsVolumeSliderMaxValueToTwo => _isVolumeSliderMaxValueToTwo;
+        /// <summary>ボリュームスライダーのMAX値が2fへセットされたかDisposable</summary>
+        private readonly SerialDisposable _volumeSliderMaxValueToTwoDisposable = new SerialDisposable();
 
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
@@ -736,6 +748,33 @@ namespace Mains.External
         public bool IsMicInput()
         {
             return 0f < GetDBLevel();
+        }
+
+        public void SetVolumeSliderMaxValueToTwo()
+        {
+            _volumeSliderMaxValueToTwoDisposable.Disposable = Observable.EveryUpdate()
+                .Select(_ => _micInput_Criware)
+                .Where(x => x != null && x.volumeSlider != null)
+                .Select(x => x.volumeSlider.maxValue == 2f)
+                .DistinctUntilChanged()
+                .Subscribe(isMaxValueToTwo =>
+                {
+                    _isVolumeSliderMaxValueToTwo.Execute(isMaxValueToTwo);
+                })
+                .AddTo(ref _disposableBag);
+        }
+
+        /// <see cref="_isVolumeSliderMaxValueToTwo"/>
+        public void SetVolumeSliderMaxValue(float minValue, float maxValue, bool wholeNumbers, bool interactable)
+        {
+            if (_micInput_Criware == null)
+                return;
+
+            var volumeSlider = _micInput_Criware.volumeSlider;
+            volumeSlider.minValue = minValue;
+            volumeSlider.maxValue = maxValue;
+            volumeSlider.wholeNumbers = wholeNumbers;
+            volumeSlider.interactable = interactable;
         }
 
         /// <summary>
@@ -1235,6 +1274,7 @@ namespace Mains.External
             CRIWARE_conductor.TempoMethodEvent6 -= OnTempoMethodEventAny;
             CRIWARE_conductor.TempoMethodEvent7 -= OnTempoMethodEventAny;
             CRIWARE_conductor.TempoMethodEvent8 -= OnTempoMethodEventAny;
+            _volumeSliderMaxValueToTwoDisposable.Disposable = null;
         }
     }
 }
