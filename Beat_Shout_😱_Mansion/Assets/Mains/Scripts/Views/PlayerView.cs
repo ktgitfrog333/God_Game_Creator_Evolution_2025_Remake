@@ -203,6 +203,8 @@ namespace Mains.Views
                     movePlayerAndpoltergeistProcessCnt.Value = 0;
                 })
                 .AddTo(ref _disposableBag);
+            // 頭の高さローカル位置を保存
+            Vector3 originHeadTransLocalPosition = headTrans.localPosition;
             // リズムパートの位置まで移動する
             Observable.EveryUpdate()
                 .Select(_ => _playerViewModel.IsCompletedBurstGhosts)
@@ -249,6 +251,9 @@ namespace Mains.Views
                                         movePlayerAndpoltergeistProcessCnt.Value++;
                                     })
                                     .AddTo(ref _disposableBag);
+                                // [シャウト成功インタラクション] 3-d. プレイヤーの頭の高さをリズムパート用に変更
+                                var localPosition = headTrans.localPosition;
+                                headTrans.localPosition = new Vector3(localPosition.x, リズムパートで使用するプレイヤープロパティ.headHeight, localPosition.z);
                             }
                         })
                         .AddTo(ref _disposableBag);
@@ -538,6 +543,8 @@ namespace Mains.Views
                                     switch (part.Current)
                                     {
                                         case InteractionPart.Search:
+                                            var localPosition = originHeadTransLocalPosition;
+                                            headTrans.localPosition = localPosition;
                                             if (followPlayerCameraView != null)
                                                 followPlayerCameraView.ResetFollowAndLookAt();
                                             // Rewairedで操作を禁止にする。着地したら暗幕フェードの透明度を元に戻す。

@@ -18,5 +18,7 @@ namespace Mains.Commons
         public Transform batteryPrefab;
         /// <summary>Player > HitTrigger リズムパートでのオバケがヒットする用のトリガー</summary>
         public SphereCollider hitTrigger;
+        /// <summary>リズムパート中の頭の高さ</summary>
+        public float headHeight;
     }
 }
