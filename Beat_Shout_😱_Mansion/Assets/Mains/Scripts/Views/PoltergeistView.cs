@@ -86,36 +86,18 @@ namespace Mains.Views
         private void Reset()
         {
             // リズムパートポジション（プレイヤー位置をリズムパート用に移動させる）の生成
-            bool isFound = false;
-            foreach (Transform child in transform)
-            {
-                if (child.name.Equals("RhythmPartPosition"))
-                {
-                    isFound = true;
-                    break;
-                }
-            }
-            if (!isFound)
-            {
-                var newObj = new GameObject("RhythmPartPosition").AddComponent<RhythmPartPositionView>();
-                newObj.transform.position = transform.position;
-                newObj.transform.SetParent(transform);
-            }
+            FindOrInstanceGameObject("RhythmPartPosition");
             // リズムパートポジション（家具をリズムパート用に移動させる）の生成
-            bool isFound1 = false;
-            foreach (Transform child in transform)
+            FindOrInstanceGameObject("RhythmPartPosition_1");
+            // パーティクル位置の生成
+            FindOrInstanceGameObject("DustParticlePosition");
+            // リズムパート時の移動先情報を設定するためボックスコライダーを必要に応じて生成
+            var collider = transform.GetComponent<BoxCollider>();
+            if (collider == null)
             {
-                if (child.name.Equals("RhythmPartPosition_1"))
-                {
-                    isFound1 = true;
-                    break;
-                }
-            }
-            if (!isFound1)
-            {
-                var newObj = new GameObject("RhythmPartPosition_1").AddComponent<RhythmPartPosition_1View>();
-                newObj.transform.position = transform.position;
-                newObj.transform.SetParent(transform);
+                collider = transform.AddComponent<BoxCollider>();
+                collider.enabled = false;
+                Debug.LogWarning($"ボックスコライダーを生成しました。必要に応じてサイズを変更してください。\r\n※PivotとCenter座標にずれがある場合は一度親子関係を解除して修正してください。");
             }
         }
 
@@ -192,6 +174,7 @@ namespace Mains.Views
                             // ghostTeamIDが空なら、motorInstanceへポルターガイストを無効に更新する
                             // 空でないなら、有効に更新する
                             _motorView.IsEnabledPoltergeist = !string.IsNullOrEmpty(x.NewValue.ghostTeamID.Value);
+                            _motorView.DustParticlePosition = FindOrInstanceGameObject("DustParticlePosition");
                         })
                         .AddTo(ref _disposableBag);
                     // オブジェクトIDを割り振る
@@ -203,6 +186,7 @@ namespace Mains.Views
                             ghostInStaticObjectStruct.ghostTeamID = new ReactiveProperty<string>();
                             ghostInStaticObjectStruct.ghostTeamID.Value = System.Guid.NewGuid().ToString();
                             _motorView.IsEnabledPoltergeist = true;
+                            _motorView.DustParticlePosition = FindOrInstanceGameObject("DustParticlePosition");
 
                             break;
                         default:
@@ -224,6 +208,42 @@ namespace Mains.Views
         {
             _disposableBag.Dispose();
             _script_XyloApi?.Dispose();
+        }
+
+        /// <summary>
+        /// 対象オブジェクトを子から探索して該当しない場合はゲームオブジェクトを生成
+        /// </summary>
+        /// <param name="name">ゲームオブジェクト名</param>
+        private Transform FindOrInstanceGameObject(string name)
+        {
+            foreach (Transform child in transform)
+            {
+                if (child.name.Equals(name))
+                {
+                    return child;
+                }
+            }
+            switch (name)
+            {
+                case "RhythmPartPosition":
+                    var newObj = new GameObject(name).AddComponent<RhythmPartPositionView>();
+                    newObj.transform.position = transform.position;
+                    newObj.transform.SetParent(transform);
+
+                    return newObj.transform;
+                case "RhythmPartPosition_1":
+                    var newObj1 = new GameObject(name).AddComponent<RhythmPartPosition_1View>();
+                    newObj1.transform.position = transform.position;
+                    newObj1.transform.SetParent(transform);
+
+                    return newObj1.transform;
+                default:
+                    var newObj2 = new GameObject(name);
+                    newObj2.transform.position = transform.position;
+                    newObj2.transform.SetParent(transform);
+
+                    return newObj2.transform;
+            }
         }
 
         /// <summary>
