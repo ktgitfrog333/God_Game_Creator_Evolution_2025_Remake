@@ -1,0 +1,81 @@
+using UnityEngine;
+
+namespace Mains.Tests
+{
+    public class GhostColorChangerTest : MonoBehaviour
+    {
+        [Tooltip("オバケの3Dモデルレンダラー GhostBodyModel/ghost_normal")]
+        [SerializeField] private Renderer[] modelRenderers;
+        [SerializeField] private Color color;
+        private Color _originColor;
+
+        private void Start()
+        {
+            foreach (var modelRenderer in modelRenderers)
+            {
+                _originColor = modelRenderer.material.color;
+
+                break;
+            }
+        }
+
+        private void OnGUI()
+        {
+            if (GUI.Button(new Rect(10, 10, 150, 30), "色を変更"))
+            {
+                foreach (var modelRenderer in modelRenderers)
+                {
+                    if (modelRenderer != null)
+                    {
+                        SetRendererColor(modelRenderer, color);
+                    }
+                }
+            }
+
+            if (GUI.Button(new Rect(10, 50, 150, 30), "色を変更（改）"))
+            {
+                foreach (var modelRenderer in modelRenderers)
+                {
+                    if (modelRenderer != null)
+                    {
+                        SetRendererColor(modelRenderer, color, true);
+                    }
+                }
+            }
+
+            if (GUI.Button(new Rect(10, 90, 150, 30), "色を戻す"))
+            {
+                foreach (var modelRenderer in modelRenderers)
+                {
+                    if (modelRenderer != null)
+                    {
+                        SetRendererColor(modelRenderer, _originColor);
+                        SetRendererColor(modelRenderer, _originColor, true);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// レンダラーの色をセット
+        /// </summary>
+        /// <param name="modelRenderer">オバケの3Dモデルレンダラー</param>
+        /// <param name="color">色</param>
+        /// <param name="isKai">改版を適用</param>
+        private void SetRendererColor(Renderer modelRenderer, Color color, bool isKai = false)
+        {
+            if (!isKai)
+            {
+                modelRenderer.material.color = color;
+            }
+            else
+            {
+                // RimLight Colorプロパティに色を適用
+                if (modelRenderer.material.HasProperty("_RimLight_Color"))
+                {
+                    modelRenderer.material.SetColor("_RimLight_Color", color);
+                }
+            }
+        }
+    }
+}

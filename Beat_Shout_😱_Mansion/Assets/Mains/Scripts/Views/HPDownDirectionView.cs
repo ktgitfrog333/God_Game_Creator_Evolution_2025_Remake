@@ -25,6 +25,13 @@ namespace Mains.Views
             _viewModel.IsCompletedRhythmPart.Where(x => 0 < x)
                 .Subscribe(isCompleted =>
                 {
+                    if (!settings.isEnabledDirection)
+                    {
+                        _viewModel.SetIsCompletedDirection(true);
+
+                        return;
+                    }
+
                     switch (isCompleted)
                     {
                         case 1:
@@ -80,5 +87,7 @@ namespace Mains.Views
     {
         /// <summary>演出</summary>
         public PlayableDirector playableDirector;
+        /// <summary>演出を有効</summary>
+        public bool isEnabledDirection;
     }
 }

@@ -137,7 +137,11 @@ namespace Mains.Views
         /// <param name="color">色</param>
         private void SetRendererColor(Renderer modelRenderer, Color color)
         {
-            modelRenderer.material.color = color;
+            // RimLight Colorプロパティに色を適用
+            if (modelRenderer.material.HasProperty("_RimLight_Color"))
+            {
+                modelRenderer.material.SetColor("_RimLight_Color", color);
+            }
         }
     }
 }

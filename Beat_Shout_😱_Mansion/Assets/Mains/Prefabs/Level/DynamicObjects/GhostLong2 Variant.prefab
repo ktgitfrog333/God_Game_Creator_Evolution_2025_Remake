@@ -193,9 +193,9 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 26922f3c26bc9ce4aa4d51a265fe5f92, type: 3}
---- !u!23 &7485309317609616128 stripped
+--- !u!23 &4183510242059367917 stripped
 MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 5268725362780206200, guid: 26922f3c26bc9ce4aa4d51a265fe5f92, type: 3}
+  m_CorrespondingSourceObject: {fileID: 1509194613619438229, guid: 26922f3c26bc9ce4aa4d51a265fe5f92, type: 3}
   m_PrefabInstance: {fileID: 3386545184963561336}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &8206374269973932312 stripped
@@ -386,7 +386,7 @@ MonoBehaviour:
   goodParticleSysPrefab: {fileID: 649647312542731792, guid: 06a7b9c6095182a40bd34a96729286bd, type: 3}
   badPanelPrefab: {fileID: 6422276594484730783, guid: cd28cda1a4be09d4392a6101c263fe71, type: 3}
   badParticleSysPrefab: {fileID: 1394655228571085345, guid: 0a0cdc51eb3927540a6329db734f0458, type: 3}
-  modelRenderer: {fileID: 7485309317609616128}
+  modelRenderer: {fileID: 4183510242059367917}
 --- !u!114 &7640449447851752139
 MonoBehaviour:
   m_ObjectHideFlags: 0
