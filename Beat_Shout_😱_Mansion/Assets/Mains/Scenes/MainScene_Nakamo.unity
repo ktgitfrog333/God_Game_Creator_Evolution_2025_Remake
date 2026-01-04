@@ -351,9 +351,9 @@ Transform:
   - {fileID: 1398930166}
   - {fileID: 501602159}
   - {fileID: 890736925}
-  - {fileID: 1312883492}
   - {fileID: 1506725720}
   - {fileID: 1049697648}
+  - {fileID: 1312883492}
   - {fileID: 715846105}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -6752,7 +6752,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: a57f84531eb86b04f80a33a1c4769eab, type: 2}
     - target: {fileID: 919132149155446097, guid: b5fffe5c3b112b14189e206d4d08ef05, type: 3}
       propertyPath: m_Name
-      value: 01_07_chair
+      value: 01_07_chair_3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

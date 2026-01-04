@@ -12,7 +12,8 @@ namespace Mains.Models
     /// プレイヤーのモデル
     /// </summary>
     public class PlayerModel : MonoBehaviour, IPlayerModel, IPoltergeistModel, IRhythmPartPanelModel, IHomingObjectCustomizeModel,
-        IMissGhostAttackCustomizeModel, IMissileDirectAnimManagerBCustomizeModel, ICommonPanelModel, IFadeImageModel
+        IMissGhostAttackCustomizeModel, IMissileDirectAnimManagerBCustomizeModel, ICommonPanelModel, IFadeImageModel,
+        IPlayerRespawnPositionModel, IHPDownDirectionModel
     {
         /// <summary>【探索／シャウトチャンス／リズム】パート情報管理テーブル</summary>
         public InteractionPartTable InteractionPartTable { get; set; }
@@ -82,6 +83,21 @@ namespace Mains.Models
         private ReactiveCommand<int> _isOnTriggerEnterSearchRangeIndex = new ReactiveCommand<int>();
         /// <summary>部屋の扉の前で調べる当たり判定に触れたか</summary>
         public ReactiveCommand<int> IsOnTriggerEnterSearchRangeIndex => _isOnTriggerEnterSearchRangeIndex;
+        /// <summary>ステージ開始位置トランスフォーム</summary>
+        private ReactiveCommand<Transform> _startPointTrans = new ReactiveCommand<Transform>();
+        /// <summary>ステージ開始位置トランスフォーム</summary>
+        public ReactiveCommand<Transform> StartPointTrans => _startPointTrans;
+        /// <summary>リズムパート完了フラグ</summary>
+        /// <remarks>[0]: 未完了<br/>
+        /// [1]: 成功<br/>
+        /// [2]: 失敗中断</remarks>
+        private ReactiveCommand<int> _isCompletedRhythmPart = new ReactiveCommand<int>();
+        /// <summary>リズムパート完了フラグ</summary>
+        public ReactiveCommand<int> IsCompletedRhythmPart => _isCompletedRhythmPart;
+        /// <summary>リズムパートでミスした時にハートが減少する演出完了フラグ
+        private ReactiveCommand<bool> _isCompletedDirection = new ReactiveCommand<bool>();
+        /// <summary>リズムパートでミスした時にハートが減少する演出完了フラグ
+        public ReactiveCommand<bool> IsCompletedDirection => _isCompletedDirection;
 
         private void Start()
         {
@@ -375,6 +391,21 @@ namespace Mains.Models
         {
             _isOnTriggerEnterSearchRangeIndex.Execute(isOnTriggerEnterSearchRangeIndex);
         }
+
+        public void SetStartPointTrans(Transform startPointTrans)
+        {
+            _startPointTrans.Execute(startPointTrans);
+        }
+
+        public void SetIsCompletedRhythmPart(int isCompletedRhythmPart)
+        {
+            _isCompletedRhythmPart.Execute(isCompletedRhythmPart);
+        }
+
+        public void SetIsCompletedDirection(bool isCompleted)
+        {
+            _isCompletedDirection.Execute(isCompleted);
+        }
     }
 
     /// <summary>
@@ -472,6 +503,11 @@ namespace Mains.Models
         /// 探索パート切り替え入力をセット
         /// </summary>
         public void SetInteractionPartToSearch();
+        /// <summary>
+        /// リズムパート完了フラグをセット
+        /// </summary>
+        /// <param name="isCompletedRhythmPart">リズムパート完了フラグ</param>
+        public void SetIsCompletedRhythmPart(int isCompletedRhythmPart);
     }
 
     /// <summary>
@@ -583,5 +619,29 @@ namespace Mains.Models
         /// </summary>
         /// <param name="isCompleted">ステージ開始演出が完了したか</param>
         public void SetIsCompletedStartDirection(bool isCompleted);
+    }
+
+    /// <summary>
+    /// リスポーン地点モデルインターフェース
+    /// </summary>
+    public interface IPlayerRespawnPositionModel
+    {
+        /// <summary>
+        /// ステージ開始位置トランスフォームをセット
+        /// </summary>
+        /// <param name="startPointTrans">ステージ開始位置トランスフォーム</param>
+        public void SetStartPointTrans(Transform startPointTrans);
+    }
+
+    /// <summary>
+    /// ハートが減少する演出モデルインターフェース
+    /// </summary>
+    public interface IHPDownDirectionModel
+    {
+        /// <summary>
+        /// リズムパートでミスした時にハートが減少する演出完了フラグをセット
+        /// </summary>
+        /// <param name="isCompleted">リズムパートでミスした時にハートが減少する演出完了フラグ</param>
+        public void SetIsCompletedDirection(bool isCompleted);
     }
 }

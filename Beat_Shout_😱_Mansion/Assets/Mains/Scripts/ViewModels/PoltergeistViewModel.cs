@@ -9,7 +9,7 @@ namespace Mains.ViewModels
     /// <summary>
     /// ポルターガイストのビューモデル
     /// </summary>
-    public class PoltergeistViewModel : IPoltergeistModel
+    public class PoltergeistViewModel : IPoltergeistModel, System.IDisposable
     {
         /// <summary>プレイヤーのモデル</summary>
         private PlayerModel _playerModel;
@@ -41,6 +41,10 @@ namespace Mains.ViewModels
         public ReactiveProperty<int> PlayerHealthPoint => _playerModel?.PlayerPropertiesStruct.healthPoint ?? null;
         /// <summary>デシベルレベル</summary>
         public ReactiveCommand<float> DbLevel => _playerModel?.InteractionPartTable?.dbLevel ?? null;
+        /// <summary>リズムパートでミスした時にハートが減少する演出完了フラグ
+        private ReactiveCommand<bool> _isCompletedDirection = new ReactiveCommand<bool>();
+        /// <summary>リズムパートでミスした時にハートが減少する演出完了フラグ
+        public ReactiveCommand<bool> IsCompletedDirection => _isCompletedDirection;
 
         public PoltergeistViewModel(PoltergeistTable poltergeistTable)
         {
@@ -52,8 +56,11 @@ namespace Mains.ViewModels
                 {
                     _playerModel = x;
                     _playerModel.PoltergeistTable = poltergeistTable;
-                    // 1度のみ実行されれば良いので破棄しても問題なし
-                    _disposableBag.Dispose();
+                    _playerModel.IsCompletedDirection.Subscribe(isCompleted =>
+                    {
+                        _isCompletedDirection.Execute(isCompleted);
+                    })
+                        .AddTo(ref _disposableBag);
                 })
                 .AddTo(ref _disposableBag);
         }
@@ -91,6 +98,17 @@ namespace Mains.ViewModels
         {
             if (_playerModel != null)
                 _playerModel.SetInteractionPartToSearch();
+        }
+
+        public void SetIsCompletedRhythmPart(int isCompletedRhythmPart)
+        {
+            if (_playerModel != null)
+                _playerModel.SetIsCompletedRhythmPart(isCompletedRhythmPart);
+        }
+
+        public void Dispose()
+        {
+            _disposableBag.Dispose();
         }
     }
 }

@@ -10,6 +10,7 @@ using Mains.Manager;
 using DG.Tweening;
 using System.Collections;
 using System.Threading.Tasks;
+using UnityEngine.SceneManagement;
 
 namespace Mains.Views
 {
@@ -17,10 +18,12 @@ namespace Mains.Views
     /// プレイヤーのビュー
     /// </summary>
     [RequireComponent(typeof(CharacterController))]
-    public class PlayerView : MonoBehaviour, IDidStartProvider
+    public class PlayerView : MonoBehaviour, IDidStartProvider, Selects.Views.IDidStartProvider
     {
         [Header("全パート共通")]
         [SerializeField] private InteractionPartTable 探索_シャウトチャンス_リズムパート情報管理テーブル;
+        /// <summary>プレイヤーの設定</summary>
+        [SerializeField] private PlayerSettrings settings;
         [Header("探索パート／シャウトチャンスパート")]
         /// <summary>キャラクター移動制御</summary>
         [SerializeField] private CharacterController characterController;
@@ -266,7 +269,7 @@ namespace Mains.Views
             characterController.enabled = false;
             // フェード処理が完了するまではプレイヤー操作禁止
             Observable.EveryUpdate()
-                .Select(_ => _playerViewModel.IsCompletedStartDirection)
+                .Select(_ => _playerViewModel.IsCompletedStartDirectionReactive)
                 .Where(x => x != null)
                 .Take(1)
                 .Subscribe(x =>
@@ -836,7 +839,18 @@ namespace Mains.Views
                     hitTriggerTrans.position = followPlayerCameraView.transform.position;
                 })
                 .AddTo(ref _disposableBag);
-
+            // セレクトシーンのみ
+            var currentSceneName = SceneManager.GetActiveScene().name;
+            if (currentSceneName.Equals(settings.targetSceneName))
+            {
+                _playerViewModel.StartPointTrans.Where(x => x != null)
+                    .Take(1)
+                    .Subscribe(startTrans =>
+                    {
+                        MoveToPoint(startTrans, _playerViewModel.IsCompletedStartDirection, trans, characterController, ref currentYaw);
+                    })
+                    .AddTo(ref _disposableBag);
+            }
             _didStartAsObservable.OnNext(Unit.Default);
             _didStartAsObservable.OnCompleted();
         }
@@ -858,6 +872,7 @@ namespace Mains.Views
         {
             _disposableBag.Dispose();
             _script_XyloApi?.Dispose();
+            _playerViewModel?.Dispose();
         }
 
         public Observable<Unit> DidStartAsObservable()
@@ -997,5 +1012,38 @@ namespace Mains.Views
             var poltergeistView = poltergeistViews.FirstOrDefault(q => q.GhostInStaticObjectStruct.poltergeistViewID == targetPoltergeistViewID);
             return poltergeistView;
         }
+
+        /// <summary>
+        /// 指定位置まで移動
+        /// </summary>
+        /// <param name="startPointTrans">ステージ開始位置</param>
+        /// <param name="isCompletedStartDirection">ステージ開始演出が完了したか</param>
+        /// <param name="trans">トランスフォーム</param>
+        /// <param name="characterController">キャラクター移動制御</param>
+        /// <param name="currentYaw">現在のY軸回転角度 (左右回転)</param>
+        private void MoveToPoint(Transform startPointTrans, bool isCompletedStartDirection, Transform trans, CharacterController characterController, ref float currentYaw)
+        {
+            if (characterController.enabled)
+                characterController.enabled = false;
+            trans.position = startPointTrans.position;
+            trans.eulerAngles = startPointTrans.eulerAngles;
+            currentYaw = trans.eulerAngles.y;
+            if (isCompletedStartDirection)
+            {
+                if (!characterController.enabled)
+                    characterController.enabled = true;
+            }
+        }
+    }
+
+    /// <summary>
+    /// プレイヤーの設定
+    /// </summary>
+    [System.Serializable]
+    public class PlayerSettrings
+    {
+        /// <summary>対象シーン名</summary>
+        /// <remarks>セレクトシーンを指定する</remarks>
+        public string targetSceneName;
     }
 }

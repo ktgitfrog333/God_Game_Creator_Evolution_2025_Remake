@@ -8,7 +8,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Mains.Views
@@ -95,7 +94,7 @@ namespace Mains.Views
             var collider = transform.GetComponent<BoxCollider>();
             if (collider == null)
             {
-                collider = transform.AddComponent<BoxCollider>();
+                collider = transform.gameObject.AddComponent<BoxCollider>();
                 collider.enabled = false;
                 Debug.LogWarning($"ボックスコライダーを生成しました。必要に応じてサイズを変更してください。\r\n※PivotとCenter座標にずれがある場合は一度親子関係を解除して修正してください。");
             }
@@ -208,6 +207,7 @@ namespace Mains.Views
         {
             _disposableBag.Dispose();
             _script_XyloApi?.Dispose();
+            _poltergeistViewModel?.Dispose();
         }
 
         /// <summary>
@@ -265,9 +265,15 @@ namespace Mains.Views
         {
             _script_XyloApi.ChangeBgmB();
             List<System.IDisposable> disposables = new List<System.IDisposable>();
-            ReactiveCommand<bool> isCompletedRhythmPart = new ReactiveCommand<bool>();
+            //// リズムパート完了フラグ
+            ////  [0]: 未完了
+            ////  [1]: 成功
+            ////  [2]: 失敗中断
+            //ReactiveCommand<int> isCompletedRhythmPart = new ReactiveCommand<int>();
+            //// リズムパートでミスした時にハートが減少する演出完了フラグ
+            //ReactiveCommand<bool> isCompletedDirection = new ReactiveCommand<bool>();
             disposables.Add(
-                isCompletedRhythmPart.Where(x => x)
+                /*isCompletedRhythmPart*/_poltergeistViewModel.IsCompletedDirection.Where(x => x)
                     .Take(1)
                     .Subscribe(_ =>
                     {
@@ -276,7 +282,7 @@ namespace Mains.Views
                         // 後処理
                         // 各処理をObservableに変換して、全て完了したら次に進む
                         List<Observable<bool>> completionObservables = new List<Observable<bool>>();
-                        
+
                         // 1. 暗幕フェード処理（条件付き）
                         var ghostStructs = _poltergeistViewModel.GhostInStaticObjectStructs;
                         var cnt = ghostStructs.Select(q => q.membersCount).Sum();
@@ -301,7 +307,7 @@ namespace Mains.Views
                             // 条件を満たさない場合は即座に完了するObservableを追加
                             completionObservables.Add(Observable.Return(true));
                         }
-                        
+
                         // 2. オバケが残っていたらプールへ戻す（Other）
                         completionObservables.Add(
                             Observable.Create<bool>(observer =>
@@ -310,7 +316,7 @@ namespace Mains.Views
                                 return Disposable.Empty;
                             })
                         );
-                        
+
                         // 3. スポナーの削除（同期的処理をObservableに変換）
                         completionObservables.Add(
                             Observable.Create<bool>(observer =>
@@ -323,7 +329,7 @@ namespace Mains.Views
                                 return Disposable.Empty;
                             })
                         );
-                        
+
                         // 全てのObservableが完了したら次に進む
                         // Observable.Createで全てのObservableの完了を待つ
                         disposables.Add(
@@ -335,11 +341,11 @@ namespace Mains.Views
                                     observer.OnCompleted();
                                     return Disposable.Empty;
                                 }
-                                
+
                                 int completedCount = 0;
                                 int totalCount = completionObservables.Count;
                                 List<System.IDisposable> innerDisposables = new List<System.IDisposable>();
-                                
+
                                 foreach (var obs in completionObservables)
                                 {
                                     innerDisposables.Add(
@@ -355,7 +361,7 @@ namespace Mains.Views
                                             })
                                     );
                                 }
-                                
+
                                 return Disposable.Create(() =>
                                 {
                                     foreach (var d in innerDisposables)
@@ -380,7 +386,8 @@ namespace Mains.Views
                     .Where(x => x == 3)
                     .Subscribe(_ =>
                     {
-                        isCompletedRhythmPart.Execute(true);
+                        //isCompletedRhythmPart.Execute(1);
+                        _poltergeistViewModel.SetIsCompletedRhythmPart(1);
                     })
                     .AddTo(ref _disposableBag)
             );
@@ -390,7 +397,8 @@ namespace Mains.Views
                     .Take(1)
                     .Subscribe(_ =>
                     {
-                        isCompletedRhythmPart.Execute(true);
+                        //isCompletedRhythmPart.Execute(1);
+                        _poltergeistViewModel.SetIsCompletedRhythmPart(1);
                     })
                     .AddTo(ref _disposableBag)
             );
@@ -406,7 +414,8 @@ namespace Mains.Views
                                 .Where(x => x.Current < x.Previous)
                                 .Subscribe(playerHealthPoint =>
                             {
-                                isCompletedRhythmPart.Execute(true);
+                                //isCompletedRhythmPart.Execute(2);
+                                _poltergeistViewModel.SetIsCompletedRhythmPart(2);
                             })
                             .AddTo(ref _disposableBag)
                         );

@@ -9,7 +9,7 @@ namespace Mains.ViewModels
     /// <summary>
     /// プレイヤーのビューモデル
     /// </summary>
-    public class PlayerViewModel : IPlayerModel
+    public class PlayerViewModel : IPlayerModel, System.IDisposable
     {
         /// <summary>プレイヤーのモデル</summary>
         private PlayerModel _playerModel;
@@ -58,7 +58,17 @@ namespace Mains.ViewModels
         /// <summary>選択されたMissGhostAttack</summary>
         public Transform SelectedMissGhostAttackTransform => _playerModel?.SelectedMissGhostAttackTransform ?? null;
         /// <summary>ステージ開始演出が完了したか</summary>
-        public ReactiveCommand<bool> IsCompletedStartDirection => _playerModel?.IsCompletedStartDirection ?? null;
+        public bool _isCompletedStartDirection;
+        /// <summary>ステージ開始演出が完了したか</summary>
+        public bool IsCompletedStartDirection => _isCompletedStartDirection;
+        /// <summary>ステージ開始演出が完了したか</summary>
+        public ReactiveCommand<bool> IsCompletedStartDirectionReactive => _playerModel?.IsCompletedStartDirection ?? null;
+        /// <summary>ステージ開始位置トランスフォーム</summary>
+        private ReactiveCommand<Transform> _startPointTrans = new ReactiveCommand<Transform>();
+        /// <summary>ステージ開始位置トランスフォーム</summary>
+        public ReactiveCommand<Transform> StartPointTrans => _startPointTrans;
+        /// <summary>R3のリソース管理</summary>
+        private DisposableBag _disposableBag = new DisposableBag();
 
         public PlayerViewModel(InteractionPartTable interactionPartTable)
         {
@@ -74,6 +84,16 @@ namespace Mains.ViewModels
             }
             if (_playerModel.InteractionPartTable == null)
                 _playerModel.InteractionPartTable = interactionPartTable;
+            _playerModel.StartPointTrans.Subscribe(x =>
+            {
+                _startPointTrans.Execute(x);
+            })
+                .AddTo(ref _disposableBag);
+            _playerModel.IsCompletedStartDirection.Subscribe(x =>
+            {
+                _isCompletedStartDirection = x;
+            })
+                .AddTo(ref _disposableBag);
         }
 
         public void SetIsSwitchPart(bool isSwitchPart)
@@ -193,6 +213,11 @@ namespace Mains.ViewModels
         {
             return searchAngleMin <= eulerAngles.x &&
                 eulerAngles.x <= searchAngleMax;
+        }
+
+        public void Dispose()
+        {
+            _disposableBag.Dispose();
         }
     }
 }

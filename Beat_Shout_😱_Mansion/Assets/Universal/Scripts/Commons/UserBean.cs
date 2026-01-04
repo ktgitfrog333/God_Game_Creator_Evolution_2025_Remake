@@ -9,7 +9,7 @@ namespace Universal.Commons
     public class UserBean
     {
         /// <summary>シーンインデックス</summary>
-        public int sceneIdx = 0;
+        public int sceneIdx = 5;
         /// <summary>クリアステータス</summary>
         /// <remarks>0:ステージ未開放<br/>
         /// 1:ステージ解放<br/>
@@ -64,7 +64,7 @@ namespace Universal.Commons
             switch (enumLoadMode)
             {
                 case EnumLoadMode.Default:
-                    sceneIdx = 0;
+                    sceneIdx = 5;
                     state = new int[]
                     {
                         1,
@@ -82,7 +82,7 @@ namespace Universal.Commons
 
                     break;
                 case EnumLoadMode.All:
-                    sceneIdx = 0;
+                    sceneIdx = 5;
                     state = new int[]
                     {
                         2,
