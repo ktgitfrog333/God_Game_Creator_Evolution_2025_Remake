@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 using Rewired;
-using UnityEngine.Events;  
+using UnityEngine.Events;
 
 [DisallowMultipleComponent]
 public class IntroMovieScene : MonoBehaviour
@@ -35,7 +35,7 @@ public class IntroMovieScene : MonoBehaviour
 
     [Header("Timeline Clock")]
     public TimelineTimeUnit timelineTimeUnit = TimelineTimeUnit.Beats;
-    public float bpm = 95f;                      // Beats時必須
+    public float bpm = 95f;                      // Beats時必須（CRIWARE_conductorから自動取得）
     public float startOffsetBeats = 0f;          // 開始オフセット（拍）
     public float startOffsetSeconds = 0f;        // 開始オフセット（秒）
 
@@ -91,7 +91,7 @@ public class IntroMovieScene : MonoBehaviour
 
         [Header("Events")]
         [Tooltip("このテキスト表示時に実行するイベント（任意）")]
-        public UnityEvent onTextDisplay;  // ← 追加
+        public UnityEvent onTextDisplay;
     }
 
     // 内部状態
@@ -121,8 +121,35 @@ public class IntroMovieScene : MonoBehaviour
     void Start()
     {
         StartCoroutine(FadeIn());
+        // BGM開始を待ってからタイムライン開始
+        StartCoroutine(WaitForBGMStart());
+    }
+
+    // ======================================================================
+    // ★ BGM同期（CRIWARE_conductorとの連携）
+    // ======================================================================
+
+    IEnumerator WaitForBGMStart()
+    {
+        if (enableDebugMode) Debug.Log("[Intro] BGM開始を待機中...");
+
+        // CRIWARE_conductorの初期化を待つ
+        yield return new WaitUntil(() => CRIWARE_conductor.Instance != null);
+
+        if (enableDebugMode) Debug.Log("[Intro] CRIWARE_conductor検出");
+
+    }
+
+    public void OnBGMStarted()
+    {
+        if (enableDebugMode) Debug.Log("[Intro] BGM再生開始を検出 → タイムライン開始");
+
+
+
+        // タイムライン開始
         StartCoroutine(RunTimeline());
     }
+
 
     // ======================================================================
     // ★ Update（長押しスキップ）
@@ -260,7 +287,6 @@ public class IntroMovieScene : MonoBehaviour
                 did = true;
             }
 
-            // テキスト切替（「何拍間」：次のテキスト開始で上書き／clearInsteadなら空行）
             // テキスト切替（「何拍間」：次のテキスト開始で上書き／clearInsteadなら空行）
             if (tIndex < textTimeline.Count && elapsed >= textTimeline[tIndex].startSec)
             {

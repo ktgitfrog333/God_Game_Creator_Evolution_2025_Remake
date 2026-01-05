@@ -2447,10 +2447,11 @@ MonoBehaviour:
   atomSourceC: {fileID: 578952819}
   currentSource: {fileID: 0}
   lastBeatSyncTime: -1
-  BeatFuzzy: 18
+  BeatFuzzy: 0
   BeatOffSet: 0
   BasicBeat: 0
   frameRate: 0
+  IntroMovieScene: {fileID: 1237488142}
   BGM_A_Sw: 0
   BGM_B_Sw: 0
   BGM_C_Sw: 0
