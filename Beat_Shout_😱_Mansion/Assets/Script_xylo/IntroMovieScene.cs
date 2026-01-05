@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 using Rewired;
+using UnityEngine.Events;  
 
 [DisallowMultipleComponent]
 public class IntroMovieScene : MonoBehaviour
@@ -77,7 +78,7 @@ public class IntroMovieScene : MonoBehaviour
     [Serializable]
     public class TextCue
     {
-        public bool clearInstead = false;        // クリア表示（空行）用
+        public bool clearInstead = false;
         [TextArea(1, 6)]
         public string text = "";
 
@@ -87,6 +88,10 @@ public class IntroMovieScene : MonoBehaviour
 
         [Tooltip("timelineTimeUnit=Seconds の場合に使用。通常はBeatsを推奨。")]
         public float durationSeconds = 1f;
+
+        [Header("Events")]
+        [Tooltip("このテキスト表示時に実行するイベント（任意）")]
+        public UnityEvent onTextDisplay;  // ← 追加
     }
 
     // 内部状態
@@ -256,6 +261,7 @@ public class IntroMovieScene : MonoBehaviour
             }
 
             // テキスト切替（「何拍間」：次のテキスト開始で上書き／clearInsteadなら空行）
+            // テキスト切替（「何拍間」：次のテキスト開始で上書き／clearInsteadなら空行）
             if (tIndex < textTimeline.Count && elapsed >= textTimeline[tIndex].startSec)
             {
                 var item = textTimeline[tIndex];
@@ -267,7 +273,6 @@ public class IntroMovieScene : MonoBehaviour
                         if (textDisplayMode == TextDisplayMode.Replace) textTarget.text = "";
                         else
                         {
-                            // Appendモードでも「クリア」を表現したい場合は改行追加なしで空行を入れる
                             textTarget.text += (string.IsNullOrEmpty(textTarget.text) ? "" : "\n");
                         }
                     }
@@ -281,6 +286,12 @@ public class IntroMovieScene : MonoBehaviour
                             textTarget.text += item.cue.text ?? "";
                         }
                     }
+                }
+
+                // ★ イベント呼び出し（登録されている場合のみ実行）
+                if (item.cue.onTextDisplay != null && item.cue.onTextDisplay.GetPersistentEventCount() > 0)
+                {
+                    item.cue.onTextDisplay.Invoke();
                 }
 
                 tIndex++;
