@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 using Rewired;
+using UnityEngine.Events;
 
 [DisallowMultipleComponent]
 public class IntroMovieScene : MonoBehaviour
@@ -34,7 +35,7 @@ public class IntroMovieScene : MonoBehaviour
 
     [Header("Timeline Clock")]
     public TimelineTimeUnit timelineTimeUnit = TimelineTimeUnit.Beats;
-    public float bpm = 95f;                      // Beats時必須
+    public float bpm = 95f;                      // Beats時必須（CRIWARE_conductorから自動取得）
     public float startOffsetBeats = 0f;          // 開始オフセット（拍）
     public float startOffsetSeconds = 0f;        // 開始オフセット（秒）
 
@@ -77,7 +78,7 @@ public class IntroMovieScene : MonoBehaviour
     [Serializable]
     public class TextCue
     {
-        public bool clearInstead = false;        // クリア表示（空行）用
+        public bool clearInstead = false;
         [TextArea(1, 6)]
         public string text = "";
 
@@ -87,6 +88,10 @@ public class IntroMovieScene : MonoBehaviour
 
         [Tooltip("timelineTimeUnit=Seconds の場合に使用。通常はBeatsを推奨。")]
         public float durationSeconds = 1f;
+
+        [Header("Events")]
+        [Tooltip("このテキスト表示時に実行するイベント（任意）")]
+        public UnityEvent onTextDisplay;
     }
 
     // 内部状態
@@ -116,8 +121,35 @@ public class IntroMovieScene : MonoBehaviour
     void Start()
     {
         StartCoroutine(FadeIn());
+        // BGM開始を待ってからタイムライン開始
+        StartCoroutine(WaitForBGMStart());
+    }
+
+    // ======================================================================
+    // ★ BGM同期（CRIWARE_conductorとの連携）
+    // ======================================================================
+
+    IEnumerator WaitForBGMStart()
+    {
+        if (enableDebugMode) Debug.Log("[Intro] BGM開始を待機中...");
+
+        // CRIWARE_conductorの初期化を待つ
+        yield return new WaitUntil(() => CRIWARE_conductor.Instance != null);
+
+        if (enableDebugMode) Debug.Log("[Intro] CRIWARE_conductor検出");
+
+    }
+
+    public void OnBGMStarted()
+    {
+        if (enableDebugMode) Debug.Log("[Intro] BGM再生開始を検出 → タイムライン開始");
+
+
+
+        // タイムライン開始
         StartCoroutine(RunTimeline());
     }
+
 
     // ======================================================================
     // ★ Update（長押しスキップ）
@@ -267,7 +299,6 @@ public class IntroMovieScene : MonoBehaviour
                         if (textDisplayMode == TextDisplayMode.Replace) textTarget.text = "";
                         else
                         {
-                            // Appendモードでも「クリア」を表現したい場合は改行追加なしで空行を入れる
                             textTarget.text += (string.IsNullOrEmpty(textTarget.text) ? "" : "\n");
                         }
                     }
@@ -281,6 +312,12 @@ public class IntroMovieScene : MonoBehaviour
                             textTarget.text += item.cue.text ?? "";
                         }
                     }
+                }
+
+                // ★ イベント呼び出し（登録されている場合のみ実行）
+                if (item.cue.onTextDisplay != null && item.cue.onTextDisplay.GetPersistentEventCount() > 0)
+                {
+                    item.cue.onTextDisplay.Invoke();
                 }
 
                 tIndex++;

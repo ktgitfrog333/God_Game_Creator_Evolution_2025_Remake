@@ -43,6 +43,8 @@ public class CRIWARE_conductor : MonoBehaviour
 
     public static event Action TempoSet;
 
+    public IntroMovieScene IntroMovieScene;
+
     // 拍頭
     public static event Action TempoMethodEvent1;
     public static event Action TempoMethodEvent2;
@@ -94,49 +96,53 @@ public class CRIWARE_conductor : MonoBehaviour
         Miss    // 条件を満たさなかった場合
     }
 
-    void OnEnable() // 初期化待ちで少し遅らせる。初期化完了を取得する方法があれば変更する
+    void OnEnable()
     {
-        Invoke("Delay", 0.3f);
+        StartCoroutine(InitializeWhenReady());
     }
 
-    private void Delay()
+    private IEnumerator InitializeWhenReady()
     {
-        // シングルトンの処理
+        // シングルトンの処理（早めにチェック）
         if (Instance == null)
         {
             Instance = this;
         }
         else
         {
-            Destroy(gameObject); // 二つ目のインスタンスが作成された場合は破棄
-            return;
+            Destroy(gameObject);
+            yield break;
         }
 
-        // 保存されているBGM音量を読み込む
+        // GetComponentを取得
+        atomSourceA = GetComponent<CriAtomSource>();
+
+        // atomSourceA.playerがnullでなくなるまで待機
+        yield return new WaitUntil(() => atomSourceA != null && atomSourceA.player != null);
+
+        // 初期化処理開始
         LoadMasterBGMVolume();
 
-        atomSourceA = GetComponent<CriAtomSource>();
-        if (atomSourceA.player != null)
-        {
-            currentSource = atomSourceA; // 初期状態でAを使用
-            CRIWARE_AisacChange.Instance.SetSource(currentSource); // AISACの適用先を設定
-            atomSourceA.player.OnBeatSyncCallback += OnBeatSync; // ビート同期イベントのコールバックを登録
+        currentSource = atomSourceA;
+        CRIWARE_AisacChange.Instance.SetSource(currentSource);
+        atomSourceA.player.OnBeatSyncCallback += OnBeatSync;
 
-            // 初期音量の設定
-            ApplyVolumeToAllSources();
-            if (!NoIntroScene)
-            {
-                Invoke("DelayBGMLoopStart", 10.5f); // BGMのループ再生を遅らせる
-            }
-            else
-            {
-                Invoke("DelayBGMLoopStart", 0.5f); // BGMのループ再生を遅らせる
-                            }
-        }
-        else
+        ApplyVolumeToAllSources();
+
+        Debug.Log("CRIWARE_conductor: 初期化完了");
+
+        // BGM再生開始の待機時間（Time.timeScaleの影響を受けない）
+        float delayTime = NoIntroScene ? 0.5f : 10.5f;
+        yield return new WaitForSecondsRealtime(delayTime);
+
+        DelayBGMLoopStart();
+        Debug.Log("CRIWARE_conductor: BGM再生開始");
+
+        if (IntroMovieScene != null) 
         {
-            Invoke("InitDelay", 0.05f); // ここも雰囲気で処理を待っている。他データ読み込みと連携を整える必要あり
+        IntroMovieScene.OnBGMStarted();
         }
+
     }
 
     /// <summary>
@@ -181,27 +187,6 @@ public class CRIWARE_conductor : MonoBehaviour
         if (atomSourceC != null)
         {
             atomSourceC.volume = masterBGMVolume;
-        }
-    }
-
-    private void InitDelay()
-    {
-        if (atomSourceA.player != null)
-        {
-            currentSource = atomSourceA; // 初期状態でAを使用
-            CRIWARE_AisacChange.Instance.SetSource(currentSource); // AISACの適用先を設定
-            atomSourceA.player.OnBeatSyncCallback += OnBeatSync; // ビート同期イベントのコールバックを登録
-
-            // 初期音量の設定
-            ApplyVolumeToAllSources();
-
-            Debug.Log("遅れて初期化完了");
-            Invoke("DelayBGMLoopStart", 10.5f); // BGMのループ再生を遅らせる
-        }
-        else
-        {
-            Invoke("InitDelay", 0.05f);
-            Debug.Log("初期化待ち");
         }
     }
 

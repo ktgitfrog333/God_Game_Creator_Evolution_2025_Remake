@@ -73,6 +73,8 @@ public class SE_Picker : MonoBehaviour
     private string HitMiss5;
     private string HeartbeatFast;
     private string HeartbeatSlow;
+    private string Shouchitsu;
+    private string garakuta;
 
 
     private void OnEnable()
@@ -439,5 +441,14 @@ Move4 = "Move4";
         PlaySound(HeartbeatSlow, volume);
     }
 
+    public void PlayShouchitsu(float volume)
+    {
+        PlaySound(Shouchitsu, volume);
+    }
+
+    public void Playgarakuta(float volume)
+    {
+        PlaySound(garakuta, volume);
+    }
 
 }
