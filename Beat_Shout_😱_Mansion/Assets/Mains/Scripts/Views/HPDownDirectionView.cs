@@ -1,6 +1,7 @@
 using Mains.ViewModels;
 using R3;
 using R3.Triggers;
+using Rewired;
 using UnityEngine;
 using UnityEngine.Playables;
 
@@ -21,7 +22,8 @@ namespace Mains.Views
         private void Start()
         {
             settings.playableDirector.stopped += OnTimelineStopped;
-            _viewModel = new HPDownDirectionViewModel();
+            var player = ReInput.players.GetPlayer(0);
+            _viewModel = new HPDownDirectionViewModel(player);
             _viewModel.IsCompletedRhythmPart.Where(x => 0 < x)
                 .Subscribe(isCompleted =>
                 {
@@ -39,7 +41,7 @@ namespace Mains.Views
 
                             break;
                         case 2:
-                            PlayHPDownDirection(settings.playableDirector);
+                            PlayHPDownDirection(settings.playableDirector, _viewModel);
 
                             break;
                     }
@@ -60,22 +62,23 @@ namespace Mains.Views
         /// <param name="d">演出</param>
         private void OnTimelineStopped(PlayableDirector d)
         {
-            _viewModel.SetIsCompletedDirection(true);
+            var viewModel = _viewModel;
+            viewModel.SetIsCompletedDirection(true);
+            viewModel.SetPlayerControllerEnabled(true);
+            Time.timeScale = 1f;
+            viewModel.SubtractionHealthPoint();
         }
 
         /// <summary>
         /// ハートが減少する演出の再生
         /// </summary>
         /// <param name="playableDirector">演出</param>
-        /// <returns>オブザーバブル</returns>
-        private Observable<Unit> PlayHPDownDirection(PlayableDirector playableDirector)
+        /// <param name="viewModel">ハートが減少する演出ビューモデル</param>
+        private void PlayHPDownDirection(PlayableDirector playableDirector, HPDownDirectionViewModel viewModel)
         {
-            return Observable.Create<Unit>(observer =>
-            {
-                playableDirector.Play();
-
-                return Disposable.Empty;
-            });
+            viewModel.SetPlayerControllerEnabled(false);
+            Time.timeScale = 0f;
+            playableDirector.Play();
         }
     }
 

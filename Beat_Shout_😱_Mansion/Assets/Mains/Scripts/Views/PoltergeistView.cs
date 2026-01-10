@@ -403,22 +403,11 @@ namespace Mains.Views
                     .AddTo(ref _disposableBag)
             );
             disposables.Add(
-                Observable.EveryUpdate()
-                    .Select(_ => _poltergeistViewModel.PlayerHealthPoint)
-                    .Where(x => x != null)
+                _poltergeistViewModel.IsBadEndRhythmPart.Where(x => x)
                     .Take(1)
-                    .Subscribe(x =>
+                    .Subscribe(_ =>
                     {
-                        disposables.Add(
-                            x.Pairwise()
-                                .Where(x => x.Current < x.Previous)
-                                .Subscribe(playerHealthPoint =>
-                            {
-                                //isCompletedRhythmPart.Execute(2);
-                                _poltergeistViewModel.SetIsCompletedRhythmPart(2);
-                            })
-                            .AddTo(ref _disposableBag)
-                        );
+                        _poltergeistViewModel.SetIsCompletedRhythmPart(2);
                     })
                     .AddTo(ref _disposableBag)
             );

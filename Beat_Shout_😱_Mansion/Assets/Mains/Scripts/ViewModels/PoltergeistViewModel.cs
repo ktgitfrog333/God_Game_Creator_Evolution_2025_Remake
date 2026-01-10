@@ -39,6 +39,10 @@ namespace Mains.ViewModels
         public GhostInStaticObjectStruct TransactionGhostInStaticObjectStruct => _playerModel?.TransactionGhostInStaticObjectStruct ?? new GhostInStaticObjectStruct();
         /// <summary>プレイヤーのHP</summary>
         public ReactiveProperty<int> PlayerHealthPoint => _playerModel?.PlayerPropertiesStruct.healthPoint ?? null;
+        /// <summary>リズムパートが失敗で終了したか</summary>
+        private ReactiveCommand<bool> _isBadEndRhythmPart = new ReactiveCommand<bool>();
+        /// <summary>リズムパートが失敗で終了したか</summary>
+        public ReactiveCommand<bool> IsBadEndRhythmPart => _isBadEndRhythmPart;
         /// <summary>デシベルレベル</summary>
         public ReactiveCommand<float> DbLevel => _playerModel?.InteractionPartTable?.dbLevel ?? null;
         /// <summary>リズムパートでミスした時にハートが減少する演出完了フラグ
@@ -59,6 +63,11 @@ namespace Mains.ViewModels
                     _playerModel.IsCompletedDirection.Subscribe(isCompleted =>
                     {
                         _isCompletedDirection.Execute(isCompleted);
+                    })
+                        .AddTo(ref _disposableBag);
+                    _playerModel.IsBadEndRhythmPart.Subscribe(isBadEnd =>
+                    {
+                        _isBadEndRhythmPart.Execute(isBadEnd);
                     })
                         .AddTo(ref _disposableBag);
                 })

@@ -1,5 +1,6 @@
 using Mains.Models;
 using R3;
+using Rewired;
 using UnityEngine;
 
 namespace Mains.ViewModels
@@ -15,10 +16,12 @@ namespace Mains.ViewModels
         private ReactiveCommand<int> _isCompletedRhythmPart = new ReactiveCommand<int>();
         /// <summary>リズムパート完了フラグ</summary>
         public ReactiveCommand<int> IsCompletedRhythmPart => _isCompletedRhythmPart;
+        /// <summary>Rewiredのプレイヤー</summary>
+        private Player _player;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
-        public HPDownDirectionViewModel()
+        public HPDownDirectionViewModel(Player player)
         {
             Observable.EveryUpdate()
                 .Select(_ => GameObject.FindAnyObjectByType<PlayerModel>())
@@ -34,12 +37,29 @@ namespace Mains.ViewModels
                         .AddTo(ref _disposableBag);
                 })
                 .AddTo(ref _disposableBag);
+            _player = player;
         }
 
         public void SetIsCompletedDirection(bool isCompleted)
         {
             if (_playerModel != null)
                 _playerModel.SetIsCompletedDirection(isCompleted);
+        }
+
+        /// <summary>
+        /// プレイヤーコントローラー操作の有効かどうかをセット
+        /// </summary>
+        /// <param name="isEnabled">有効かどうか</param>
+        public void SetPlayerControllerEnabled(bool isEnabled)
+        {
+            var player = _player;
+            player.controllers.maps.SetMapsEnabled(isEnabled, "Default");
+        }
+
+        public void SubtractionHealthPoint()
+        {
+            if (_playerModel != null)
+                _playerModel.SubtractionHealthPoint();
         }
 
         public void Dispose()

@@ -98,6 +98,10 @@ namespace Mains.Models
         private ReactiveCommand<bool> _isCompletedDirection = new ReactiveCommand<bool>();
         /// <summary>リズムパートでミスした時にハートが減少する演出完了フラグ
         public ReactiveCommand<bool> IsCompletedDirection => _isCompletedDirection;
+        /// <summary>リズムパートが失敗で終了したか</summary>
+        private ReactiveCommand<bool> _isBadEndRhythmPart = new ReactiveCommand<bool>();
+        /// <summary>リズムパートが失敗で終了したか</summary>
+        public ReactiveCommand<bool> IsBadEndRhythmPart => _isBadEndRhythmPart;
 
         private void Start()
         {
@@ -224,11 +228,8 @@ namespace Mains.Models
 
         public void SubtractionHealthPoint()
         {
-            if (_playerPropertiesStruct.healthPoint != null &&
-                !_playerPropertiesStruct.isLockedUpdateHealthPoint)
+            if (_playerPropertiesStruct.healthPoint != null)
             {
-                // 多段ヒット防止
-                _playerPropertiesStruct.isLockedUpdateHealthPoint = true;
                 _playerPropertiesStruct.healthPoint.Value--;
             }
         }
@@ -406,6 +407,16 @@ namespace Mains.Models
         {
             _isCompletedDirection.Execute(isCompleted);
         }
+
+        public void SetIsBadEndRhythmPart(bool isBadEndRhythmPart)
+        {
+            if (!_playerPropertiesStruct.isLockedUpdateHealthPoint)
+            {
+                // 多段ヒット防止
+                _playerPropertiesStruct.isLockedUpdateHealthPoint = true;
+                _isBadEndRhythmPart.Execute(isBadEndRhythmPart);
+            }
+        }
     }
 
     /// <summary>
@@ -567,6 +578,11 @@ namespace Mains.Models
         /// プレイヤーのHPを減らす
         /// </summary>
         public void SubtractionHealthPoint();
+        /// <summary>
+        /// リズムパートが失敗で終了したかをセット
+        /// </summary>
+        /// <param name="isBadEndRhythmPart">リズムパートが失敗で終了したか</param>
+        public void SetIsBadEndRhythmPart(bool isBadEndRhythmPart);
     }
     
     /// <summary>
@@ -643,5 +659,9 @@ namespace Mains.Models
         /// </summary>
         /// <param name="isCompleted">リズムパートでミスした時にハートが減少する演出完了フラグ</param>
         public void SetIsCompletedDirection(bool isCompleted);
+        /// <summary>
+        /// プレイヤーのHPを減らす
+        /// </summary>
+        public void SubtractionHealthPoint();
     }
 }

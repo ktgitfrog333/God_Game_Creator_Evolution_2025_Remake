@@ -407,9 +407,9 @@ RectTransform:
   - {fileID: 6092148748935327149}
   m_Father: {fileID: 2700221343193030077}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 270.32574, y: -40.872757}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 539.8577, y: 72}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6626842512711864359
@@ -602,11 +602,12 @@ RectTransform:
   m_Children:
   - {fileID: 7969603215508203675}
   - {fileID: 7576487948591865562}
+  - {fileID: 1790395805087677233}
   m_Father: {fileID: 2147915098625610467}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -595.13904, y: -461.2566}
+  m_AnchoredPosition: {x: -595.13916, y: -461.2566}
   m_SizeDelta: {x: -1190.2783, y: -922.5132}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7960298202826065395
@@ -694,9 +695,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2700221343193030077}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 270.32574, y: -116.61827}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 539.8577, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6291396061522941662
@@ -945,6 +946,7 @@ GameObject:
   - component: {fileID: 2147915098625610467}
   - component: {fileID: 8913256366824508718}
   - component: {fileID: 5319130221711851135}
+  - component: {fileID: 3798689504518465639}
   m_Layer: 5
   m_Name: CommonPanel
   m_TagString: Untagged
@@ -1101,8 +1103,11 @@ MonoBehaviour:
     fillAmountTo: 0
   guideText: {fileID: 5963057277940615920}
   missionText: {fileID: 1267681441336704296}
-  iconHeartsPanel: {fileID: 7969603215508203675}
-  iconHeartImagePrefab: {fileID: 324584694507648520, guid: 7014e5aac5a3c234cbc30dad99e1170d, type: 3}
+  iconHeartSettings:
+    iconHeartsPanel: {fileID: 7969603215508203675}
+    iconHeartImagePrefab: {fileID: 324584694507648520, guid: 7014e5aac5a3c234cbc30dad99e1170d, type: 3}
+    iconHeartDuration: 0.3
+    iconHeartLoststarPerticleSys: {fileID: 2113481658520010333}
   stageClearPanel: {fileID: 3794536795250973144}
   stageClearText: {fileID: 282465613857098554}
   "\u5171\u901AUI\u306E\u30C6\u30F3\u30D7\u30EC\u30FC\u30C8":
@@ -1111,6 +1116,51 @@ MonoBehaviour:
   objectsPoolViewPrefab: {fileID: 9047147154769791731, guid: 0fcd19e76e96f9b46add68c72347b690, type: 3}
   "\u63A2\u7D22_\u30B7\u30E3\u30A6\u30C8\u30C1\u30E3\u30F3\u30B9_\u30EA\u30BA\u30E0\u30D1\u30FC\u30C8\u60C5\u5831\u7BA1\u7406\u30C6\u30FC\u30D6\u30EB": {fileID: 11400000, guid: 29803e3e02d34024a99bd792e912398b, type: 2}
   gameSceneNameBack: SelectScene
+--- !u!114 &3798689504518465639
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6266780223078806780}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e52de21a22b6dd44c9cc19f810c65059, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Events:
+    m_Signals:
+    - {fileID: 11400000, guid: dacd5b449d5f0fc4188a2c59d833ce5e, type: 2}
+    - {fileID: 11400000, guid: ba83a3c56e11e1642ab7f1010509a3ba, type: 2}
+    m_Events:
+    - m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 5319130221711851135}
+          m_TargetAssemblyTypeName: Mains.Views.CommonPanelView, Assembly-CSharp
+          m_MethodName: PlayShrinkageHeartIconAnimation
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+    - m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 5319130221711851135}
+          m_TargetAssemblyTypeName: Mains.Views.CommonPanelView, Assembly-CSharp
+          m_MethodName: PlayMoveIconHeartAndPlayLightingStarAnimation
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &6981411005352446696
 GameObject:
   m_ObjectHideFlags: 0
@@ -1227,7 +1277,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 62.8}
-  m_SizeDelta: {x: 32, y: 158}
+  m_SizeDelta: {x: 0, y: 158}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &3946283085664222253
 CanvasRenderer:
@@ -1774,3 +1824,70 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1001 &7965357434754711623
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 223929298582764752}
+    m_Modifications:
+    - target: {fileID: 8525983825070390134, guid: c49feb0e7e887fc42aefc564cf85eae6, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8525983825070390134, guid: c49feb0e7e887fc42aefc564cf85eae6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8525983825070390134, guid: c49feb0e7e887fc42aefc564cf85eae6, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8525983825070390134, guid: c49feb0e7e887fc42aefc564cf85eae6, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8525983825070390134, guid: c49feb0e7e887fc42aefc564cf85eae6, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8525983825070390134, guid: c49feb0e7e887fc42aefc564cf85eae6, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8525983825070390134, guid: c49feb0e7e887fc42aefc564cf85eae6, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8525983825070390134, guid: c49feb0e7e887fc42aefc564cf85eae6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8525983825070390134, guid: c49feb0e7e887fc42aefc564cf85eae6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8525983825070390134, guid: c49feb0e7e887fc42aefc564cf85eae6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8946727430064184987, guid: c49feb0e7e887fc42aefc564cf85eae6, type: 3}
+      propertyPath: m_Name
+      value: IconHeartLoststar
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: c49feb0e7e887fc42aefc564cf85eae6, type: 3}
+--- !u!4 &1790395805087677233 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8525983825070390134, guid: c49feb0e7e887fc42aefc564cf85eae6, type: 3}
+  m_PrefabInstance: {fileID: 7965357434754711623}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &2113481658520010333 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 8349174790995656218, guid: c49feb0e7e887fc42aefc564cf85eae6, type: 3}
+  m_PrefabInstance: {fileID: 7965357434754711623}
+  m_PrefabAsset: {fileID: 0}
