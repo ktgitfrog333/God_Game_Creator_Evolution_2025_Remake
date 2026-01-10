@@ -9,6 +9,7 @@ namespace Mains.Commons
     public class PlayerShoutChanceTable : ScriptableObject
     {
         public float シャウト達成デシベル;
+        public float シャウトゲージスライダー最大値;
         public float 恐怖値のカウント停止時間;
     }
 }

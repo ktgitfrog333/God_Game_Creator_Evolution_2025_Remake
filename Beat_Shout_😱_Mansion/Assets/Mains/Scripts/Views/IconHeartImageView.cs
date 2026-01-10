@@ -10,15 +10,25 @@ namespace Mains.Views
     public class IconHeartImageView : MonoBehaviour
     {
         /// <summary>ハートアイコンイメージ</summary>
-        [SerializeField] private Image image;
+        [SerializeField] private Image[] images;
         [Tooltip("下記二つをセット（初期値が若い方を昇順にする）\nAssets/Mains/Textures/UIs/beatshout_gamemain_icon_heart_not.png\nAssets/Mains/Textures/UIs/beatshout_gamemain_icon_heart.png")]
-        /// <summary>表示差分</summary>
-        [SerializeField] private Sprite[] patterns;
+        /// <summary>
+        /// ハートが有効か
+        /// </summary>
+        public bool IsEnabledHeart => images[1].transform.localScale == Vector3.one;
+        /// <summary>トランスフォーム</summary>
+        private Transform _trans;
+        /// <summary>トランスフォーム</summary>
+        public Transform Trans => _trans != null ? _trans : _trans = transform;
+        /// <summary>トランスフォーム</summary>
+        private Transform _enabledTrans;
+        /// <summary>トランスフォーム</summary>
+        public Transform EnabledTrans => _enabledTrans != null ? _enabledTrans : _enabledTrans = images[1].transform;
 
         private void Reset()
         {
-            if (image == null)
-                image = GetComponent<Image>();
+            if (images == null)
+                images = GetComponentsInChildren<Image>();
         }
 
         /// <summary>
@@ -26,7 +36,12 @@ namespace Mains.Views
         /// </summary>
         public void SetSpriteHeart()
         {
-            image.sprite = patterns[1];
+            var trans = Trans;
+            if (trans.localScale != Vector3.one)
+                trans.localScale = Vector3.one;
+            var enabledTrans = EnabledTrans;
+            if (enabledTrans.localScale != Vector3.one)
+                enabledTrans.localScale = Vector3.one;
         }
 
         /// <summary>
@@ -34,7 +49,12 @@ namespace Mains.Views
         /// </summary>
         public void SetSpriteHeartNot()
         {
-            image.sprite = patterns[0];
+            var trans = Trans;
+            if (trans.localScale != Vector3.one)
+                trans.localScale = Vector3.one;
+            var enabledTrans = EnabledTrans;
+            if (enabledTrans.localScale != Vector3.zero)
+                enabledTrans.localScale = Vector3.zero;
         }
     }
 }

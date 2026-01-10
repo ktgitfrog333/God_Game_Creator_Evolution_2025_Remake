@@ -41,5 +41,11 @@ namespace Mains.ViewModels
             if (_playerModel != null)
                 _playerModel.SubtractionHealthPoint();
         }
+
+        public void SetIsBadEndRhythmPart(bool isBadEndRhythmPart)
+        {
+            if (_playerModel != null)
+                _playerModel.SetIsBadEndRhythmPart(isBadEndRhythmPart);
+        }
     }
 }

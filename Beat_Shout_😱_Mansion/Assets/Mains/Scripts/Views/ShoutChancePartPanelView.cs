@@ -64,36 +64,50 @@ namespace Mains.Views
                                     .Take(1)
                                     .Subscribe(x =>
                                     {
-                                        Sequence fillSequence = null;
-                                        float? normalizedPrev = null;
-                                        dbLevelDisposable = x.Pairwise()
-                                            .Subscribe(dbLevel =>
+                                        Tweener fillTweener = null;
+                                        Sequence fillReturnSequence = null;
+                                        dbLevelDisposable = x.Subscribe(dbLevel =>
                                             {
                                                 // TODO: アラート発生レベルの判定を共通化する
-                                                if (iconMicAlertLevel <= dbLevel.Current)
+                                                if (iconMicAlertLevel <= dbLevel)
                                                 {
                                                     if (!iconMicShoutImageView.IsPlaying)
                                                         StartCoroutine(iconMicShoutImageView.PlayShoutEffect());
                                                 }
                                                 // fillAmount値の算出（0～1へ正規化）
-                                                float normalized = Mathf.Clamp01(dbLevel.Current / シャウトチャンスパートの共通パラメータ管理用テーブル.シャウト達成デシベル);
-
-                                                // すでにTweenが動いていて、目標値が近いならスキップ（不要な上書き防止）
-                                                if (fillSequence != null && fillSequence.IsActive() && fillSequence.IsPlaying())
+                                                float normalized = Mathf.Clamp01(dbLevel / シャウトチャンスパートの共通パラメータ管理用テーブル.シャウトゲージスライダー最大値);
+                                                if (dbLevel != シャウトチャンスパートの共通パラメータ管理用テーブル.シャウトゲージスライダー最大値)
                                                 {
-                                                    float currentTarget = normalizedPrev == null ? -1f : normalizedPrev.Value;
-                                                    if (Mathf.Abs(currentTarget - normalized) <= 0.1f) return;
-
-                                                    fillSequence.Kill(); // 上書きしたい場合は Kill
+                                                    // すでにTweenが動いているなら終了するまでマイク入力は反映しない
+                                                    if (fillTweener != null && fillTweener.IsActive() && fillTweener.IsPlaying())
+                                                    {
+                                                        return;
+                                                    }
+                                                    // マイク入力の場合
+                                                    shoutPowerGaugeImage.DOFillAmount(normalized, .3f);
                                                 }
+                                                else
+                                                {
+                                                    // キーボード／Xbox360コンによるマニュアル入力の場合
 
-                                                // DOTweenアニメーションでfillAmountを更新
-                                                fillSequence = DOTween.Sequence()
-                                                    .Append(shoutPowerGaugeImage.DOFillAmount(normalized, 0.3f))
-                                                    .AppendInterval(.05f)
-                                                    .Append(shoutPowerGaugeImage.DOFillAmount(0f, 0.8f).SetEase(Ease.InOutSine));
-                                                fillSequence.Play();
-                                                normalizedPrev = normalized;
+                                                    // すでにTweenが動いているなら強制終了して上書き
+                                                    if (fillTweener != null && fillTweener.IsActive() && fillTweener.IsPlaying())
+                                                    {
+                                                        fillTweener.Kill();
+                                                        fillReturnSequence = null;
+                                                    }
+                                                    // DOTweenアニメーションでfillAmountを更新
+                                                    fillTweener = shoutPowerGaugeImage.DOFillAmount(normalized, .3f)
+                                                        .OnComplete(() =>
+                                                        {
+                                                            fillReturnSequence?.Play();
+                                                        });
+                                                    fillReturnSequence = DOTween.Sequence()
+                                                        .AppendInterval(.2f)
+                                                        .Append(shoutPowerGaugeImage.DOFillAmount(0f, 0.8f).SetEase(Ease.InOutSine))
+                                                        ;
+                                                    fillTweener.Play();
+                                                }
                                             })
                                             .AddTo(ref _disposableBag);
                                     })

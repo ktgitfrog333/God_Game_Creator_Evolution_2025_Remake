@@ -9,10 +9,12 @@ namespace Mains.ViewModels
     /// <summary>
     /// プレイヤーのビューモデル
     /// </summary>
-    public class PlayerViewModel : IPlayerModel
+    public class PlayerViewModel : IPlayerModel, System.IDisposable
     {
         /// <summary>プレイヤーのモデル</summary>
         private PlayerModel _playerModel;
+        /// <summary>SphereCast用のRaycastHit配列（再利用）</summary>
+        private RaycastHit[] _sphereCastHits = new RaycastHit[1];
         /// <summary>オバケの家具入居管理の構造体リスト</summary>
         public ObservableList<GhostInStaticObjectStruct> GhostInStaticObjectStructs => _playerModel?.GhostInStaticObjectStructs ?? null;
         /// <summary>ポルターガイストの発生位置</summary>
@@ -56,7 +58,17 @@ namespace Mains.ViewModels
         /// <summary>選択されたMissGhostAttack</summary>
         public Transform SelectedMissGhostAttackTransform => _playerModel?.SelectedMissGhostAttackTransform ?? null;
         /// <summary>ステージ開始演出が完了したか</summary>
-        public ReactiveCommand<bool> IsCompletedStartDirection => _playerModel?.IsCompletedStartDirection ?? null;
+        public bool _isCompletedStartDirection;
+        /// <summary>ステージ開始演出が完了したか</summary>
+        public bool IsCompletedStartDirection => _isCompletedStartDirection;
+        /// <summary>ステージ開始演出が完了したか</summary>
+        public ReactiveCommand<bool> IsCompletedStartDirectionReactive => _playerModel?.IsCompletedStartDirection ?? null;
+        /// <summary>ステージ開始位置トランスフォーム</summary>
+        private ReactiveCommand<Transform> _startPointTrans = new ReactiveCommand<Transform>();
+        /// <summary>ステージ開始位置トランスフォーム</summary>
+        public ReactiveCommand<Transform> StartPointTrans => _startPointTrans;
+        /// <summary>R3のリソース管理</summary>
+        private DisposableBag _disposableBag = new DisposableBag();
 
         public PlayerViewModel(InteractionPartTable interactionPartTable)
         {
@@ -72,6 +84,16 @@ namespace Mains.ViewModels
             }
             if (_playerModel.InteractionPartTable == null)
                 _playerModel.InteractionPartTable = interactionPartTable;
+            _playerModel.StartPointTrans.Subscribe(x =>
+            {
+                _startPointTrans.Execute(x);
+            })
+                .AddTo(ref _disposableBag);
+            _playerModel.IsCompletedStartDirection.Subscribe(x =>
+            {
+                _isCompletedStartDirection = x;
+            })
+                .AddTo(ref _disposableBag);
         }
 
         public void SetIsSwitchPart(bool isSwitchPart)
@@ -163,13 +185,13 @@ namespace Mains.ViewModels
             float raycastDistance = characterController.height / 2f - radius + skinWidth + distanceToGround;
             Vector3 rayOrigin = characterController.transform.position + Vector3.up * (radius - skinWidth);
 
-            // SphereCastで接地判定（指定されたレイヤーのみを対象）
-            bool sphereCastHit = Physics.SphereCast(rayOrigin, radius, Vector3.down, out RaycastHit hit, raycastDistance, groundLayerMask);
+            // SphereCastNonAllocで接地判定（指定されたレイヤーのみを対象）
+            int hitCount = Physics.SphereCastNonAlloc(rayOrigin, radius, Vector3.down, _sphereCastHits, raycastDistance, groundLayerMask);
             // デバッグ：SceneビューにSphereCastのレイを描画
             Debug.DrawRay(rayOrigin, Vector3.down * raycastDistance, Color.yellow);
 
             // より確実な判定のため、追加でRaycastも実行
-            if (!sphereCastHit)
+            if (hitCount == 0)
             {
                 float rayDistance = characterController.height / 2f + distanceToGround;
                 // デバッグ：SceneビューにRaycastのレイを描画
@@ -177,7 +199,7 @@ namespace Mains.ViewModels
                 return Physics.Raycast(rayOrigin, Vector3.down, rayDistance, groundLayerMask);
             }
 
-            return sphereCastHit;
+            return hitCount > 0;
         }
 
         /// <summary>
@@ -191,6 +213,11 @@ namespace Mains.ViewModels
         {
             return searchAngleMin <= eulerAngles.x &&
                 eulerAngles.x <= searchAngleMax;
+        }
+
+        public void Dispose()
+        {
+            _disposableBag.Dispose();
         }
     }
 }

@@ -62,6 +62,8 @@ namespace Mains.Views
         [SerializeField] private PlayerShoutChanceTable シャウトチャンスパートの共通パラメータ管理用テーブル;
         /// <summary>驚くアニメーションを再生中</summary>
         private bool _isPlayingFreakout;
+        /// <summary>土煙パーティクルのトランスフォーム</summary>
+        public Transform DustParticlePosition { get; set; }
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
         /// <summary>R3のリソース管理</summary>
@@ -153,6 +155,7 @@ namespace Mains.Views
                 {
                     DoInstanceDustAndPlaySE(IsEnabledPoltergeist, dustParticlePrefab, _transform,
                         dustParticleInstance,
+                        DustParticlePosition,
                         _poltergeistViewModel.PlayerTransform, maxDistance,
                         t3DSoundPlayer,
                         _poltergeistViewModel,
@@ -194,6 +197,7 @@ namespace Mains.Views
             Transform dustParticleInstance = null;
             DoInstanceDustAndPlaySE(IsEnabledPoltergeist, dustParticlePrefab, _transform,
                 dustParticleInstance,
+                DustParticlePosition,
                 _poltergeistViewModel.PlayerTransform, maxDistance,
                 t3DSoundPlayer,
                 _poltergeistViewModel);
@@ -265,12 +269,15 @@ namespace Mains.Views
         /// <param name="dustParticlePrefab">Assets/Mains/Prefabs/Effects/DustParticle.prefabをセットしておく。</param>
         /// <param name="transform">トランスフォーム</param>
         /// <param name="dustParticleInstance">DustParticleのInstance用</param>
+        /// <param name="dustParticlePosition">土煙パーティクルのトランスフォーム</param>
         /// <param name="playerTransform">プレイヤーのトランスフォーム</param>
         /// <param name="maxDistance">振動を開始する最長距離</param>
         /// <param name="t3DSoundPlayer">Se_3D_Pickerのカスタマイズビュー</param>
+        /// <param name="poltergeistViewModel">ポルターガイストのビューモデル</param>
         /// <param name="isInstanceDust">DustParticleを生成するか</param>
         private void DoInstanceDustAndPlaySE(bool isEnabledPoltergeist, GameObject dustParticlePrefab, Transform transform,
             Transform dustParticleInstance,
+            Transform dustParticlePosition,
             Transform playerTransform, float maxDistance,
             Se_3D_PickerCustomizeView t3DSoundPlayer,
             PoltergeistViewModel poltergeistViewModel,
@@ -285,7 +292,7 @@ namespace Mains.Views
                 {
                     dustParticleInstance = GameObject.Instantiate(dustParticlePrefab).transform;
                     dustParticleInstance.SetParent(transform);
-                    dustParticleInstance.localPosition = Vector3.zero;
+                    dustParticleInstance.position = dustParticlePosition?.position ?? Vector3.zero;
                 }
                 else
                 {

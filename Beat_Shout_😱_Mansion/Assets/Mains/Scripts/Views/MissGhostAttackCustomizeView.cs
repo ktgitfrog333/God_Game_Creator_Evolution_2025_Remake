@@ -103,7 +103,7 @@ namespace Mains.Views
         /// <param name="viewModel">ビューモデル</param>
         private void SubtractionPlayerHealth(MissGhostAttackCustomizeViewModel viewModel)
         {
-            viewModel.SubtractionHealthPoint();
+            viewModel.SetIsBadEndRhythmPart(true);
         }
     }
 }

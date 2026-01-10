@@ -47,12 +47,8 @@ namespace Mains.Views
         [Tooltip("CommonPanel > HeaderPanel > MissionText をセット")]
         /// <summary>ミッションガイド詳細のテキスト</summary>
         [SerializeField] private TextMeshProUGUI missionText;
-        [Tooltip("CommonPanel > FooterPanel > IconHeartsPanel をセット")]
-        /// <summary>ハートアイコンを表示する用のトランスフォーム</summary>
-        [SerializeField] private RectTransform iconHeartsPanel;
-        [Tooltip("Assets/Mains/Prefabs/UIs/CommonPanels/IconHeartImage.prefab をセット")]
-        /// <summary>iconHeartImageのプレハブ</summary>
-        [SerializeField] private Transform iconHeartImagePrefab;
+        /// <summary>ハートアイコン設定</summary>
+        [SerializeField] private IconHeartSettings iconHeartSettings;
         [Tooltip("CommonPanel > CenterPanel > StageClearPanel をセット")]
         /// <summary>STAGE CLEARのパネル</summary>
         [SerializeField] private RectTransform stageClearPanel;
@@ -80,6 +76,8 @@ namespace Mains.Views
         private HorrorGaugeSliderFillColorStruct _currentGaugeFillConfig;
         /// <summary>フィルアマウントのループアニメーションの実行中設定が存在するか</summary>
         private bool _hasCurrentGaugeFillConfig;
+        /// <summary>プレイヤーの体力を取得してハートアイコンへ反映する処理を実装</summary>
+        private List<IconHeartImageView> _iconHeartImageViews;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -91,8 +89,6 @@ namespace Mains.Views
                 guideText = transform.GetChild(1).GetChild(0).GetComponentInChildren<TextMeshProUGUI>();
             if (missionText == null)
                 missionText = transform.GetChild(1).GetChild(1).GetComponent<TextMeshProUGUI>();
-            if (iconHeartsPanel == null)
-                iconHeartsPanel = transform.GetChild(2).GetChild(0) as RectTransform;
             foreach (Transform child in transform)
             {
                 if (child.name.Equals("FooterPanel"))
@@ -114,6 +110,11 @@ namespace Mains.Views
                                         horrorGaugeSliderNumberText = item1.GetComponent<TextMeshProUGUI>();
                                 }
                             }
+                        }
+                        if (item.name.Equals("IconHeartsPanel"))
+                        {
+                            if (iconHeartSettings.iconHeartsPanel == null)
+                                iconHeartSettings.iconHeartsPanel = item as RectTransform;
                         }
                     }
                 }
@@ -169,6 +170,7 @@ namespace Mains.Views
                 .AddTo(ref _disposableBag);
             // プレイヤーの体力を取得してハートアイコンへ反映する処理を実装
             List<IconHeartImageView> iconHeartImageViews = new List<IconHeartImageView>();
+            _iconHeartImageViews = iconHeartImageViews;
             Observable.EveryUpdate()
                 .Select(_ => _commonPanelViewModel.PlayerHealthPointMax)
                 .Where(x => x != null)
@@ -183,12 +185,12 @@ namespace Mains.Views
                             // 最大HPの数だけ体力UIを拡張
                             //  ●ハートアイコン表示の幅を広げる
                             //  ●ハートアイコンを生成
-                            if (iconHeartsPanel.childCount < maxHp)
+                            if (iconHeartSettings.iconHeartsPanel.childCount < maxHp)
                             {
                                 // 足りない分だけ生成（必要に応じて全削除→再生成も可）
-                                for (int i = iconHeartsPanel.childCount; i < maxHp; i++)
+                                for (int i = iconHeartSettings.iconHeartsPanel.childCount; i < maxHp; i++)
                                 {
-                                    var heartGO = Instantiate(iconHeartImagePrefab, iconHeartsPanel);
+                                    var heartGO = Instantiate(iconHeartSettings.iconHeartImagePrefab, iconHeartSettings.iconHeartsPanel);
                                     var heartView = heartGO.GetComponent<IconHeartImageView>();
                                     if (heartView != null)
                                     {
@@ -406,6 +408,70 @@ namespace Mains.Views
 
                 return Disposable.Empty;
             });
+        }
+
+        /// <summary>
+        /// HPアイコンを縮小アニメーションを再生
+        /// </summary>
+        /// <remarks>タイムライン上のシグナルから呼び出す<br/>
+        /// インスペクタのSignal Receiverを参照</remarks>
+        /// <see cref="Assets/Mains/TimeLines/HPDownDirection.playable"/>
+        /// <see cref="Assets/Mains/TimeLines/ShrinkageHeartIconAnimation.signal"/>
+        public void PlayShrinkageHeartIconAnimation()
+        {
+            var iconHeartImageViews = _iconHeartImageViews;
+            if (iconHeartImageViews != null &&
+                0 < iconHeartImageViews.Count)
+            {
+                var iconHeartImageView = iconHeartImageViews.Select((p, i) => new { Content = p, Index = i })
+                    .OrderByDescending(q => q.Index)
+                    .FirstOrDefault(x => x.Content.IsEnabledHeart)
+                    .Content;
+                if (iconHeartImageView == null)
+                {
+                    Debug.LogWarning($"該当のハートアイコン無し");
+
+                    return;
+                }
+                // 縮小アニメーション
+                var rectTransform = iconHeartImageView.EnabledTrans as RectTransform;
+                if (rectTransform != null)
+                {
+                    // 既存のTweenがあれば停止
+                    rectTransform.DOKill();
+                    // スケールを0に縮小するアニメーション
+                    rectTransform.DOScale(Vector3.zero, iconHeartSettings.iconHeartDuration)
+                        .SetEase(Ease.InBack)
+                        .SetUpdate(true);
+                }
+            }
+        }
+
+        /// <summary>
+        /// ハートアイコン位置まで移動して星を光らせるアニメーションを再生
+        /// </summary>
+        /// <see cref="Assets/Mains/TimeLines/HPDownDirection.playable"/>
+        /// <see cref="Assets/Mains/TimeLines/ShrinkageHeartIconAnimation.signal"/>
+        public void PlayMoveIconHeartAndPlayLightingStarAnimation()
+        {
+            var iconHeartImageViews = _iconHeartImageViews;
+            if (iconHeartImageViews != null)
+            {
+                int index = 0;
+                for (int i = 0; i < iconHeartImageViews.Count; i++)
+                {
+                    if (!iconHeartImageViews[i].IsEnabledHeart)
+                    {
+                        // 直前に縮小されたハートアイコンを対象にする
+                        index = i;
+                        
+                        break;
+                    }
+                }
+                var particleSys = iconHeartSettings.iconHeartLoststarPerticleSys;
+                particleSys.transform.position = iconHeartImageViews[index].transform.position;
+                particleSys.Play();
+            }
         }
 
         /// <summary>
@@ -714,5 +780,23 @@ namespace Mains.Views
                 yield return new WaitForSeconds(1f);
             }
         }
+    }
+
+    /// <summary>
+    /// ハートアイコン設定
+    /// </summary>
+    [System.Serializable]
+    public class IconHeartSettings
+    {
+        [Tooltip("CommonPanel > FooterPanel > IconHeartsPanel をセット")]
+        /// <summary>ハートアイコンを表示する用のトランスフォーム</summary>
+        public RectTransform iconHeartsPanel;
+        [Tooltip("Assets/Mains/Prefabs/UIs/CommonPanels/IconHeartImage.prefab をセット")]
+        /// <summary>iconHeartImageのプレハブ</summary>
+        public Transform iconHeartImagePrefab;
+        /// <summary>アニメーション終了時間</summary>
+        public float iconHeartDuration;
+        /// <summary>ハートアイコン消失星のパーティクル</summary>
+        public ParticleSystem iconHeartLoststarPerticleSys;
     }
 }

@@ -54,6 +54,7 @@ namespace Mains.Views
                                 int layerMaskTerrainObjects = 1 << LayerMask.NameToLayer("TerrainObjects");
                                 int layerMaskDropItems = 1 << LayerMask.NameToLayer("DropItems");
                                 int layerMaskGhost = 1 << LayerMask.NameToLayer("Ghost");
+                                Camera mainCamera = Camera.main;
                                 // マウスポインターへ追従
                                 targetCrossDisposable = Observable.EveryUpdate()
                                     .Select(_ =>
@@ -85,7 +86,7 @@ namespace Mains.Views
                                             {
                                                 Vector2 localPoint;
                                                 // ポインター位置（スクリーン座標）からワールド方向ベクトルを計算
-                                                Ray ray = Camera.main.ScreenPointToRay(mousePos);
+                                                Ray ray = mainCamera.ScreenPointToRay(mousePos);
 
                                                 if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, layerMaskTerrainObjects))
                                                 {
@@ -131,7 +132,6 @@ namespace Mains.Views
                                         }
                                         else if (isInputJoystick && !isInputMouse)
                                         {
-                                            var mainCamera = Camera.main;
                                             Vector2 calcPosition = movePosition * ポインター移動距離;
                                             _rhythmPartPanelViewModel.SetTargetCrossAnchoredPosition(calcPosition);
 

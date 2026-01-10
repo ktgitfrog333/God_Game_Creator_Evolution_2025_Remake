@@ -8,7 +8,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Mains.Views
@@ -86,36 +85,18 @@ namespace Mains.Views
         private void Reset()
         {
             // リズムパートポジション（プレイヤー位置をリズムパート用に移動させる）の生成
-            bool isFound = false;
-            foreach (Transform child in transform)
-            {
-                if (child.name.Equals("RhythmPartPosition"))
-                {
-                    isFound = true;
-                    break;
-                }
-            }
-            if (!isFound)
-            {
-                var newObj = new GameObject("RhythmPartPosition").AddComponent<RhythmPartPositionView>();
-                newObj.transform.position = transform.position;
-                newObj.transform.SetParent(transform);
-            }
+            FindOrInstanceGameObject("RhythmPartPosition");
             // リズムパートポジション（家具をリズムパート用に移動させる）の生成
-            bool isFound1 = false;
-            foreach (Transform child in transform)
+            FindOrInstanceGameObject("RhythmPartPosition_1");
+            // パーティクル位置の生成
+            FindOrInstanceGameObject("DustParticlePosition");
+            // リズムパート時の移動先情報を設定するためボックスコライダーを必要に応じて生成
+            var collider = transform.GetComponent<BoxCollider>();
+            if (collider == null)
             {
-                if (child.name.Equals("RhythmPartPosition_1"))
-                {
-                    isFound1 = true;
-                    break;
-                }
-            }
-            if (!isFound1)
-            {
-                var newObj = new GameObject("RhythmPartPosition_1").AddComponent<RhythmPartPosition_1View>();
-                newObj.transform.position = transform.position;
-                newObj.transform.SetParent(transform);
+                collider = transform.gameObject.AddComponent<BoxCollider>();
+                collider.enabled = false;
+                Debug.LogWarning($"ボックスコライダーを生成しました。必要に応じてサイズを変更してください。\r\n※PivotとCenter座標にずれがある場合は一度親子関係を解除して修正してください。");
             }
         }
 
@@ -192,6 +173,7 @@ namespace Mains.Views
                             // ghostTeamIDが空なら、motorInstanceへポルターガイストを無効に更新する
                             // 空でないなら、有効に更新する
                             _motorView.IsEnabledPoltergeist = !string.IsNullOrEmpty(x.NewValue.ghostTeamID.Value);
+                            _motorView.DustParticlePosition = FindOrInstanceGameObject("DustParticlePosition");
                         })
                         .AddTo(ref _disposableBag);
                     // オブジェクトIDを割り振る
@@ -203,6 +185,7 @@ namespace Mains.Views
                             ghostInStaticObjectStruct.ghostTeamID = new ReactiveProperty<string>();
                             ghostInStaticObjectStruct.ghostTeamID.Value = System.Guid.NewGuid().ToString();
                             _motorView.IsEnabledPoltergeist = true;
+                            _motorView.DustParticlePosition = FindOrInstanceGameObject("DustParticlePosition");
 
                             break;
                         default:
@@ -224,6 +207,43 @@ namespace Mains.Views
         {
             _disposableBag.Dispose();
             _script_XyloApi?.Dispose();
+            _poltergeistViewModel?.Dispose();
+        }
+
+        /// <summary>
+        /// 対象オブジェクトを子から探索して該当しない場合はゲームオブジェクトを生成
+        /// </summary>
+        /// <param name="name">ゲームオブジェクト名</param>
+        private Transform FindOrInstanceGameObject(string name)
+        {
+            foreach (Transform child in transform)
+            {
+                if (child.name.Equals(name))
+                {
+                    return child;
+                }
+            }
+            switch (name)
+            {
+                case "RhythmPartPosition":
+                    var newObj = new GameObject(name).AddComponent<RhythmPartPositionView>();
+                    newObj.transform.position = transform.position;
+                    newObj.transform.SetParent(transform);
+
+                    return newObj.transform;
+                case "RhythmPartPosition_1":
+                    var newObj1 = new GameObject(name).AddComponent<RhythmPartPosition_1View>();
+                    newObj1.transform.position = transform.position;
+                    newObj1.transform.SetParent(transform);
+
+                    return newObj1.transform;
+                default:
+                    var newObj2 = new GameObject(name);
+                    newObj2.transform.position = transform.position;
+                    newObj2.transform.SetParent(transform);
+
+                    return newObj2.transform;
+            }
         }
 
         /// <summary>
@@ -245,9 +265,15 @@ namespace Mains.Views
         {
             _script_XyloApi.ChangeBgmB();
             List<System.IDisposable> disposables = new List<System.IDisposable>();
-            ReactiveCommand<bool> isCompletedRhythmPart = new ReactiveCommand<bool>();
+            //// リズムパート完了フラグ
+            ////  [0]: 未完了
+            ////  [1]: 成功
+            ////  [2]: 失敗中断
+            //ReactiveCommand<int> isCompletedRhythmPart = new ReactiveCommand<int>();
+            //// リズムパートでミスした時にハートが減少する演出完了フラグ
+            //ReactiveCommand<bool> isCompletedDirection = new ReactiveCommand<bool>();
             disposables.Add(
-                isCompletedRhythmPart.Where(x => x)
+                /*isCompletedRhythmPart*/_poltergeistViewModel.IsCompletedDirection.Where(x => x)
                     .Take(1)
                     .Subscribe(_ =>
                     {
@@ -256,7 +282,7 @@ namespace Mains.Views
                         // 後処理
                         // 各処理をObservableに変換して、全て完了したら次に進む
                         List<Observable<bool>> completionObservables = new List<Observable<bool>>();
-                        
+
                         // 1. 暗幕フェード処理（条件付き）
                         var ghostStructs = _poltergeistViewModel.GhostInStaticObjectStructs;
                         var cnt = ghostStructs.Select(q => q.membersCount).Sum();
@@ -281,7 +307,7 @@ namespace Mains.Views
                             // 条件を満たさない場合は即座に完了するObservableを追加
                             completionObservables.Add(Observable.Return(true));
                         }
-                        
+
                         // 2. オバケが残っていたらプールへ戻す（Other）
                         completionObservables.Add(
                             Observable.Create<bool>(observer =>
@@ -290,7 +316,7 @@ namespace Mains.Views
                                 return Disposable.Empty;
                             })
                         );
-                        
+
                         // 3. スポナーの削除（同期的処理をObservableに変換）
                         completionObservables.Add(
                             Observable.Create<bool>(observer =>
@@ -303,7 +329,7 @@ namespace Mains.Views
                                 return Disposable.Empty;
                             })
                         );
-                        
+
                         // 全てのObservableが完了したら次に進む
                         // Observable.Createで全てのObservableの完了を待つ
                         disposables.Add(
@@ -315,11 +341,11 @@ namespace Mains.Views
                                     observer.OnCompleted();
                                     return Disposable.Empty;
                                 }
-                                
+
                                 int completedCount = 0;
                                 int totalCount = completionObservables.Count;
                                 List<System.IDisposable> innerDisposables = new List<System.IDisposable>();
-                                
+
                                 foreach (var obs in completionObservables)
                                 {
                                     innerDisposables.Add(
@@ -335,7 +361,7 @@ namespace Mains.Views
                                             })
                                     );
                                 }
-                                
+
                                 return Disposable.Create(() =>
                                 {
                                     foreach (var d in innerDisposables)
@@ -360,7 +386,8 @@ namespace Mains.Views
                     .Where(x => x == 3)
                     .Subscribe(_ =>
                     {
-                        isCompletedRhythmPart.Execute(true);
+                        //isCompletedRhythmPart.Execute(1);
+                        _poltergeistViewModel.SetIsCompletedRhythmPart(1);
                     })
                     .AddTo(ref _disposableBag)
             );
@@ -370,26 +397,17 @@ namespace Mains.Views
                     .Take(1)
                     .Subscribe(_ =>
                     {
-                        isCompletedRhythmPart.Execute(true);
+                        //isCompletedRhythmPart.Execute(1);
+                        _poltergeistViewModel.SetIsCompletedRhythmPart(1);
                     })
                     .AddTo(ref _disposableBag)
             );
             disposables.Add(
-                Observable.EveryUpdate()
-                    .Select(_ => _poltergeistViewModel.PlayerHealthPoint)
-                    .Where(x => x != null)
+                _poltergeistViewModel.IsBadEndRhythmPart.Where(x => x)
                     .Take(1)
-                    .Subscribe(x =>
+                    .Subscribe(_ =>
                     {
-                        disposables.Add(
-                            x.Pairwise()
-                                .Where(x => x.Current < x.Previous)
-                                .Subscribe(playerHealthPoint =>
-                            {
-                                isCompletedRhythmPart.Execute(true);
-                            })
-                            .AddTo(ref _disposableBag)
-                        );
+                        _poltergeistViewModel.SetIsCompletedRhythmPart(2);
                     })
                     .AddTo(ref _disposableBag)
             );

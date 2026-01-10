@@ -10,6 +10,7 @@ using Mains.Manager;
 using DG.Tweening;
 using System.Collections;
 using System.Threading.Tasks;
+using UnityEngine.SceneManagement;
 
 namespace Mains.Views
 {
@@ -17,10 +18,12 @@ namespace Mains.Views
     /// プレイヤーのビュー
     /// </summary>
     [RequireComponent(typeof(CharacterController))]
-    public class PlayerView : MonoBehaviour, IDidStartProvider
+    public class PlayerView : MonoBehaviour, IDidStartProvider, Selects.Views.IDidStartProvider
     {
         [Header("全パート共通")]
         [SerializeField] private InteractionPartTable 探索_シャウトチャンス_リズムパート情報管理テーブル;
+        /// <summary>プレイヤーの設定</summary>
+        [SerializeField] private PlayerSettrings settings;
         [Header("探索パート／シャウトチャンスパート")]
         /// <summary>キャラクター移動制御</summary>
         [SerializeField] private CharacterController characterController;
@@ -87,9 +90,14 @@ namespace Mains.Views
                 })
                 .AddTo(ref _disposableBag);
             _playerViewModel = new(探索_シャウトチャンス_リズムパート情報管理テーブル);
+            float lastFixedTimeForGrounded = 0f;
             Observable.EveryUpdate()
-                .Select(_ => _playerViewModel.IsGrounded(characterController, distanceToGround, groundLayerMask))
-                .Subscribe(grounded => isGrounded.Value = grounded)
+                .Where(_ => Time.time - lastFixedTimeForGrounded >= Time.fixedDeltaTime) // FixedUpdateと同じタイミング
+                .Subscribe(_ =>
+                {
+                    lastFixedTimeForGrounded = Time.time; // 次の実行タイミングを記録
+                    isGrounded.Value = _playerViewModel.IsGrounded(characterController, distanceToGround, groundLayerMask);
+                })
                 .AddTo(ref _disposableBag);
             // 正面移動かどうかのステータス管理
             ReactiveProperty<bool> isMovingForward = new ReactiveProperty<bool>();
@@ -198,6 +206,8 @@ namespace Mains.Views
                     movePlayerAndpoltergeistProcessCnt.Value = 0;
                 })
                 .AddTo(ref _disposableBag);
+            // 頭の高さローカル位置を保存
+            Vector3 originHeadTransLocalPosition = headTrans.localPosition;
             // リズムパートの位置まで移動する
             Observable.EveryUpdate()
                 .Select(_ => _playerViewModel.IsCompletedBurstGhosts)
@@ -244,6 +254,9 @@ namespace Mains.Views
                                         movePlayerAndpoltergeistProcessCnt.Value++;
                                     })
                                     .AddTo(ref _disposableBag);
+                                // [シャウト成功インタラクション] 3-d. プレイヤーの頭の高さをリズムパート用に変更
+                                var localPosition = headTrans.localPosition;
+                                headTrans.localPosition = new Vector3(localPosition.x, リズムパートで使用するプレイヤープロパティ.headHeight, localPosition.z);
                             }
                         })
                         .AddTo(ref _disposableBag);
@@ -256,7 +269,7 @@ namespace Mains.Views
             characterController.enabled = false;
             // フェード処理が完了するまではプレイヤー操作禁止
             Observable.EveryUpdate()
-                .Select(_ => _playerViewModel.IsCompletedStartDirection)
+                .Select(_ => _playerViewModel.IsCompletedStartDirectionReactive)
                 .Where(x => x != null)
                 .Take(1)
                 .Subscribe(x =>
@@ -290,6 +303,7 @@ namespace Mains.Views
                     System.IDisposable observableIsFailedDisposable = null;
                     System.IDisposable observableTargetCrossPositionDisposable = null;
                     System.IDisposable volumeLevelReactiveDisposable = null;
+                    Camera mainCamera = null;
                     x.Pairwise()
                         .Subscribe(part =>
                         {
@@ -335,7 +349,11 @@ namespace Mains.Views
                                         Vector3 moveDirection = Quaternion.Euler(0f, currentYaw, 0f) * moveInput;
 
                                         // カメラの正面方向
-                                        Vector3 cameraForward = Camera.main != null ? Camera.main.transform.forward : Vector3.zero;
+                                        if (mainCamera == null)
+                                        {
+                                            mainCamera = Camera.main;
+                                        }
+                                        Vector3 cameraForward = mainCamera.transform.forward;
                                         cameraForward.y = 0; // 水平成分のみ使用
                                         cameraForward.Normalize();
 
@@ -528,6 +546,8 @@ namespace Mains.Views
                                     switch (part.Current)
                                     {
                                         case InteractionPart.Search:
+                                            var localPosition = originHeadTransLocalPosition;
+                                            headTrans.localPosition = localPosition;
                                             if (followPlayerCameraView != null)
                                                 followPlayerCameraView.ResetFollowAndLookAt();
                                             // Rewairedで操作を禁止にする。着地したら暗幕フェードの透明度を元に戻す。
@@ -724,22 +744,21 @@ namespace Mains.Views
                 .Where(_ => characterController.enabled)
                 .Subscribe(_ =>
                 {
-                    bool inhaleHeld = player.GetButton("Inhale");
-                    bool inhaleLeftHeld = player.GetButton("InhaleHalfLeft");
-                    bool inhaleRightHeld = player.GetButton("InhaleHalfRight");
+                    bool inhaleHeld = player.GetButtonDown("Inhale");
+                    bool inhaleHeldCon = (player.GetButtonDown("InhaleHalfLeft") && player.GetButton("InhaleHalfRight")) ||
+                        (player.GetButton("InhaleHalfLeft") && player.GetButtonDown("InhaleHalfRight"));
                     bool isMicInput = _script_XyloApi.IsMicInput();
 
                     // Inhale 単体の入力
                     if (inhaleHeld &&
-                        !inhaleLeftHeld &&
-                        !inhaleRightHeld &&
+                        !inhaleHeldCon &&
                         !isMicInput)
                     {
                         if (!isInhaling)
                         {
                             isInhaling = true;
                             // キー／トリガー入力のためそれっぽいMAX値をセット
-                            dbLevel.Value = シャウトチャンスパートの共通パラメータ管理用テーブル.シャウト達成デシベル;
+                            dbLevel.Value = シャウトチャンスパートの共通パラメータ管理用テーブル.シャウトゲージスライダー最大値;
                         }
                     }
                     else
@@ -751,8 +770,7 @@ namespace Mains.Views
                     }
 
                     // 両方のHalfInhaleを長押し
-                    if (inhaleLeftHeld &&
-                        inhaleRightHeld &&
+                    if (inhaleHeldCon &&
                         !inhaleHeld &&
                         !isMicInput)
                     {
@@ -760,7 +778,7 @@ namespace Mains.Views
                         {
                             isDualInhaling = true;
                             // キー／トリガー入力のためそれっぽいMAX値をセット
-                            dbLevel.Value = シャウトチャンスパートの共通パラメータ管理用テーブル.シャウト達成デシベル;
+                            dbLevel.Value = シャウトチャンスパートの共通パラメータ管理用テーブル.シャウトゲージスライダー最大値;
                         }
                     }
                     else
@@ -773,8 +791,7 @@ namespace Mains.Views
 
                     // マイク入力の取得
                     if (!inhaleHeld &&
-                        !inhaleLeftHeld &&
-                        !inhaleRightHeld &&
+                        !inhaleHeldCon &&
                         isMicInput)
                     {
                         dbLevel.Value = _script_XyloApi.GetDBLevel();
@@ -782,7 +799,7 @@ namespace Mains.Views
 
                     _playerViewModel.SetDbLevel(dbLevel.Value);
                     // どちらも押されていない場合も毎フレーム 0 に戻す（押し直しに備える）
-                    if (!inhaleHeld && !(inhaleLeftHeld && inhaleRightHeld) &&
+                    if (!inhaleHeld && !inhaleHeldCon &&
                         !isMicInput)
                     {
                         if (!isInhaling && !isDualInhaling)
@@ -822,7 +839,18 @@ namespace Mains.Views
                     hitTriggerTrans.position = followPlayerCameraView.transform.position;
                 })
                 .AddTo(ref _disposableBag);
-
+            // セレクトシーンのみ
+            var currentSceneName = SceneManager.GetActiveScene().name;
+            if (currentSceneName.Equals(settings.targetSceneName))
+            {
+                _playerViewModel.StartPointTrans.Where(x => x != null)
+                    .Take(1)
+                    .Subscribe(startTrans =>
+                    {
+                        MoveToPoint(startTrans, _playerViewModel.IsCompletedStartDirection, trans, characterController, ref currentYaw);
+                    })
+                    .AddTo(ref _disposableBag);
+            }
             _didStartAsObservable.OnNext(Unit.Default);
             _didStartAsObservable.OnCompleted();
         }
@@ -844,6 +872,7 @@ namespace Mains.Views
         {
             _disposableBag.Dispose();
             _script_XyloApi?.Dispose();
+            _playerViewModel?.Dispose();
         }
 
         public Observable<Unit> DidStartAsObservable()
@@ -983,5 +1012,38 @@ namespace Mains.Views
             var poltergeistView = poltergeistViews.FirstOrDefault(q => q.GhostInStaticObjectStruct.poltergeistViewID == targetPoltergeistViewID);
             return poltergeistView;
         }
+
+        /// <summary>
+        /// 指定位置まで移動
+        /// </summary>
+        /// <param name="startPointTrans">ステージ開始位置</param>
+        /// <param name="isCompletedStartDirection">ステージ開始演出が完了したか</param>
+        /// <param name="trans">トランスフォーム</param>
+        /// <param name="characterController">キャラクター移動制御</param>
+        /// <param name="currentYaw">現在のY軸回転角度 (左右回転)</param>
+        private void MoveToPoint(Transform startPointTrans, bool isCompletedStartDirection, Transform trans, CharacterController characterController, ref float currentYaw)
+        {
+            if (characterController.enabled)
+                characterController.enabled = false;
+            trans.position = startPointTrans.position;
+            trans.eulerAngles = startPointTrans.eulerAngles;
+            currentYaw = trans.eulerAngles.y;
+            if (isCompletedStartDirection)
+            {
+                if (!characterController.enabled)
+                    characterController.enabled = true;
+            }
+        }
+    }
+
+    /// <summary>
+    /// プレイヤーの設定
+    /// </summary>
+    [System.Serializable]
+    public class PlayerSettrings
+    {
+        /// <summary>対象シーン名</summary>
+        /// <remarks>セレクトシーンを指定する</remarks>
+        public string targetSceneName;
     }
 }

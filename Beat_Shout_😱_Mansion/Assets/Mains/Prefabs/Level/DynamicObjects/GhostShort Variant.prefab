@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 2534893253756769673}
   - component: {fileID: 1742311031798760248}
   - component: {fileID: 4046039790925204251}
-  m_Layer: 13
+  m_Layer: 19
   m_Name: Point Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -148,14 +148,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: GhostBodyModel
       objectReference: {fileID: 0}
-    - target: {fileID: 2652521226571307256, guid: 26922f3c26bc9ce4aa4d51a265fe5f92, type: 3}
-      propertyPath: m_Layer
-      value: 13
-      objectReference: {fileID: 0}
-    - target: {fileID: 5917371182972491181, guid: 26922f3c26bc9ce4aa4d51a265fe5f92, type: 3}
-      propertyPath: m_Layer
-      value: 13
-      objectReference: {fileID: 0}
     - target: {fileID: 6853784894609534560, guid: 26922f3c26bc9ce4aa4d51a265fe5f92, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -201,9 +193,9 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 26922f3c26bc9ce4aa4d51a265fe5f92, type: 3}
---- !u!23 &5245656508615118276 stripped
+--- !u!23 &1523247472436742953 stripped
 MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 5268725362780206200, guid: 26922f3c26bc9ce4aa4d51a265fe5f92, type: 3}
+  m_CorrespondingSourceObject: {fileID: 1509194613619438229, guid: 26922f3c26bc9ce4aa4d51a265fe5f92, type: 3}
   m_PrefabInstance: {fileID: 131190429866703292}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &6831850736171685852 stripped
@@ -389,7 +381,7 @@ MonoBehaviour:
   goodParticleSysPrefab: {fileID: 649647312542731792, guid: 06a7b9c6095182a40bd34a96729286bd, type: 3}
   badPanelPrefab: {fileID: 6422276594484730783, guid: cd28cda1a4be09d4392a6101c263fe71, type: 3}
   badParticleSysPrefab: {fileID: 1394655228571085345, guid: 0a0cdc51eb3927540a6329db734f0458, type: 3}
-  modelRenderer: {fileID: 5245656508615118276}
+  modelRenderer: {fileID: 1523247472436742953}
 --- !u!114 &1610384640426063018
 MonoBehaviour:
   m_ObjectHideFlags: 0

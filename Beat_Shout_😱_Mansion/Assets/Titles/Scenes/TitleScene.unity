@@ -4897,6 +4897,7 @@ GameObject:
   - component: {fileID: 1237488138}
   - component: {fileID: 1237488137}
   - component: {fileID: 1237488141}
+  - component: {fileID: 1237488142}
   m_Layer: 0
   m_Name: Rewired Input Manager
   m_TagString: Untagged
@@ -5585,6 +5586,20 @@ MonoBehaviour:
   enableCRIWAREIntegration: 1
   enableDebugMode: 1
   enableMenuLoop: 0
+--- !u!114 &1237488142
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1237488136}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 119608f5b75b3324daaf2d2b64885257, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  settings:
+    defaultSceneIdx: 5
 --- !u!1 &1242035646
 GameObject:
   m_ObjectHideFlags: 0
