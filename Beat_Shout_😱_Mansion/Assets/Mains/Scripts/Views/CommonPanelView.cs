@@ -163,7 +163,9 @@ namespace Mains.Views
                             var ghostExitMembersCount = ghostAllMembersCount - ghostAllMembersUpdCount;
                             missionText.text = 共通UIのテンプレート.missionText.Replace("${ghostAllMembersCount}", $"{ghostAllMembersCount}")
                                 .Replace("${ghostExitMembersCount}", $"{ghostExitMembersCount}");
-                            CheckMissionStatusAndDirectionClear(ghostAllMembersUpdCount, gameSceneNameBack, stageClearPanel, stageClearText, player, fadeImageView);
+                            CheckMissionStatusAndDirectionClear(ghostAllMembersUpdCount, gameSceneNameBack,
+                                stageClearPanel, stageClearText, player, fadeImageView,
+                                _commonPanelViewModel);
                         })
                         .AddTo(ref _disposableBag);
                 })
@@ -497,54 +499,62 @@ namespace Mains.Views
         /// <param name="stageClearText">STAGE CLEARのテキスト</param>
         /// <param name="player">ReInputのPlayer</param>
         /// <param name="fadeImageView">フェードイメージのビュー</param>
+        /// <param name="commonPanelViewModel">共通UIのビューモデル</param>
         private void CheckMissionStatusAndDirectionClear(int ghostAllMembersUpdCount, string gameSceneNameBack,
-            RectTransform stageClearPanel, TextMeshProUGUI stageClearText, Player player, FadeImageView fadeImageView)
+            RectTransform stageClearPanel, TextMeshProUGUI stageClearText, Player player, FadeImageView fadeImageView,
+            CommonPanelViewModel commonPanelViewModel)
         {
             if (ghostAllMembersUpdCount < 1)
             {
-                // 時間を停止
-                Time.timeScale = 0f;
-                player.controllers.maps.SetMapsEnabled(false, "Default"); // ゲーム操作を無効化
-
-                // TextMeshProを取得して、クリア演出の様なDOTweenアニメーションをつける。完了を通知する。
-                stageClearPanel.gameObject.SetActive(true);
-                stageClearText.transform.localScale = Vector3.zero;
-                stageClearText.DOFade(0f, 0f);
-                DOTween.Sequence()
-                    .Append(stageClearText.DOFade(1f, 0.5f))
-                    .Join(stageClearText.transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack))
-                    .SetUpdate(true)
-                    .OnComplete(() =>
+                commonPanelViewModel.IsCompletedStageClearDirection.Where(x => x)
+                    .Take(1)
+                    .Subscribe(_ =>
                     {
-                        // 必要ならここでさらに次の処理を繋ぐ
-                        player.controllers.maps.SetMapsEnabled(true, "CategoryUI");       // UI操作だけ有効化
-                        Observable.EveryUpdate()
-                            .Select(_ => player.GetButtonDown("Submit"))
-                            .DistinctUntilChanged()
-                            .Where(x => x)
-                            .Take(1)
-                            .Subscribe(_ =>
+                        // 時間を停止
+                        Time.timeScale = 0f;
+                        player.controllers.maps.SetMapsEnabled(false, "Default"); // ゲーム操作を無効化
+
+                        // TextMeshProを取得して、クリア演出の様なDOTweenアニメーションをつける。完了を通知する。
+                        stageClearPanel.gameObject.SetActive(true);
+                        stageClearText.transform.localScale = Vector3.zero;
+                        stageClearText.DOFade(0f, 0f);
+                        DOTween.Sequence()
+                            .Append(stageClearText.DOFade(1f, 0.5f))
+                            .Join(stageClearText.transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack))
+                            .SetUpdate(true)
+                            .OnComplete(() =>
                             {
-                                player.controllers.maps.SetMapsEnabled(false, "CategoryUI");
-                                Observable.Create<bool>(observer =>
-                                {
-                                    StartCoroutine(fadeImageView.PlayFadeInDirection(observer));
-                                    return Disposable.Empty;
-                                })
+                                // 必要ならここでさらに次の処理を繋ぐ
+                                player.controllers.maps.SetMapsEnabled(true, "CategoryUI");       // UI操作だけ有効化
+                                Observable.EveryUpdate()
+                                    .Select(_ => player.GetButtonDown("Submit"))
+                                    .DistinctUntilChanged()
+                                    .Where(x => x)
+                                    .Take(1)
                                     .Subscribe(_ =>
                                     {
+                                        player.controllers.maps.SetMapsEnabled(false, "CategoryUI");
                                         Observable.Create<bool>(observer =>
                                         {
-                                            StartCoroutine(LoadSceneCoroutine(observer, gameSceneNameBack));
+                                            StartCoroutine(fadeImageView.PlayFadeInDirection(observer));
                                             return Disposable.Empty;
                                         })
-                                            .Subscribe(_ => { })
+                                            .Subscribe(_ =>
+                                            {
+                                                Observable.Create<bool>(observer =>
+                                                {
+                                                    StartCoroutine(LoadSceneCoroutine(observer, gameSceneNameBack));
+                                                    return Disposable.Empty;
+                                                })
+                                                    .Subscribe(_ => { })
+                                                    .AddTo(ref _disposableBag);
+                                            })
                                             .AddTo(ref _disposableBag);
                                     })
                                     .AddTo(ref _disposableBag);
-                            })
-                            .AddTo(ref _disposableBag);
-                    });
+                            });
+                    })
+                    .AddTo(ref _disposableBag);
             }
         }
 

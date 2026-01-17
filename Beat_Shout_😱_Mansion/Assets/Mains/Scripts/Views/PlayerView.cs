@@ -303,8 +303,9 @@ namespace Mains.Views
                     System.IDisposable observableIsFailedDisposable = null;
                     System.IDisposable observableTargetCrossPositionDisposable = null;
                     System.IDisposable volumeLevelReactiveDisposable = null;
+                    System.IDisposable interactionPartDisposable = null;
                     Camera mainCamera = null;
-                    x.Pairwise()
+                    interactionPartDisposable = x.Pairwise()
                         .Subscribe(part =>
                         {
                             // None⇒探索（1. 探索、シャウト用の操作）
@@ -546,6 +547,13 @@ namespace Mains.Views
                                     switch (part.Current)
                                     {
                                         case InteractionPart.Search:
+                                            // ここだけクリア状態を直接参照しないと修正が困難なため
+                                            if (_playerViewModel.IsMissionClear)
+                                            {
+                                                // クリアなら後続処理は中断
+                                                return;
+                                            }
+
                                             var localPosition = originHeadTransLocalPosition;
                                             headTrans.localPosition = localPosition;
                                             if (followPlayerCameraView != null)
@@ -600,8 +608,16 @@ namespace Mains.Views
                                     break;
                             }
                         })
-                    .AddTo(ref _disposableBag);
-
+                        .AddTo(ref _disposableBag);
+                    // クリア時には購読停止
+                    _playerViewModel.IsMissionClearReactive.Where(x => x)
+                        .Take(1)
+                        .Subscribe(_ =>
+                        {
+                            interactionPartDisposable?.Dispose();
+                            observablePlayerControllerDisposable?.Dispose();
+                        })
+                        .AddTo(ref _disposableBag);
                     // 自力でExecute
                     x.Value = InteractionPart.None;
                     x.Value = InteractionPart.Search;

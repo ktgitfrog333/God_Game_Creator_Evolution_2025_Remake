@@ -11,7 +11,7 @@ namespace Mains.ViewModels
     /// 共通UIのビューモデル
     /// </summary>
 
-    public class CommonPanelViewModel
+    public class CommonPanelViewModel : ICommonPanelModel1
     {
         /// <summary>プレイヤーのモデル</summary>
         private PlayerModel _playerModel;
@@ -39,6 +39,10 @@ namespace Mains.ViewModels
         private ReactiveCommand<bool> _isStopHorrorCountMore = new ReactiveCommand<bool>();
         /// <summary>恐怖値のカウントを停止中かのフラグ拡張版</summary>
         public ReactiveCommand<bool> IsStopHorrorCountMore => _isStopHorrorCountMore;
+        /// <summary>ステージクリア演出完了フラグ</summary>
+        private ReactiveCommand<bool> _isCompletedStageClearDirection = new ReactiveCommand<bool>();
+        /// <summary>ステージクリア演出完了フラグ</summary>
+        public ReactiveCommand<bool> IsCompletedStageClearDirection => _isCompletedStageClearDirection;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -56,6 +60,11 @@ namespace Mains.ViewModels
             }
             if (_playerModel.InteractionPartTable == null)
                 _playerModel.InteractionPartTable = interactionPartTable;
+            _playerModel.IsCompletedStageClearDirection.Subscribe(x =>
+            {
+                _isCompletedStageClearDirection.Execute(x);
+            })
+                .AddTo(ref _disposableBag);
             bool isStopOfRhythm = false;
             // ブレイブシャウト成功中は点滅させる
             Observable.EveryUpdate()
@@ -104,6 +113,12 @@ namespace Mains.ViewModels
                         .AddTo(ref _disposableBag);
                 })
                 .AddTo(ref _disposableBag);
+        }
+
+        public void SetIsMissionClear(bool isMissionClear)
+        {
+            if (_playerModel != null)
+                _playerModel.SetIsMissionClear(isMissionClear);
         }
     }
 }

@@ -49,6 +49,10 @@ namespace Mains.ViewModels
         private ReactiveCommand<bool> _isCompletedDirection = new ReactiveCommand<bool>();
         /// <summary>リズムパートでミスした時にハートが減少する演出完了フラグ
         public ReactiveCommand<bool> IsCompletedDirection => _isCompletedDirection;
+        /// <summary>ミッションクリアフラグ</summary>
+        private ReactiveCommand<bool> _isMissionClear = new ReactiveCommand<bool>();
+        /// <summary>ミッションクリアフラグ</summary>
+        public ReactiveCommand<bool> IsMissionClear => _isMissionClear;
 
         public PoltergeistViewModel(PoltergeistTable poltergeistTable)
         {
@@ -68,6 +72,11 @@ namespace Mains.ViewModels
                     _playerModel.IsBadEndRhythmPart.Subscribe(isBadEnd =>
                     {
                         _isBadEndRhythmPart.Execute(isBadEnd);
+                    })
+                        .AddTo(ref _disposableBag);
+                    _playerModel.IsMissionClear.Subscribe(isMissionClear =>
+                    {
+                        _isMissionClear.Execute(isMissionClear);
                     })
                         .AddTo(ref _disposableBag);
                 })
@@ -118,6 +127,12 @@ namespace Mains.ViewModels
         public void Dispose()
         {
             _disposableBag.Dispose();
+        }
+
+        public void SetIsMissionClear(bool isMissionClear)
+        {
+            if (_playerModel != null)
+                _playerModel.SetIsMissionClear(isMissionClear);
         }
     }
 }

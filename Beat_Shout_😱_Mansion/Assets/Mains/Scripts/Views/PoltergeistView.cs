@@ -265,15 +265,8 @@ namespace Mains.Views
         {
             _script_XyloApi.ChangeBgmB();
             List<System.IDisposable> disposables = new List<System.IDisposable>();
-            //// リズムパート完了フラグ
-            ////  [0]: 未完了
-            ////  [1]: 成功
-            ////  [2]: 失敗中断
-            //ReactiveCommand<int> isCompletedRhythmPart = new ReactiveCommand<int>();
-            //// リズムパートでミスした時にハートが減少する演出完了フラグ
-            //ReactiveCommand<bool> isCompletedDirection = new ReactiveCommand<bool>();
             disposables.Add(
-                /*isCompletedRhythmPart*/_poltergeistViewModel.IsCompletedDirection.Where(x => x)
+                _poltergeistViewModel.IsCompletedDirection.Where(x => x)
                     .Take(1)
                     .Subscribe(_ =>
                     {
@@ -299,6 +292,22 @@ namespace Mains.Views
                                 {
                                     _motorView?.DoStopFloaterAnimation();
                                     ResetMovePosition(_initialPosition, _initialEulerAngles, _noTriggerColliders, _rigidbody);
+                                })
+                            );
+                        }
+                        else if(cnt < 1 && 0 < healthPoint)
+                        {
+                            completionObservables.Add(
+                                Observable.Create<bool>(observer =>
+                                {
+                                    StartCoroutine(_fadeImageView.PlayFadeInDirection(observer));
+                                    return Disposable.Empty;
+                                })
+                                .Do(_ =>
+                                {
+                                    _motorView?.DoStopFloaterAnimation();
+                                    ResetMovePosition(_initialPosition, _initialEulerAngles, _noTriggerColliders, _rigidbody);
+                                    _poltergeistViewModel.SetIsMissionClear(true);
                                 })
                             );
                         }
@@ -386,7 +395,6 @@ namespace Mains.Views
                     .Where(x => x == 3)
                     .Subscribe(_ =>
                     {
-                        //isCompletedRhythmPart.Execute(1);
                         _poltergeistViewModel.SetIsCompletedRhythmPart(1);
                     })
                     .AddTo(ref _disposableBag)
@@ -397,7 +405,6 @@ namespace Mains.Views
                     .Take(1)
                     .Subscribe(_ =>
                     {
-                        //isCompletedRhythmPart.Execute(1);
                         _poltergeistViewModel.SetIsCompletedRhythmPart(1);
                     })
                     .AddTo(ref _disposableBag)

@@ -13,7 +13,7 @@ namespace Mains.Models
     /// </summary>
     public class PlayerModel : MonoBehaviour, IPlayerModel, IPoltergeistModel, IRhythmPartPanelModel, IHomingObjectCustomizeModel,
         IMissGhostAttackCustomizeModel, IMissileDirectAnimManagerBCustomizeModel, ICommonPanelModel, IFadeImageModel,
-        IPlayerRespawnPositionModel, IHPDownDirectionModel
+        IPlayerRespawnPositionModel, IHPDownDirectionModel, ICommonPanelModel1, IStageClearDirectionModel
     {
         /// <summary>【探索／シャウトチャンス／リズム】パート情報管理テーブル</summary>
         public InteractionPartTable InteractionPartTable { get; set; }
@@ -102,6 +102,14 @@ namespace Mains.Models
         private ReactiveCommand<bool> _isBadEndRhythmPart = new ReactiveCommand<bool>();
         /// <summary>リズムパートが失敗で終了したか</summary>
         public ReactiveCommand<bool> IsBadEndRhythmPart => _isBadEndRhythmPart;
+        /// <summary>ミッションクリアフラグ</summary>
+        private ReactiveCommand<bool> _isMissionClear = new ReactiveCommand<bool>();
+        /// <summary>ミッションクリアフラグ</summary>
+        public ReactiveCommand<bool> IsMissionClear => _isMissionClear;
+        /// <summary>ステージクリア演出完了フラグ</summary>
+        private ReactiveCommand<bool> _isCompletedStageClearDirection = new ReactiveCommand<bool>();
+        /// <summary>ステージクリア演出完了フラグ</summary>
+        public ReactiveCommand<bool> IsCompletedStageClearDirection => _isCompletedStageClearDirection;
 
         private void Start()
         {
@@ -417,6 +425,16 @@ namespace Mains.Models
                 _isBadEndRhythmPart.Execute(isBadEndRhythmPart);
             }
         }
+
+        public void SetIsMissionClear(bool isMissionClear)
+        {
+            _isMissionClear.Execute(isMissionClear);
+        }
+
+        public void SetIsCompletedStageClearDirection(bool isCompletedStageClearDirection)
+        {
+            _isCompletedStageClearDirection.Execute(isCompletedStageClearDirection);
+        }
     }
 
     /// <summary>
@@ -519,6 +537,11 @@ namespace Mains.Models
         /// </summary>
         /// <param name="isCompletedRhythmPart">リズムパート完了フラグ</param>
         public void SetIsCompletedRhythmPart(int isCompletedRhythmPart);
+        /// <summary>
+        /// ミッションクリアフラグをセット
+        /// </summary>
+        /// <param name="isMissionClear">ミッションクリアフラグ</param>
+        public void SetIsMissionClear(bool isMissionClear);
     }
 
     /// <summary>
@@ -611,6 +634,7 @@ namespace Mains.Models
     /// <summary>
     /// 共通UIのモデルインターフェース
     /// </summary>
+    /// <remarks>セレクトシーン用</remarks>
     public interface ICommonPanelModel
     {
         /// <summary>
@@ -663,5 +687,30 @@ namespace Mains.Models
         /// プレイヤーのHPを減らす
         /// </summary>
         public void SubtractionHealthPoint();
+    }
+
+    /// <summary>
+    /// 共通UIのモデルインターフェース
+    /// </summary>
+    /// <remarks>メインシーン用</remarks>
+    public interface ICommonPanelModel1
+    {
+        /// <summary>
+        /// ミッションクリアフラグをセット
+        /// </summary>
+        /// <param name="isMissionClear">ミッションクリアフラグ</param>
+        public void SetIsMissionClear(bool isMissionClear);
+    }
+
+    /// <summary>
+    /// ステージクリア演出のモデルインターフェース
+    /// </summary>
+    public interface IStageClearDirectionModel
+    {
+        /// <summary>
+        /// ステージクリア演出完了フラグをセット
+        /// </summary>
+        /// <param name="isCompletedStageClearDirection">ステージクリア演出完了フラグ</param>
+        public void SetIsCompletedStageClearDirection(bool isCompletedStageClearDirection);
     }
 }

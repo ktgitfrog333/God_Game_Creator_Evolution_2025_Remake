@@ -56,6 +56,7 @@ GameObject:
   - component: {fileID: 1657831830642617336}
   - component: {fileID: 8936778921553788774}
   - component: {fileID: 7357745042597889842}
+  - component: {fileID: 5718912788462462682}
   m_Layer: 5
   m_Name: RhythmPartPanel
   m_TagString: Untagged
@@ -105,6 +106,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   centerPanel: {fileID: 4907286768330094902}
   "\u30DD\u30A4\u30F3\u30BF\u30FC\u79FB\u52D5\u8DDD\u96E2": 350
+--- !u!95 &5718912788462462682
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9022511652047306412}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: e12f347b36ba7794c96749130e0ab183, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1001 &2561542787291714564
 PrefabInstance:
   m_ObjectHideFlags: 0

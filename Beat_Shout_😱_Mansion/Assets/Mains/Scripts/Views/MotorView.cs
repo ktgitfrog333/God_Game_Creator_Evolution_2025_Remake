@@ -47,8 +47,6 @@ namespace Mains.Views
         [SerializeField] private GameObject objectsPoolViewPrefab;
         /// <summary>振動を開始する最長距離</summary>
         [SerializeField] private float maxDistance;
-        ///// <summary>アニメーションをループするか</summary>
-        //private bool _isLoopAnimation = false;
         /// <summary>シロさんのコンポーネントへアクセスするAPI</summary>
         private Script_xyloApi _script_XyloApi;
         /// <summary>浮かせるアニメーション処理の監視</summary>

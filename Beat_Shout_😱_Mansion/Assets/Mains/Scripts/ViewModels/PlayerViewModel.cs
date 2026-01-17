@@ -69,6 +69,14 @@ namespace Mains.ViewModels
         public ReactiveCommand<Transform> StartPointTrans => _startPointTrans;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
+        /// <summary>ミッションクリアフラグ</summary>
+        private bool _isMissionClear;
+        /// <summary>ミッションクリアフラグ</summary>
+        public bool IsMissionClear => _isMissionClear;
+        /// <summary>ミッションクリアフラグ</summary>
+        private ReactiveCommand<bool> _isMissionClearReactive = new ReactiveCommand<bool>();
+        /// <summary>ミッションクリアフラグ</summary>
+        public ReactiveCommand<bool> IsMissionClearReactive => _isMissionClearReactive;
 
         public PlayerViewModel(InteractionPartTable interactionPartTable)
         {
@@ -92,6 +100,11 @@ namespace Mains.ViewModels
             _playerModel.IsCompletedStartDirection.Subscribe(x =>
             {
                 _isCompletedStartDirection = x;
+            })
+                .AddTo(ref _disposableBag);
+            _playerModel.IsMissionClear.Subscribe(isMissionClear =>
+            {
+                _isMissionClearReactive.Execute(isMissionClear);
             })
                 .AddTo(ref _disposableBag);
         }
