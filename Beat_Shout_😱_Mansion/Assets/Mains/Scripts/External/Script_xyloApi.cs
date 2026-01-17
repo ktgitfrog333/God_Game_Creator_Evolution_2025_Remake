@@ -915,6 +915,7 @@ namespace Mains.External
             }
         }
 
+        /// <see cref="CRIWARE_conductor.InitializeWhenReady"/>
         public void ChangeBgmB()
         {
             var conductor = CRIWARE_conductor.Instance;
@@ -924,8 +925,13 @@ namespace Mains.External
                 bool isCompletedIntro = aisac.IsCompletedPlayStart;
                 if (!isCompletedIntro)
                 {
-                    // イントロ再生のInvokeをキャンセル（探索パートBGMの再生を防ぐ）
-                    conductor.CancelInvoke("DelayBGMLoopStart");
+                    /*
+                     * TODO: イントロを即時終了したいために呼び出している処理
+                     * この処理が呼ばれるタイミングでは、OnEnable->InitializeWhenReady->yield return new WaitForSecondsRealtime(introDelayTime); まで呼ばれている前提
+                     * 上記の後の、DelayBGMLoopStartを呼ばせたくはないので暫定的にコルーチンを止めている
+                     * 他の処理との不整合が生じた場合、方針を変更
+                     */
+                    conductor.StopAllCoroutines();
                     // TODO: デバッグを元にBGMのAのフレームの設定しているため、BPMが変わった場合は修正する
                     conductor.frameRate = 85f;
                     // イントロを停止

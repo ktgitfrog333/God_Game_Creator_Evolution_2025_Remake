@@ -1816,7 +1816,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ThisStageNumber: 0
-  NoIntroScene: 0
+  introDelayTime: 12.2
   atomSourceA: {fileID: 1184253449}
   atomSourceB: {fileID: 1184253448}
   atomSourceC: {fileID: 1184253448}
