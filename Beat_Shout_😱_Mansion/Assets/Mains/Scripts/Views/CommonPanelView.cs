@@ -40,6 +40,8 @@ namespace Mains.Views
         [SerializeField] private TextMeshProUGUI horrorGaugeSliderNumberText;
         /// <summary>恐怖ゲージスライダーのフィルとカラーの構造体</summary>
         [SerializeField] private HorrorGaugeSliderFillColorStruct[] horrorGaugeSliderFillColorStructs;
+        [Header("オバケ移動演出")]
+        [SerializeField] private RetryInfoSettings retryInfoSettings;
         [Header("その他オプション")]
         [Tooltip("CommonPanel > HeaderPanel > IconAndGuidePanel > GuideText をセット")]
         /// <summary>ミッションガイド概要のテキスト</summary>
@@ -117,6 +119,11 @@ namespace Mains.Views
                                 iconHeartSettings.iconHeartsPanel = item as RectTransform;
                         }
                     }
+                }
+                if (child.name.Equals("FooterMessagePanel"))
+                {
+                    if (retryInfoSettings.footerMessagePanelCanvasGroup == null)
+                        retryInfoSettings.footerMessagePanelCanvasGroup = child.GetComponent<CanvasGroup>();
                 }
             }
             if (stageClearPanel == null)
@@ -385,6 +392,27 @@ namespace Mains.Views
                 	heartBeatElapsedTime += Time.deltaTime;
                 })
                 	.AddTo(ref _disposableBag);
+            // オバケが逃げたことを知らせ、他の家具を探すよう促すメッセージUIを表示
+            var retrySet = retryInfoSettings;
+            retrySet.footerMessagePanelCanvasGroup.alpha = 0f;
+            Sequence retryInfoMessageDirectionSequence = null;
+            _commonPanelViewModel.IsCompletedMoveGhostDirection.Where(x => x)
+                .Subscribe(_ =>
+                {
+                    retryInfoMessageDirectionSequence = PlayRetryInfoMessageDirection(retrySet.footerMessagePanelCanvasGroup, retrySet.durations);
+                })
+                .AddTo(ref _disposableBag);
+            // リズムパートへ移行した際に実行中なら中断する（再び呼ばれることがあった場合は最初から再生）
+            _commonPanelViewModel.InteractionPart.Where(x => x.Equals(InteractionPart.Rhythm))
+                .Subscribe(_ =>
+                {
+                    if (retryInfoMessageDirectionSequence != null && retryInfoMessageDirectionSequence.IsActive())
+                    {
+                        retryInfoMessageDirectionSequence.Kill();
+                        retrySet.footerMessagePanelCanvasGroup.alpha = 0f;
+                    }
+                })
+                .AddTo(ref _disposableBag);
 
             _didStartAsObservable.OnNext(Unit.Default);
             _didStartAsObservable.OnCompleted();
@@ -790,6 +818,28 @@ namespace Mains.Views
                 yield return new WaitForSeconds(1f);
             }
         }
+
+        /// <summary>
+        /// 再度探索を促すメッセージ表示アニメーションを再生
+        /// </summary>
+        /// <param name="footerMessagePanelCanvasGroup">画面下部メッセージパネルのキャンバスグループ</param>
+        /// <param name="durations">アニメーション終了時間</param>
+        /// <returns>シークエンス</returns>
+        private Sequence PlayRetryInfoMessageDirection(CanvasGroup footerMessagePanelCanvasGroup, float[] durations)
+        {
+            if (footerMessagePanelCanvasGroup == null)
+                return null;
+
+            footerMessagePanelCanvasGroup.DOKill();
+            footerMessagePanelCanvasGroup.alpha = 0f;
+
+            var sequence = DOTween.Sequence()
+                .Append(footerMessagePanelCanvasGroup.DOFade(1f, durations[0]));
+            sequence.AppendInterval(durations[1]);
+            sequence.Append(footerMessagePanelCanvasGroup.DOFade(0f, durations[2]));
+
+            return sequence;
+        }
     }
 
     /// <summary>
@@ -808,5 +858,21 @@ namespace Mains.Views
         public float iconHeartDuration;
         /// <summary>ハートアイコン消失星のパーティクル</summary>
         public ParticleSystem iconHeartLoststarPerticleSys;
+    }
+
+    /// <summary>
+    /// オバケ移動演出の設定
+    /// </summary>
+    [System.Serializable]
+    public class RetryInfoSettings
+    {
+        /// <summary>
+        /// 画面下部メッセージパネルのキャンバスグループ
+        /// </summary>
+        public CanvasGroup footerMessagePanelCanvasGroup;
+        /// <summary>
+        /// アニメーション終了時間
+        /// </summary>
+        public float[] durations;
     }
 }

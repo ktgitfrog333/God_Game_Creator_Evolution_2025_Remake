@@ -24,13 +24,9 @@ namespace Mains.ViewModels
             }
         }
         /// <summary>【探索／シャウトチャンス／リズム】パート</summary>
-        public ReactiveProperty<InteractionPart> InteractionPart
-        {
-            get
-            {
-                return _playerModel?.InteractionPartTable?.interactionPart ?? null;
-            }
-        }
+        private ReactiveCommand<InteractionPart> _interactionPart = new ReactiveCommand<InteractionPart>();
+        /// <summary>【探索／シャウトチャンス／リズム】パート</summary>
+        public ReactiveCommand<InteractionPart> InteractionPart => _interactionPart;
         /// <summary>オバケの家具入居管理の構造体リスト</summary>
         public ObservableList<GhostInStaticObjectStruct> GhostInStaticObjectStructs => _playerModel?.GhostInStaticObjectStructs ?? null;
         /// <summary>プレイヤーのトランスフォーム</summary>
@@ -53,6 +49,14 @@ namespace Mains.ViewModels
         private ReactiveCommand<bool> _isMissionClear = new ReactiveCommand<bool>();
         /// <summary>ミッションクリアフラグ</summary>
         public ReactiveCommand<bool> IsMissionClear => _isMissionClear;
+        /// <summary>家具とプレイヤーがお互い向き合っている状態フラグ</summary>
+        private ReactiveCommand<bool> _isPostRhythmFaceOff = new ReactiveCommand<bool>();
+        /// <summary>家具とプレイヤーがお互い向き合っている状態フラグ</summary>
+        public ReactiveCommand<bool> IsPostRhythmFaceOff => _isPostRhythmFaceOff;
+        /// <summary>オバケ移動演出の対象</summary>
+        private bool _isMoveGhostDirectionTarget;
+        /// <summary>オバケ移動演出の対象</summary>
+        public bool IsMoveGhostDirectionTarget => _isMoveGhostDirectionTarget;
 
         public PoltergeistViewModel(PoltergeistTable poltergeistTable)
         {
@@ -78,6 +82,24 @@ namespace Mains.ViewModels
                     {
                         _isMissionClear.Execute(isMissionClear);
                     })
+                        .AddTo(ref _disposableBag);
+                    _playerModel.IsPostRhythmFaceOff.Subscribe(isPostRhythmFaceOff =>
+                    {
+                        _isPostRhythmFaceOff.Execute(isPostRhythmFaceOff);
+                    })
+                        .AddTo(ref _disposableBag);
+                    Observable.EveryUpdate()
+                        .Select(_ => _playerModel.InteractionPartTable)
+                        .Where(x => x != null)
+                        .Take(1)
+                        .Subscribe(table =>
+                        {
+                            table.interactionPart.Subscribe(interactionPart =>
+                            {
+                                _interactionPart.Execute(interactionPart);
+                            })
+                            .AddTo(ref _disposableBag);
+                        })
                         .AddTo(ref _disposableBag);
                 })
                 .AddTo(ref _disposableBag);
@@ -124,15 +146,36 @@ namespace Mains.ViewModels
                 _playerModel.SetIsCompletedRhythmPart(isCompletedRhythmPart);
         }
 
-        public void Dispose()
-        {
-            _disposableBag.Dispose();
-        }
-
         public void SetIsMissionClear(bool isMissionClear)
         {
             if (_playerModel != null)
                 _playerModel.SetIsMissionClear(isMissionClear);
+        }
+
+        public void SetTargetGhost(Transform targetGhost)
+        {
+            if (_playerModel != null)
+                _playerModel.SetTargetGhost(targetGhost);
+        }
+
+        public void SetIsCompletedMoveGhostDirection(bool isCompletedMoveGhostDirection)
+        {
+            if (_playerModel != null)
+                _playerModel.SetIsCompletedMoveGhostDirection(isCompletedMoveGhostDirection);
+        }
+
+        /// <summary>
+        /// オバケ移動演出の対象をセット
+        /// </summary>
+        /// <param name="isMoveGhostDirectionTarget">オバケ移動演出の対象</param>
+        public void SetIsMoveGhostDirectionTarget(bool isMoveGhostDirectionTarget)
+        {
+            _isMoveGhostDirectionTarget = isMoveGhostDirectionTarget;
+        }
+
+        public void Dispose()
+        {
+            _disposableBag.Dispose();
         }
     }
 }

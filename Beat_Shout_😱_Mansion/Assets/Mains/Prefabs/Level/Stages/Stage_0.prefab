@@ -88,6 +88,68 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d26f5a0c71543a14e906260314f8208d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &383073605457217236
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4370158121953643418}
+  m_Layer: 8
+  m_Name: MissGhostEscapePosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4370158121953643418
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 383073605457217236}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6068615339121851484}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &449240342036747648
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6333758281784058540}
+  m_Layer: 8
+  m_Name: MissGhostEscapePosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6333758281784058540
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 449240342036747648}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.689874, z: -0, w: 0.72392946}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3213802122081158468}
+  m_LocalEulerAnglesHint: {x: 0, y: -87.24, z: 0}
 --- !u!1 &576998968469962543
 GameObject:
   m_ObjectHideFlags: 0
@@ -221,6 +283,7 @@ Transform:
   - {fileID: 3705282116725004629}
   - {fileID: 896710900668620183}
   - {fileID: 2853749143666432092}
+  - {fileID: 4898767628489382954}
   m_Father: {fileID: 3823388366183589524}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!114 &8729294742210513559
@@ -236,14 +299,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
-  motorPrefab: {fileID: 1215156780124661367, guid: 3bfc5e33bb3d71e458ffa2b473959872, type: 3}
-  shoutChanceRangePrefab: {fileID: 6264907657960383743, guid: ac893ebf0ca26e44ab98cda6abf7e9f4, type: 3}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 1
     membersCount: 8
-  ghostBurstsPrefab: {fileID: 115835426956401962, guid: 1cd222a032c831547b213c40ba8738bd, type: 3}
-  missileTempoSpawnerPrefab: {fileID: 401138369664789558, guid: b884b75fd024dbe4884d96e9b68ae9ae, type: 3}
 --- !u!65 &7673304197979665193
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -678,6 +737,7 @@ Transform:
   - {fileID: 6992881583936414194}
   - {fileID: 7872239154418770995}
   - {fileID: 1141811332955547173}
+  - {fileID: 1018491720245083031}
   m_Father: {fileID: 3823388366183589524}
   m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
 --- !u!114 &982995311771420208
@@ -693,14 +753,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
-  motorPrefab: {fileID: 1215156780124661367, guid: 3bfc5e33bb3d71e458ffa2b473959872, type: 3}
-  shoutChanceRangePrefab: {fileID: 6264907657960383743, guid: ac893ebf0ca26e44ab98cda6abf7e9f4, type: 3}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 1
     membersCount: 24
-  ghostBurstsPrefab: {fileID: 115835426956401962, guid: 1cd222a032c831547b213c40ba8738bd, type: 3}
-  missileTempoSpawnerPrefab: {fileID: 401138369664789558, guid: b884b75fd024dbe4884d96e9b68ae9ae, type: 3}
 --- !u!65 &6702452894917887865
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -800,6 +856,7 @@ Transform:
   - {fileID: 2897405339629459384}
   - {fileID: 1650471156314171472}
   - {fileID: 5090520805185464703}
+  - {fileID: 4370158121953643418}
   m_Father: {fileID: 3823388366183589524}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!114 &8101728679405724178
@@ -815,14 +872,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
-  motorPrefab: {fileID: 1215156780124661367, guid: 3bfc5e33bb3d71e458ffa2b473959872, type: 3}
-  shoutChanceRangePrefab: {fileID: 6264907657960383743, guid: ac893ebf0ca26e44ab98cda6abf7e9f4, type: 3}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
-  ghostBurstsPrefab: {fileID: 115835426956401962, guid: 1cd222a032c831547b213c40ba8738bd, type: 3}
-  missileTempoSpawnerPrefab: {fileID: 401138369664789558, guid: b884b75fd024dbe4884d96e9b68ae9ae, type: 3}
 --- !u!65 &3915036318816596096
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1007,6 +1060,37 @@ Transform:
   - {fileID: 9033387254242481369}
   m_Father: {fileID: 7887184534858031849}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1772959656070319087
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 186479493894596832}
+  m_Layer: 8
+  m_Name: MissGhostEscapePosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &186479493894596832
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1772959656070319087}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.9529273, z: -0, w: 0.30319896}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6225458939571817860}
+  m_LocalEulerAnglesHint: {x: 0, y: 144.7, z: 0}
 --- !u!1 &1959117747431545589
 GameObject:
   m_ObjectHideFlags: 0
@@ -1073,6 +1157,7 @@ Transform:
   - {fileID: 8048771388115659200}
   - {fileID: 2180499900866808309}
   - {fileID: 5551718228749607862}
+  - {fileID: 6258181198735591671}
   m_Father: {fileID: 3823388366183589524}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3590892553263762978
@@ -1088,14 +1173,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
-  motorPrefab: {fileID: 1215156780124661367, guid: 3bfc5e33bb3d71e458ffa2b473959872, type: 3}
-  shoutChanceRangePrefab: {fileID: 6264907657960383743, guid: ac893ebf0ca26e44ab98cda6abf7e9f4, type: 3}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
-  ghostBurstsPrefab: {fileID: 115835426956401962, guid: 1cd222a032c831547b213c40ba8738bd, type: 3}
-  missileTempoSpawnerPrefab: {fileID: 401138369664789558, guid: b884b75fd024dbe4884d96e9b68ae9ae, type: 3}
 --- !u!65 &1286385156872835775
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1382,6 +1463,99 @@ LightProbeGroup:
   - {x: 5.3682976, y: -0.25925922, z: 1.0842514}
   - {x: 3.2735205, y: -0.25925922, z: 1.0842514}
   m_Dering: 1
+--- !u!1 &2990092197938680733
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 535492124244698239}
+  m_Layer: 8
+  m_Name: MissGhostEscapePosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &535492124244698239
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2990092197938680733}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8714167795023307721}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3150238416923986550
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3605270122731591729}
+  m_Layer: 8
+  m_Name: MissGhostEscapePosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3605270122731591729
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3150238416923986550}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -0.271}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 505705157166651700}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3221363279019565967
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4898767628489382954}
+  m_Layer: 8
+  m_Name: MissGhostEscapePosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4898767628489382954
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3221363279019565967}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6726638905911967064}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3423272743599114054
 GameObject:
   m_ObjectHideFlags: 0
@@ -1525,6 +1699,7 @@ Transform:
   - {fileID: 4229609942354924376}
   - {fileID: 3378416571855281387}
   - {fileID: 6595335838919473071}
+  - {fileID: 7667588443330201124}
   m_Father: {fileID: 3823388366183589524}
   m_LocalEulerAnglesHint: {x: 0, y: 300, z: 0}
 --- !u!114 &7283365942003946895
@@ -1540,14 +1715,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
-  motorPrefab: {fileID: 1215156780124661367, guid: 3bfc5e33bb3d71e458ffa2b473959872, type: 3}
-  shoutChanceRangePrefab: {fileID: 6264907657960383743, guid: ac893ebf0ca26e44ab98cda6abf7e9f4, type: 3}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
-  ghostBurstsPrefab: {fileID: 115835426956401962, guid: 1cd222a032c831547b213c40ba8738bd, type: 3}
-  missileTempoSpawnerPrefab: {fileID: 401138369664789558, guid: b884b75fd024dbe4884d96e9b68ae9ae, type: 3}
 --- !u!65 &8571438513946665808
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1635,6 +1806,7 @@ Transform:
   - {fileID: 7946643699336367377}
   - {fileID: 6145096469017955479}
   - {fileID: 5946383071846497065}
+  - {fileID: 6333758281784058540}
   m_Father: {fileID: 3823388366183589524}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!114 &3573571631651236571
@@ -1650,14 +1822,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
-  motorPrefab: {fileID: 1215156780124661367, guid: 3bfc5e33bb3d71e458ffa2b473959872, type: 3}
-  shoutChanceRangePrefab: {fileID: 6264907657960383743, guid: ac893ebf0ca26e44ab98cda6abf7e9f4, type: 3}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
-  ghostBurstsPrefab: {fileID: 115835426956401962, guid: 1cd222a032c831547b213c40ba8738bd, type: 3}
-  missileTempoSpawnerPrefab: {fileID: 401138369664789558, guid: b884b75fd024dbe4884d96e9b68ae9ae, type: 3}
 --- !u!65 &4775169224917554037
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2136,6 +2304,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d26f5a0c71543a14e906260314f8208d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &4767566185066487239
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7667588443330201124}
+  m_Layer: 8
+  m_Name: MissGhostEscapePosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7667588443330201124
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4767566185066487239}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1557029727833582664}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4769509542913939361
 GameObject:
   m_ObjectHideFlags: 0
@@ -2312,6 +2511,37 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.5701773, y: 0.5204797, z: 0.77249366}
   m_Center: {x: 0, y: -0.042812362, z: 0}
+--- !u!1 &5153074229186203477
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1055110068406480260}
+  m_Layer: 8
+  m_Name: MissGhostEscapePosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1055110068406480260
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5153074229186203477}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.9391115, z: -0, w: 0.3436126}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 812102602686786212}
+  m_LocalEulerAnglesHint: {x: 0, y: 139.806, z: 0}
 --- !u!1 &5292830113190636784
 GameObject:
   m_ObjectHideFlags: 0
@@ -2382,6 +2612,7 @@ Transform:
   - {fileID: 1095256945402444814}
   - {fileID: 3581854618152340894}
   - {fileID: 18439911284928831}
+  - {fileID: 1055110068406480260}
   m_Father: {fileID: 3823388366183589524}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!114 &2858858894429438748
@@ -2397,14 +2628,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
-  motorPrefab: {fileID: 1215156780124661367, guid: 3bfc5e33bb3d71e458ffa2b473959872, type: 3}
-  shoutChanceRangePrefab: {fileID: 6264907657960383743, guid: ac893ebf0ca26e44ab98cda6abf7e9f4, type: 3}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
-  ghostBurstsPrefab: {fileID: 115835426956401962, guid: 1cd222a032c831547b213c40ba8738bd, type: 3}
-  missileTempoSpawnerPrefab: {fileID: 401138369664789558, guid: b884b75fd024dbe4884d96e9b68ae9ae, type: 3}
 --- !u!65 &2581122242580657685
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2696,6 +2923,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 7859587329759112400}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &6459554946351726295
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6258181198735591671}
+  m_Layer: 8
+  m_Name: MissGhostEscapePosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6258181198735591671
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6459554946351726295}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.92867666, z: -0, w: 0.37089047}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5635424903813400889}
+  m_LocalEulerAnglesHint: {x: 0, y: -136.459, z: 0}
 --- !u!1 &6615452256792672868
 GameObject:
   m_ObjectHideFlags: 0
@@ -2871,6 +3129,7 @@ Transform:
   - {fileID: 4598324297336825100}
   - {fileID: 639114424481761440}
   - {fileID: 7082147445901219545}
+  - {fileID: 186479493894596832}
   m_Father: {fileID: 3823388366183589524}
   m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
 --- !u!114 &1347313810891159227
@@ -2886,14 +3145,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
-  motorPrefab: {fileID: 1215156780124661367, guid: 3bfc5e33bb3d71e458ffa2b473959872, type: 3}
-  shoutChanceRangePrefab: {fileID: 6264907657960383743, guid: ac893ebf0ca26e44ab98cda6abf7e9f4, type: 3}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
-  ghostBurstsPrefab: {fileID: 115835426956401962, guid: 1cd222a032c831547b213c40ba8738bd, type: 3}
-  missileTempoSpawnerPrefab: {fileID: 401138369664789558, guid: b884b75fd024dbe4884d96e9b68ae9ae, type: 3}
 --- !u!65 &3968647818122402338
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3071,6 +3326,7 @@ Transform:
   - {fileID: 4919511385997901657}
   - {fileID: 8949513601967655146}
   - {fileID: 7839997922425206748}
+  - {fileID: 6135842379185025025}
   m_Father: {fileID: 3823388366183589524}
   m_LocalEulerAnglesHint: {x: 0, y: 300, z: 0}
 --- !u!114 &4223303807531861594
@@ -3086,14 +3342,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
-  motorPrefab: {fileID: 1215156780124661367, guid: 3bfc5e33bb3d71e458ffa2b473959872, type: 3}
-  shoutChanceRangePrefab: {fileID: 6264907657960383743, guid: ac893ebf0ca26e44ab98cda6abf7e9f4, type: 3}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
-  ghostBurstsPrefab: {fileID: 115835426956401962, guid: 1cd222a032c831547b213c40ba8738bd, type: 3}
-  missileTempoSpawnerPrefab: {fileID: 401138369664789558, guid: b884b75fd024dbe4884d96e9b68ae9ae, type: 3}
 --- !u!65 &4362323841318459278
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3150,6 +3402,7 @@ Transform:
   - {fileID: 7188551934917211522}
   - {fileID: 242551851541566210}
   - {fileID: 204839675773803993}
+  - {fileID: 3605270122731591729}
   m_Father: {fileID: 3823388366183589524}
   m_LocalEulerAnglesHint: {x: 0, y: 45, z: 0}
 --- !u!114 &225146180570560826
@@ -3165,14 +3418,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
-  motorPrefab: {fileID: 1215156780124661367, guid: 3bfc5e33bb3d71e458ffa2b473959872, type: 3}
-  shoutChanceRangePrefab: {fileID: 6264907657960383743, guid: ac893ebf0ca26e44ab98cda6abf7e9f4, type: 3}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
-  ghostBurstsPrefab: {fileID: 115835426956401962, guid: 1cd222a032c831547b213c40ba8738bd, type: 3}
-  missileTempoSpawnerPrefab: {fileID: 401138369664789558, guid: b884b75fd024dbe4884d96e9b68ae9ae, type: 3}
 --- !u!65 &132381843107573858
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3230,6 +3479,7 @@ Transform:
   - {fileID: 4322860228700282025}
   - {fileID: 42855410254806515}
   - {fileID: 7272379580753648855}
+  - {fileID: 535492124244698239}
   m_Father: {fileID: 3823388366183589524}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &9107902923669823659
@@ -3245,14 +3495,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
-  motorPrefab: {fileID: 1215156780124661367, guid: 3bfc5e33bb3d71e458ffa2b473959872, type: 3}
-  shoutChanceRangePrefab: {fileID: 6264907657960383743, guid: ac893ebf0ca26e44ab98cda6abf7e9f4, type: 3}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 1
     membersCount: 8
-  ghostBurstsPrefab: {fileID: 115835426956401962, guid: 1cd222a032c831547b213c40ba8738bd, type: 3}
-  missileTempoSpawnerPrefab: {fileID: 401138369664789558, guid: b884b75fd024dbe4884d96e9b68ae9ae, type: 3}
 --- !u!65 &143822065246884789
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3274,6 +3520,68 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.550703, y: 1.7529069, z: 0.7915009}
   m_Center: {x: 0, y: 0.20582551, z: 0.06157592}
+--- !u!1 &7270184563111929818
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6135842379185025025}
+  m_Layer: 8
+  m_Name: MissGhostEscapePosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6135842379185025025
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7270184563111929818}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4739188290729163784}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7285891506782156904
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1018491720245083031}
+  m_Layer: 8
+  m_Name: MissGhostEscapePosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1018491720245083031
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7285891506782156904}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.9798299, z: -0, w: 0.19983354}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7859587329759112400}
+  m_LocalEulerAnglesHint: {x: 0, y: -156.946, z: 0}
 --- !u!1 &7293194131143490692
 GameObject:
   m_ObjectHideFlags: 0

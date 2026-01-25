@@ -290,6 +290,13 @@ namespace Mains.Views
             _script_XyloApi.InitVolumeLevelReactive();
             // 恐怖値のカウントを停止する
             bool isStopHorrorCount = false;
+            // 視界ジャック用ゴースト
+            Transform targetGhost = null;
+            _playerViewModel.TargetGhost.Subscribe(x =>
+            {
+                targetGhost = x;
+            })
+                .AddTo(ref _disposableBag);
             Observable.EveryUpdate()
                 .Select(_ => _playerViewModel.InteractionPart)
                 .Where(x => x != null)
@@ -400,16 +407,7 @@ namespace Mains.Views
                                             }
                                         }
                                         // 視点移動入力
-                                        float aimX = player.GetAxis("AimMoveHorizontal");
-                                        float aimY = player.GetAxis("AimMoveVertical");
-                                        // 視点変更 (角度を直接加算)
-                                        currentYaw += aimX * 視点速度補正 * Time.deltaTime;
-                                        currentPitch -= aimY * 視点速度補正 * Time.deltaTime;
-
-                                        // ピッチ角度を制限 (-90度～90度)
-                                        // TODO: 外的要因（シャウト成功による自動移動等）で取得角度がエッジケースに該当することがある
-                                        //       currentPitchが0⇒359.3694⇒90（※Mathf.Clampの補間）⇒唐突にプレイヤーが土下座する
-                                        currentPitch = Mathf.Clamp(currentPitch, -90f, 90f);
+                                        AjustHeadEulerAnglesXY(targetGhost, headTrans, player, ref currentYaw, ref currentPitch, 視点速度補正);
 
                                         // 回転を適用
                                         headTrans.rotation = Quaternion.Euler(currentPitch, currentYaw, 0f);
@@ -567,7 +565,11 @@ namespace Mains.Views
                                                     StartCoroutine(_fadeImageView.PlayFadeOutDirection(observer, default, false));
                                                     return Disposable.Empty;
                                                 })
-                                                    .Subscribe(_ => { })
+                                                    .Take(1)
+                                                    .Subscribe(_ =>
+                                                    {
+                                                        _playerViewModel.SetIsPostRhythmFaceOff(true);
+                                                    })
                                                     .AddTo(ref _disposableBag);
                                                 player.controllers.maps.SetMapsEnabled(true, "Default");
                                             }
@@ -582,7 +584,11 @@ namespace Mains.Views
                                                             StartCoroutine(_fadeImageView.PlayFadeOutDirection(observer, default, false));
                                                             return Disposable.Empty;
                                                         })
-                                                            .Subscribe(_ => { })
+                                                            .Take(1)
+                                                            .Subscribe(_ =>
+                                                            {
+                                                                _playerViewModel.SetIsPostRhythmFaceOff(true);
+                                                            })
                                                             .AddTo(ref _disposableBag);
                                                         player.controllers.maps.SetMapsEnabled(true, "Default");
                                                     })
@@ -929,6 +935,43 @@ namespace Mains.Views
             observer.OnCompleted();
 
             yield return null;
+        }
+
+        /// <summary>
+        /// 頭の角度XYを調整
+        /// </summary>
+        /// <param name="targetGhost">視界ジャック用ゴースト</param>
+        /// <param name="headTrans">カメラ視線用のトランスフォーム</param>
+        /// <param name="player">Rewiredのプレイヤー</param>
+        /// <param name="currentYaw">視点</param>
+        /// <param name="currentPitch">ピッチ</param>
+        /// <param name="aimSensitivity">視点速度補正</param>
+        private void AjustHeadEulerAnglesXY(Transform targetGhost, Transform headTrans, Player player, ref float currentYaw, ref float currentPitch, float aimSensitivity)
+        {
+            if (targetGhost != null)
+            {
+                Vector3 lookDir = targetGhost.position - headTrans.position;
+                if (lookDir.sqrMagnitude > 0.001f)
+                {
+                    Quaternion lookRotation = Quaternion.LookRotation(lookDir.normalized, Vector3.up);
+                    var euler = lookRotation.eulerAngles;
+                    currentPitch = euler.x;
+                    currentYaw = euler.y;
+                }
+            }
+            else
+            {
+                float aimX = player.GetAxis("AimMoveHorizontal");
+                float aimY = player.GetAxis("AimMoveVertical");
+                // 視点変更 (角度を直接加算)
+                currentYaw += aimX * aimSensitivity * Time.deltaTime;
+                currentPitch -= aimY * aimSensitivity * Time.deltaTime;
+
+                // ピッチ角度を制限 (-90度～90度)
+                // TODO: 外的要因（シャウト成功による自動移動等）で取得角度がエッジケースに該当することがある
+                //       currentPitchが0⇒359.3694⇒90（※Mathf.Clampの補間）⇒唐突にプレイヤーが土下座する
+                currentPitch = Mathf.Clamp(currentPitch, -90f, 90f);
+            }
         }
 
         /// <summary>

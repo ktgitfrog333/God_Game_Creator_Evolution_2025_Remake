@@ -28,13 +28,9 @@ namespace Mains.ViewModels
         /// <summary>恐怖値のカウントを停止中かのフラグ</summary>
         public ReactiveCommand<bool> IsStopHorrorCount => _playerModel?.IsStopHorrorCount ?? null;
         /// <summary>【探索／シャウトチャンス／リズム】パート</summary>
-        public ReactiveProperty<InteractionPart> InteractionPart
-        {
-            get
-            {
-                return _playerModel?.InteractionPartTable?.interactionPart ?? null;
-            }
-        }
+        private ReactiveCommand<InteractionPart> _interactionPart = new ReactiveCommand<InteractionPart>();
+        /// <summary>【探索／シャウトチャンス／リズム】パート</summary>
+        public ReactiveCommand<InteractionPart> InteractionPart => _interactionPart;
         /// <summary>恐怖値のカウントを停止中かのフラグ拡張版</summary>
         private ReactiveCommand<bool> _isStopHorrorCountMore = new ReactiveCommand<bool>();
         /// <summary>恐怖値のカウントを停止中かのフラグ拡張版</summary>
@@ -43,6 +39,10 @@ namespace Mains.ViewModels
         private ReactiveCommand<bool> _isCompletedStageClearDirection = new ReactiveCommand<bool>();
         /// <summary>ステージクリア演出完了フラグ</summary>
         public ReactiveCommand<bool> IsCompletedStageClearDirection => _isCompletedStageClearDirection;
+        /// <summary>オバケ移動演出の完了フラグ</summary>
+        private ReactiveCommand<bool> _isCompletedMoveGhostDirection = new ReactiveCommand<bool>();
+        /// <summary>オバケ移動演出の完了フラグ</summary>
+        public ReactiveCommand<bool> IsCompletedMoveGhostDirection => _isCompletedMoveGhostDirection;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -65,6 +65,24 @@ namespace Mains.ViewModels
                 _isCompletedStageClearDirection.Execute(x);
             })
                 .AddTo(ref _disposableBag);
+            _playerModel.IsCompletedMoveGhostDirection.Subscribe(x =>
+            {
+                _isCompletedMoveGhostDirection.Execute(x);
+            })
+                .AddTo(ref _disposableBag);
+            Observable.EveryUpdate()
+                .Select(_ => _playerModel.InteractionPartTable)
+                .Where(x => x != null)
+                .Take(1)
+                .Subscribe(table =>
+                {
+                    table.interactionPart.Subscribe(interactionPart =>
+                    {
+                        _interactionPart.Execute(interactionPart);
+                    })
+                    .AddTo(ref _disposableBag);
+                })
+                .AddTo(ref _disposableBag);
             bool isStopOfRhythm = false;
             // ブレイブシャウト成功中は点滅させる
             Observable.EveryUpdate()
@@ -80,38 +98,30 @@ namespace Mains.ViewModels
                 })
                 .AddTo(ref _disposableBag);
             // リズムパート中は停止させる
-            Observable.EveryUpdate()
-                .Select(_ => InteractionPart)
-                .Where(x => x != null)
-                .Take(1)
-                .Subscribe(x =>
+            _interactionPart.DistinctUntilChanged()
+                .Select(x =>
                 {
-                    x.DistinctUntilChanged()
-                        .Select(x =>
-                        {
-                            switch (x)
-                            {
-                                case Commons.InteractionPart.Search:
-                                case Commons.InteractionPart.ShoutChance:
-                                    // 探索パートとシャウトチャンスパートは恐怖ゲージ加算中
-                                    isStopOfRhythm = false;
+                    switch (x)
+                    {
+                        case Commons.InteractionPart.Search:
+                        case Commons.InteractionPart.ShoutChance:
+                            // 探索パートとシャウトチャンスパートは恐怖ゲージ加算中
+                            isStopOfRhythm = false;
 
-                                    return (0, false);
-                                case Commons.InteractionPart.Rhythm:
-                                    // リズムパートは停止中
-                                    isStopOfRhythm = true;
+                            return (0, false);
+                        case Commons.InteractionPart.Rhythm:
+                            // リズムパートは停止中
+                            isStopOfRhythm = true;
 
-                                    return (0, true);
-                                default:
+                            return (0, true);
+                        default:
 
-                                    return (-1, false);
-                            }
-                        })
-                        .Where(x => -1 < x.Item1)
-                        .Select(x => x.Item2)
-                        .Subscribe(x => _isStopHorrorCountMore.Execute(x))
-                        .AddTo(ref _disposableBag);
+                            return (-1, false);
+                    }
                 })
+                .Where(x => -1 < x.Item1)
+                .Select(x => x.Item2)
+                .Subscribe(x => _isStopHorrorCountMore.Execute(x))
                 .AddTo(ref _disposableBag);
         }
 

@@ -14,5 +14,13 @@ namespace Mains.Commons
         public RuntimeAnimatorController[] poltergeistAnimatorControllers; // ポルターガイスト用アニメーション
         /// <summary>ポルターガイストの発生位置</summary>
         public ReactiveProperty<Vector3> onActionPoltergeistPosition = new ReactiveProperty<Vector3>();
+        [Tooltip("Assets/Mains/Prefabs/Level/Motor.prefabをセットしておく。")]
+        public GameObject motorPrefab;
+        [Tooltip("Assets/Mains/Prefabs/Level/ShoutChanceRange.prefabをセットしておく。")]
+        public GameObject shoutChanceRangePrefab;
+        [Tooltip("Assets/Mains/Prefabs/Level/DynamicObjects/MissileTempoSpawner.prefabをセットしておく。")]
+        public Transform missileTempoSpawnerPrefab;
+        [Tooltip("Assets/Mains/Prefabs/Level/DynamicObjects/SearchParts/MissGhostEscape.prefabをセットしておく。")]
+        public Transform missGhostEscapePrefab;
     }
 }

@@ -19,10 +19,6 @@ namespace Mains.Views
     {
         [Tooltip("Assets/Mains/Scripts/Commons/PoltergeistTable.assetをセットしておく。")]
         [SerializeField] private PoltergeistTable poltergeistTable;
-        [Tooltip("Assets/Mains/Prefabs/Level/Motor.prefabをセットしておく。")]
-        [SerializeField] private GameObject motorPrefab;
-        [Tooltip("Assets/Mains/Prefabs/Level/ShoutChanceRange.prefabをセットしておく。")]
-        [SerializeField] private GameObject shoutChanceRangePrefab;
         /// <summary>リズムパート位置（プレイヤー位置をリズムパート用に移動させる）</summary>
         private Vector3 _rhythmPartPosition;
         /// <summary>リズムパート角度（プレイヤー位置をリズムパート用に移動させる）</summary>
@@ -49,14 +45,8 @@ namespace Mains.Views
                 ghostInStaticObjectStruct = value;
             }
         }
-        [Tooltip("Assets/Mains/Prefabs/Effects/GhostBursts.prefabをセットしておく。")]
-        [SerializeField] private GameObject ghostBurstsPrefab;
-        [Tooltip("Assets/Mains/Prefabs/Level/DynamicObjects/MissileTempoSpawner.prefabをセットしておく。")]
-        [SerializeField] private Transform missileTempoSpawnerPrefab;
         /// <summary>ミサイルテンポスポナー</summary>
         private Transform _missileTempoSpawnerInstance;
-        /// <summary>オバケが飛び出すエフェクト</summary>
-        private Transform _ghostBurstsInstance;
         /// <summary>ポルターガイストのビューモデル</summary>
         private PoltergeistViewModel _poltergeistViewModel;
         /// <summary>モーターのビュー</summary>
@@ -90,6 +80,8 @@ namespace Mains.Views
             FindOrInstanceGameObject("RhythmPartPosition_1");
             // パーティクル位置の生成
             FindOrInstanceGameObject("DustParticlePosition");
+            // 移動用オバケ位置の生成
+            FindOrInstanceGameObject("MissGhostEscapePosition");
             // リズムパート時の移動先情報を設定するためボックスコライダーを必要に応じて生成
             var collider = transform.GetComponent<BoxCollider>();
             if (collider == null)
@@ -108,7 +100,7 @@ namespace Mains.Views
             // Poltergeistの生成
             var originParent = _transform.parent;
             // 初期化
-            var motorInstance = Instantiate(motorPrefab, _transform.position, Quaternion.identity);
+            var motorInstance = Instantiate(poltergeistTable.motorPrefab, _transform.position, Quaternion.identity);
             // ベースとなるオブジェクトのコライダーのプロパティをMotorへコピー
             motorInstance.GetComponent<BoxCollider>().center = _transform.GetComponent<BoxCollider>().center;
             motorInstance.GetComponent<BoxCollider>().size = _transform.GetComponent<BoxCollider>().size;
@@ -121,7 +113,7 @@ namespace Mains.Views
             _rigidbody = motorInstance.GetComponent<Rigidbody>();
             // ShoutChanceRangeの生成
             var originParent_1 = motorInstance.transform.parent;
-            Transform shoutChanceInstance = Instantiate(shoutChanceRangePrefab, motorInstance.transform.position, Quaternion.identity).transform;
+            Transform shoutChanceInstance = Instantiate(poltergeistTable.shoutChanceRangePrefab, motorInstance.transform.position, Quaternion.identity).transform;
             // ベースとなるオブジェクトのコライダーのプロパティをShoutChanceRangeへコピー
             shoutChanceInstance.GetComponent<BoxCollider>().center = _transform.GetComponent<BoxCollider>().center;
             shoutChanceInstance.GetComponent<BoxCollider>().size = _transform.GetComponent<BoxCollider>().size;
@@ -195,6 +187,54 @@ namespace Mains.Views
                             break;
                     }
                     _poltergeistViewModel.AddGhostInStaticObjectStructs(ghostInStaticObjectStruct);
+                })
+                .AddTo(ref _disposableBag);
+            // 移動用オバケ生成位置
+            Vector3 missGhostEscapePosition = Vector3.zero;
+            // 移動用オバケ生成角度
+            Vector3 missGhostEscapeEulerAngles = Vector3.zero;
+            foreach (Transform child in _transform)
+            {
+                if (child.name.Equals("MissGhostEscapePosition"))
+                {
+                    missGhostEscapePosition = child.position;
+                    missGhostEscapeEulerAngles = child.eulerAngles;
+                    break;
+                }
+            }
+            // オバケ移動演出の再生完了を監視する
+            System.IDisposable playMoveGhostDirectionDisposable = null;
+            // リズムパートが終了⇒フェードインアウト完了⇒家具とプレイヤーがお互い向き合っている状態を監視
+            _poltergeistViewModel.IsPostRhythmFaceOff.Where(x => x &&
+                // 直前にオバケが隠れていたかの判定をつけて全ての家具が対象にならないようにする
+                _poltergeistViewModel.IsMoveGhostDirectionTarget)
+                .Subscribe(_ =>
+                {
+                    // 移動用オバケプレハブ（生成済み）
+                    Transform instanceMissGhostEscape = null;
+                    var direction = PlayMoveGhostDirection(poltergeistTable.missGhostEscapePrefab, missGhostEscapePosition, missGhostEscapeEulerAngles, _transform, _script_XyloApi,
+                        _poltergeistViewModel, instanceMissGhostEscape);
+                    playMoveGhostDirectionDisposable = direction.Take(1)
+                        .Subscribe(_ =>
+                        {
+                            _poltergeistViewModel.SetTargetGhost(null);
+                            _poltergeistViewModel.SetIsCompletedMoveGhostDirection(true);
+                            _poltergeistViewModel.SetIsMoveGhostDirectionTarget(false);
+                        })
+                        .AddTo(ref _disposableBag);
+                    // リズムパートへ移行した際に実行中なら中断する（再び呼ばれることがあった場合は最初から再生）
+                    _poltergeistViewModel.InteractionPart.Where(x => x.Equals(InteractionPart.Rhythm))
+                        .Take(1)
+                        .Subscribe(_ =>
+                        {
+                            if (instanceMissGhostEscape != null &&
+                                instanceMissGhostEscape.gameObject.activeSelf)
+                                instanceMissGhostEscape.gameObject.SetActive(false);
+                            playMoveGhostDirectionDisposable.Dispose();
+                            _poltergeistViewModel.SetTargetGhost(null);
+                            _poltergeistViewModel.SetIsMoveGhostDirectionTarget(false);
+                        })
+                        .AddTo(ref _disposableBag);
                 })
                 .AddTo(ref _disposableBag);
             _script_XyloApi = new Script_xyloApi();
@@ -415,6 +455,7 @@ namespace Mains.Views
                     .Subscribe(_ =>
                     {
                         _poltergeistViewModel.SetIsCompletedRhythmPart(2);
+                        _poltergeistViewModel.SetIsMoveGhostDirectionTarget(true);
                     })
                     .AddTo(ref _disposableBag)
             );
@@ -508,7 +549,7 @@ namespace Mains.Views
         public void InstanceMissileTempoSpawner()
         {
             var originParent = _transform.parent;
-            var missileTempoSpawnerInstance = Instantiate(missileTempoSpawnerPrefab, _rhythmPartPosition_1, Quaternion.identity);
+            var missileTempoSpawnerInstance = Instantiate(poltergeistTable.missileTempoSpawnerPrefab, _rhythmPartPosition_1, Quaternion.identity);
             missileTempoSpawnerInstance.transform.SetParent(originParent);
             // リズムパートの調整（家具に対して真正面に配置するとオバケがずれることがある？）
             var originAngles = _rhythmPartEulerAngles_1;
@@ -629,27 +670,6 @@ namespace Mains.Views
         }
 
         /// <summary>
-        /// ゴーストを飛び出させる
-        /// </summary>
-        /// <param name="ghostBurstsInstance">オバケが飛び出すエフェクト</param>
-        /// <param name="transform">トランスフォーム</param>
-        private void BurstGhosts(Transform ghostBurstsInstance, Transform transform)
-        {
-            if (ghostBurstsInstance == null)
-            {
-                ghostBurstsInstance = Instantiate(ghostBurstsPrefab).transform;
-                // 親（ShoutChanceRange） > 親（Motor） > 家具
-                ghostBurstsInstance.SetParent(transform.parent.parent);
-                ghostBurstsInstance.localPosition = Vector3.zero;
-            }
-            else
-            {
-                ghostBurstsInstance.gameObject.SetActive(false);
-                ghostBurstsInstance.gameObject.SetActive(true);
-            }
-        }
-
-        /// <summary>
         /// リズムパート終了時にDestroy
         /// </summary>
         /// <param name="missileTempoSpawnerInstance">ミサイルテンポスポナー</param>
@@ -732,6 +752,50 @@ namespace Mains.Views
             _transform.eulerAngles = initialEulerAngles;
             SetNoTriggerColliders(noTriggerColliders, true);
             SetRigidbodyStatus(rigidbody, true);
+        }
+
+        /// <summary>
+        /// オバケ移動演出を再生
+        /// </summary>
+        /// <param name="missGhostEscapePrefab">移動用オバケプレハブ</param>
+        /// <param name="missGhostEscapePosition">移動用オバケ生成位置</param>
+        /// <param name="missGhostEscapeEulerAngles">移動用オバケ生成角度</param>
+        /// <param name="trans">トランスフォーム</param>
+        /// <param name="script_XyloApi">シロさんのコンポーネントへアクセスするAPI</param>
+        /// <param name="poltergeistViewModel">ポルターガイストのビューモデル</param>
+        /// <param name="instanceMissGhostEscape">移動用オバケプレハブ（生成済み）</param>
+        /// <returns>オブザーバブル</returns>
+        private Observable<Unit> PlayMoveGhostDirection(Transform missGhostEscapePrefab, Vector3 missGhostEscapePosition, Vector3 missGhostEscapeEulerAngles, Transform trans, Script_xyloApi script_XyloApi,
+            PoltergeistViewModel poltergeistViewModel, Transform instanceMissGhostEscape)
+        {
+            return Observable.Create<Unit>(observer =>
+            {
+                if (instanceMissGhostEscape == null)
+                {
+                    Transform instance = Instantiate(missGhostEscapePrefab, missGhostEscapePosition, Quaternion.identity).transform;
+                    instance.eulerAngles = missGhostEscapeEulerAngles;
+                    instance.SetParent(trans);
+                    instanceMissGhostEscape = instance;
+                }
+                var missGhost = instanceMissGhostEscape;
+                if (!missGhost.gameObject.activeSelf)
+                    missGhost.gameObject.SetActive(true);
+                var missGhostView = missGhost.GetComponent<MissGhostEscapeView>();
+                // DOTweenでオバケが家具から出現して他の家具へ移動するアニメーションを追加
+                missGhostView.IsEscapeCompleted.Where(x => x)
+                    .Take(1)
+                    .Subscribe(_ =>
+                    {
+                        // オバケ笑い声SE再生機能の追加
+                        script_XyloApi.PlayGhostLaugh3();
+                        observer.OnNext(Unit.Default);
+                        observer.OnCompleted();
+                    })
+                    .AddTo(ref _disposableBag);
+                poltergeistViewModel.SetTargetGhost(missGhost);
+
+                return Disposable.Empty;
+            });
         }
     }
 }
