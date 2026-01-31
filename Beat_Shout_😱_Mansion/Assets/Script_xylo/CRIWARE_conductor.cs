@@ -191,6 +191,7 @@ public class CRIWARE_conductor : MonoBehaviour
 
     void DelayBGMLoopStart()
     {
+      //  CRIWARE_AisacChange.Instance.BGM7(); // ← これを追加
         CRIWARE_AisacChange.Instance.PlayStart(); // スタートのAisacを再生
     }
 
