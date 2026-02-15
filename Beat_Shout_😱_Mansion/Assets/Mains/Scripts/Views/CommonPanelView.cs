@@ -40,6 +40,8 @@ namespace Mains.Views
         [SerializeField] private TextMeshProUGUI horrorGaugeSliderNumberText;
         /// <summary>恐怖ゲージスライダーのフィルとカラーの構造体</summary>
         [SerializeField] private HorrorGaugeSliderFillColorStruct[] horrorGaugeSliderFillColorStructs;
+        [Header("オバケ移動演出")]
+        [SerializeField] private RetryInfoSettings retryInfoSettings;
         [Header("その他オプション")]
         [Tooltip("CommonPanel > HeaderPanel > IconAndGuidePanel > GuideText をセット")]
         /// <summary>ミッションガイド概要のテキスト</summary>
@@ -118,6 +120,11 @@ namespace Mains.Views
                         }
                     }
                 }
+                if (child.name.Equals("FooterMessagePanel"))
+                {
+                    if (retryInfoSettings.footerMessagePanelCanvasGroup == null)
+                        retryInfoSettings.footerMessagePanelCanvasGroup = child.GetComponent<CanvasGroup>();
+                }
             }
             if (stageClearPanel == null)
                 stageClearPanel = transform.GetChild(3).GetChild(0) as RectTransform;
@@ -163,7 +170,9 @@ namespace Mains.Views
                             var ghostExitMembersCount = ghostAllMembersCount - ghostAllMembersUpdCount;
                             missionText.text = 共通UIのテンプレート.missionText.Replace("${ghostAllMembersCount}", $"{ghostAllMembersCount}")
                                 .Replace("${ghostExitMembersCount}", $"{ghostExitMembersCount}");
-                            CheckMissionStatusAndDirectionClear(ghostAllMembersUpdCount, gameSceneNameBack, stageClearPanel, stageClearText, player, fadeImageView);
+                            CheckMissionStatusAndDirectionClear(ghostAllMembersUpdCount, gameSceneNameBack,
+                                stageClearPanel, stageClearText, player, fadeImageView,
+                                _commonPanelViewModel);
                         })
                         .AddTo(ref _disposableBag);
                 })
@@ -383,6 +392,27 @@ namespace Mains.Views
                 	heartBeatElapsedTime += Time.deltaTime;
                 })
                 	.AddTo(ref _disposableBag);
+            // オバケが逃げたことを知らせ、他の家具を探すよう促すメッセージUIを表示
+            var retrySet = retryInfoSettings;
+            retrySet.footerMessagePanelCanvasGroup.alpha = 0f;
+            Sequence retryInfoMessageDirectionSequence = null;
+            _commonPanelViewModel.IsCompletedMoveGhostDirection.Where(x => x)
+                .Subscribe(_ =>
+                {
+                    retryInfoMessageDirectionSequence = PlayRetryInfoMessageDirection(retrySet.footerMessagePanelCanvasGroup, retrySet.durations);
+                })
+                .AddTo(ref _disposableBag);
+            // リズムパートへ移行した際に実行中なら中断する（再び呼ばれることがあった場合は最初から再生）
+            _commonPanelViewModel.InteractionPart.Where(x => x.Equals(InteractionPart.Rhythm))
+                .Subscribe(_ =>
+                {
+                    if (retryInfoMessageDirectionSequence != null && retryInfoMessageDirectionSequence.IsActive())
+                    {
+                        retryInfoMessageDirectionSequence.Kill();
+                        retrySet.footerMessagePanelCanvasGroup.alpha = 0f;
+                    }
+                })
+                .AddTo(ref _disposableBag);
 
             _didStartAsObservable.OnNext(Unit.Default);
             _didStartAsObservable.OnCompleted();
@@ -497,54 +527,62 @@ namespace Mains.Views
         /// <param name="stageClearText">STAGE CLEARのテキスト</param>
         /// <param name="player">ReInputのPlayer</param>
         /// <param name="fadeImageView">フェードイメージのビュー</param>
+        /// <param name="commonPanelViewModel">共通UIのビューモデル</param>
         private void CheckMissionStatusAndDirectionClear(int ghostAllMembersUpdCount, string gameSceneNameBack,
-            RectTransform stageClearPanel, TextMeshProUGUI stageClearText, Player player, FadeImageView fadeImageView)
+            RectTransform stageClearPanel, TextMeshProUGUI stageClearText, Player player, FadeImageView fadeImageView,
+            CommonPanelViewModel commonPanelViewModel)
         {
             if (ghostAllMembersUpdCount < 1)
             {
-                // 時間を停止
-                Time.timeScale = 0f;
-                player.controllers.maps.SetMapsEnabled(false, "Default"); // ゲーム操作を無効化
-
-                // TextMeshProを取得して、クリア演出の様なDOTweenアニメーションをつける。完了を通知する。
-                stageClearPanel.gameObject.SetActive(true);
-                stageClearText.transform.localScale = Vector3.zero;
-                stageClearText.DOFade(0f, 0f);
-                DOTween.Sequence()
-                    .Append(stageClearText.DOFade(1f, 0.5f))
-                    .Join(stageClearText.transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack))
-                    .SetUpdate(true)
-                    .OnComplete(() =>
+                commonPanelViewModel.IsCompletedStageClearDirection.Where(x => x)
+                    .Take(1)
+                    .Subscribe(_ =>
                     {
-                        // 必要ならここでさらに次の処理を繋ぐ
-                        player.controllers.maps.SetMapsEnabled(true, "CategoryUI");       // UI操作だけ有効化
-                        Observable.EveryUpdate()
-                            .Select(_ => player.GetButtonDown("Submit"))
-                            .DistinctUntilChanged()
-                            .Where(x => x)
-                            .Take(1)
-                            .Subscribe(_ =>
+                        // 時間を停止
+                        Time.timeScale = 0f;
+                        player.controllers.maps.SetMapsEnabled(false, "Default"); // ゲーム操作を無効化
+
+                        // TextMeshProを取得して、クリア演出の様なDOTweenアニメーションをつける。完了を通知する。
+                        stageClearPanel.gameObject.SetActive(true);
+                        stageClearText.transform.localScale = Vector3.zero;
+                        stageClearText.DOFade(0f, 0f);
+                        DOTween.Sequence()
+                            .Append(stageClearText.DOFade(1f, 0.5f))
+                            .Join(stageClearText.transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack))
+                            .SetUpdate(true)
+                            .OnComplete(() =>
                             {
-                                player.controllers.maps.SetMapsEnabled(false, "CategoryUI");
-                                Observable.Create<bool>(observer =>
-                                {
-                                    StartCoroutine(fadeImageView.PlayFadeInDirection(observer));
-                                    return Disposable.Empty;
-                                })
+                                // 必要ならここでさらに次の処理を繋ぐ
+                                player.controllers.maps.SetMapsEnabled(true, "CategoryUI");       // UI操作だけ有効化
+                                Observable.EveryUpdate()
+                                    .Select(_ => player.GetButtonDown("Submit"))
+                                    .DistinctUntilChanged()
+                                    .Where(x => x)
+                                    .Take(1)
                                     .Subscribe(_ =>
                                     {
+                                        player.controllers.maps.SetMapsEnabled(false, "CategoryUI");
                                         Observable.Create<bool>(observer =>
                                         {
-                                            StartCoroutine(LoadSceneCoroutine(observer, gameSceneNameBack));
+                                            StartCoroutine(fadeImageView.PlayFadeInDirection(observer));
                                             return Disposable.Empty;
                                         })
-                                            .Subscribe(_ => { })
+                                            .Subscribe(_ =>
+                                            {
+                                                Observable.Create<bool>(observer =>
+                                                {
+                                                    StartCoroutine(LoadSceneCoroutine(observer, gameSceneNameBack));
+                                                    return Disposable.Empty;
+                                                })
+                                                    .Subscribe(_ => { })
+                                                    .AddTo(ref _disposableBag);
+                                            })
                                             .AddTo(ref _disposableBag);
                                     })
                                     .AddTo(ref _disposableBag);
-                            })
-                            .AddTo(ref _disposableBag);
-                    });
+                            });
+                    })
+                    .AddTo(ref _disposableBag);
             }
         }
 
@@ -780,6 +818,28 @@ namespace Mains.Views
                 yield return new WaitForSeconds(1f);
             }
         }
+
+        /// <summary>
+        /// 再度探索を促すメッセージ表示アニメーションを再生
+        /// </summary>
+        /// <param name="footerMessagePanelCanvasGroup">画面下部メッセージパネルのキャンバスグループ</param>
+        /// <param name="durations">アニメーション終了時間</param>
+        /// <returns>シークエンス</returns>
+        private Sequence PlayRetryInfoMessageDirection(CanvasGroup footerMessagePanelCanvasGroup, float[] durations)
+        {
+            if (footerMessagePanelCanvasGroup == null)
+                return null;
+
+            footerMessagePanelCanvasGroup.DOKill();
+            footerMessagePanelCanvasGroup.alpha = 0f;
+
+            var sequence = DOTween.Sequence()
+                .Append(footerMessagePanelCanvasGroup.DOFade(1f, durations[0]));
+            sequence.AppendInterval(durations[1]);
+            sequence.Append(footerMessagePanelCanvasGroup.DOFade(0f, durations[2]));
+
+            return sequence;
+        }
     }
 
     /// <summary>
@@ -798,5 +858,21 @@ namespace Mains.Views
         public float iconHeartDuration;
         /// <summary>ハートアイコン消失星のパーティクル</summary>
         public ParticleSystem iconHeartLoststarPerticleSys;
+    }
+
+    /// <summary>
+    /// オバケ移動演出の設定
+    /// </summary>
+    [System.Serializable]
+    public class RetryInfoSettings
+    {
+        /// <summary>
+        /// 画面下部メッセージパネルのキャンバスグループ
+        /// </summary>
+        public CanvasGroup footerMessagePanelCanvasGroup;
+        /// <summary>
+        /// アニメーション終了時間
+        /// </summary>
+        public float[] durations;
     }
 }

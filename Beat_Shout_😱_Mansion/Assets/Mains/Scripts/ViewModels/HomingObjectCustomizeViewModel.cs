@@ -18,6 +18,10 @@ namespace Mains.ViewModels
         private ReactiveProperty<InteractionPart> _interactionPart = new ReactiveProperty<InteractionPart>();
         /// <summary>【探索／シャウトチャンス／リズム】パート</summary>
         public ReactiveProperty<InteractionPart> InteractionPart => _interactionPart;
+        /// <summary>ミッションクリアフラグ</summary>
+        private ReactiveCommand<bool> _isMissionClear = new ReactiveCommand<bool>();
+        /// <summary>ミッションクリアフラグ</summary>
+        public ReactiveCommand<bool> IsMissionClear => _isMissionClear;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -30,6 +34,11 @@ namespace Mains.ViewModels
                 .Subscribe(x =>
                 {
                     _playerModel = x;
+                    _playerModel.IsMissionClear.Subscribe(x =>
+                    {
+                        _isMissionClear.Execute(x);
+                    })
+                        .AddTo(ref _disposableBag);
                 })
                 .AddTo(ref _disposableBag);
             Observable.EveryUpdate()

@@ -290,6 +290,13 @@ namespace Mains.Views
             _script_XyloApi.InitVolumeLevelReactive();
             // 恐怖値のカウントを停止する
             bool isStopHorrorCount = false;
+            // 視界ジャック用ゴースト
+            Transform targetGhost = null;
+            _playerViewModel.TargetGhost.Subscribe(x =>
+            {
+                targetGhost = x;
+            })
+                .AddTo(ref _disposableBag);
             Observable.EveryUpdate()
                 .Select(_ => _playerViewModel.InteractionPart)
                 .Where(x => x != null)
@@ -303,8 +310,9 @@ namespace Mains.Views
                     System.IDisposable observableIsFailedDisposable = null;
                     System.IDisposable observableTargetCrossPositionDisposable = null;
                     System.IDisposable volumeLevelReactiveDisposable = null;
+                    System.IDisposable interactionPartDisposable = null;
                     Camera mainCamera = null;
-                    x.Pairwise()
+                    interactionPartDisposable = x.Pairwise()
                         .Subscribe(part =>
                         {
                             // None⇒探索（1. 探索、シャウト用の操作）
@@ -399,16 +407,7 @@ namespace Mains.Views
                                             }
                                         }
                                         // 視点移動入力
-                                        float aimX = player.GetAxis("AimMoveHorizontal");
-                                        float aimY = player.GetAxis("AimMoveVertical");
-                                        // 視点変更 (角度を直接加算)
-                                        currentYaw += aimX * 視点速度補正 * Time.deltaTime;
-                                        currentPitch -= aimY * 視点速度補正 * Time.deltaTime;
-
-                                        // ピッチ角度を制限 (-90度～90度)
-                                        // TODO: 外的要因（シャウト成功による自動移動等）で取得角度がエッジケースに該当することがある
-                                        //       currentPitchが0⇒359.3694⇒90（※Mathf.Clampの補間）⇒唐突にプレイヤーが土下座する
-                                        currentPitch = Mathf.Clamp(currentPitch, -90f, 90f);
+                                        AjustHeadEulerAnglesXY(targetGhost, headTrans, player, ref currentYaw, ref currentPitch, 視点速度補正);
 
                                         // 回転を適用
                                         headTrans.rotation = Quaternion.Euler(currentPitch, currentYaw, 0f);
@@ -546,6 +545,13 @@ namespace Mains.Views
                                     switch (part.Current)
                                     {
                                         case InteractionPart.Search:
+                                            // ここだけクリア状態を直接参照しないと修正が困難なため
+                                            if (_playerViewModel.IsMissionClear)
+                                            {
+                                                // クリアなら後続処理は中断
+                                                return;
+                                            }
+
                                             var localPosition = originHeadTransLocalPosition;
                                             headTrans.localPosition = localPosition;
                                             if (followPlayerCameraView != null)
@@ -559,7 +565,11 @@ namespace Mains.Views
                                                     StartCoroutine(_fadeImageView.PlayFadeOutDirection(observer, default, false));
                                                     return Disposable.Empty;
                                                 })
-                                                    .Subscribe(_ => { })
+                                                    .Take(1)
+                                                    .Subscribe(_ =>
+                                                    {
+                                                        _playerViewModel.SetIsPostRhythmFaceOff(true);
+                                                    })
                                                     .AddTo(ref _disposableBag);
                                                 player.controllers.maps.SetMapsEnabled(true, "Default");
                                             }
@@ -574,7 +584,11 @@ namespace Mains.Views
                                                             StartCoroutine(_fadeImageView.PlayFadeOutDirection(observer, default, false));
                                                             return Disposable.Empty;
                                                         })
-                                                            .Subscribe(_ => { })
+                                                            .Take(1)
+                                                            .Subscribe(_ =>
+                                                            {
+                                                                _playerViewModel.SetIsPostRhythmFaceOff(true);
+                                                            })
                                                             .AddTo(ref _disposableBag);
                                                         player.controllers.maps.SetMapsEnabled(true, "Default");
                                                     })
@@ -600,8 +614,16 @@ namespace Mains.Views
                                     break;
                             }
                         })
-                    .AddTo(ref _disposableBag);
-
+                        .AddTo(ref _disposableBag);
+                    // クリア時には購読停止
+                    _playerViewModel.IsMissionClearReactive.Where(x => x)
+                        .Take(1)
+                        .Subscribe(_ =>
+                        {
+                            interactionPartDisposable?.Dispose();
+                            observablePlayerControllerDisposable?.Dispose();
+                        })
+                        .AddTo(ref _disposableBag);
                     // 自力でExecute
                     x.Value = InteractionPart.None;
                     x.Value = InteractionPart.Search;
@@ -680,10 +702,14 @@ namespace Mains.Views
                                             if (hit.collider != null && hit.collider.name.StartsWith("ShoutChanceRange"))
                                             {
                                                 Transform t = hit.collider.transform;
-                                                if (!shoutChanceRanges.Contains(t) &&
-                                                    t.GetComponentInChildren<PoltergeistView>().GhostInStaticObjectStruct.useStatus.Equals(UseStatus.Using))
+                                                if (!shoutChanceRanges.Contains(t))
                                                 {
-                                                    shoutChanceRanges.Add(t);
+                                                    // シャウトチャンスの範囲の親オブジェクトである静的コライダー群から家具が持つコンポーネントを取得
+                                                    var shoutChanceRangeView = t.GetComponent<ShoutChanceRangeView>();
+                                                    if (shoutChanceRangeView.UseStatus.Equals(UseStatus.Using))
+                                                    {
+                                                        shoutChanceRanges.Add(t);
+                                                    }
                                                 }
                                             }
                                         }
@@ -704,7 +730,7 @@ namespace Mains.Views
                                         // [シャウト成功インタラクション] 1. シャウトチャンスレンジの中でオバケが潜んでいる家具かつ、一番近いコライダーからポルターガイストビューを取得
                                         poltergeistView = shoutChanceRanges
                                             .OrderBy(t => Vector3.SqrMagnitude(t.position - headTrans.position))
-                                            .Select(q => q.GetComponentInChildren<PoltergeistView>())
+                                            .Select(q => q.GetComponent<ShoutChanceRangeView>().PoltergeistView)
                                             .FirstOrDefault();
                                         // [シャウト成功インタラクション] 2. オバケが飛び出すエフェクト生成
                                         poltergeistView.AsyncDoBurstGhosts();
@@ -913,6 +939,43 @@ namespace Mains.Views
             observer.OnCompleted();
 
             yield return null;
+        }
+
+        /// <summary>
+        /// 頭の角度XYを調整
+        /// </summary>
+        /// <param name="targetGhost">視界ジャック用ゴースト</param>
+        /// <param name="headTrans">カメラ視線用のトランスフォーム</param>
+        /// <param name="player">Rewiredのプレイヤー</param>
+        /// <param name="currentYaw">視点</param>
+        /// <param name="currentPitch">ピッチ</param>
+        /// <param name="aimSensitivity">視点速度補正</param>
+        private void AjustHeadEulerAnglesXY(Transform targetGhost, Transform headTrans, Player player, ref float currentYaw, ref float currentPitch, float aimSensitivity)
+        {
+            if (targetGhost != null)
+            {
+                Vector3 lookDir = targetGhost.position - headTrans.position;
+                if (lookDir.sqrMagnitude > 0.001f)
+                {
+                    Quaternion lookRotation = Quaternion.LookRotation(lookDir.normalized, Vector3.up);
+                    var euler = lookRotation.eulerAngles;
+                    currentPitch = euler.x;
+                    currentYaw = euler.y;
+                }
+            }
+            else
+            {
+                float aimX = player.GetAxis("AimMoveHorizontal");
+                float aimY = player.GetAxis("AimMoveVertical");
+                // 視点変更 (角度を直接加算)
+                currentYaw += aimX * aimSensitivity * Time.deltaTime;
+                currentPitch -= aimY * aimSensitivity * Time.deltaTime;
+
+                // ピッチ角度を制限 (-90度～90度)
+                // TODO: 外的要因（シャウト成功による自動移動等）で取得角度がエッジケースに該当することがある
+                //       currentPitchが0⇒359.3694⇒90（※Mathf.Clampの補間）⇒唐突にプレイヤーが土下座する
+                currentPitch = Mathf.Clamp(currentPitch, -90f, 90f);
+            }
         }
 
         /// <summary>

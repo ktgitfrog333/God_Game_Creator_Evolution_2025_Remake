@@ -14,3 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   poltergeistAnimatorControllers:
   - {fileID: 9100000, guid: e3e515ca1e66dfd48b38ff8be2958925, type: 2}
+  motorPrefab: {fileID: 1215156780124661367, guid: 3bfc5e33bb3d71e458ffa2b473959872, type: 3}
+  shoutChanceRangePrefab: {fileID: 6264907657960383743, guid: ac893ebf0ca26e44ab98cda6abf7e9f4, type: 3}
+  staticColldersPrefab: {fileID: 5648631365315597916, guid: 62e553a4c2060fd4ea23a256b4ad2ea5, type: 3}
+  missileTempoSpawnerPrefab: {fileID: 401138369664789558, guid: b884b75fd024dbe4884d96e9b68ae9ae, type: 3}
+  missGhostEscapePrefab: {fileID: 1027239793714559372, guid: f57dd99553cf3954582c4d66680a9f05, type: 3}
+  subSettings:
+    ghostAttack:
+      startAttackRangePrefab: {fileID: 5648631365315597916, guid: 441f28ec791396d45b6449012a55ba71, type: 3}
+      ghostBulletBookPrefab: {fileID: 7025978952883633557, guid: 07924653185ca7e4aa29e87f2f2c436d, type: 3}

@@ -13,7 +13,7 @@ namespace Mains.Models
     /// </summary>
     public class PlayerModel : MonoBehaviour, IPlayerModel, IPoltergeistModel, IRhythmPartPanelModel, IHomingObjectCustomizeModel,
         IMissGhostAttackCustomizeModel, IMissileDirectAnimManagerBCustomizeModel, ICommonPanelModel, IFadeImageModel,
-        IPlayerRespawnPositionModel, IHPDownDirectionModel
+        IPlayerRespawnPositionModel, IHPDownDirectionModel, ICommonPanelModel1, IStageClearDirectionModel, IGhostBulletBookModel
     {
         /// <summary>【探索／シャウトチャンス／リズム】パート情報管理テーブル</summary>
         public InteractionPartTable InteractionPartTable { get; set; }
@@ -102,6 +102,31 @@ namespace Mains.Models
         private ReactiveCommand<bool> _isBadEndRhythmPart = new ReactiveCommand<bool>();
         /// <summary>リズムパートが失敗で終了したか</summary>
         public ReactiveCommand<bool> IsBadEndRhythmPart => _isBadEndRhythmPart;
+        /// <summary>ミッションクリアフラグ</summary>
+        private ReactiveCommand<bool> _isMissionClear = new ReactiveCommand<bool>();
+        /// <summary>ミッションクリアフラグ</summary>
+        public ReactiveCommand<bool> IsMissionClear => _isMissionClear;
+        /// <summary>ステージクリア演出完了フラグ</summary>
+        private ReactiveCommand<bool> _isCompletedStageClearDirection = new ReactiveCommand<bool>();
+        /// <summary>ステージクリア演出完了フラグ</summary>
+        public ReactiveCommand<bool> IsCompletedStageClearDirection => _isCompletedStageClearDirection;
+        /// <summary>家具とプレイヤーがお互い向き合っている状態フラグ</summary>
+        /// <remarks>リズムパートが終了⇒フェードインアウト完了⇒家具とプレイヤーがお互い向き合っている状態を監視</remarks>
+        private ReactiveCommand<bool> _isPostRhythmFaceOff = new ReactiveCommand<bool>();
+        /// <summary>家具とプレイヤーがお互い向き合っている状態フラグ</summary>
+        public ReactiveCommand<bool> IsPostRhythmFaceOff => _isPostRhythmFaceOff;
+        /// <summary>視界ジャック用ゴースト</summary>
+        private ReactiveCommand<Transform> _targetGhost = new ReactiveCommand<Transform>();
+        /// <summary>視界ジャック用ゴースト</summary>
+        public ReactiveCommand<Transform> TargetGhost => _targetGhost;
+        /// <summary>オバケ移動演出の完了フラグ</summary>
+        private ReactiveCommand<bool> _isCompletedMoveGhostDirection = new ReactiveCommand<bool>();
+        /// <summary>オバケ移動演出の完了フラグ</summary>
+        public ReactiveCommand<bool> IsCompletedMoveGhostDirection => _isCompletedMoveGhostDirection;
+        /// <summary>オバケ攻撃のヒットフラグ</summary>
+        private ReactiveCommand<bool> _isHitGhostAttack = new ReactiveCommand<bool>();
+        /// <summary>オバケ攻撃のヒットフラグ</summary>
+        public ReactiveCommand<bool> IsHitGhostAttack => _isHitGhostAttack;
 
         private void Start()
         {
@@ -417,6 +442,36 @@ namespace Mains.Models
                 _isBadEndRhythmPart.Execute(isBadEndRhythmPart);
             }
         }
+
+        public void SetIsMissionClear(bool isMissionClear)
+        {
+            _isMissionClear.Execute(isMissionClear);
+        }
+
+        public void SetIsCompletedStageClearDirection(bool isCompletedStageClearDirection)
+        {
+            _isCompletedStageClearDirection.Execute(isCompletedStageClearDirection);
+        }
+
+        public void SetIsPostRhythmFaceOff(bool isPostRhythmFaceOff)
+        {
+            _isPostRhythmFaceOff.Execute(isPostRhythmFaceOff);
+        }
+
+        public void SetTargetGhost(Transform targetGhost)
+        {
+            _targetGhost.Execute(targetGhost);
+        }
+
+        public void SetIsCompletedMoveGhostDirection(bool isCompletedMoveGhostDirection)
+        {
+            _isCompletedMoveGhostDirection.Execute(isCompletedMoveGhostDirection);
+        }
+
+        public void SetIsHitGhostAttack(bool isHitGhostAttack)
+        {
+            _isHitGhostAttack.Execute(isHitGhostAttack);
+        }
     }
 
     /// <summary>
@@ -479,6 +534,11 @@ namespace Mains.Models
         /// </summary>
         /// <param name="isStopHorrorCount">恐怖値のカウントを停止中かのフラグ</param>
         public void SetIsStopHorrorCount(bool isStopHorrorCount);
+        /// <summary>
+        /// 家具とプレイヤーがお互い向き合っている状態フラグをセット
+        /// </summary>
+        /// <param name="isPostRhythmFaceOff">家具とプレイヤーがお互い向き合っている状態フラグ</param>
+        public void SetIsPostRhythmFaceOff(bool isPostRhythmFaceOff);
     }
 
     /// <summary>
@@ -519,6 +579,21 @@ namespace Mains.Models
         /// </summary>
         /// <param name="isCompletedRhythmPart">リズムパート完了フラグ</param>
         public void SetIsCompletedRhythmPart(int isCompletedRhythmPart);
+        /// <summary>
+        /// ミッションクリアフラグをセット
+        /// </summary>
+        /// <param name="isMissionClear">ミッションクリアフラグ</param>
+        public void SetIsMissionClear(bool isMissionClear);
+        /// <summary>
+        /// 視界ジャック用ゴーストをセット
+        /// </summary>
+        /// <param name="targetGhost">視界ジャック用ゴースト</param>
+        public void SetTargetGhost(Transform targetGhost);
+        /// <summary>
+        /// オバケ移動演出の完了フラグをセット
+        /// </summary>
+        /// <param name="isCompletedMoveGhostDirection">オバケ移動演出の完了フラグ</param>
+        public void SetIsCompletedMoveGhostDirection(bool isCompletedMoveGhostDirection);
     }
 
     /// <summary>
@@ -611,6 +686,7 @@ namespace Mains.Models
     /// <summary>
     /// 共通UIのモデルインターフェース
     /// </summary>
+    /// <remarks>セレクトシーン用</remarks>
     public interface ICommonPanelModel
     {
         /// <summary>
@@ -663,5 +739,42 @@ namespace Mains.Models
         /// プレイヤーのHPを減らす
         /// </summary>
         public void SubtractionHealthPoint();
+    }
+
+    /// <summary>
+    /// 共通UIのモデルインターフェース
+    /// </summary>
+    /// <remarks>メインシーン用</remarks>
+    public interface ICommonPanelModel1
+    {
+        /// <summary>
+        /// ミッションクリアフラグをセット
+        /// </summary>
+        /// <param name="isMissionClear">ミッションクリアフラグ</param>
+        public void SetIsMissionClear(bool isMissionClear);
+    }
+
+    /// <summary>
+    /// ステージクリア演出のモデルインターフェース
+    /// </summary>
+    public interface IStageClearDirectionModel
+    {
+        /// <summary>
+        /// ステージクリア演出完了フラグをセット
+        /// </summary>
+        /// <param name="isCompletedStageClearDirection">ステージクリア演出完了フラグ</param>
+        public void SetIsCompletedStageClearDirection(bool isCompletedStageClearDirection);
+    }
+
+    /// <summary>
+    /// オバケ弾：本のモデルインターフェース
+    /// </summary>
+    public interface IGhostBulletBookModel
+    {
+        /// <summary>
+        /// オバケ攻撃のヒットフラグをセット
+        /// </summary>
+        /// <param name="isHitGhostAttack">オバケ攻撃のヒットフラグ</param>
+        public void SetIsHitGhostAttack(bool isHitGhostAttack);
     }
 }

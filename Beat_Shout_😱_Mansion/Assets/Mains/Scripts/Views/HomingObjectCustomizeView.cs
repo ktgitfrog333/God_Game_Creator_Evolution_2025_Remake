@@ -42,10 +42,14 @@ namespace Mains.Views
             var canvasTransform = GameObject.Find("OverlayCanvas").transform;
             _script_XyloApi.SetMissileDirectAnimManagerB(trans);
             _viewModel = new HomingObjectCustomizeViewModel();
+            // goodPanelPrefabとgoodParticleSysPrefabのインスタンス情報
+            (GoodPanelView, ParticleSystem) instancesGoodContents = (null, null);
             _script_XyloApi.IsSuccessfulReactive.Where(x => x)
                 .Subscribe(_ =>
                 {
-                    ShowUIPanelAtObjectPosition(goodPanelPrefab, canvasTransform, goodParticleSysPrefab, _script_XyloApi.NoteTransform, trans);
+                    var instances = ShowUIPanelAtObjectPosition(goodPanelPrefab, canvasTransform, goodParticleSysPrefab, _script_XyloApi.NoteTransform, trans);
+                    instancesGoodContents.Item1 = instances.Item1.GetComponent<GoodPanelView>();
+                    instancesGoodContents.Item2 = instances.Item2.GetComponent<ParticleSystem>();
                     DoSubtractionTransactionGhostInStaticObjectStruct(_viewModel);
                     _script_XyloApi.PlayHitSuccess3();
                 })
@@ -82,6 +86,34 @@ namespace Mains.Views
                     }
                 })
                 .AddTo(ref _disposableBag);
+            // クリア済みなら再生中の演出を無効にする
+            _viewModel.IsMissionClear.Where(x => x)
+                .Subscribe(_ =>
+                {
+                    Observable.EveryUpdate()
+                        .Select(_ => instancesGoodContents.Item1)
+                        .Where(x => x != null &&
+                            x.gameObject.activeSelf &&
+                            x.IsPlaying)
+                        .Take(1)
+                        .Subscribe(view =>
+                        {
+                            view.StopAnimation();
+                        })
+                        .AddTo(ref _disposableBag);
+                    Observable.EveryUpdate()
+                        .Select(_ => instancesGoodContents.Item2)
+                        .Where(x => x != null &&
+                            x.gameObject.activeSelf &&
+                                (x.isPlaying || x.IsAlive()))
+                        .Take(1)
+                        .Subscribe(particleSys =>
+                        {
+                            particleSys.gameObject.SetActive(false);
+                        })
+                        .AddTo(ref _disposableBag);
+                })
+                .AddTo(ref _disposableBag);
         }
 
         private void OnDestroy()
@@ -99,7 +131,7 @@ namespace Mains.Views
         /// <param name="particleSysPrefab">パーティクルプレハブ</param>
         /// <param name="noteTransform">UIトランスフォーム</param>
         /// <param name="trans">トランスフォーム</param>
-        private void ShowUIPanelAtObjectPosition(Transform uiPrefab, Transform canvasTransform, Transform particleSysPrefab, Transform noteTransform, Transform trans)
+        private (RectTransform, Transform) ShowUIPanelAtObjectPosition(Transform uiPrefab, Transform canvasTransform, Transform particleSysPrefab, Transform noteTransform, Transform trans)
         {
             // UIを生成
             Transform instance = Instantiate(uiPrefab, canvasTransform);
@@ -118,6 +150,9 @@ namespace Mains.Views
             // 新しい回転を作成
             Quaternion finalRotation = Quaternion.Euler(euler);
             Transform particleInstance = Instantiate(particleSysPrefab, trans.position, finalRotation);
+
+            (RectTransform, Transform) instances = (rectTransform, particleInstance);
+            return instances;
         }
 
         /// <summary>
