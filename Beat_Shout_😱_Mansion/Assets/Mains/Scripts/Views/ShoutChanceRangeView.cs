@@ -9,21 +9,16 @@ namespace Mains.Views
     /// </summary>
     public class ShoutChanceRangeView : MonoBehaviour
     {
-        /// <summary>シャウトチャンスの範囲ビューモデル</summary>
-        private ShoutChanceRangeViewModel _viewModel;
         /// <summary>ポルターガイストのビュー</summary>
         private PoltergeistView _poltergeistView;
         /// <summary>ポルターガイストのビュー</summary>
         public PoltergeistView PoltergeistView => _poltergeistView;
-        public UseStatus UseStatus => _viewModel.UseStatus;
+        public UseStatus UseStatus => _poltergeistView.GhostInStaticObjectStruct.useStatus;
 
         private void Start()
         {
-            ShoutChanceRangeViewModel viewModel = ScriptableObject.CreateInstance<ShoutChanceRangeViewModel>();
             var trans = transform;
             PoltergeistView poltergeistView = trans.parent.GetComponentInChildren<PoltergeistView>();
-            viewModel.DoInitialize(poltergeistView.GhostInStaticObjectStruct.useStatus);
-            _viewModel = viewModel;
             _poltergeistView = poltergeistView;
         }
     }
