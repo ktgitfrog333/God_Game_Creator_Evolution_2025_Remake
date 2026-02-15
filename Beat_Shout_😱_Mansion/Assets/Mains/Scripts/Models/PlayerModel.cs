@@ -13,7 +13,7 @@ namespace Mains.Models
     /// </summary>
     public class PlayerModel : MonoBehaviour, IPlayerModel, IPoltergeistModel, IRhythmPartPanelModel, IHomingObjectCustomizeModel,
         IMissGhostAttackCustomizeModel, IMissileDirectAnimManagerBCustomizeModel, ICommonPanelModel, IFadeImageModel,
-        IPlayerRespawnPositionModel, IHPDownDirectionModel, ICommonPanelModel1, IStageClearDirectionModel
+        IPlayerRespawnPositionModel, IHPDownDirectionModel, ICommonPanelModel1, IStageClearDirectionModel, IGhostBulletBookModel
     {
         /// <summary>【探索／シャウトチャンス／リズム】パート情報管理テーブル</summary>
         public InteractionPartTable InteractionPartTable { get; set; }
@@ -123,6 +123,10 @@ namespace Mains.Models
         private ReactiveCommand<bool> _isCompletedMoveGhostDirection = new ReactiveCommand<bool>();
         /// <summary>オバケ移動演出の完了フラグ</summary>
         public ReactiveCommand<bool> IsCompletedMoveGhostDirection => _isCompletedMoveGhostDirection;
+        /// <summary>オバケ攻撃のヒットフラグ</summary>
+        private ReactiveCommand<bool> _isHitGhostAttack = new ReactiveCommand<bool>();
+        /// <summary>オバケ攻撃のヒットフラグ</summary>
+        public ReactiveCommand<bool> IsHitGhostAttack => _isHitGhostAttack;
 
         private void Start()
         {
@@ -463,6 +467,11 @@ namespace Mains.Models
         {
             _isCompletedMoveGhostDirection.Execute(isCompletedMoveGhostDirection);
         }
+
+        public void SetIsHitGhostAttack(bool isHitGhostAttack)
+        {
+            _isHitGhostAttack.Execute(isHitGhostAttack);
+        }
     }
 
     /// <summary>
@@ -755,5 +764,17 @@ namespace Mains.Models
         /// </summary>
         /// <param name="isCompletedStageClearDirection">ステージクリア演出完了フラグ</param>
         public void SetIsCompletedStageClearDirection(bool isCompletedStageClearDirection);
+    }
+
+    /// <summary>
+    /// オバケ弾：本のモデルインターフェース
+    /// </summary>
+    public interface IGhostBulletBookModel
+    {
+        /// <summary>
+        /// オバケ攻撃のヒットフラグをセット
+        /// </summary>
+        /// <param name="isHitGhostAttack">オバケ攻撃のヒットフラグ</param>
+        public void SetIsHitGhostAttack(bool isHitGhostAttack);
     }
 }

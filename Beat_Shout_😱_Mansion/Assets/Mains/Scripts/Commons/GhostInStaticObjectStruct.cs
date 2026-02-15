@@ -17,5 +17,7 @@ namespace Mains.Commons
         public UseStatus useStatus;
         /// <summary>利用人数</summary>
         public int membersCount;
+        /// <summary>オバケの攻撃タイプ</summary>
+        public GhostAttackType attackType;
     }
 }

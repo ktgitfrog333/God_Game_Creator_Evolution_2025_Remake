@@ -702,10 +702,14 @@ namespace Mains.Views
                                             if (hit.collider != null && hit.collider.name.StartsWith("ShoutChanceRange"))
                                             {
                                                 Transform t = hit.collider.transform;
-                                                if (!shoutChanceRanges.Contains(t) &&
-                                                    t.GetComponentInChildren<PoltergeistView>().GhostInStaticObjectStruct.useStatus.Equals(UseStatus.Using))
+                                                if (!shoutChanceRanges.Contains(t))
                                                 {
-                                                    shoutChanceRanges.Add(t);
+                                                    // シャウトチャンスの範囲の親オブジェクトである静的コライダー群から家具が持つコンポーネントを取得
+                                                    var shoutChanceRangeView = t.GetComponent<ShoutChanceRangeView>();
+                                                    if (shoutChanceRangeView.UseStatus.Equals(UseStatus.Using))
+                                                    {
+                                                        shoutChanceRanges.Add(t);
+                                                    }
                                                 }
                                             }
                                         }
@@ -726,7 +730,7 @@ namespace Mains.Views
                                         // [シャウト成功インタラクション] 1. シャウトチャンスレンジの中でオバケが潜んでいる家具かつ、一番近いコライダーからポルターガイストビューを取得
                                         poltergeistView = shoutChanceRanges
                                             .OrderBy(t => Vector3.SqrMagnitude(t.position - headTrans.position))
-                                            .Select(q => q.GetComponentInChildren<PoltergeistView>())
+                                            .Select(q => q.GetComponent<ShoutChanceRangeView>().PoltergeistView)
                                             .FirstOrDefault();
                                         // [シャウト成功インタラクション] 2. オバケが飛び出すエフェクト生成
                                         poltergeistView.AsyncDoBurstGhosts();

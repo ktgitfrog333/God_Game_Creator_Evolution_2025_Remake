@@ -150,6 +150,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 3213802122081158468}
   m_LocalEulerAnglesHint: {x: 0, y: -87.24, z: 0}
+--- !u!1 &525186207142034443
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1839562846088584968}
+  m_Layer: 8
+  m_Name: GhostTurretPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1839562846088584968
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 525186207142034443}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1557029727833582664}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &576998968469962543
 GameObject:
   m_ObjectHideFlags: 0
@@ -247,6 +278,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5635424903813400889}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &765051568850337955
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5839114823767462123}
+  m_Layer: 8
+  m_Name: GhostTurretPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5839114823767462123
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 765051568850337955}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3213802122081158468}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &767221370270260178
 GameObject:
   m_ObjectHideFlags: 0
@@ -316,6 +378,8 @@ Transform:
   - {fileID: 4898767628489382954}
   - {fileID: 7897816377667226184}
   - {fileID: 1040815397164074693}
+  - {fileID: 1203680124418760208}
+  - {fileID: 2396800485822427761}
   m_Father: {fileID: 3823388366183589524}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!114 &8729294742210513559
@@ -335,6 +399,10 @@ MonoBehaviour:
     poltergeistViewID: 0
     useStatus: 1
     membersCount: 8
+    attackType: 0
+  settings:
+    ghostAttack:
+      ghostBulletBookInstance: {fileID: 0}
 --- !u!65 &7673304197979665193
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -600,6 +668,8 @@ Transform:
   - {fileID: 7872239154418770995}
   - {fileID: 1018491720245083031}
   - {fileID: 5179384541532656724}
+  - {fileID: 3991446710634025213}
+  - {fileID: 2623976487083866430}
   m_Father: {fileID: 3823388366183589524}
   m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
 --- !u!114 &982995311771420208
@@ -619,6 +689,10 @@ MonoBehaviour:
     poltergeistViewID: 0
     useStatus: 1
     membersCount: 24
+    attackType: 0
+  settings:
+    ghostAttack:
+      ghostBulletBookInstance: {fileID: 0}
 --- !u!65 &6702452894917887865
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -719,6 +793,8 @@ Transform:
   - {fileID: 1650471156314171472}
   - {fileID: 4370158121953643418}
   - {fileID: 1190529067728104512}
+  - {fileID: 7377159723921172329}
+  - {fileID: 1807781717470786304}
   m_Father: {fileID: 3823388366183589524}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!114 &8101728679405724178
@@ -738,6 +814,10 @@ MonoBehaviour:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
+    attackType: 0
+  settings:
+    ghostAttack:
+      ghostBulletBookInstance: {fileID: 0}
 --- !u!65 &3915036318816596096
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -933,6 +1013,8 @@ Transform:
   - {fileID: 2180499900866808309}
   - {fileID: 6258181198735591671}
   - {fileID: 2803389861411529955}
+  - {fileID: 3644625671938051963}
+  - {fileID: 2145130309095953586}
   m_Father: {fileID: 3823388366183589524}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3590892553263762978
@@ -952,6 +1034,10 @@ MonoBehaviour:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
+    attackType: 0
+  settings:
+    ghostAttack:
+      ghostBulletBookInstance: {fileID: 0}
 --- !u!65 &1286385156872835775
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -973,6 +1059,37 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.40000007, y: 1.5429816, z: 0.39999998}
   m_Center: {x: 0, y: 0.02887109, z: 0}
+--- !u!1 &2243242025842617155
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 565054242922842193}
+  m_Layer: 8
+  m_Name: GhostBulletWaitPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &565054242922842193
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2243242025842617155}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4739188290729163784}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2247118096902885446
 GameObject:
   m_ObjectHideFlags: 0
@@ -1053,6 +1170,68 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4739188290729163784}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2571525362162719424
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1203680124418760208}
+  m_Layer: 8
+  m_Name: GhostTurretPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1203680124418760208
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2571525362162719424}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6726638905911967064}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2667907918237541124
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8420894026808404561}
+  m_Layer: 8
+  m_Name: GhostTurretPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8420894026808404561
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2667907918237541124}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 505705157166651700}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2990092197938680733
 GameObject:
   m_ObjectHideFlags: 0
@@ -1083,6 +1262,37 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8714167795023307721}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3114544130423533338
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2405513154416134860}
+  m_Layer: 8
+  m_Name: GhostTurretPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2405513154416134860
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3114544130423533338}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6225458939571817860}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3150238416923986550
 GameObject:
@@ -1145,6 +1355,130 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6726638905911967064}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3242579404187401389
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8812372678964718505}
+  m_Layer: 8
+  m_Name: GhostBulletWaitPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8812372678964718505
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3242579404187401389}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8714167795023307721}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3279412911263495781
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5295850456977989915}
+  m_Layer: 8
+  m_Name: GhostTurretPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5295850456977989915
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3279412911263495781}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8714167795023307721}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3282884886606087271
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2623976487083866430}
+  m_Layer: 8
+  m_Name: GhostBulletWaitPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2623976487083866430
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3282884886606087271}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7859587329759112400}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3352977388281137880
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1807781717470786304}
+  m_Layer: 8
+  m_Name: GhostBulletWaitPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1807781717470786304
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3352977388281137880}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6068615339121851484}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3423272743599114054
 GameObject:
@@ -1290,6 +1624,8 @@ Transform:
   - {fileID: 3378416571855281387}
   - {fileID: 7667588443330201124}
   - {fileID: 6685550678420707813}
+  - {fileID: 1839562846088584968}
+  - {fileID: 2630073454238075847}
   m_Father: {fileID: 3823388366183589524}
   m_LocalEulerAnglesHint: {x: 0, y: 300, z: 0}
 --- !u!114 &7283365942003946895
@@ -1309,6 +1645,10 @@ MonoBehaviour:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
+    attackType: 0
+  settings:
+    ghostAttack:
+      ghostBulletBookInstance: {fileID: 0}
 --- !u!65 &8571438513946665808
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1518,6 +1858,8 @@ Transform:
   - {fileID: 6145096469017955479}
   - {fileID: 6333758281784058540}
   - {fileID: 1796299923206368642}
+  - {fileID: 5839114823767462123}
+  - {fileID: 7204106699015193475}
   m_Father: {fileID: 3823388366183589524}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!114 &3573571631651236571
@@ -1537,6 +1879,10 @@ MonoBehaviour:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
+    attackType: 0
+  settings:
+    ghostAttack:
+      ghostBulletBookInstance: {fileID: 0}
 --- !u!65 &4775169224917554037
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1558,6 +1904,68 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.44659466, y: 1.3685241, z: 0.55913574}
   m_Center: {x: 0, y: 0.17257273, z: 0}
+--- !u!1 &3671571629015624381
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3991446710634025213}
+  m_Layer: 8
+  m_Name: GhostTurretPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3991446710634025213
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3671571629015624381}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7859587329759112400}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3681357707110644365
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7204106699015193475}
+  m_Layer: 8
+  m_Name: GhostBulletWaitPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7204106699015193475
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3681357707110644365}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3213802122081158468}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3688722001074534413
 GameObject:
   m_ObjectHideFlags: 0
@@ -1624,6 +2032,37 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.40000007, y: 1.5429816, z: 0.39999998}
   m_Center: {x: 0, y: 0.02887109, z: 0}
+--- !u!1 &3903899318244859797
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2630073454238075847}
+  m_Layer: 8
+  m_Name: GhostBulletWaitPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2630073454238075847
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3903899318244859797}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1557029727833582664}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4127133436232730553
 GameObject:
   m_ObjectHideFlags: 0
@@ -1863,6 +2302,68 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d26f5a0c71543a14e906260314f8208d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &4608491158475934063
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5081921003770828893}
+  m_Layer: 8
+  m_Name: GhostTurretPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5081921003770828893
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4608491158475934063}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 812102602686786212}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &4640242301988411151
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3644625671938051963}
+  m_Layer: 8
+  m_Name: GhostTurretPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3644625671938051963
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4640242301988411151}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5635424903813400889}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4700566365100034888
 GameObject:
   m_ObjectHideFlags: 0
@@ -2112,6 +2613,37 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.550703, y: 1.7587403, z: 0.7915009}
   m_Center: {x: 0, y: 0.20290881, z: 0.06157592}
+--- !u!1 &4898644433897054797
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2396800485822427761}
+  m_Layer: 8
+  m_Name: GhostBulletWaitPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2396800485822427761
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4898644433897054797}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6726638905911967064}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5024420720875937683
 GameObject:
   m_ObjectHideFlags: 0
@@ -2289,6 +2821,37 @@ Transform:
   - {fileID: 809310899571800372}
   m_Father: {fileID: 2320555722916233404}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &5357015538401870002
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7377159723921172329}
+  m_Layer: 8
+  m_Name: GhostTurretPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7377159723921172329
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5357015538401870002}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6068615339121851484}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5362643984484654699
 GameObject:
   m_ObjectHideFlags: 0
@@ -2324,6 +2887,8 @@ Transform:
   - {fileID: 3581854618152340894}
   - {fileID: 1055110068406480260}
   - {fileID: 8964040119794953502}
+  - {fileID: 5081921003770828893}
+  - {fileID: 8174743807460356589}
   m_Father: {fileID: 3823388366183589524}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!114 &2858858894429438748
@@ -2343,6 +2908,10 @@ MonoBehaviour:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
+    attackType: 0
+  settings:
+    ghostAttack:
+      ghostBulletBookInstance: {fileID: 0}
 --- !u!65 &2581122242580657685
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2615,6 +3184,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d26f5a0c71543a14e906260314f8208d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &6090943854123920676
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8174743807460356589}
+  m_Layer: 8
+  m_Name: GhostBulletWaitPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8174743807460356589
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6090943854123920676}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 812102602686786212}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6156695640444004774
 GameObject:
   m_ObjectHideFlags: 0
@@ -3017,6 +3617,8 @@ Transform:
   - {fileID: 639114424481761440}
   - {fileID: 186479493894596832}
   - {fileID: 4671279503830273384}
+  - {fileID: 2405513154416134860}
+  - {fileID: 3445140788001956052}
   m_Father: {fileID: 3823388366183589524}
   m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
 --- !u!114 &1347313810891159227
@@ -3036,6 +3638,10 @@ MonoBehaviour:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
+    attackType: 0
+  settings:
+    ghostAttack:
+      ghostBulletBookInstance: {fileID: 0}
 --- !u!65 &3968647818122402338
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3093,6 +3699,8 @@ Transform:
   - {fileID: 8949513601967655146}
   - {fileID: 6135842379185025025}
   - {fileID: 5737506722531501595}
+  - {fileID: 3058579525259715367}
+  - {fileID: 565054242922842193}
   m_Father: {fileID: 3823388366183589524}
   m_LocalEulerAnglesHint: {x: 0, y: 300, z: 0}
 --- !u!114 &4223303807531861594
@@ -3112,6 +3720,10 @@ MonoBehaviour:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
+    attackType: 0
+  settings:
+    ghostAttack:
+      ghostBulletBookInstance: {fileID: 0}
 --- !u!65 &4362323841318459278
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3169,6 +3781,8 @@ Transform:
   - {fileID: 242551851541566210}
   - {fileID: 3605270122731591729}
   - {fileID: 6968378295450558968}
+  - {fileID: 8420894026808404561}
+  - {fileID: 4409717481957301882}
   m_Father: {fileID: 3823388366183589524}
   m_LocalEulerAnglesHint: {x: 0, y: 45, z: 0}
 --- !u!114 &225146180570560826
@@ -3188,6 +3802,10 @@ MonoBehaviour:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
+    attackType: 0
+  settings:
+    ghostAttack:
+      ghostBulletBookInstance: {fileID: 0}
 --- !u!65 &132381843107573858
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3246,6 +3864,8 @@ Transform:
   - {fileID: 535492124244698239}
   - {fileID: 7734753277741206204}
   - {fileID: 520481961258793917}
+  - {fileID: 5295850456977989915}
+  - {fileID: 8812372678964718505}
   m_Father: {fileID: 3823388366183589524}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &9107902923669823659
@@ -3265,6 +3885,10 @@ MonoBehaviour:
     poltergeistViewID: 0
     useStatus: 1
     membersCount: 8
+    attackType: 0
+  settings:
+    ghostAttack:
+      ghostBulletBookInstance: {fileID: 0}
 --- !u!65 &143822065246884789
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3692,6 +4316,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d26f5a0c71543a14e906260314f8208d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &7850157171904342560
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3445140788001956052}
+  m_Layer: 8
+  m_Name: GhostBulletWaitPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3445140788001956052
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7850157171904342560}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6225458939571817860}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7855234614357665832
 GameObject:
   m_ObjectHideFlags: 0
@@ -3932,6 +4587,37 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.44659466, y: 1.4066483, z: 0.55913574}
   m_Center: {x: 0, y: 0.2000938, z: -0}
+--- !u!1 &8074558407040277777
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4409717481957301882}
+  m_Layer: 8
+  m_Name: GhostBulletWaitPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4409717481957301882
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8074558407040277777}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 505705157166651700}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8118750357489215963
 GameObject:
   m_ObjectHideFlags: 0
@@ -3998,6 +4684,37 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 2.150663, y: 1.6448426, z: 0.8374808}
   m_Center: {x: 0, y: 0.16388375, z: 3.4030734e-10}
+--- !u!1 &8119144776030747305
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3058579525259715367}
+  m_Layer: 8
+  m_Name: GhostTurretPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3058579525259715367
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8119144776030747305}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4739188290729163784}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8175173332180446750
 GameObject:
   m_ObjectHideFlags: 0
@@ -4179,6 +4896,37 @@ Transform:
   - {fileID: 6230630227710624387}
   - {fileID: 6077837282202475003}
   m_Father: {fileID: 7887184534858031849}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8697521725543044891
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2145130309095953586}
+  m_Layer: 8
+  m_Name: GhostBulletWaitPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2145130309095953586
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8697521725543044891}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5635424903813400889}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8884086834777850627
 GameObject:

@@ -3,6 +3,7 @@ using Mains.Models;
 using R3;
 using UnityEngine;
 using ObservableCollections;
+using R3.Triggers;
 
 namespace Mains.ViewModels
 {
@@ -57,8 +58,12 @@ namespace Mains.ViewModels
         private bool _isMoveGhostDirectionTarget;
         /// <summary>オバケ移動演出の対象</summary>
         public bool IsMoveGhostDirectionTarget => _isMoveGhostDirectionTarget;
+        /// <summary>攻撃開始フラグ</summary>
+        private ReactiveCommand<Transform> _isStartAttack = new ReactiveCommand<Transform>();
+        /// <summary>攻撃開始フラグ</summary>
+        public ReactiveCommand<Transform> IsStartAttack => _isStartAttack;
 
-        public PoltergeistViewModel(PoltergeistTable poltergeistTable)
+        public PoltergeistViewModel(PoltergeistTable poltergeistTable, Transform startAttackInstance = null)
         {
             Observable.EveryUpdate()
                 .Select(_ => GameObject.FindAnyObjectByType<PlayerModel>())
@@ -101,6 +106,46 @@ namespace Mains.ViewModels
                             .AddTo(ref _disposableBag);
                         })
                         .AddTo(ref _disposableBag);
+                })
+                .AddTo(ref _disposableBag);
+            // オバケの攻撃開始範囲の有効フラグ
+            ReactiveProperty<bool> startAttackInstanceEnabled = new ReactiveProperty<bool>();
+            // オバケの攻撃開始範囲の監視
+            System.IDisposable disposable = null;
+            startAttackInstanceEnabled.Subscribe(enabled =>
+            {
+                if (enabled)
+                {
+                    disposable = startAttackInstance.OnTriggerEnterAsObservable()
+                        .Where(x => x.CompareTag("Player"))
+                        .Select(x => x.transform)
+                        .Take(1)
+                        .Subscribe(player =>
+                        {
+                            _isStartAttack.Execute(player);
+                        })
+                        .AddTo(ref _disposableBag);
+                }
+                else
+                {
+                    disposable?.Dispose();
+                }
+            })
+                .AddTo(ref _disposableBag);
+            // オバケの攻撃開始範囲コライダー
+            Collider startAttackInstanceCollider = null;
+            if (startAttackInstance != null)
+            {
+                startAttackInstanceCollider = startAttackInstance.GetComponent<SphereCollider>();
+            }
+            Observable.EveryUpdate()
+                .Subscribe(_ =>
+                {
+                    if (startAttackInstanceCollider != null &&
+                        startAttackInstanceCollider.enabled != startAttackInstanceEnabled.Value)
+                    {
+                        startAttackInstanceEnabled.Value = startAttackInstanceCollider.enabled;
+                    }
                 })
                 .AddTo(ref _disposableBag);
         }
@@ -171,6 +216,15 @@ namespace Mains.ViewModels
         public void SetIsMoveGhostDirectionTarget(bool isMoveGhostDirectionTarget)
         {
             _isMoveGhostDirectionTarget = isMoveGhostDirectionTarget;
+        }
+
+        /// <summary>
+        /// 攻撃開始フラグをセット
+        /// </summary>
+        /// <param name="isStartAttack">攻撃開始フラグ</param>
+        public void SetIsStartAttack(Transform isStartAttack)
+        {
+            _isStartAttack.Execute(isStartAttack);
         }
 
         public void Dispose()

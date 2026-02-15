@@ -18,6 +18,10 @@ namespace Mains.ViewModels
         public ReactiveCommand<int> IsCompletedRhythmPart => _isCompletedRhythmPart;
         /// <summary>Rewiredのプレイヤー</summary>
         private Player _player;
+        /// <summary>オバケ攻撃のヒットフラグ</summary>
+        private ReactiveCommand<bool> _isHitGhostAttack = new ReactiveCommand<bool>();
+        /// <summary>オバケ攻撃のヒットフラグ</summary>
+        public ReactiveCommand<bool> IsHitGhostAttack => _isHitGhostAttack;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -33,6 +37,11 @@ namespace Mains.ViewModels
                     _playerModel.IsCompletedRhythmPart.Subscribe(isCompleted =>
                     {
                         _isCompletedRhythmPart.Execute(isCompleted);
+                    })
+                        .AddTo(ref _disposableBag);
+                    _playerModel.IsHitGhostAttack.Subscribe(isHitGhostAttack =>
+                    {
+                        _isHitGhostAttack.Execute(isHitGhostAttack);
                     })
                         .AddTo(ref _disposableBag);
                 })

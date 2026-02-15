@@ -47,6 +47,13 @@ namespace Mains.Views
                     }
                 })
                 .AddTo(ref _disposableBag);
+            // 攻撃用オブジェクトがプレイヤーへヒットしたかを監視
+            _viewModel.IsHitGhostAttack.Where(x => x)
+                .Subscribe(_ =>
+                {
+                    PlayHPDownDirection(settings.playableDirector, _viewModel);
+                })
+                .AddTo(ref _disposableBag);
         }
 
         private void OnDestroy()
