@@ -7,25 +7,20 @@ using UnityEngine;
 /// </summary>
 public enum MissileAnimationType
 {
-    None,       // アニメーションなし（非表示）
-    Long1st,    // 長押し系1段階目
-    Long2nd,    // 長押し系2段階目
-    Long3rd,    // 長押し系3段階目
-    Long4th,    // 長押し系4段階目
-    Short1st,   // 短押し系1段階目
-    Short2nd,   // 短押し系2段階目
-    Short3rd,   // 短押し系3段階目
-
-    // 長押し2拍用
-    Long02_01,  // 2拍長押し1段階目
-    Long02_02,  // 2拍長押し2段階目
-
-    // 長押し3拍用
-    Long03_01,  // 3拍長押し1段階目
-    Long03_02,  // 3拍長押し2段階目
-    Long03_03,  // 3拍長押し3段階目
-
-    Hit         // ヒットエフェクト
+    None,
+    Long1st,
+    Long2nd,
+    Long3rd,
+    Long4th,
+    Short1st,
+    Short2nd,
+    Short3rd,
+    Long02_01,
+    Long02_02,
+    Long03_01,
+    Long03_02,
+    Long03_03,
+    Hit
 }
 
 /// <summary>
@@ -33,11 +28,12 @@ public enum MissileAnimationType
 /// </summary>
 public enum MissileNoteType
 {
-    None,       // なし
-    Short,      // 短押し
-    Long1Beat,  // 1拍長押し
-    Long2Beat,  // 2拍長押し
-    Long3Beat   // 3拍長押し
+    None,
+    Short,
+    Long1Beat,
+    Long2Beat,
+    Long3Beat,
+    Long2Beat_Mic   // マイク音量判定型2拍長押し
 }
 
 /// <summary>
@@ -45,7 +41,6 @@ public enum MissileNoteType
 /// </summary>
 public static class MissileAnimationSequences
 {
-    // Short系ノーツのアニメーションシーケンス
     public static readonly MissileAnimationType[] ShortSequence = new MissileAnimationType[]
     {
         MissileAnimationType.Short1st,
@@ -54,7 +49,6 @@ public static class MissileAnimationSequences
         MissileAnimationType.Hit
     };
 
-    // 1拍長押し系ノーツのアニメーションシーケンス
     public static readonly MissileAnimationType[] Long1BeatSequence = new MissileAnimationType[]
     {
         MissileAnimationType.Long1st,
@@ -64,7 +58,6 @@ public static class MissileAnimationSequences
         MissileAnimationType.Hit
     };
 
-    // 2拍長押し系ノーツのアニメーションシーケンス
     public static readonly MissileAnimationType[] Long2BeatSequence = new MissileAnimationType[]
     {
         MissileAnimationType.Long1st,
@@ -75,7 +68,6 @@ public static class MissileAnimationSequences
         MissileAnimationType.Hit
     };
 
-    // 3拍長押し系ノーツのアニメーションシーケンス
     public static readonly MissileAnimationType[] Long3BeatSequence = new MissileAnimationType[]
     {
         MissileAnimationType.Long1st,
@@ -87,25 +79,19 @@ public static class MissileAnimationSequences
         MissileAnimationType.Hit
     };
 
-    /// <summary>
-    /// アニメーションパターンに応じたシーケンスを取得
-    /// </summary>
     public static MissileAnimationType[] GetSequenceForPattern(int pattern)
     {
         switch (pattern)
         {
-            case 0: return new MissileAnimationType[0]; // アニメーションなし
-            case 1: return ShortSequence;               // 短押し
-            case 2: return Long1BeatSequence;           // 1拍長押し
-            case 3: return Long2BeatSequence;           // 2拍長押し
-            case 4: return Long3BeatSequence;           // 3拍長押し
+            case 0: return new MissileAnimationType[0];
+            case 1: return ShortSequence;
+            case 2: return Long1BeatSequence;
+            case 3: return Long2BeatSequence;
+            case 4: return Long3BeatSequence;
             default: return ShortSequence;
         }
     }
 
-    /// <summary>
-    /// ノーツタイプに応じたシーケンスを取得
-    /// </summary>
     public static MissileAnimationType[] GetSequenceForNoteType(MissileNoteType noteType)
     {
         switch (noteType)
@@ -115,13 +101,11 @@ public static class MissileAnimationSequences
             case MissileNoteType.Long1Beat: return Long1BeatSequence;
             case MissileNoteType.Long2Beat: return Long2BeatSequence;
             case MissileNoteType.Long3Beat: return Long3BeatSequence;
+            case MissileNoteType.Long2Beat_Mic: return Long2BeatSequence; // Long2Beatと同じシーケンス
             default: return ShortSequence;
         }
     }
 
-    /// <summary>
-    /// アニメーションタイプの表示名を取得
-    /// </summary>
     public static string GetTypeName(MissileAnimationType type)
     {
         switch (type)
