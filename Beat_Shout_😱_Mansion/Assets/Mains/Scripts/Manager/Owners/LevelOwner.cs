@@ -20,7 +20,6 @@ namespace Mains.Manager.Owners
         private Transform _instancedLevel;
         /// <summary>インスタンス済みレベル</summary>
         public Transform InstancedLevel => _instancedLevel;
-        [SerializeField] private LevelStruct[] レベル構造体リスト;
         /// <summary>レベル構造体管理テーブル</summary>
         [SerializeField] private LevelTable levelTable;
         [SerializeField] private bool ステージを動的に生成する;
@@ -48,7 +47,6 @@ namespace Mains.Manager.Owners
             var temp = new ResourcesUtility();
             var userBean = temp.LoadSaveDatasJsonOfUserBean(ConstResorcesNames.USER_DATA);
             var levelStructs = levelTable.レベル構造体リスト;
-            //var levelStructs = レベル構造体リスト;
             if (ステージを動的に生成する)
             {
                 _level = GameObject.Find("Level").transform;
