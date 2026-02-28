@@ -3,12 +3,27 @@ guid: 5687a7ca8f90fd54da661573dfc8bc6d
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 01_03_cabinet2
+    second: {fileID: 2100000, guid: 1e3490c0c11e72f40ad6b0214031fdbe, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 01_03_cabinet2_light
+    second: {fileID: 2100000, guid: ebba5c9df86fd4e43bde549a0e4f993d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: fire
+    second: {fileID: 2100000, guid: 0a083414f6cf4904b9fb88c7b5067c56, type: 2}
   materials:
     materialImportMode: 2
-    materialName: 0
-    materialSearch: 1
-    materialLocation: 0
+    materialName: 1
+    materialSearch: 2
+    materialLocation: 1
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0

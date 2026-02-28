@@ -3,12 +3,22 @@ guid: 205be88ad437d144caf62205e06128d0
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 01_08_plant_sansevieria
+    second: {fileID: 2100000, guid: c0816293fc950ab45ba9bf69eb864b57, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 01_08_plant_sansevieria_leaf
+    second: {fileID: 2100000, guid: abb15895fbef4394f8a1f31b29a47d14, type: 2}
   materials:
     materialImportMode: 2
-    materialName: 0
-    materialSearch: 1
-    materialLocation: 0
+    materialName: 1
+    materialSearch: 2
+    materialLocation: 1
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0

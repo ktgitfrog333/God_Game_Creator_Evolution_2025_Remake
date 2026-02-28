@@ -3,12 +3,17 @@ guid: 9433c2c673f7a034598bb8d9389e8050
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 01_10_sofatable
+    second: {fileID: 2100000, guid: b833c8c474131a74ba363617d0d4895f, type: 2}
   materials:
     materialImportMode: 2
-    materialName: 0
-    materialSearch: 1
-    materialLocation: 0
+    materialName: 1
+    materialSearch: 2
+    materialLocation: 1
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0
