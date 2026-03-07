@@ -2749,7 +2749,7 @@ GameObject:
   - component: {fileID: 921818179}
   - component: {fileID: 921818178}
   m_Layer: 0
-  m_Name: Spot Light_chandelier
+  m_Name: Light_chandelier
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2870,7 +2870,7 @@ GameObject:
   - component: {fileID: 931969414}
   - component: {fileID: 931969413}
   m_Layer: 0
-  m_Name: Spot Light_wall_lamp
+  m_Name: Light_wall_lamp
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2885,7 +2885,7 @@ Transform:
   m_GameObject: {fileID: 931969411}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -1, z: -0, w: 0}
-  m_LocalPosition: {x: -0.0016829967, y: 0.19075131, z: 0.28340006}
+  m_LocalPosition: {x: -0.0016829967, y: 0.276, z: 0.28340006}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3357,7 +3357,7 @@ GameObject:
   - component: {fileID: 1018685739}
   - component: {fileID: 1018685738}
   m_Layer: 0
-  m_Name: Spot Light_chandelier_1
+  m_Name: Light_chandelier_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3372,7 +3372,7 @@ Transform:
   m_GameObject: {fileID: 1018685736}
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: -0.132, z: 0}
+  m_LocalPosition: {x: 0, y: -0.054, z: -0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5917,7 +5917,7 @@ GameObject:
   - component: {fileID: 1666256514}
   - component: {fileID: 1666256513}
   m_Layer: 0
-  m_Name: Spot Light_cabinet2
+  m_Name: Light_cabinet2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6871,7 +6871,7 @@ GameObject:
   - component: {fileID: 1933433992}
   - component: {fileID: 1933433991}
   m_Layer: 0
-  m_Name: Spot Ligh_table lamp
+  m_Name: Light_table lamp
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
