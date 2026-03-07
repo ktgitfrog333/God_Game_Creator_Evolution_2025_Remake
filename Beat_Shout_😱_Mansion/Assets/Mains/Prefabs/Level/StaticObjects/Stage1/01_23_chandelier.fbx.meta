@@ -12,6 +12,11 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: 01_23_chandelier.001
+    second: {fileID: 2100000, guid: fb5694e2e0fe55944844f50a19656043, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: 01_23_chandelier_light
     second: {fileID: 2100000, guid: 71747af790bcced46ba2b3ab18871acb, type: 2}
   materials:
