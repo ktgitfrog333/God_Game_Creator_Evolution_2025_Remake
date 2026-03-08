@@ -1,0 +1,91 @@
+# 中ボス機能およびシャウトノーツの実装状況と今後の実装計画
+
+指定された対象パス（`Assets/Mains`, `Assets/Universal`, `Assets/Script_xylo`, `Assets/Prefab_xylo`）内のスクリプトおよびプレハブを調査しました。
+結果として、中ボス要素およびシャウトノーツの機能は**実装に不足が多く、新規作成や結合が必要な状態**です。各要件に対する実装の過不足と、今後の実装案を以下にまとめます。
+
+## User Review Required
+> [!IMPORTANT]
+> シロさんの実装コードで指定されている `FireCheckpoint` メソッドは `MissileMicInputManager` 内に追加されていることを確認しました。こちらの機能を利用してシャウトノーツとマイク入力の橋渡しを行います。
+> 一方で、難易度管理用の `NormalEnemyMember`, `EliteEnemyMember` といったクラスや `PlayMode` enumなどはプロジェクト内で依然として見つかりませんでした。これらの中ボス進行管理や難易度管理に関する要素については、「これから実装する範囲」として進めさせていただきます。
+
+---
+
+## 現状の調査結果と過不足
+
+### 1. 中ボス要素の追加
+現状、指定パス内に「中ボス（MiddleBoss/MediumEnemy）」を管理する専用クラスや、難易度・ノルマ制を制御するロジック（リズムパートScriptableObjectにおけるPlayModeなど）は存在しません。
+
+* **[不足]** ステージ3以降で中ボスを出現させるステージ進行・生成管理ロジック
+* **[不足]** 中ボス用（EliteEnemy等）のクラスおよび振る舞い（全雑魚オバケ討伐後の出現制御など）
+* **[不足]** リズムパートのノルマ制管理（曲が完走するまで続く進行制御）
+* **[不足]** クリア条件の判定（総ノーツの80%未満で失敗、ライフ1減少）
+* **[不足]** BAD判定時の電池ドロップ演出の分岐（中ボスの場合はドロップさせない等のフラグ制御）
+
+### 2. シャウトノーツの追加
+シロさん実装パス（`Script_xylo`, `Prefab_xylo`）内にマイク入力機能（`MicInput_Criware`）や一部UI（`SpectrumCircle`等）は存在しますが、肝心の「シャウトノーツ」本体のスクリプトはまだMains側に統合されていません。
+
+* **[実装済/一部]** マイク入力の取得処理（`Script_xyloApi`から`MicInput_Criware`へアクセス可能）
+* **[実装済/一部]** スペクトラム風UIのプレハブおよびアニメーション制御（`SpectrumCircle.prefab`, `spectrumGauge.cs`にてBGMの拍に合わせた鼓動演出が対応済）
+* **[実装済/一部]** マイク入力によるスコア減算の仕組み（`MissileMicInputManager` の `FireCheckpoint` 等）
+* **[実装済/一部]** ノーツの配置管理（`MissileTempoSpawner`等によるインスペクタ設定ベースでの生成）
+* **[不足]** シャウトノーツ自体のクラスとプレハブ（ロングノーツを流用し、サークル減少を止め、`spectrumGauge`等と連動させる処理）
+* **[不足]** `MissileMicInputManager` (または `MicInput_Criware`等) からシャウトノーツのUI通知処理との接続
+
+---
+
+## Proposed Changes
+これらの過不足を満たすための実装案です。
+
+### Rhyhm Part / Enemy Management
+ステージ生成やオバケの進行管理など、Mains側のモデルやマネージャーレイヤーを拡張します。（MVVM・R3の原則、および命名規則に従って実装します）
+
+#### [NEW] `Assets/Mains/Scripts/Models/Enemy/MediumBossEnemyModel.cs`
+中ボスのデータモデル。電池を落とさないフラグや、ボスの状態（HPなど）をR3の `ObservableProperty` などで管理します。
+
+#### [NEW] `Assets/Mains/Scripts/ViewModels/Enemy/MediumBossEnemyViewModel.cs`
+中ボス用のViewModel。Modelの状態変更を購読し、Viewへと伝達するためのR3ストリーム（`Observable`）やコマンドを公開します。
+
+#### [NEW] `Assets/Mains/Scripts/Views/Enemy/MediumBossEnemyView.cs`
+中ボス用のViewコンポーネント。ViewModelのストリームを購読し、Unity上のオブジェクト（アニメーションやパーティクル、エフェクト等）の実際の制御を行います。
+
+#### [MODIFY] `ステージ管理/スポーナー関連クラス`
+ステージ3以降（UserBeanのSceneIndex \>= 3）に到達し、雑魚オバケが全滅した際に中ボスをスポーンさせるロジックを追加。
+
+#### [MODIFY] `リズムパートのScriptableObject (難易度管理)`
+`NormalEnemyMember` や `EliteEnemyMember` といった設定クラス、および `PlayMode` enum（Hard, Medium等）を定義し、クリア条件（全体の80%以上、特定の数など）を判定できるようにします。
+
+### Shout Notes / Mic Input
+ロングノーツを拡張し、マイク入力をフックするシャウトノーツを作成します。
+
+#### [NEW] `Assets/Mains/Scripts/Views/Notes/ShoutNoteView.cs` (及びViewModel等)
+ロングノーツのロジックやプレハブを流用（継承またはコンポーネント差し替え）。
+* 時間経過によるサークルの縮小を無効化する。
+* エイム合わせ・クリック操作は不要（自動で開始される）。
+* シロさんのスペクトラムUI（`SpectrumCircle`等）を子オブジェクトとし、アタッチされている `spectrumGauge.cs` によって背景BGMに合わせて自動で鼓動（伸縮）する演出を利用する。
+* `Script_xyloApi` 経由または `MissileMicInputManager` を用いてマイク入力を取得（毎フレーム、またはUI取得フレームに合わせて）し、声の大きさに応じた係数（音量レベル等）を掛けた値を減算する（すでに実装されている `FireCheckpoint` の仕組み等と連携）。
+* 中央に`100`の数値を表示し、マイク入力に応じて減少させる。
+* 「1周したタイミング（判定終了時）」で中央の数字が`0`になっていれば「GOOD」、`1`以上残っていれば「BAD」とする。
+* 途中で`0`（クリア）になっても判定終了まではノーツ及びシャウトゲージUIは消さない。
+* マイク入力が開始される時点で、画面下部の大きなマイクゲージUI（シャウトチャンスのもの）を表示する。
+
+#### [MODIFY] `MissileObjectPooler` へのプレハブ登録（設定のみ、スクリプト変更不要）
+調査の結果、シロさん実装側の `MissileTempoSpawner` と `MissileObjectPooler` はすでにIDベースでの柔軟なノーツスポーンに対応していることが判明しました。
+そのため、新規プログラムを追加・拡張する必要はありません。完成したシャウトノーツのプレハブを `MissileObjectPooler` のインスペクタのリストに登録し、`MissileTempoSpawner` のパターン文字列にてそのIDを指定していただくことで対応可能となります。
+
+#### [NEW] `Assets/Mains/Prefabs/Notes/ShoutNote.prefab`
+ロングノーツ（`GhostLong1`等）をベースにした新たなシャウトノーツプレハブを作成し、上記Viewスクリプト等をアタッチします。
+
+---
+
+## Verification Plan
+
+### Manual Verification
+1. 設定を変更し、ステージ3（SceneIndex=3）から開始する。
+2. 雑魚オバケをすべて倒した直後に中ボスが正しく出現することを確認する。
+3. 中ボス戦に移行し、リズムパートが曲の完走まで続くこと（途中で打ち切られないこと）を確認する。
+4. シャウトノーツが他のノーツと重ならないタイミングで流れてくることを確認する。
+5. シャウトノーツ出現時にシャウトゲージ（マイクUI）が画面に表示されるかを確認する。
+6. シャウトノーツに対し、エイム合わせやクリックが不要で自動で判定期間が開始されることを確認する。
+7. マイク入力（声の大きさ）によって中央の100の数値が減少し、判定時間終了時に0になっていた際に「GOOD」、1以上残っていた際に「BAD」判定になるかを確認する。
+8. 途中で0になっても時間いっぱいまでノーツが残り続けることを確認する。
+9. あえてBAD判定を出し、中ボスが電池を落とさないこと、および最終的に80%未満の成績でクリアした際に「失敗（ライフの減少）」となることを確認する。
