@@ -25,9 +25,8 @@ MonoBehaviour:
     - 5
     - 3
     - 0.25
-    moveSpeed: 1
+    moveSpeed: 15
     modelFbxFloatDistance: 0.25
     modelFbxBackStepDistance: 0.25
     modelFbxSpinSpeed: 250
     dustParticlePrefab: {fileID: 3800357981639882916, guid: 577e806dc04c6ea4ea260d421e997680, type: 3}
-    isHitPlayerDisabled: 0
