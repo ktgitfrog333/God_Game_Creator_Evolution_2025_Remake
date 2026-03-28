@@ -33,6 +33,23 @@ namespace Mains.Views
         private PoltergeistViewModel _poltergeistViewModel;
         /// <summary>ポルターガイストが有効か</summary>
         public bool IsEnabledPoltergeist { get; set; }
+        /// <summary>ポルターガイストアニメーションSO（nullなら従来物理）</summary>
+        private PoltergeistAnimationSO _poltergeistAnimationSO;
+        /// <summary>ポルターガイストアニメーションSOセッター</summary>
+        public PoltergeistAnimationSO PoltergeistAnimationSO
+        {
+            set
+            {
+                if (_poltergeistAnimationSO != null)
+                {
+                    Destroy(_poltergeistAnimationSO);
+                }
+                // SOがアタッチされた場合、個別の状態管理ができるようにクローンを生成して保持する
+                _poltergeistAnimationSO = value != null ? Instantiate(value) : null;
+            }
+        }
+        /// <summary>壁掛け揺らしのDOTween Sequence</summary>
+        private Sequence _wallHangingShakeSequence;
         /// <summary>トランスフォーム</summary>
         private Transform _transform;
         /// <summary>アクション発火の監視</summary>
@@ -91,7 +108,7 @@ namespace Mains.Views
             Se_3D_PickerCustomizeView t3DSoundPlayer = objectsPoolView.Get3DSoundPlayer();
             _objectsPoolView = objectsPoolView;
             CompositeDisposable disposables = null;
-            var interactionPart = _poltergeistViewModel.InteractionPart;
+            var interactionPart = _poltergeistViewModel.InteractionPartReactive;
             interactionPart.DistinctUntilChanged()
                 .Subscribe(x =>
                 {
@@ -165,6 +182,11 @@ namespace Mains.Views
 
         private void OnDestroy()
         {
+            _wallHangingShakeSequence?.Kill();
+            if (_poltergeistAnimationSO != null)
+            {
+                Destroy(_poltergeistAnimationSO);
+            }
             _disposableBag.Dispose();
             _script_XyloApi?.Dispose();
             _disposables.Dispose();
@@ -202,8 +224,30 @@ namespace Mains.Views
         /// <see cref="Assets/Mains/Animations/Poltergeists/Poltergeist.controller"/>
         public void OnActionFreakout()
         {
-            PlayActionAnimation(IsEnabledPoltergeist, _transform, forceVariation, torqueMagnitude, _initialRotation, tiltThreshold,
-                rigidbody, _poltergeistViewModel, _onAction);
+            var interactionPart = _poltergeistViewModel.InteractionPart;
+            switch (interactionPart)
+            {
+                case InteractionPart.Search:
+                case InteractionPart.ShoutChance:
+                    if (_poltergeistAnimationSO != null)
+                    {
+                        if (!IsEnabledPoltergeist || _transform == null)
+                            return;
+
+                        // 壁掛け揺らしのDOTween Sequence
+                        var sequence = _wallHangingShakeSequence;
+                        sequence?.Kill();
+                        sequence = _poltergeistAnimationSO.Play(_transform, _initialLocalRotation);
+                        _onAction.Execute(true);
+                    }
+                    else
+                    {
+                        PlayActionAnimation(IsEnabledPoltergeist, _transform, forceVariation, torqueMagnitude, _initialRotation, tiltThreshold,
+                            rigidbody, _poltergeistViewModel, _onAction);
+                    }
+
+                    break;
+            }
         }
 
         /// <summary>
@@ -325,6 +369,11 @@ namespace Mains.Views
         /// <remarks>クラゲの様にふわふわ空中に漂うDOTweenアニメーション</remarks>
         public IEnumerator DoPlayFloaterAnimation()
         {
+            // 壁掛け揺らしのDOTween Sequence
+            var sequence = _wallHangingShakeSequence;
+            sequence?.Rewind();
+            sequence?.Pause();
+
             if (_transform != null &&
                 _script_XyloApi != null)
             {

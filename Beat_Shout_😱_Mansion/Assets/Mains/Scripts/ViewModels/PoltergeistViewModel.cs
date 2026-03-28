@@ -25,9 +25,13 @@ namespace Mains.ViewModels
             }
         }
         /// <summary>【探索／シャウトチャンス／リズム】パート</summary>
-        private ReactiveCommand<InteractionPart> _interactionPart = new ReactiveCommand<InteractionPart>();
+        private InteractionPart _interactionPart;
         /// <summary>【探索／シャウトチャンス／リズム】パート</summary>
-        public ReactiveCommand<InteractionPart> InteractionPart => _interactionPart;
+        public InteractionPart InteractionPart => _interactionPart;
+        /// <summary>【探索／シャウトチャンス／リズム】パート</summary>
+        private ReactiveCommand<InteractionPart> _interactionPartReactive = new ReactiveCommand<InteractionPart>();
+        /// <summary>【探索／シャウトチャンス／リズム】パート</summary>
+        public ReactiveCommand<InteractionPart> InteractionPartReactive => _interactionPartReactive;
         /// <summary>オバケの家具入居管理の構造体リスト</summary>
         public ObservableList<GhostInStaticObjectStruct> GhostInStaticObjectStructs => _playerModel?.GhostInStaticObjectStructs ?? null;
         /// <summary>プレイヤーのトランスフォーム</summary>
@@ -101,7 +105,8 @@ namespace Mains.ViewModels
                         {
                             table.interactionPart.Subscribe(interactionPart =>
                             {
-                                _interactionPart.Execute(interactionPart);
+                                _interactionPart = interactionPart;
+                                _interactionPartReactive.Execute(interactionPart);
                             })
                             .AddTo(ref _disposableBag);
                         })

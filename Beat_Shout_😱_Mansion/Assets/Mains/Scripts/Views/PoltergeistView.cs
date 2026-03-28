@@ -184,6 +184,16 @@ namespace Mains.Views
                 }
             }
             _motorView = motorInstance.GetComponent<MotorView>();
+            // ポルターガイストの設定
+            var set = settings;
+            // 壁掛けオブジェクト用アニメーションSO
+            PoltergeistAnimationSO poltergeistAnimationSO = set.poltergeistAnimationSO;
+            if (poltergeistAnimationSO != null)
+            {
+                _motorView.PoltergeistAnimationSO = poltergeistAnimationSO;
+                _rigidbody.isKinematic = true;
+                _rigidbody.useGravity = false;
+            }
             // オバケの攻撃開始範囲の半径は振動を開始する最長距離の値を使用する
             var startAttackCollider = startAttackInstance.GetComponent<SphereCollider>();
             startAttackCollider.radius = _motorView.MaxDistance;
@@ -272,7 +282,7 @@ namespace Mains.Views
                         })
                         .AddTo(ref _disposableBag);
                     // リズムパートへ移行した際に実行中なら中断する（再び呼ばれることがあった場合は最初から再生）
-                    _poltergeistViewModel.InteractionPart.Where(x => x.Equals(InteractionPart.Rhythm))
+                    _poltergeistViewModel.InteractionPartReactive.Where(x => x.Equals(InteractionPart.Rhythm))
                         .Take(1)
                         .Subscribe(_ =>
                         {
@@ -353,7 +363,7 @@ namespace Mains.Views
 
                             break;
                         case GhostAttackType.ThrowBookNotInstance:
-                            var ghostBulletBookInstance = settings.ghostAttack.ghostBulletBookInstance;
+                            var ghostBulletBookInstance = set.ghostAttack.ghostBulletBookInstance;
                             if (ghostBulletBookInstance != null)
                             {
                                 ghostBulletsInstance[type] = ghostBulletBookInstance.GetComponent<GhostBulletBookView>();
@@ -537,6 +547,10 @@ namespace Mains.Views
                         var ghostStructs = _poltergeistViewModel.GhostInStaticObjectStructs;
                         var cnt = ghostStructs.Select(q => q.membersCount).Sum();
                         var healthPoint = _poltergeistViewModel.PlayerHealthPoint.Value;
+                        // ポルターガイストの設定
+                        var set = settings;
+                        // 壁掛けオブジェクト用アニメーションSO
+                        PoltergeistAnimationSO poltergeistAnimationSO = set.poltergeistAnimationSO;
                         if (0 < cnt && 0 < healthPoint)
                         {
                             completionObservables.Add(
@@ -548,7 +562,7 @@ namespace Mains.Views
                                 .Do(_ =>
                                 {
                                     _motorView?.DoStopFloaterAnimation();
-                                    ResetMovePosition(_initialPosition, _initialEulerAngles, _noTriggerColliders, _rigidbody);
+                                    ResetMovePosition(_initialPosition, _initialEulerAngles, _noTriggerColliders, _rigidbody, poltergeistAnimationSO);
                                 })
                             );
                         }
@@ -563,7 +577,7 @@ namespace Mains.Views
                                 .Do(_ =>
                                 {
                                     _motorView?.DoStopFloaterAnimation();
-                                    ResetMovePosition(_initialPosition, _initialEulerAngles, _noTriggerColliders, _rigidbody);
+                                    ResetMovePosition(_initialPosition, _initialEulerAngles, _noTriggerColliders, _rigidbody, poltergeistAnimationSO);
                                     _poltergeistViewModel.SetIsMissionClear(true);
                                 })
                             );
@@ -780,7 +794,11 @@ namespace Mains.Views
         /// </summary>
         public void MovePosition()
         {
-            SetRigidbodyStatus(_rigidbody, false);
+            // ポルターガイストの設定
+            var set = settings;
+            // 壁掛けオブジェクト用アニメーションSO
+            PoltergeistAnimationSO poltergeistAnimationSO = set.poltergeistAnimationSO;
+            SetRigidbodyStatus(_rigidbody, false, poltergeistAnimationSO);
             SetNoTriggerColliders(_noTriggerColliders, false);
             _transform.position = _rhythmPartPosition_1;
             _transform.eulerAngles = _rhythmPartEulerAngles_1;
@@ -794,7 +812,11 @@ namespace Mains.Views
         /// <returns>コルーチン</returns>
         public IEnumerator PlayMovePositionAnimation(Observer<bool> observer, Transform playerTransform)
         {
-            SetRigidbodyStatus(_rigidbody, false);
+            // ポルターガイストの設定
+            var set = settings;
+            // 壁掛けオブジェクト用アニメーションSO
+            PoltergeistAnimationSO poltergeistAnimationSO = set.poltergeistAnimationSO;
+            SetRigidbodyStatus(_rigidbody, false, poltergeistAnimationSO);
             SetNoTriggerColliders(_noTriggerColliders, false);
 
             Vector3 targetPosition = _rhythmPartPosition_1;
@@ -906,9 +928,14 @@ namespace Mains.Views
         /// </summary>
         /// <param name="rigidbody">Rigidbody</param>
         /// <param name="isEnabled">有効／無効</param>
-        private void SetRigidbodyStatus(Rigidbody rigidbody, bool isEnabled)
+        /// <param name="poltergeistAnimationSO">壁掛けオブジェクト用アニメーションSO</param>
+        private void SetRigidbodyStatus(Rigidbody rigidbody, bool isEnabled, PoltergeistAnimationSO poltergeistAnimationSO)
         {
             if (rigidbody == null)
+                return;
+
+            // SO設定済み（壁掛け）の場合は常にKinematic維持（落下防止）
+            if (poltergeistAnimationSO != null)
                 return;
 
             if (isEnabled &&
@@ -965,12 +992,13 @@ namespace Mains.Views
         /// <param name="initialEulerAngles">初期オイラー角度</param>
         /// <param name="noTriggerColliders">コライダーリスト</param>
         /// <param name="rigidbody">Rigidbody</param>
-        private void ResetMovePosition(Vector3 initialPosition, Vector3 initialEulerAngles, List<Collider> noTriggerColliders, Rigidbody rigidbody)
+        /// <param name="poltergeistAnimationSO">壁掛けオブジェクト用アニメーションSO</param>
+        private void ResetMovePosition(Vector3 initialPosition, Vector3 initialEulerAngles, List<Collider> noTriggerColliders, Rigidbody rigidbody, PoltergeistAnimationSO poltergeistAnimationSO)
         {
             _transform.position = initialPosition;
             _transform.eulerAngles = initialEulerAngles;
             SetNoTriggerColliders(noTriggerColliders, true);
-            SetRigidbodyStatus(rigidbody, true);
+            SetRigidbodyStatus(rigidbody, true, poltergeistAnimationSO);
         }
 
         /// <summary>
@@ -1026,6 +1054,8 @@ namespace Mains.Views
     {
         /// <summary>オバケの攻撃タイプの設定</summary>
         public GhostAttack ghostAttack;
+        [Tooltip("壁掛けオブジェクト用アニメーションSO。セットすると従来の物理揺らしに代わりDOTweenで再生する。")]
+        public PoltergeistAnimationSO poltergeistAnimationSO;
 
         /// <summary>
         /// オバケの攻撃タイプの設定

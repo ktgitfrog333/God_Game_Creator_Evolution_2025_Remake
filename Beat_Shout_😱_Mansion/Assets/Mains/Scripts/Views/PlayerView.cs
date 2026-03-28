@@ -972,8 +972,7 @@ namespace Mains.Views
                 currentPitch -= aimY * aimSensitivity * Time.deltaTime;
 
                 // ピッチ角度を制限 (-90度～90度)
-                // TODO: 外的要因（シャウト成功による自動移動等）で取得角度がエッジケースに該当することがある
-                //       currentPitchが0⇒359.3694⇒90（※Mathf.Clampの補間）⇒唐突にプレイヤーが土下座する
+                currentPitch = Mathf.DeltaAngle(0, currentPitch); // 340度なら-20度に変換される
                 currentPitch = Mathf.Clamp(currentPitch, -90f, 90f);
             }
         }
