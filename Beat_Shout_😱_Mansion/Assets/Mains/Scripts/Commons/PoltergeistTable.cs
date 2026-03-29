@@ -44,5 +44,8 @@ namespace Mains.Commons
             [Tooltip("Assets/Mains/Prefabs/Level/DynamicObjects/SearchParts/GhostBulletBook.prefabをセットしておく。")]
             public Transform ghostBulletBookPrefab;
         }
+
+        [Tooltip("スピードオバケが別の家具に移動するまでの時間（秒）")]
+        public float moveIntervalSeconds = 30f;
     }
 }

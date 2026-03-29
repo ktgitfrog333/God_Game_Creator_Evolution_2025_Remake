@@ -19,5 +19,7 @@ namespace Mains.Commons
         public int membersCount;
         /// <summary>オバケの攻撃タイプ</summary>
         public GhostAttackType attackType;
+        /// <summary>オバケの移動タイプ</summary>
+        public MoveType moveType;
     }
 }

@@ -73,6 +73,22 @@ namespace Mains.Views
         private Rigidbody _rigidbody;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
+        /// <summary>パトロール（引っ越し）タイマー</summary>
+        private System.IDisposable _patrolTimerDisposable = null;
+        /// <summary>移動用オバケ生成位置</summary>
+        private Vector3 _missGhostEscapePosition = Vector3.zero;
+        /// <summary>移動用オバケ生成角度</summary>
+        private Vector3 _missGhostEscapeEulerAngles = Vector3.zero;
+
+        /// <summary>パトロール（引っ越し）の残り時間</summary>
+        private float _patrolRemainingTime = -1f;
+
+#if UNITY_EDITOR
+        /// <summary>エディター表示用：パトロールの残り時間 (-1なら停止中)</summary>
+        public float DebugPatrolRemainingTime => _patrolRemainingTime;
+        /// <summary>エディター表示用：パトロール間隔</summary>
+        public float DebugPatrolInterval { get; private set; } = -1f;
+#endif
 
         private void Reset()
         {
@@ -219,11 +235,18 @@ namespace Mains.Views
                             ghostInStaticObjectStruct.useStatus = x.NewValue.useStatus;
                             ghostInStaticObjectStruct.membersCount = x.NewValue.membersCount;
                             ghostInStaticObjectStruct.attackType = x.NewValue.attackType;
+                            ghostInStaticObjectStruct.moveType = x.NewValue.moveType;
                             ghostAttackType.Value = ghostInStaticObjectStruct.attackType;
                             // ghostTeamIDが空なら、motorInstanceへポルターガイストを無効に更新する
                             // 空でないなら、有効に更新する
                             _motorView.IsEnabledPoltergeist = !string.IsNullOrEmpty(x.NewValue.ghostTeamID.Value);
                             _motorView.DustParticlePosition = FindOrInstanceGameObject("DustParticlePosition");
+
+                            StopPatrolTimer();
+                            if (x.NewValue.moveType == MoveType.Patrol && x.NewValue.useStatus == UseStatus.Using)
+                            {
+                                StartPatrolTimer();
+                            }
                         })
                         .AddTo(ref _disposableBag);
                     // オブジェクトIDを割り振る
@@ -248,19 +271,32 @@ namespace Mains.Views
                     ghostAttackType.Value = ghostInStaticObjectStruct.attackType;
                 })
                 .AddTo(ref _disposableBag);
-            // 移動用オバケ生成位置
-            Vector3 missGhostEscapePosition = Vector3.zero;
-            // 移動用オバケ生成角度
-            Vector3 missGhostEscapeEulerAngles = Vector3.zero;
             foreach (Transform child in _transform)
             {
                 if (child.name.Equals("MissGhostEscapePosition"))
                 {
-                    missGhostEscapePosition = child.position;
-                    missGhostEscapeEulerAngles = child.eulerAngles;
+                    _missGhostEscapePosition = child.position;
+                    _missGhostEscapeEulerAngles = child.eulerAngles;
                     break;
                 }
             }
+            // パート切り替え時にもタイマーを制御
+            _poltergeistViewModel.InteractionPartReactive.Subscribe(part => 
+            {
+                if (part == InteractionPart.Search || part == InteractionPart.ShoutChance) 
+                {
+                    if (ghostInStaticObjectStruct.moveType == MoveType.Patrol && ghostInStaticObjectStruct.useStatus == UseStatus.Using)
+                    {
+                        // 該当パートに戻ったらタイマー再開
+                        StartPatrolTimer();
+                    }
+                } 
+                else if (part == InteractionPart.Rhythm)
+                {
+                    // リズムパート時は一時停止
+                    PausePatrolTimer();
+                }
+            }).AddTo(ref _disposableBag);
             // オバケ移動演出の再生完了を監視する
             System.IDisposable playMoveGhostDirectionDisposable = null;
             // リズムパートが終了⇒フェードインアウト完了⇒家具とプレイヤーがお互い向き合っている状態を監視
@@ -271,7 +307,7 @@ namespace Mains.Views
                 {
                     // 移動用オバケプレハブ（生成済み）
                     Transform instanceMissGhostEscape = null;
-                    var direction = PlayMoveGhostDirection(poltergeistTable.missGhostEscapePrefab, missGhostEscapePosition, missGhostEscapeEulerAngles, _transform, _script_XyloApi,
+                    var direction = PlayMoveGhostDirection(poltergeistTable.missGhostEscapePrefab, _missGhostEscapePosition, _missGhostEscapeEulerAngles, _transform, _script_XyloApi,
                         _poltergeistViewModel, instanceMissGhostEscape);
                     playMoveGhostDirectionDisposable = direction.Take(1)
                         .Subscribe(_ =>
@@ -472,9 +508,87 @@ namespace Mains.Views
 
         private void OnDestroy()
         {
+            StopPatrolTimer();
             _disposableBag.Dispose();
             _script_XyloApi?.Dispose();
             _poltergeistViewModel?.Dispose();
+        }
+
+        /// <summary>
+        /// スピードオバケ用のパトロール（引っ越し）タイマーを開始する
+        /// </summary>
+        private void StartPatrolTimer()
+        {
+            _patrolTimerDisposable?.Dispose();
+
+            // Inspectorで設定した秒数を取得（例: 30秒）
+            float interval = poltergeistTable.subSettings.moveIntervalSeconds;
+
+            // 初回またはリセット後のみ満タンにする
+            if (_patrolRemainingTime < 0f)
+            {
+                _patrolRemainingTime = interval;
+            }
+
+#if UNITY_EDITOR
+            DebugPatrolInterval = interval;
+#endif
+
+            _patrolTimerDisposable = Observable.EveryUpdate()
+                .Subscribe(_ =>
+                {
+                    _patrolRemainingTime -= Time.deltaTime;
+
+                    if (_patrolRemainingTime <= 0f)
+                    {
+                        _patrolTimerDisposable?.Dispose();
+                        _patrolRemainingTime = -1f; // 次回のStartでリセットされるようにする
+                        
+                        // ターゲットを自分に設定し、演出対象であることをViewModelに通知
+                        _poltergeistViewModel.SetTargetGhost(_transform);
+                        _poltergeistViewModel.SetIsMoveGhostDirectionTarget(true);
+
+                        // 逃げる演出を呼び出し
+                        Transform instanceMissGhostEscape = null;
+                        var direction = PlayMoveGhostDirection(
+                            poltergeistTable.missGhostEscapePrefab, 
+                            _missGhostEscapePosition, 
+                            _missGhostEscapeEulerAngles, 
+                            _transform, 
+                            _script_XyloApi,
+                            _poltergeistViewModel, 
+                            instanceMissGhostEscape
+                        );
+
+                        direction.Take(1).Subscribe(__ =>
+                        {
+                            // 演出完了後
+                            _poltergeistViewModel.SetTargetGhost(null);
+                            _poltergeistViewModel.SetIsCompletedMoveGhostDirection(true);
+                            _poltergeistViewModel.SetIsMoveGhostDirectionTarget(false);
+                            
+                            // 実際の引っ越し処理を実行
+                            ShuffleNewStaticObject();
+                        }).AddTo(ref _disposableBag);
+                    }
+                }).AddTo(ref _disposableBag);
+        }
+
+        /// <summary>
+        /// スピードオバケ用のパトロール（引っ越し）タイマーを一時停止する
+        /// </summary>
+        private void PausePatrolTimer()
+        {
+            _patrolTimerDisposable?.Dispose();
+        }
+
+        /// <summary>
+        /// スピードオバケ用のパトロール（引っ越し）タイマーを停止・リセットする
+        /// </summary>
+        private void StopPatrolTimer()
+        {
+            _patrolTimerDisposable?.Dispose();
+            _patrolRemainingTime = -1f;
         }
 
         /// <summary>
@@ -747,6 +861,7 @@ namespace Mains.Views
                 nextGhostInStaticObjectStruct.useStatus = ghostInStaticObjectStruct.useStatus;
                 nextGhostInStaticObjectStruct.membersCount = ghostInStaticObjectStruct.membersCount;
                 nextGhostInStaticObjectStruct.attackType = ghostInStaticObjectStruct.attackType;
+                nextGhostInStaticObjectStruct.moveType = ghostInStaticObjectStruct.moveType;
                 _poltergeistViewModel.GhostInStaticObjectStructs[randomIndex] = nextGhostInStaticObjectStruct;
 
                 ResetStaticObject();

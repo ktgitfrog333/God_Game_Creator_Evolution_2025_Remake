@@ -252,6 +252,7 @@ MonoBehaviour:
     useStatus: 1
     membersCount: 24
     attackType: 0
+    moveType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -443,6 +444,7 @@ MonoBehaviour:
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -601,6 +603,7 @@ MonoBehaviour:
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -852,6 +855,7 @@ MonoBehaviour:
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -1154,6 +1158,7 @@ MonoBehaviour:
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -1982,6 +1987,7 @@ MonoBehaviour:
     useStatus: 1
     membersCount: 8
     attackType: 0
+    moveType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -2065,6 +2071,7 @@ MonoBehaviour:
     useStatus: 1
     membersCount: 8
     attackType: 0
+    moveType: 1
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -2254,6 +2261,7 @@ MonoBehaviour:
     useStatus: 1
     membersCount: 10
     attackType: 0
+    moveType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -2629,6 +2637,7 @@ MonoBehaviour:
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -3346,6 +3355,7 @@ MonoBehaviour:
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -3566,6 +3576,7 @@ MonoBehaviour:
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -3804,6 +3815,7 @@ MonoBehaviour:
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -4006,6 +4018,7 @@ MonoBehaviour:
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -4789,6 +4802,7 @@ MonoBehaviour:
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -5344,6 +5358,7 @@ MonoBehaviour:
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -5568,6 +5583,7 @@ MonoBehaviour:
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -5896,6 +5912,7 @@ MonoBehaviour:
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -6186,6 +6203,7 @@ MonoBehaviour:
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -7395,6 +7413,7 @@ MonoBehaviour:
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -7737,6 +7756,7 @@ MonoBehaviour:
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -7944,6 +7964,7 @@ MonoBehaviour:
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -8613,6 +8634,7 @@ MonoBehaviour:
     useStatus: 1
     membersCount: 10
     attackType: 0
+    moveType: 1
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
