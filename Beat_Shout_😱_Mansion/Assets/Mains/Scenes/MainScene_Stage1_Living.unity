@@ -645,6 +645,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1537521866}
     m_Modifications:
+    - target: {fileID: 982995311771420208, guid: 81f59d4cdbdd59f46a224abdfddc4e86, type: 3}
+      propertyPath: ghostInStaticObjectStruct.soundOutputType
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 982995311771420208, guid: 81f59d4cdbdd59f46a224abdfddc4e86, type: 3}
+      propertyPath: ghostInStaticObjectStruct.customShoutRadius
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1348431720815234926, guid: 81f59d4cdbdd59f46a224abdfddc4e86, type: 3}
       propertyPath: m_Name
       value: Stage_0

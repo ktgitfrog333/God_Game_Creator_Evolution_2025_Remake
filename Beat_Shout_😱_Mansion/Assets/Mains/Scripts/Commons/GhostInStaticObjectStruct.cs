@@ -21,5 +21,9 @@ namespace Mains.Commons
         public GhostAttackType attackType;
         /// <summary>オバケの移動タイプ</summary>
         public MoveType moveType;
+        /// <summary>シャウト範囲（0等で未設定の場合はテーブルのデフォルト値を使用）</summary>
+        public float customShoutRadius;
+        /// <summary>音の出力タイプ</summary>
+        public SoundOutputType soundOutputType;
     }
 }

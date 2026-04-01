@@ -89,6 +89,12 @@ namespace Mains.Views
         /// <summary>エディター表示用：パトロール間隔</summary>
         public float DebugPatrolInterval { get; private set; } = -1f;
 #endif
+        /// <summary>監視かつSE再生用のDisposable</summary>
+        private System.IDisposable _soundOutputBehaviorDisposable = null;
+        /// <summary>オブジェクトプールビュー</summary>
+        private ObjectsPoolView _objectsPoolView;
+        /// <summary>オブジェクトプールビュー</summary>
+        private ObjectsPoolView ObjectsPoolView => _objectsPoolView != null ? _objectsPoolView : _objectsPoolView = GameObject.FindAnyObjectByType<ObjectsPoolView>();
 
         private void Reset()
         {
@@ -200,6 +206,16 @@ namespace Mains.Views
                 }
             }
             _motorView = motorInstance.GetComponent<MotorView>();
+            // 音の出力タイプ
+            var soundOutputType = ghostInStaticObjectStruct.soundOutputType;
+            switch (soundOutputType)
+            {
+                case SoundOutputType.TableDefault:
+                    soundOutputType = poltergeistTable.subSettings.defaultSoundOutputType;
+
+                    break;
+            }
+            _motorView.SoundOutput = soundOutputType;
             // ポルターガイストの設定
             var set = settings;
             // 壁掛けオブジェクト用アニメーションSO
@@ -213,6 +229,15 @@ namespace Mains.Views
             // オバケの攻撃開始範囲の半径は振動を開始する最長距離の値を使用する
             var startAttackCollider = startAttackInstance.GetComponent<SphereCollider>();
             startAttackCollider.radius = _motorView.MaxDistance;
+            
+            if (shoutChanceInstance != null)
+            {
+                var shoutChanceCollider = shoutChanceInstance.GetComponent<SphereCollider>();
+                shoutChanceCollider.radius = ghostInStaticObjectStruct.customShoutRadius > 0f 
+                    ? ghostInStaticObjectStruct.customShoutRadius 
+                    : poltergeistTable.subSettings.defaultShoutRadius;
+            }
+
             _poltergeistViewModel = new PoltergeistViewModel(poltergeistTable, startAttackInstance);
             // オバケの攻撃タイプ
             ReactiveProperty<GhostAttackType> ghostAttackType = new ReactiveProperty<GhostAttackType>();
@@ -236,16 +261,32 @@ namespace Mains.Views
                             ghostInStaticObjectStruct.membersCount = x.NewValue.membersCount;
                             ghostInStaticObjectStruct.attackType = x.NewValue.attackType;
                             ghostInStaticObjectStruct.moveType = x.NewValue.moveType;
+                            ghostInStaticObjectStruct.customShoutRadius = x.NewValue.customShoutRadius;
+                            var soundOutputType = x.NewValue.soundOutputType;
+                            switch (soundOutputType)
+                            {
+                                case SoundOutputType.TableDefault:
+                                    soundOutputType = poltergeistTable.subSettings.defaultSoundOutputType;
+
+                                    break;
+                            }
+                            ghostInStaticObjectStruct.soundOutputType = soundOutputType;
                             ghostAttackType.Value = ghostInStaticObjectStruct.attackType;
+                            _motorView.SoundOutput = ghostInStaticObjectStruct.soundOutputType;
                             // ghostTeamIDが空なら、motorInstanceへポルターガイストを無効に更新する
                             // 空でないなら、有効に更新する
                             _motorView.IsEnabledPoltergeist = !string.IsNullOrEmpty(x.NewValue.ghostTeamID.Value);
                             _motorView.DustParticlePosition = FindOrInstanceGameObject("DustParticlePosition");
 
                             StopPatrolTimer();
-                            if (x.NewValue.moveType == MoveType.Patrol && x.NewValue.useStatus == UseStatus.Using)
+                            StopSoundOutputBehavior();
+                            if (x.NewValue.useStatus == UseStatus.Using)
                             {
-                                StartPatrolTimer();
+                                StartSoundOutputBehavior(soundOutputType);
+                                if (x.NewValue.moveType == MoveType.Patrol)
+                                {
+                                    StartPatrolTimer();
+                                }
                             }
                         })
                         .AddTo(ref _disposableBag);
@@ -280,6 +321,12 @@ namespace Mains.Views
                     break;
                 }
             }
+            
+            if (ghostInStaticObjectStruct.useStatus == UseStatus.Using)
+            {
+                StartSoundOutputBehavior(soundOutputType);
+            }
+
             // パート切り替え時にもタイマーを制御
             _poltergeistViewModel.InteractionPartReactive.Subscribe(part => 
             {
@@ -1158,6 +1205,157 @@ namespace Mains.Views
 
                 return Disposable.Empty;
             });
+        }
+
+        /// <summary>
+        /// 監視開始かつSE再生
+        /// </summary>
+        /// <param name="soundOutputType">音の出力タイプ</param>
+        private void StartSoundOutputBehavior(SoundOutputType soundOutputType)
+        {
+            StopSoundOutputBehavior();
+
+            var d = new CompositeDisposable();
+            var laughSettings = poltergeistTable.subSettings.laughSettings;
+            float shoutRadius = ghostInStaticObjectStruct.customShoutRadius > 0f 
+                ? ghostInStaticObjectStruct.customShoutRadius 
+                : poltergeistTable.subSettings.defaultShoutRadius;
+
+            // ダウジング時の基本応答（ノリノリオバケ以外）
+            if (soundOutputType != SoundOutputType.ReactiveShout_CallAndResponse)
+            {
+                if (_motorView != null)
+                {
+                    _motorView.OnActionAsObservable.Where(x => x)
+                        .Subscribe(_ =>
+                        {
+                            PlayLaughSE(shoutRadius, laughSettings, false);
+                        })
+                        .AddTo(d);
+                }
+            }
+
+            if (soundOutputType == SoundOutputType.Loop || soundOutputType == SoundOutputType.ReactiveStatic)
+            {
+                int laughCount = 0;
+                float currentInterval = laughSettings.baseInterval;
+                float timer = currentInterval;
+                Vector3 lastPos = Vector3.zero;
+
+                Observable.EveryUpdate()
+                    .Subscribe(_ =>
+                    {
+                        if (_motorView == null || _poltergeistViewModel?.PlayerTransform == null || !_motorView.IsEnabledPoltergeist)
+                            return;
+
+                        var playerPos = _poltergeistViewModel.PlayerTransform.position;
+                        float dist = Vector3.Distance(_motorView.transform.position, playerPos);
+
+                        if (dist <= shoutRadius)
+                        {
+                            // 距離が近い間のみカウントおよび適用
+                            bool canCountDown = true;
+                            if (soundOutputType == SoundOutputType.ReactiveStatic)
+                            {
+                                if (Vector3.Distance(playerPos, lastPos) >= 0.01f)
+                                {
+                                    canCountDown = false; // 動いているとカウントダウンを一時停止
+                                }
+                            }
+
+                            if (canCountDown)
+                            {
+                                timer -= Time.deltaTime;
+                                if (timer <= 0f)
+                                {
+                                    PlayLaughSE(shoutRadius, laughSettings, true);
+                                    laughCount++;
+
+                                    // 次回の間隔を計算
+                                    if (laughCount >= laughSettings.slowDownStartCount)
+                                    {
+                                        currentInterval = Mathf.Min(currentInterval + laughSettings.slowDownIncrement, laughSettings.maxInterval);
+                                    }
+                                    timer = currentInterval;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // 範囲外に出た場合はタイマーおよび回数をリセット
+                            laughCount = 0;
+                            currentInterval = laughSettings.baseInterval;
+                            timer = currentInterval;
+                        }
+
+                        lastPos = playerPos;
+                    })
+                    .AddTo(d);
+            }
+            else if (soundOutputType == SoundOutputType.ReactiveShout_CallAndResponse)
+            {
+                if (_motorView != null)
+                {
+                    _motorView.OnActionAsObservable.Where(x => x)
+                        .ThrottleFirst(System.TimeSpan.FromSeconds(2f)) // 連続発動を防ぐ
+                        .Subscribe(_ =>
+                        {
+                            // スクラッチ演出 (複数回連続で短く呼ぶ)
+                            Observable.Timer(System.TimeSpan.Zero, System.TimeSpan.FromMilliseconds(150))
+                                .Take(3)
+                                .Subscribe(__ => PlayLaughSE(shoutRadius, laughSettings, false))
+                                .AddTo(d);
+                        })
+                        .AddTo(d);
+                }
+            }
+
+            _soundOutputBehaviorDisposable = d;
+        }
+
+        /// <summary>
+        /// 監視停止（SE再生用）
+        /// </summary>
+        private void StopSoundOutputBehavior()
+        {
+            _soundOutputBehaviorDisposable?.Dispose();
+            _soundOutputBehaviorDisposable = null;
+        }
+
+        /// <summary>
+        /// オバケの笑い声SEを再生（簡易3Dサウンド）
+        /// </summary>
+        private void PlayLaughSE(float shoutRadius, PoltergeistTableSubSettings.PoltergeistLaughSettings laughSettings, bool enableEcho)
+        {
+            ObjectsPoolView objectsPoolView = ObjectsPoolView;
+            Se_3D_PickerCustomizeView t3DSoundPlayer = objectsPoolView?.Get3DSoundPlayer();
+
+            if (t3DSoundPlayer != null && _motorView != null && _motorView.IsEnabledPoltergeist && _poltergeistViewModel?.PlayerTransform != null)
+            {
+                Vector3 motorPos = _motorView.transform.position;
+                float dist = Vector3.Distance(motorPos, _poltergeistViewModel.PlayerTransform.position);
+                if (dist <= _motorView.MaxDistance)
+                {
+                    float intensity = Mathf.Clamp01(1f - (dist / _motorView.MaxDistance));
+                    t3DSoundPlayer.PlaySound("GhostLaugh3", intensity);
+
+                    // エコー再生処理
+                    if (enableEcho && dist <= shoutRadius * laughSettings.echoDistanceThresholdRatio)
+                    {
+                        float echoIntensity = intensity * Random.Range(laughSettings.minEchoVolumeRatio, laughSettings.maxEchoVolumeRatio);
+                        Observable.Timer(System.TimeSpan.FromSeconds(laughSettings.echoDelay))
+                            .Subscribe(_ =>
+                            {
+                                // オブジェクトが有効か再確認
+                                if (_motorView != null && _motorView.IsEnabledPoltergeist)
+                                {
+                                    t3DSoundPlayer.PlaySound("GhostLaugh3", echoIntensity);
+                                }
+                            })
+                            .AddTo(ref _disposableBag);
+                    }
+                }
+            }
         }
     }
 
