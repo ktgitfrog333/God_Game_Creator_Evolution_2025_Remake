@@ -80,5 +80,19 @@ namespace Mains.Commons
 
         [Tooltip("スピードオバケが別の家具に移動するまでの時間（秒）")]
         public float moveIntervalSeconds = 30f;
+        [Tooltip("ノルマ達成率")]
+        public float targetkillsRate = .8f;
+        [Tooltip("クリア判定")]
+        public CheckClearStruct checkClearStruct;
+
+        /// <summary>
+        /// クリア判定
+        /// </summary>
+        [System.Serializable]
+        public struct CheckClearStruct
+        {
+            /// <summary>敵戦パート</summary>
+            public EnemyBattlePart enemyBattlePart;
+        }
     }
 }

@@ -1,9 +1,10 @@
 using Mains.Commons;
 using Mains.Models;
-using R3;
-using UnityEngine;
 using ObservableCollections;
+using R3;
 using R3.Triggers;
+using System.Linq;
+using UnityEngine;
 
 namespace Mains.ViewModels
 {
@@ -66,6 +67,22 @@ namespace Mains.ViewModels
         private ReactiveCommand<Transform> _isStartAttack = new ReactiveCommand<Transform>();
         /// <summary>攻撃開始フラグ</summary>
         public ReactiveCommand<Transform> IsStartAttack => _isStartAttack;
+        /// <summary>敵戦パート</summary>
+        private ReactiveCommand<EnemyBattlePart> _enemyBattlePartReactive = new ReactiveCommand<EnemyBattlePart>();
+        /// <summary>敵戦パート</summary>
+        public ReactiveCommand<EnemyBattlePart> EnemyBattlePartReactive => _enemyBattlePartReactive;
+        /// <summary>敵戦パート</summary>
+        public EnemyBattlePart EnemyBattlePart => _playerModel?.EnemyBattlePart ?? EnemyBattlePart.Normal;
+        /// <summary>中ボスオバケ退治率</summary>
+        private ReactiveCommand<float> _midBosskillsRateReactive = new ReactiveCommand<float>();
+        /// <summary>中ボスオバケ退治率</summary>
+        public ReactiveCommand<float> MidBosskillsRateReactive => _midBosskillsRateReactive;
+        /// <summary>中ボスオバケ退治率</summary>
+        public float MidBosskillsRate => _playerModel?.MidBosskillsRate ?? 0f;
+        ///// <summary>レベルオーナー</summary>
+        //private LevelOwner _levelOwner;
+        ///// <summary>レベルオーナー</summary>
+        //private LevelOwner LevelOwner => _levelOwner != null ? _levelOwner : _levelOwner = GameManager.Instance.LevelOwner;
 
         public PoltergeistViewModel(PoltergeistTable poltergeistTable, Transform startAttackInstance = null)
         {
@@ -95,6 +112,16 @@ namespace Mains.ViewModels
                     _playerModel.IsPostRhythmFaceOff.Subscribe(isPostRhythmFaceOff =>
                     {
                         _isPostRhythmFaceOff.Execute(isPostRhythmFaceOff);
+                    })
+                        .AddTo(ref _disposableBag);
+                    _playerModel.MidBosskillsRateReactive.Subscribe(midBosskillsRate =>
+                    {
+                        _midBosskillsRateReactive.Execute(midBosskillsRate);
+                    })
+                        .AddTo(ref _disposableBag);
+                    _playerModel.EnemyBattlePartReactive.Subscribe(enemyBattlePart =>
+                    {
+                        _enemyBattlePartReactive.Execute(enemyBattlePart);
                     })
                         .AddTo(ref _disposableBag);
                     Observable.EveryUpdate()
@@ -230,6 +257,112 @@ namespace Mains.ViewModels
         public void SetIsStartAttack(Transform isStartAttack)
         {
             _isStartAttack.Execute(isStartAttack);
+        }
+
+        /// <summary>
+        /// 移動元の家具のポルターガイスト情報を初期化
+        /// </summary>
+        /// <param name="ghostInStaticObjectStruct">オバケの家具入居管理のデータクラス</param>
+        public void ResetStaticObject(GhostInStaticObjectStruct ghostInStaticObjectStruct)
+        {
+            if (_playerModel != null)
+                _playerModel.GhostContainer.Reset(ghostInStaticObjectStruct);
+        }
+
+        /// <summary>
+        /// オバケの引っ越し
+        /// </summary>
+        /// <param name="ghostInStaticObjectStruct">オバケの家具入居管理のデータクラス</param>
+        public void ShuffleNewStaticObject(GhostInStaticObjectStruct ghostInStaticObjectStruct)
+        {
+            if (_playerModel != null)
+                _playerModel.GhostContainer.Shuffle(ghostInStaticObjectStruct);
+        }
+
+        /// <summary>
+        /// 通常戦パートとステージ番号を考慮したクリア判定が有効な場合
+        /// </summary>
+        /// <param name="checkClearStructs"></param>
+        /// <returns>クリア判定結果</returns>
+        public bool CheckClearAndUpdateEnemyBattlePart()
+        {
+            var table = _playerModel?.PoltergeistTable ?? null;
+            if (table == null)
+            {
+                Debug.LogWarning("プレイヤーモデルまたはポルターガイストのアニメーション管理テーブルがnull");
+                return false;
+            }
+
+            var part = EnemyBattlePart;
+            var checkClearStruct = table.subSettings.checkClearStruct;
+            var result = checkClearStruct.enemyBattlePart.Equals(part);
+            if (!result)
+            {
+                int index = (int)part;
+                index++;
+                EnemyBattlePart updPart = (EnemyBattlePart)index;
+                SetEnemyBattlePart(updPart);
+            }
+
+            return result;
+        }
+
+        ///// <summary>
+        ///// 中ボスオバケ退治率の計算
+        ///// </summary>
+        ///// <param name="beforeMembersCount">リズムパート前の人数</param>
+        ///// <returns>中ボスオバケ退治率</returns>
+        //public float CalcMidBosskillsRate(float beforeMembersCount)
+        //{
+        //    // リズムパート前の人数 - リズムパート後の人数 = 退治数
+        //    var afterPoint = beforeMembersCount - TransactionGhostInStaticObjectStruct.membersCount;
+        //    float targetkillsRate = (float)afterPoint / beforeMembersCount;
+        //    _midBosskillsRate = targetkillsRate;
+
+        //    return _midBosskillsRate;
+        //}
+
+        ///// <summary>
+        ///// 利用人数合計を取得する
+        ///// </summary>
+        ///// <returns>利用人数合計</returns>
+        ///// <remarks>「通常戦パート」か「中ボス戦パート」かの条件によって、<br/>
+        ///// 「通常オバケ」か「中ボスオバケ」の利用人数合計を取得する</remarks>
+        //public int GetMembersCountSum()
+        //{
+        //    var model = _playerModel;
+        //    if (model != null)
+        //    {
+        //        var ghostStructs = GhostInStaticObjectStructs;
+        //        switch (model.EnemyBattlePart)
+        //        {
+        //            case EnemyBattlePart.Normal:
+        //                var cnt = ghostStructs.Where(q => q.role.Equals(GhostRole.Normal))
+        //                    .Select(q => q.membersCount).Sum();
+
+        //                return cnt;
+        //            case EnemyBattlePart.MidBoss:
+        //                var cnt1 = ghostStructs.Where(q => q.role.Equals(GhostRole.MidBoss))
+        //                    .Select(q => q.membersCount).Sum();
+
+        //                return cnt1;
+        //        }
+        //    }
+        //    Debug.LogWarning("プレイヤーモデルが存在しません");
+
+        //    return 0;
+        //}
+
+        public void SetEnemyBattlePart(EnemyBattlePart enemyBattlePart)
+        {
+            if (_playerModel != null)
+                _playerModel.SetEnemyBattlePart(enemyBattlePart);
+        }
+
+        public void ReplaceGhostInStaticObjectStructs(GhostInStaticObjectStruct ghostInStaticObjectStruct)
+        {
+            if (_playerModel != null)
+                _playerModel.ReplaceGhostInStaticObjectStructs(ghostInStaticObjectStruct);
         }
 
         public void Dispose()

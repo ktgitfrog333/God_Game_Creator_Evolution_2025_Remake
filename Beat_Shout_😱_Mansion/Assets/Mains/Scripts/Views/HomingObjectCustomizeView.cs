@@ -22,6 +22,8 @@ namespace Mains.Views
         [SerializeField] private Transform badParticleSysPrefab;
         [Tooltip("オバケの3Dモデルレンダラー GhostBodyModel/ghost_normal")]
         [SerializeField] private Renderer modelRenderer;
+        /// <summary>オブジェクトをホーミングする処理のカスタマイズ設定</summary>
+        [SerializeField] private HomingObjectCustomizeSettins settins;
         /// <summary>シロさんのコンポーネントへアクセスするAPI</summary>
         private Script_xyloApi _script_XyloApi;
         /// <summary>オブジェクトをホーミングする処理のカスタマイズビューモデル</summary>
@@ -114,6 +116,46 @@ namespace Mains.Views
                         .AddTo(ref _disposableBag);
                 })
                 .AddTo(ref _disposableBag);
+            // Script_xyloApi.耐久率UI表示フラグが有効の場合、DurabilityRatePanelプレハブのクローンを生成する（子要素として生成）
+            _script_XyloApi.DurabilityRateTarget.Subscribe(_ =>
+            {
+                var table = settins.homingObjectCustomizeTable;
+                var noteTransform = _script_XyloApi.NoteTransform as RectTransform;
+                RectTransform durabilityRatePanelInstance = ShowUIPanelAtObjectPosition(table.durabilityRatePanelPrefab, canvasTransform, noteTransform, trans);
+                DurabilityRatePanelView durabilityRatePanelView = durabilityRatePanelInstance.GetComponent<DurabilityRatePanelView>();
+                _script_XyloApi.Score.Pairwise()
+                    .Subscribe(score =>
+                    {
+                        int from = 0 <= score.Previous ? score.Previous : 0;
+                        int to = 0 <= score.Current ? score.Current : 0;
+                        durabilityRatePanelView.PlayDurabilityAnimation(from, to, .25f);
+                    })
+                    .AddTo(ref _disposableBag);
+                Observable.EveryUpdate()
+                    .Subscribe(_ =>
+                    {
+                        var noteAnchoredPosition = noteTransform.anchoredPosition;
+                        durabilityRatePanelInstance.anchoredPosition = noteAnchoredPosition;
+                        var noteLocalScale = noteTransform.localScale;
+                        durabilityRatePanelInstance.localScale = noteLocalScale;
+                    })
+                    .AddTo(ref _disposableBag);
+                noteTransform.OnEnableAsObservable()
+                    .Subscribe(_ =>
+                    {
+                        if (!durabilityRatePanelInstance.gameObject.activeSelf)
+                            durabilityRatePanelInstance.gameObject.SetActive(true);
+                    })
+                    .AddTo(ref _disposableBag);
+                noteTransform.OnDisableAsObservable()
+                    .Subscribe(_ =>
+                    {
+                        if (durabilityRatePanelInstance.gameObject.activeSelf)
+                            durabilityRatePanelInstance.gameObject.SetActive(false);
+                    })
+                    .AddTo(ref _disposableBag);
+            })
+                .AddTo(ref _disposableBag);
         }
 
         private void OnDestroy()
@@ -156,6 +198,25 @@ namespace Mains.Views
         }
 
         /// <summary>
+        /// オブジェクトをベースにCanvasの座標へ変換して、プレハブをインスタンス
+        /// </summary>
+        /// <param name="uiPrefab">UIプレハブ</param>
+        /// <param name="canvasTransform">キャンバストランスフォーム</param>
+        /// <param name="particleSysPrefab">パーティクルプレハブ</param>
+        /// <param name="noteTransform">UIトランスフォーム</param>
+        /// <param name="trans">トランスフォーム</param>
+        private RectTransform ShowUIPanelAtObjectPosition(Transform uiPrefab, Transform canvasTransform, Transform noteTransform, Transform trans)
+        {
+            // UIを生成
+            Transform instance = Instantiate(uiPrefab, canvasTransform);
+            RectTransform rectTransform = instance.GetComponent<RectTransform>();
+            var noteAnchoredPosition = (noteTransform as RectTransform).anchoredPosition;
+            rectTransform.anchoredPosition = noteAnchoredPosition;
+
+            return rectTransform;
+        }
+
+        /// <summary>
         /// オバケの家具入居管理の構造体から減算
         /// </summary>
         /// <remarks>ViewModel経由で利用人数が0より大きいなら<br/>
@@ -178,5 +239,15 @@ namespace Mains.Views
                 modelRenderer.material.SetColor("_RimLight_Color", color);
             }
         }
+    }
+
+    /// <summary>
+    /// オブジェクトをホーミングする処理のカスタマイズ設定
+    /// </summary>
+    [System.Serializable]
+    public class HomingObjectCustomizeSettins
+    {
+        /// <summary>オブジェクトをホーミングする処理のカスタマイズテーブル</summary>
+        public HomingObjectCustomizeTable homingObjectCustomizeTable;
     }
 }

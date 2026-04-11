@@ -81,6 +81,10 @@ namespace Mains.ViewModels
         private ReactiveCommand<Transform> _targetGhost = new ReactiveCommand<Transform>();
         /// <summary>視界ジャック用ゴースト</summary>
         public ReactiveCommand<Transform> TargetGhost => _targetGhost;
+        /// <summary>シャウトノーツアクティブフラグ</summary>
+        public bool ShoutNoteActive => _playerModel?.ShoutNoteActive ?? false;
+        /// <summary>敵戦パート</summary>
+        public EnemyBattlePart EnemyBattlePart => _playerModel?.EnemyBattlePart ?? EnemyBattlePart.Normal;
 
         public PlayerViewModel(InteractionPartTable interactionPartTable)
         {

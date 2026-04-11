@@ -23,7 +23,11 @@ IGNORE_DIRS = {
     "Obj",
     "Build",
     "UserSettings",
-    "Packages/PackageCache"
+    "Packages/PackageCache",
+    "Assets/CRIMW",
+    "Assets/Plugins/Demigiant/DOTween/Modules",
+    "Assets/Rewired/",
+    "Assets/Mains/Prefabs/Level/StaticObjects/DownloadAssets/Diabolical Games"
 }
 
 IGNORE_EXT = {
@@ -34,6 +38,11 @@ IGNORE_EXT = {
     ".mp3", ".ogg"
 }
 
+def is_ignored_dir(root, path, d):
+    full_path = os.path.join(path, d)
+    rel_path = os.path.relpath(full_path, root).replace("\\", "/")
+    return any(rel_path.startswith(ignore) for ignore in IGNORE_DIRS)
+
 # ===== ファイル収集 =====
 
 def collect_files(root):
@@ -42,7 +51,7 @@ def collect_files(root):
 
     for path, dirs, filenames in os.walk(root):
 
-        dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
+        dirs[:] = [d for d in dirs if not is_ignored_dir(root, path, d)]
 
         for name in filenames:
 
@@ -78,7 +87,7 @@ def build_tree(root):
 
     for path, dirs, files in os.walk(root):
 
-        dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
+        dirs[:] = [d for d in dirs if not is_ignored_dir(root, path, d)]
 
         level = path.replace(root, "").count(os.sep)
 

@@ -133,9 +133,9 @@ namespace Mains.External
         }
         /// <summary>BGMの再生状態</summary>
         /// <see cref="CriWare.CriAtomSourceBase.Status"/>
-        private readonly ReactiveCommand<int> _bgmBStatus = new ReactiveCommand<int>();
+        private readonly ReactiveCommand<int> _bgmCStatus = new ReactiveCommand<int>();
         /// <summary>BGMの再生状態</summary>
-        public ReactiveCommand<int> BgmBStatus => _bgmBStatus;
+        public ReactiveCommand<int> BgmCStatus => _bgmCStatus;
         /// <summary>BGMの更新</summary>
         System.IDisposable _currentSourceStatusDisposable;
         private ObjectPoolerXyloOther _objectPoolerXyloOther;
@@ -384,7 +384,108 @@ namespace Mains.External
                         _isFailed.Execute(isFailed);
                     })
                     .AddTo(ref _disposableBag);
+                Observable.EveryUpdate()
+                    .Select(_ =>
+                    {
+                        var type = missileDirectAnimManagerB.GetType();
+                        FieldInfo fieldInfo = type.GetField("micInputManager", BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (fieldInfo == null)
+                        {
+                            Debug.LogWarning("micInputManagerフィールドが見つかりませんでした。");
+
+                            return 0;
+                        }
+                        var value = fieldInfo.GetValue(missileDirectAnimManagerB);
+                        if (value == null)
+                        {
+                            Debug.LogWarning("micInputManagerフィールドから値の取得に失敗しました。");
+
+                            return 0;
+                        }
+                        MissileMicInputManager manager = (MissileMicInputManager)value;
+                        int score = manager.GetCurrentScore();
+
+                        return score;
+                    })
+                    .DistinctUntilChanged()
+                    .Subscribe(score =>
+                    {
+                        _score.Execute(score);
+                    })
+                    .AddTo(ref _disposableBag);
+                Observable.EveryUpdate()
+                    .Where(_ => missileDirectAnimManagerB.gameObject.activeSelf)
+                    .Select(_ => missileDirectAnimManagerB.GetComponentInChildren<SpectrumGauge>())
+                    .Where(x => x != null)
+                    .Take(1)
+                    .Subscribe(_ =>
+                    {
+                        _durabilityRateTarget.OnNext(Unit.Default);
+                        _durabilityRateTarget.OnCompleted();
+                    })
+                    .AddTo(ref _disposableBag);
             }
+        }
+
+        /// <summary>耐久率UI表示フラグ</summary>
+        private Subject<Unit> _durabilityRateTarget = new Subject<Unit>();
+        /// <summary>耐久率UI表示フラグ</summary>
+        public Subject<Unit> DurabilityRateTarget => _durabilityRateTarget;
+
+        private ReactiveCommand<int> _score = new ReactiveCommand<int>();
+        public ReactiveCommand<int> Score => _score;
+
+        /// <summary>
+        /// マイクボタン入力セット処理
+        /// </summary>
+        /// <param name="dbLevel">デシベルレベル</param>
+        public void SetMicButtonInput(float dbLevel)
+        {
+            if (_micInput_Criware == null)
+                return;
+
+            var type = typeof(MicInput_Criware);
+
+            // privateフィールドをリフレクションで取得
+            var volumeHistoryField = type.GetField("volumeHistory", BindingFlags.NonPublic | BindingFlags.Instance);
+            var timeHistoryField = type.GetField("timeHistory", BindingFlags.NonPublic | BindingFlags.Instance);
+            var totalVolumeField = type.GetField("totalVolume", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            if (volumeHistoryField == null || timeHistoryField == null || totalVolumeField == null)
+            {
+                Debug.LogWarning("MicInput_Criware の volumeHistory / timeHistory / totalVolume フィールドが見つかりませんでした。");
+                return;
+            }
+
+            var volumeHistory = volumeHistoryField.GetValue(_micInput_Criware) as Queue<float>;
+            var timeHistory = timeHistoryField.GetValue(_micInput_Criware) as Queue<float>;
+            var totalVolumeObj = totalVolumeField.GetValue(_micInput_Criware);
+
+            if (volumeHistory == null || timeHistory == null || totalVolumeObj == null)
+            {
+                Debug.LogWarning("MicInput_Criware の volumeHistory / timeHistory / totalVolume の値取得に失敗しました。");
+                return;
+            }
+
+            float totalVolume = (float)totalVolumeObj;
+            float currentTime = Time.time;
+            // publicフィールドを直接参照
+            float averagingDuration = _micInput_Criware.averagingDuration;
+
+            // 新しいデータを履歴へ追加
+            volumeHistory.Enqueue(dbLevel);
+            timeHistory.Enqueue(currentTime);
+            totalVolume += dbLevel;
+
+            // 古いデータを除去（averagingDuration秒より古いデータ）
+            while (timeHistory.Count > 0 && currentTime - timeHistory.Peek() > averagingDuration)
+            {
+                timeHistory.Dequeue();
+                totalVolume -= volumeHistory.Dequeue();
+            }
+
+            // totalVolumeをリフレクションで書き戻す
+            totalVolumeField.SetValue(_micInput_Criware, totalVolume);
         }
 
         public void SetHomingObject(Transform transform)
@@ -875,12 +976,8 @@ namespace Mains.External
                             methodInfoUpdateChangeDetectionHistory.Invoke(_micInput_Criware, parameters);
                         }
                         // 平均音量を計算
-                        MethodInfo methodInfoGetAveragedVolume = _micInput_Criware.GetType().GetMethod("GetAveragedVolume", BindingFlags.NonPublic | BindingFlags.Instance);
                         float averagedVolume = 0f;
-                        if (methodInfoGetAveragedVolume != null)
-                        {
-                            averagedVolume = (float)methodInfoGetAveragedVolume.Invoke(_micInput_Criware, null);
-                        }
+                        averagedVolume = _micInput_Criware.GetAveragedVolume();
 
                         float level = 0f;
                         MethodInfo methodInfoGetVolumeDisplayLevel = _micInput_Criware.GetType().GetMethod("GetVolumeDisplayLevel", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -938,12 +1035,47 @@ namespace Mains.External
                     StopIntro();
                 }
                 conductor.ChangeBgmB(3);
+                // BGMのBはループポイント有りのため到達不可
+                //_currentSourceStatusDisposable?.Dispose();
+                //_currentSourceStatusDisposable = Observable.EveryUpdate()
+                //    .Select(_ => conductor.currentSource.status)
+                //    .Subscribe(status =>
+                //    {
+                //        _bgmBStatus.Execute((int)status);
+                //    })
+                //    .AddTo(ref _disposableBag);
+            }
+        }
+
+        /// <see cref="CRIWARE_conductor.InitializeWhenReady"/>
+        public void ChangeBgmC()
+        {
+            var conductor = CRIWARE_conductor.Instance;
+            var aisac = CRIWARE_AisacChange.Instance;
+            if (conductor != null && aisac != null)
+            {
+                bool isCompletedIntro = aisac.IsCompletedPlayStart;
+                if (!isCompletedIntro)
+                {
+                    /*
+                     * TODO: イントロを即時終了したいために呼び出している処理
+                     * この処理が呼ばれるタイミングでは、OnEnable->InitializeWhenReady->yield return new WaitForSecondsRealtime(introDelayTime); まで呼ばれている前提
+                     * 上記の後の、DelayBGMLoopStartを呼ばせたくはないので暫定的にコルーチンを止めている
+                     * 他の処理との不整合が生じた場合、方針を変更
+                     */
+                    conductor.StopAllCoroutines();
+                    // TODO: デバッグを元にBGMのAのフレームの設定しているため、BPMが変わった場合は修正する
+                    conductor.frameRate = 85f;
+                    // イントロを停止
+                    StopIntro();
+                }
+                conductor.ChangeBgmC(3);
                 _currentSourceStatusDisposable?.Dispose();
                 _currentSourceStatusDisposable = Observable.EveryUpdate()
                     .Select(_ => conductor.currentSource.status)
                     .Subscribe(status =>
                     {
-                        _bgmBStatus.Execute((int)status);
+                        _bgmCStatus.Execute((int)status);
                     })
                     .AddTo(ref _disposableBag);
             }

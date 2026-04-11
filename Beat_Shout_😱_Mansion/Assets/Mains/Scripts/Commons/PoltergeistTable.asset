@@ -33,3 +33,6 @@ MonoBehaviour:
       maxEchoVolumeRatio: 0.6
       minEchoVolumeRatio: 0.2
     moveIntervalSeconds: 30
+    targetkillsRate: 0.8
+    checkClearStruct:
+      enemyBattlePart: 1
