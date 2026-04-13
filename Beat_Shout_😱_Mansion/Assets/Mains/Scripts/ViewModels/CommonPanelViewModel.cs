@@ -44,7 +44,16 @@ namespace Mains.ViewModels
         /// <summary>オバケ移動演出の完了フラグ</summary>
         public ReactiveCommand<bool> IsCompletedMoveGhostDirection => _isCompletedMoveGhostDirection;
         /// <summary>敵戦パート</summary>
+        private ReactiveCommand<EnemyBattlePart> _enemyBattlePartReactive = new ReactiveCommand<EnemyBattlePart>();
+        /// <summary>敵戦パート</summary>
+        public ReactiveCommand<EnemyBattlePart> EnemyBattlePartReactive => _enemyBattlePartReactive;
+        /// <summary>敵戦パート</summary>
         public EnemyBattlePart EnemyBattlePart => _playerModel?.EnemyBattlePart ?? EnemyBattlePart.Normal;
+        /// <summary>家具とプレイヤーがお互い向き合っている状態フラグ</summary>
+        /// <remarks>リズムパートが終了⇒フェードインアウト完了⇒家具とプレイヤーがお互い向き合っている状態を監視</remarks>
+        private ReactiveCommand<bool> _isPostRhythmFaceOff = new ReactiveCommand<bool>();
+        /// <summary>家具とプレイヤーがお互い向き合っている状態フラグ</summary>
+        public ReactiveCommand<bool> IsPostRhythmFaceOff => _isPostRhythmFaceOff;
         /// <summary>中ボスオバケ退治率</summary>
         public float MidBosskillsRate => _playerModel?.MidBosskillsRate ?? 0f;
         /// <summary>ポルターガイストのアニメーション管理テーブル</summary>
@@ -74,6 +83,16 @@ namespace Mains.ViewModels
             _playerModel.IsCompletedMoveGhostDirection.Subscribe(x =>
             {
                 _isCompletedMoveGhostDirection.Execute(x);
+            })
+                .AddTo(ref _disposableBag);
+            _playerModel.EnemyBattlePartReactive.Subscribe(x =>
+            {
+                _enemyBattlePartReactive.Execute(x);
+            })
+                .AddTo(ref _disposableBag);
+            _playerModel.IsPostRhythmFaceOff.Subscribe(x =>
+            {
+                _isPostRhythmFaceOff.Execute(x);
             })
                 .AddTo(ref _disposableBag);
             Observable.EveryUpdate()

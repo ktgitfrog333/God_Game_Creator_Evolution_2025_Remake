@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4950961727753380321}
   - component: {fileID: 5825195859893826710}
   m_Layer: 0
-  m_Name: MissileTempoSpawner 1
+  m_Name: MissileTempoSpawner_Stage1_Living
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e83f28a8c564c645a865b948e94ad16, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  missilePattern: 000A10000000000B30000000000C50000000
+  missilePattern: 000A10B10C10D10E10F10G10H10A10E10F10H10G10C10D100A3000G3000D3000H3000C3000F3000E3000B300000000000A10000000000000000000000000000000000000000000000000000000
   positionAngleA: 90
   positionAngleB: 45
   positionAngleC: 0

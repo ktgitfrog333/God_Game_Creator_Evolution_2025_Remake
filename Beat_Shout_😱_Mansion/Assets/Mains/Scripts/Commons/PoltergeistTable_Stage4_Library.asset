@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c23f725ef4d61484bbab9ab66f510913, type: 3}
-  m_Name: PoltergeistTable
+  m_Name: PoltergeistTable_Stage4_Library
   m_EditorClassIdentifier: 
   poltergeistAnimatorControllers:
   - {fileID: 9100000, guid: e3e515ca1e66dfd48b38ff8be2958925, type: 2}
   motorPrefab: {fileID: 1215156780124661367, guid: 3bfc5e33bb3d71e458ffa2b473959872, type: 3}
   staticColldersPrefab: {fileID: 5648631365315597916, guid: 62e553a4c2060fd4ea23a256b4ad2ea5, type: 3}
-  missileTempoSpawnerPrefab: {fileID: 401138369664789558, guid: b884b75fd024dbe4884d96e9b68ae9ae, type: 3}
+  missileTempoSpawnerPrefab: {fileID: 8974958869280160380, guid: 9385a6e84ebc5e547bf7a339af31fdda, type: 3}
   missGhostEscapePrefab: {fileID: 1027239793714559372, guid: f57dd99553cf3954582c4d66680a9f05, type: 3}
   subSettings:
     ghostAttack:

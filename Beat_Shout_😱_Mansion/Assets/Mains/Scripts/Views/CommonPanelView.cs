@@ -43,6 +43,9 @@ namespace Mains.Views
         [Header("オバケ移動演出")]
         [SerializeField] private RetryInfoSettings retryInfoSettings;
         [Header("その他オプション")]
+        [Tooltip("CommonPanel > HeaderPanel > IconAndGuidePanel をセット")]
+        /// <summary>アイコンとガイド文言表示パネルのキャンバスグループ</summary>
+        [SerializeField] private CanvasGroup iconAndGuidePanelCanvasGroup;
         [Tooltip("CommonPanel > HeaderPanel > IconAndGuidePanel > GuideText をセット")]
         /// <summary>ミッションガイド概要のテキスト</summary>
         [SerializeField] private TextMeshProUGUI guideText;
@@ -52,6 +55,8 @@ namespace Mains.Views
         [Tooltip("CommonPanel > HeaderPanel > IconAndGuidePanel > MidBossGuideText をセット")]
         /// <summary>中ボス戦パートミッションガイド概要のテキスト</summary>
         [SerializeField] private TextMeshProUGUI midBossGuideText;
+        /// <summary>ミッションガイド文言切り替えシークエンス</summary>
+        private Sequence _changeGuideTextsNormalToMidBossSequence;
         /// <summary>ハートアイコン設定</summary>
         [SerializeField] private IconHeartSettings iconHeartSettings;
         [Tooltip("CommonPanel > CenterPanel > StageClearPanel をセット")]
@@ -70,8 +75,6 @@ namespace Mains.Views
         /// <summary>Start完了を通知するObservable（Trueになったら1度だけ発火）</summary>
         private Subject<Unit> _didStartAsObservable = new Subject<Unit>();
         [SerializeField] private InteractionPartTable 探索_シャウトチャンス_リズムパート情報管理テーブル;
-        //[Tooltip("Assets/Mains/Scripts/Commons/PoltergeistTable.assetをセットしておく。")]
-        //[SerializeField] private PoltergeistTable poltergeistTable;
         [Header("フェード設定")]
         /// <summary>前に戻るシーン名</summary>
         [SerializeField] private string gameSceneNameBack;
@@ -102,6 +105,11 @@ namespace Mains.Views
                 {
                     foreach (Transform item in child)
                     {
+                        if (item.name.Equals("IconAndGuidePanel"))
+                        {
+                            if (iconAndGuidePanelCanvasGroup == null)
+                                iconAndGuidePanelCanvasGroup = item.GetComponent<CanvasGroup>();
+                        }
                         if (item.name.Equals("MidBossGuideText"))
                         {
                             if (midBossGuideText == null)
@@ -153,6 +161,7 @@ namespace Mains.Views
             _commonPanelViewModel = new CommonPanelViewModel(探索_シャウトチャンス_リズムパート情報管理テーブル);
             var player = ReInput.players.GetPlayer(0);
             FadeImageView fadeImageView = FindAnyObjectByType<FadeImageView>();
+            var viewModel = _commonPanelViewModel;
             // オバケの家具入居管理の構造体リストから、オバケの数を全て取得してその合計をミッションガイド概要／詳細へ反映する処理を実装
             Observable.EveryUpdate()
                 .Select(_ => _commonPanelViewModel.GhostInStaticObjectStructs)
@@ -167,7 +176,6 @@ namespace Mains.Views
                     var ghostExitMembersCount = 0;
                     missionText.text = 共通UIのテンプレート.missionText.Replace("${ghostAllMembersCount}", $"{ghostAllMembersCount}")
                         .Replace("${ghostExitMembersCount}", $"{ghostExitMembersCount}");
-                    var viewModel = _commonPanelViewModel;
                     // 追加されたら再度合計を更新
                     x.ObserveAdd()
                         .Subscribe(_ =>
@@ -197,6 +205,34 @@ namespace Mains.Views
                         .AddTo(ref _disposableBag);
                 })
                 .AddTo(ref _disposableBag);
+            // 敵戦パートの切替を監視
+            viewModel.EnemyBattlePartReactive.Subscribe(enemyBattlePart =>
+            {
+                switch (enemyBattlePart)
+                {
+                    case EnemyBattlePart.MidBoss:
+                        viewModel.IsPostRhythmFaceOff.Where(x => x)
+                            .Take(1)
+                            .Subscribe(_ =>
+                            {
+                                PlayChangeGuideTextsNormalToMidBoss(iconAndGuidePanelCanvasGroup, missionText, midBossGuideText,
+                                    _changeGuideTextsNormalToMidBossSequence);
+                            })
+                            .AddTo(ref _disposableBag);
+
+                        break;
+                }
+            })
+                .AddTo(ref _disposableBag);
+            // 敵戦パートによって表示を切り替える
+            var enemyBattlePart = viewModel.EnemyBattlePart;
+            switch (enemyBattlePart)
+            {
+                case EnemyBattlePart.Normal:
+                    ChangeGuideTextsNormal(iconAndGuidePanelCanvasGroup, missionText, midBossGuideText);
+
+                    break;
+            }
             // プレイヤーの体力を取得してハートアイコンへ反映する処理を実装
             List<IconHeartImageView> iconHeartImageViews = new List<IconHeartImageView>();
             _iconHeartImageViews = iconHeartImageViews;
@@ -759,6 +795,45 @@ namespace Mains.Views
             SceneManager.LoadScene(sceneName);
 
             yield return null;
+        }
+
+        /// <summary>
+        /// ミッションガイド文言切り替えDOTweenアニメーションを再生
+        /// </summary>
+        /// <param name="iconAndGuidePanelCanvasGroup">アイコンとガイド文言表示パネルのキャンバスグループ</param>
+        /// <param name="missionText">ミッションガイド詳細のテキスト</param>
+        /// <param name="midBossGuideText">中ボス戦パートミッションガイド概要のテキスト</param>
+        /// <param name="changeGuideTextsNormalToMidBossSequence">ミッションガイド文言切り替えシークエンス</param>
+        private void PlayChangeGuideTextsNormalToMidBoss(CanvasGroup iconAndGuidePanelCanvasGroup, TextMeshProUGUI missionText, TextMeshProUGUI midBossGuideText,
+            Sequence changeGuideTextsNormalToMidBossSequence)
+        {
+            changeGuideTextsNormalToMidBossSequence?.Kill();
+            iconAndGuidePanelCanvasGroup.alpha = 1f;
+            missionText.alpha = 1f;
+            midBossGuideText.alpha = 0f;
+            changeGuideTextsNormalToMidBossSequence = DOTween.Sequence()
+                .Append(iconAndGuidePanelCanvasGroup.DOFade(0f, .5f))
+                .Join(missionText.DOFade(0f, .5f))
+                .Append(midBossGuideText.DOFade(1f, .5f))
+                .JoinCallback(() =>
+                {
+                    iconAndGuidePanelCanvasGroup.gameObject.SetActive(false);
+                    missionText.gameObject.SetActive(false);
+                });
+            changeGuideTextsNormalToMidBossSequence.Play();
+        }
+
+        /// <summary>
+        /// ミッションガイド文言切り替え
+        /// </summary>
+        /// <param name="iconAndGuidePanelCanvasGroup">アイコンとガイド文言表示パネルのキャンバスグループ</param>
+        /// <param name="missionText">ミッションガイド詳細のテキスト</param>
+        /// <param name="midBossGuideText">中ボス戦パートミッションガイド概要のテキスト</param>
+        private void ChangeGuideTextsNormal(CanvasGroup iconAndGuidePanelCanvasGroup, TextMeshProUGUI missionText, TextMeshProUGUI midBossGuideText)
+        {
+            iconAndGuidePanelCanvasGroup.alpha = 1f;
+            missionText.alpha = 1f;
+            midBossGuideText.alpha = 0f;
         }
 
         /// <summary>

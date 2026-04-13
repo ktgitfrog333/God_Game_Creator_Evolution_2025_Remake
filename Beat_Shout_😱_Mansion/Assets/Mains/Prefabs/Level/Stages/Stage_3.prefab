@@ -577,16 +577,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
     poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &8012745961839469849
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1048,16 +1061,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 1
     membersCount: 8
     attackType: 1
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
     poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &1039895076831253155
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1980,16 +2006,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
     poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &5294461173115112807
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2063,16 +2102,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
     poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &7145795049341841178
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3125,16 +3177,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
     poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &7788041558091624690
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3208,16 +3273,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
     poltergeistAnimationSO: {fileID: 11400000, guid: ecbfbd08c9815dc438b7e976077fcc7a, type: 2}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &3629290170944268447
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4448,16 +4526,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 1
     membersCount: 16
     attackType: 1
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
     poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &5757509698214548477
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4660,16 +4751,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 1
     membersCount: 16
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
     poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &1565899884611887819
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5140,16 +5244,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
     poltergeistAnimationSO: {fileID: 11400000, guid: 58be444ce5cc15a47a990a6fc245ed4d, type: 2}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &5423376296374541429
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5223,16 +5340,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 1
     membersCount: 10
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
     poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &4834217982255837214
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6241,16 +6371,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 1
     membersCount: 10
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
     poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &554950614618258643
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6399,16 +6542,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
     poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &7697687583522768080
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6570,16 +6726,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
     poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 1
+      membersCount: 24
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 1
 --- !u!65 &549936081476039221
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6729,16 +6898,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
     poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &4610081829009073897
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -7579,16 +7761,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 1
     membersCount: 10
     attackType: 1
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
     poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &3653883622640950950
 BoxCollider:
   m_ObjectHideFlags: 0

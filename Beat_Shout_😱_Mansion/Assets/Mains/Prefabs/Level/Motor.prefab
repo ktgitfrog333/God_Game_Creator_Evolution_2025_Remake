@@ -118,7 +118,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1997f582c81b50c4fa0e2ac5dd4e052d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 0}
   animator: {fileID: 9162692585771344528}
   rigidbody: {fileID: 6875928336886902139}
   forceMagnitude: 5

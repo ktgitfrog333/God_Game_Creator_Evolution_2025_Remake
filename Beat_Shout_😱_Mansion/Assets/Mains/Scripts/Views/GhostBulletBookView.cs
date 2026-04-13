@@ -122,7 +122,6 @@ namespace Mains.Views
                         {
                             oneceSetIsHitGhostAttack = true;
                             viewModel.SetIsHitGhostAttack(true);
-                            _script_XyloApi.PlayDamage1();
                         }
 
                         break;

@@ -85,7 +85,8 @@ namespace Mains.ViewModels
                 .Subscribe(x =>
                 {
                     _playerModel = x;
-                    _playerModel.PoltergeistTable = poltergeistTable;
+                    if (poltergeistTable != null)
+                        _playerModel.PoltergeistTable = poltergeistTable;
                     _playerModel.IsCompletedDirection.Subscribe(isCompleted =>
                     {
                         _isCompletedDirection.Execute(isCompleted);
