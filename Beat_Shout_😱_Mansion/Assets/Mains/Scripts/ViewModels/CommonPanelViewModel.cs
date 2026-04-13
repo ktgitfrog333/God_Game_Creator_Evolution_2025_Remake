@@ -43,6 +43,12 @@ namespace Mains.ViewModels
         private ReactiveCommand<bool> _isCompletedMoveGhostDirection = new ReactiveCommand<bool>();
         /// <summary>オバケ移動演出の完了フラグ</summary>
         public ReactiveCommand<bool> IsCompletedMoveGhostDirection => _isCompletedMoveGhostDirection;
+        /// <summary>敵戦パート</summary>
+        public EnemyBattlePart EnemyBattlePart => _playerModel?.EnemyBattlePart ?? EnemyBattlePart.Normal;
+        /// <summary>中ボスオバケ退治率</summary>
+        public float MidBosskillsRate => _playerModel?.MidBosskillsRate ?? 0f;
+        /// <summary>ポルターガイストのアニメーション管理テーブル</summary>
+        public PoltergeistTable PoltergeistTable => _playerModel?.PoltergeistTable ?? null;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -129,6 +135,26 @@ namespace Mains.ViewModels
         {
             if (_playerModel != null)
                 _playerModel.SetIsMissionClear(isMissionClear);
+        }
+
+        /// <summary>
+        /// 通常戦パートとステージ番号を考慮したクリア判定が有効な場合
+        /// </summary>
+        /// <returns>クリア判定結果</returns>
+        public bool CheckClearAndUpdateEnemyBattlePart()
+        {
+            var table = PoltergeistTable;
+            if (table == null)
+            {
+                Debug.LogWarning("プレイヤーモデルまたはポルターガイストのアニメーション管理テーブルがnull");
+                return false;
+            }
+
+            var part = EnemyBattlePart;
+            var checkClearStruct = table.subSettings.checkClearStruct;
+            var result = checkClearStruct.enemyBattlePart.Equals(part);
+
+            return result;
         }
     }
 }

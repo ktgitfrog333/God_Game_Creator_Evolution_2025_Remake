@@ -33,10 +33,6 @@ namespace Mains.Manager.Owners
         public float? _horrorCountMax;
         /// <summary>恐怖値最大</summary>
         public float? HorrorCountMax => _horrorCountMax;
-        ///// <summary>シーンインデックス</summary>
-        //private int _sceneIdx;
-        ///// <summary>シーンインデックス</summary>
-        //public int SceneIdx => _sceneIdx;
         /// <summary>初期処理の完了待ち</summary>
         private readonly ReactiveCommand<bool> _isCompleted = new ReactiveCommand<bool>();
         /// <summary>初期処理の完了待ち</summary>
@@ -68,7 +64,6 @@ namespace Mains.Manager.Owners
                 sceneIdx = 0;
                 levelStruct = levelStructs.FirstOrDefault(q => q.階層 == sceneIdx);
             }
-            //_sceneIdx = sceneIdx;
             _playerHealthPointMax = levelStruct.開始時のプレイヤーの最大体力;
             _horrorCountMax = levelStruct.恐怖値最大;
             if (DirectionalLightを継承して再設定.独自Directional_Light設定を有効にする)

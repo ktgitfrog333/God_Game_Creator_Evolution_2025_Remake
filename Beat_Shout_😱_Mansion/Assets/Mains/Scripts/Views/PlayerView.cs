@@ -953,19 +953,6 @@ namespace Mains.Views
             }
         }
 
-        private void OnGUI()
-        {
-#if UNITY_EDITOR
-            // ボタンの位置とサイズ (x, y, width, height)
-            Rect buttonRect = new Rect(10, 10, 150, 50);
-            if (GUI.Button(buttonRect, "InteractionPart を初期化"))
-            {
-                _playerViewModel.SetInteractionPart(InteractionPart.None);
-                _playerViewModel.SetInteractionPart(InteractionPart.Search);
-            }
-#endif
-        }
-
         private void OnDestroy()
         {
             _disposableBag.Dispose();

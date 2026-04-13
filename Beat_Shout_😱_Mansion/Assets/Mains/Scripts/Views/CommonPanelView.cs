@@ -49,6 +49,9 @@ namespace Mains.Views
         [Tooltip("CommonPanel > HeaderPanel > MissionText をセット")]
         /// <summary>ミッションガイド詳細のテキスト</summary>
         [SerializeField] private TextMeshProUGUI missionText;
+        [Tooltip("CommonPanel > HeaderPanel > IconAndGuidePanel > MidBossGuideText をセット")]
+        /// <summary>中ボス戦パートミッションガイド概要のテキスト</summary>
+        [SerializeField] private TextMeshProUGUI midBossGuideText;
         /// <summary>ハートアイコン設定</summary>
         [SerializeField] private IconHeartSettings iconHeartSettings;
         [Tooltip("CommonPanel > CenterPanel > StageClearPanel をセット")]
@@ -67,6 +70,8 @@ namespace Mains.Views
         /// <summary>Start完了を通知するObservable（Trueになったら1度だけ発火）</summary>
         private Subject<Unit> _didStartAsObservable = new Subject<Unit>();
         [SerializeField] private InteractionPartTable 探索_シャウトチャンス_リズムパート情報管理テーブル;
+        //[Tooltip("Assets/Mains/Scripts/Commons/PoltergeistTable.assetをセットしておく。")]
+        //[SerializeField] private PoltergeistTable poltergeistTable;
         [Header("フェード設定")]
         /// <summary>前に戻るシーン名</summary>
         [SerializeField] private string gameSceneNameBack;
@@ -93,6 +98,17 @@ namespace Mains.Views
                 missionText = transform.GetChild(1).GetChild(1).GetComponent<TextMeshProUGUI>();
             foreach (Transform child in transform)
             {
+                if (child.name.Equals("HeaderPanel"))
+                {
+                    foreach (Transform item in child)
+                    {
+                        if (item.name.Equals("MidBossGuideText"))
+                        {
+                            if (midBossGuideText == null)
+                                midBossGuideText = item.GetComponent<TextMeshProUGUI>();
+                        }
+                    }
+                }
                 if (child.name.Equals("FooterPanel"))
                 {
                     foreach (Transform item in child)
@@ -145,16 +161,19 @@ namespace Mains.Views
                 .Subscribe(x =>
                 {
                     // 初回の合計を表示
-                    var ghostAllMembersCount = x.Select(q => q.membersCount).Sum();
+                    var ghostAllMembersCount = x.Where(q => q.role.Equals(GhostRole.Normal))
+                        .Select(q => q.membersCount).Sum();
                     guideText.text = 共通UIのテンプレート.guideText.Replace("${ghostAllMembersCount}", $"{ghostAllMembersCount}");
                     var ghostExitMembersCount = 0;
                     missionText.text = 共通UIのテンプレート.missionText.Replace("${ghostAllMembersCount}", $"{ghostAllMembersCount}")
                         .Replace("${ghostExitMembersCount}", $"{ghostExitMembersCount}");
+                    var viewModel = _commonPanelViewModel;
                     // 追加されたら再度合計を更新
                     x.ObserveAdd()
                         .Subscribe(_ =>
                         {
-                            ghostAllMembersCount = x.Select(q => q.membersCount).Sum();
+                            ghostAllMembersCount = x.Where(q => q.role.Equals(GhostRole.Normal))
+                                .Select(q => q.membersCount).Sum();
                             guideText.text = 共通UIのテンプレート.guideText.Replace("${ghostAllMembersCount}", $"{ghostAllMembersCount}");
                             var ghostExitMembersCount = 0;
                             missionText.text = 共通UIのテンプレート.missionText.Replace("${ghostAllMembersCount}", $"{ghostAllMembersCount}")
@@ -165,14 +184,15 @@ namespace Mains.Views
                     x.ObserveReplace()
                         .Subscribe(_ =>
                         {
-                            var ghostAllMembersUpdCount = x.Select(q => q.membersCount).Sum();
+                            var ghostAllMembersUpdCount = x.Where(q => q.role.Equals(GhostRole.Normal))
+                                .Select(q => q.membersCount).Sum();
                             // 初回の合計 - 減った後の合計 = 倒した数
                             var ghostExitMembersCount = ghostAllMembersCount - ghostAllMembersUpdCount;
                             missionText.text = 共通UIのテンプレート.missionText.Replace("${ghostAllMembersCount}", $"{ghostAllMembersCount}")
                                 .Replace("${ghostExitMembersCount}", $"{ghostExitMembersCount}");
                             CheckMissionStatusAndDirectionClear(ghostAllMembersUpdCount, gameSceneNameBack,
                                 stageClearPanel, stageClearText, player, fadeImageView,
-                                _commonPanelViewModel);
+                                viewModel);
                         })
                         .AddTo(ref _disposableBag);
                 })
@@ -532,57 +552,42 @@ namespace Mains.Views
             RectTransform stageClearPanel, TextMeshProUGUI stageClearText, Player player, FadeImageView fadeImageView,
             CommonPanelViewModel commonPanelViewModel)
         {
-            if (ghostAllMembersUpdCount < 1)
+            var viewModel = commonPanelViewModel;
+            switch (viewModel.EnemyBattlePart)
             {
-                commonPanelViewModel.IsCompletedStageClearDirection.Where(x => x)
-                    .Take(1)
-                    .Subscribe(_ =>
+                case EnemyBattlePart.Normal:
+                    if (ghostAllMembersUpdCount < 1)
                     {
-                        // 時間を停止
-                        Time.timeScale = 0f;
-                        player.controllers.maps.SetMapsEnabled(false, "Default"); // ゲーム操作を無効化
+                        if (viewModel.CheckClearAndUpdateEnemyBattlePart())
+                        {
+                            viewModel.IsCompletedStageClearDirection.Where(x => x)
+                                .Take(1)
+                                .Subscribe(_ =>
+                                {
+                                    PlayDirectionClear(gameSceneNameBack,
+                                        stageClearPanel, stageClearText, player, fadeImageView);
+                                })
+                                .AddTo(ref _disposableBag);
+                        }
+                    }
 
-                        // TextMeshProを取得して、クリア演出の様なDOTweenアニメーションをつける。完了を通知する。
-                        stageClearPanel.gameObject.SetActive(true);
-                        stageClearText.transform.localScale = Vector3.zero;
-                        stageClearText.DOFade(0f, 0f);
-                        DOTween.Sequence()
-                            .Append(stageClearText.DOFade(1f, 0.5f))
-                            .Join(stageClearText.transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack))
-                            .SetUpdate(true)
-                            .OnComplete(() =>
+                    break;
+                case EnemyBattlePart.MidBoss:
+                    var midBosskillsRate = viewModel.MidBosskillsRate;
+                    var subSettings = viewModel.PoltergeistTable.subSettings;
+                    if (subSettings.targetkillsRate <= midBosskillsRate)
+                    {
+                        viewModel.IsCompletedStageClearDirection.Where(x => x)
+                            .Take(1)
+                            .Subscribe(_ =>
                             {
-                                // 必要ならここでさらに次の処理を繋ぐ
-                                player.controllers.maps.SetMapsEnabled(true, "CategoryUI");       // UI操作だけ有効化
-                                Observable.EveryUpdate()
-                                    .Select(_ => player.GetButtonDown("Submit"))
-                                    .DistinctUntilChanged()
-                                    .Where(x => x)
-                                    .Take(1)
-                                    .Subscribe(_ =>
-                                    {
-                                        player.controllers.maps.SetMapsEnabled(false, "CategoryUI");
-                                        Observable.Create<bool>(observer =>
-                                        {
-                                            StartCoroutine(fadeImageView.PlayFadeInDirection(observer));
-                                            return Disposable.Empty;
-                                        })
-                                            .Subscribe(_ =>
-                                            {
-                                                Observable.Create<bool>(observer =>
-                                                {
-                                                    StartCoroutine(LoadSceneCoroutine(observer, gameSceneNameBack));
-                                                    return Disposable.Empty;
-                                                })
-                                                    .Subscribe(_ => { })
-                                                    .AddTo(ref _disposableBag);
-                                            })
-                                            .AddTo(ref _disposableBag);
-                                    })
-                                    .AddTo(ref _disposableBag);
-                            });
-                    })
-                    .AddTo(ref _disposableBag);
+                                PlayDirectionClear(gameSceneNameBack,
+                                    stageClearPanel, stageClearText, player, fadeImageView);
+                            })
+                            .AddTo(ref _disposableBag);
+                    }
+
+                    break;
             }
         }
 
@@ -682,6 +687,62 @@ namespace Mains.Views
                         .AddTo(ref _disposableBag);
                 })
                 .AddTo(ref _disposableBag);
+        }
+
+        /// <summary>
+        /// クリア演出を実行
+        /// </summary>
+        /// <param name="gameSceneNameBack">前に戻るシーン名</param>
+        /// <param name="stageClearPanel">STAGE CLEARのパネル</param>
+        /// <param name="stageClearText">STAGE CLEARのテキスト</param>
+        /// <param name="player">ReInputのPlayer</param>
+        /// <param name="fadeImageView">フェードイメージのビュー</param>
+        private void PlayDirectionClear(string gameSceneNameBack,
+            RectTransform stageClearPanel, TextMeshProUGUI stageClearText, Player player, FadeImageView fadeImageView)
+        {
+            // 時間を停止
+            Time.timeScale = 0f;
+            player.controllers.maps.SetMapsEnabled(false, "Default"); // ゲーム操作を無効化
+
+            // TextMeshProを取得して、クリア演出の様なDOTweenアニメーションをつける。完了を通知する。
+            stageClearPanel.gameObject.SetActive(true);
+            stageClearText.transform.localScale = Vector3.zero;
+            stageClearText.DOFade(0f, 0f);
+            DOTween.Sequence()
+                .Append(stageClearText.DOFade(1f, 0.5f))
+                .Join(stageClearText.transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack))
+                .SetUpdate(true)
+                .OnComplete(() =>
+                {
+                    // 必要ならここでさらに次の処理を繋ぐ
+                    player.controllers.maps.SetMapsEnabled(true, "CategoryUI");       // UI操作だけ有効化
+                    Observable.EveryUpdate()
+                        .Select(_ => player.GetButtonDown("Submit"))
+                        .DistinctUntilChanged()
+                        .Where(x => x)
+                        .Take(1)
+                        .Subscribe(_ =>
+                        {
+                            player.controllers.maps.SetMapsEnabled(false, "CategoryUI");
+                            Observable.Create<bool>(observer =>
+                            {
+                                StartCoroutine(fadeImageView.PlayFadeInDirection(observer));
+                                return Disposable.Empty;
+                            })
+                                .Subscribe(_ =>
+                                {
+                                    Observable.Create<bool>(observer =>
+                                    {
+                                        StartCoroutine(LoadSceneCoroutine(observer, gameSceneNameBack));
+                                        return Disposable.Empty;
+                                    })
+                                        .Subscribe(_ => { })
+                                        .AddTo(ref _disposableBag);
+                                })
+                                .AddTo(ref _disposableBag);
+                        })
+                        .AddTo(ref _disposableBag);
+                });
         }
 
         /// <summary>

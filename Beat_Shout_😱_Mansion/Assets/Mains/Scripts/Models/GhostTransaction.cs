@@ -109,5 +109,10 @@ namespace Mains.Models
         {
             throw new System.NotImplementedException();
         }
+
+        public void SetMidBosskillsRate(float midBosskillsRate)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

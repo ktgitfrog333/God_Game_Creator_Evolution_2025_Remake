@@ -1035,15 +1035,6 @@ namespace Mains.External
                     StopIntro();
                 }
                 conductor.ChangeBgmB(3);
-                // BGMのBはループポイント有りのため到達不可
-                //_currentSourceStatusDisposable?.Dispose();
-                //_currentSourceStatusDisposable = Observable.EveryUpdate()
-                //    .Select(_ => conductor.currentSource.status)
-                //    .Subscribe(status =>
-                //    {
-                //        _bgmBStatus.Execute((int)status);
-                //    })
-                //    .AddTo(ref _disposableBag);
             }
         }
 

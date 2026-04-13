@@ -74,15 +74,7 @@ namespace Mains.ViewModels
         /// <summary>敵戦パート</summary>
         public EnemyBattlePart EnemyBattlePart => _playerModel?.EnemyBattlePart ?? EnemyBattlePart.Normal;
         /// <summary>中ボスオバケ退治率</summary>
-        private ReactiveCommand<float> _midBosskillsRateReactive = new ReactiveCommand<float>();
-        /// <summary>中ボスオバケ退治率</summary>
-        public ReactiveCommand<float> MidBosskillsRateReactive => _midBosskillsRateReactive;
-        /// <summary>中ボスオバケ退治率</summary>
         public float MidBosskillsRate => _playerModel?.MidBosskillsRate ?? 0f;
-        ///// <summary>レベルオーナー</summary>
-        //private LevelOwner _levelOwner;
-        ///// <summary>レベルオーナー</summary>
-        //private LevelOwner LevelOwner => _levelOwner != null ? _levelOwner : _levelOwner = GameManager.Instance.LevelOwner;
 
         public PoltergeistViewModel(PoltergeistTable poltergeistTable, Transform startAttackInstance = null)
         {
@@ -112,11 +104,6 @@ namespace Mains.ViewModels
                     _playerModel.IsPostRhythmFaceOff.Subscribe(isPostRhythmFaceOff =>
                     {
                         _isPostRhythmFaceOff.Execute(isPostRhythmFaceOff);
-                    })
-                        .AddTo(ref _disposableBag);
-                    _playerModel.MidBosskillsRateReactive.Subscribe(midBosskillsRate =>
-                    {
-                        _midBosskillsRateReactive.Execute(midBosskillsRate);
                     })
                         .AddTo(ref _disposableBag);
                     _playerModel.EnemyBattlePartReactive.Subscribe(enemyBattlePart =>
@@ -282,7 +269,6 @@ namespace Mains.ViewModels
         /// <summary>
         /// 通常戦パートとステージ番号を考慮したクリア判定が有効な場合
         /// </summary>
-        /// <param name="checkClearStructs"></param>
         /// <returns>クリア判定結果</returns>
         public bool CheckClearAndUpdateEnemyBattlePart()
         {
@@ -307,52 +293,6 @@ namespace Mains.ViewModels
             return result;
         }
 
-        ///// <summary>
-        ///// 中ボスオバケ退治率の計算
-        ///// </summary>
-        ///// <param name="beforeMembersCount">リズムパート前の人数</param>
-        ///// <returns>中ボスオバケ退治率</returns>
-        //public float CalcMidBosskillsRate(float beforeMembersCount)
-        //{
-        //    // リズムパート前の人数 - リズムパート後の人数 = 退治数
-        //    var afterPoint = beforeMembersCount - TransactionGhostInStaticObjectStruct.membersCount;
-        //    float targetkillsRate = (float)afterPoint / beforeMembersCount;
-        //    _midBosskillsRate = targetkillsRate;
-
-        //    return _midBosskillsRate;
-        //}
-
-        ///// <summary>
-        ///// 利用人数合計を取得する
-        ///// </summary>
-        ///// <returns>利用人数合計</returns>
-        ///// <remarks>「通常戦パート」か「中ボス戦パート」かの条件によって、<br/>
-        ///// 「通常オバケ」か「中ボスオバケ」の利用人数合計を取得する</remarks>
-        //public int GetMembersCountSum()
-        //{
-        //    var model = _playerModel;
-        //    if (model != null)
-        //    {
-        //        var ghostStructs = GhostInStaticObjectStructs;
-        //        switch (model.EnemyBattlePart)
-        //        {
-        //            case EnemyBattlePart.Normal:
-        //                var cnt = ghostStructs.Where(q => q.role.Equals(GhostRole.Normal))
-        //                    .Select(q => q.membersCount).Sum();
-
-        //                return cnt;
-        //            case EnemyBattlePart.MidBoss:
-        //                var cnt1 = ghostStructs.Where(q => q.role.Equals(GhostRole.MidBoss))
-        //                    .Select(q => q.membersCount).Sum();
-
-        //                return cnt1;
-        //        }
-        //    }
-        //    Debug.LogWarning("プレイヤーモデルが存在しません");
-
-        //    return 0;
-        //}
-
         public void SetEnemyBattlePart(EnemyBattlePart enemyBattlePart)
         {
             if (_playerModel != null)
@@ -363,6 +303,12 @@ namespace Mains.ViewModels
         {
             if (_playerModel != null)
                 _playerModel.ReplaceGhostInStaticObjectStructs(ghostInStaticObjectStruct);
+        }
+
+        public void SetMidBosskillsRate(float midBosskillsRate)
+        {
+            if (_playerModel != null)
+                _playerModel.SetMidBosskillsRate(midBosskillsRate);
         }
 
         public void Dispose()

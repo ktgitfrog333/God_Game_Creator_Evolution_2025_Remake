@@ -287,16 +287,16 @@ namespace Mains.Models
 
         public void SetDefaultTransactionGhostInStaticObjectStruct()
         {
+            //var role = TransactionGhostInStaticObjectStruct.role;
             GhostTransaction.SetDefaultTransactionGhostInStaticObjectStruct();
-            var transaction = TransactionGhostInStaticObjectStruct;
-            switch (transaction.role)
-            {
-                case GhostRole.MidBoss:
-                    _midBosskillsRate = 0f;
-                    _midBosskillsRateReactive.Execute(_midBosskillsRate);
+            //switch (role)
+            //{
+            //    case GhostRole.MidBoss:
+            //        _midBosskillsRate = 0f;
+            //        _midBosskillsRateReactive.Execute(_midBosskillsRate);
 
-                    break;
-            }
+            //        break;
+            //}
         }
 
         public void SetInteractionPartToSearch()
@@ -546,6 +546,12 @@ namespace Mains.Models
         {
             GhostContainer.Replace(ghostInStaticObjectStruct);
         }
+
+        public void SetMidBosskillsRate(float midBosskillsRate)
+        {
+            _midBosskillsRate = midBosskillsRate;
+            _midBosskillsRateReactive.Execute(_midBosskillsRate);
+        }
     }
 
     /// <summary>
@@ -678,6 +684,11 @@ namespace Mains.Models
         /// </summary>
         /// <param name="ghostInStaticObjectStruct">オバケの家具入居管理のデータクラス</param>
         public void ReplaceGhostInStaticObjectStructs(GhostInStaticObjectStruct ghostInStaticObjectStruct);
+        /// <summary>
+        /// 中ボスオバケ退治率をセット
+        /// </summary>
+        /// <param name="midBosskillsRate">中ボスオバケ退治率</param>
+        public void SetMidBosskillsRate(float midBosskillsRate);
     }
 
     /// <summary>

@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
-using static UnityEngine.Rendering.DebugUI;
 
 namespace Mains.Views
 {
@@ -752,7 +751,6 @@ namespace Mains.Views
                         List<Observable<bool>> completionObservables = new List<Observable<bool>>();
 
                         // 1. 暗幕フェード処理（条件付き）
-                        //var cnt = _poltergeistViewModel.GetMembersCountSum();
                         var ghostStructs = _poltergeistViewModel.GhostInStaticObjectStructs;
                         var cnt = ghostStructs.Where(q => q.role.Equals(GhostRole.Normal))
                             .Select(q => q.membersCount).Sum();
@@ -816,7 +814,7 @@ namespace Mains.Views
                                 }
                                 else
                                 {
-                                    // 条件を満たさない場合は即座に完了するObservableを追加
+                                    // 条件を満たさない場合は即座に完了するObservableを追加（デッドロジック）
                                     completionObservables.Add(Observable.Return(true));
                                 }
 
@@ -855,12 +853,13 @@ namespace Mains.Views
                                 }
                                 else
                                 {
-                                    // 条件を満たさない場合は即座に完了するObservableを追加
+                                    // 条件を満たさない場合は即座に完了するObservableを追加（デッドロジック）
                                     completionObservables.Add(Observable.Return(true));
                                 }
 
                                 break;
                         }
+                        viewModel.SetMidBosskillsRate(0f);
 
                         // 2. オバケが残っていたらプールへ戻す（Other）
                         completionObservables.Add(
