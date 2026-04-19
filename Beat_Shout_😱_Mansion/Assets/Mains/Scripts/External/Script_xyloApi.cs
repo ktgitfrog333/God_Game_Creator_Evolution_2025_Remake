@@ -1408,6 +1408,60 @@ namespace Mains.External
             return isUIActive;
         }
 
+        /// <summary>
+        /// BGMの一時停止・再開を切り替える
+        /// </summary>
+        /// <param name="isPause">trueで一時停止、falseで再開</param>
+        public void SetBgmPause(bool isPause)
+        {
+            var conductor = CRIWARE_conductor.Instance;
+            if (conductor == null)
+            {
+                Debug.LogWarning("CRIWARE_conductorのインスタンスが見つかりませんでした。");
+                return;
+            }
+
+            // 既存コードで currentSource を参照しているのに倣い同じ経路でアクセス
+            var source = conductor.currentSource;
+            if (source == null)
+            {
+                Debug.LogWarning("conductor.currentSource が null です。");
+                return;
+            }
+
+            source.Pause(isPause);
+        }
+
+        /// <summary>
+        /// シーン内の全ノーツのクリック判定のみを有効・無効にする
+        /// </summary>
+        /// <remarks>
+        /// enabled = false と違いアニメーション・リングの表示は維持される
+        /// enableClickDetection フィールドをリフレクションで操作
+        /// </remarks>
+        public void SetAllNotesClickDetection(bool isEnable)
+        {
+            var managers = GameObject.FindObjectsByType<MissileDirectAnimManagerB>(FindObjectsSortMode.None);
+            if (managers == null || managers.Length == 0)
+            {
+                Debug.LogWarning("MissileDirectAnimManagerB がシーン内に見つかりませんでした。");
+                return;
+            }
+
+            var managerType = typeof(MissileDirectAnimManagerB);
+            var enableClickDetectionField = managerType.GetField("enableClickDetection", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (enableClickDetectionField == null)
+            {
+                Debug.LogWarning("enableClickDetection フィールドが見つかりませんでした。");
+                return;
+            }
+
+            foreach (var manager in managers)
+            {
+                enableClickDetectionField.SetValue(manager, isEnable);
+            }
+        }
+
         public void Dispose()
         {
             _disposableBag.Dispose();
