@@ -563,7 +563,7 @@ MonoBehaviour:
     - 0
     - 0
     - 0
-  _cueName: search-part_A
+  _cueName: search-part_B
   _cueSheet: BGM
 --- !u!114 &313430794
 MonoBehaviour:
@@ -617,7 +617,7 @@ MonoBehaviour:
   transitionDuration2: 0.05
   isAutoStart: 0
   bpm: 112
-  startBeat: 5
+  startBeat: 0
 --- !u!114 &313430796
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -631,7 +631,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ThisStageNumber: 0
-  introDelayTime: 12.2
+  introDelayTime: 0
   atomSourceA: {fileID: 313430793}
   atomSourceB: {fileID: 313430794}
   atomSourceC: {fileID: 313430794}
@@ -1274,8 +1274,8 @@ MonoBehaviour:
   CueSheetName: SE_Long
   AcbFilePath: SE_Long.acb
   maxPlayers: 5
-  IntroStage01: search-part_Aintro
-  isNotStage: 0
+  IntroStage01: untitled
+  isNotStage: 1
 --- !u!4 &668718946 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3182044482788010926, guid: eb0c9de2a4371b8449d27c66eb57b736, type: 3}
