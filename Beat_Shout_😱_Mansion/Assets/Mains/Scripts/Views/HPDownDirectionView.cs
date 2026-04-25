@@ -1,3 +1,4 @@
+using Mains.External;
 using Mains.ViewModels;
 using R3;
 using R3.Triggers;
@@ -16,6 +17,8 @@ namespace Mains.Views
         [SerializeField] private HPDownDirectionSettings settings;
         /// <summary>ハートが減少する演出ビューモデル</summary>
         private HPDownDirectionViewModel _viewModel;
+        /// <summary>シロさんのコンポーネントへアクセスするAPI</summary>
+        private Script_xyloApi _script_XyloApi;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -24,6 +27,7 @@ namespace Mains.Views
             settings.playableDirector.stopped += OnTimelineStopped;
             var player = ReInput.players.GetPlayer(0);
             _viewModel = new HPDownDirectionViewModel(player);
+            _script_XyloApi = new Script_xyloApi();
             _viewModel.IsCompletedRhythmPart.Where(x => 0 < x)
                 .Subscribe(isCompleted =>
                 {
@@ -61,6 +65,7 @@ namespace Mains.Views
             _disposableBag.Dispose();
             _viewModel?.Dispose();
             settings.playableDirector.stopped -= OnTimelineStopped;
+            _script_XyloApi?.Dispose();
         }
 
         /// <summary>
@@ -86,6 +91,7 @@ namespace Mains.Views
             viewModel.SetPlayerControllerEnabled(false);
             Time.timeScale = 0f;
             playableDirector.Play();
+            _script_XyloApi.PlayDamage1();
         }
     }
 

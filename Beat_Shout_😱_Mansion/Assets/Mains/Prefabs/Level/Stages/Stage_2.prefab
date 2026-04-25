@@ -88,6 +88,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d26f5a0c71543a14e906260314f8208d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &177629522574121480
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8391843196080599376}
+  m_Layer: 0
+  m_Name: GhostTurretPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8391843196080599376
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 177629522574121480}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 6024820747439739523}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &267860339149965807
 GameObject:
   m_ObjectHideFlags: 0
@@ -215,15 +246,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 7ed27a792c708e643a4f26120188e01c, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 1
-    membersCount: 24
+    membersCount: 16
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &588632965742643510
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -405,15 +450,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 7ed27a792c708e643a4f26120188e01c, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &6628495772089800774
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -562,15 +621,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 7ed27a792c708e643a4f26120188e01c, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &2148223387525611153
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -812,15 +885,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 7ed27a792c708e643a4f26120188e01c, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &4942742522863159276
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -842,6 +929,81 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.48264462, y: 0.8379922, z: 0.3253883}
   m_Center: {x: 0.00000005960464, y: 0.015195995, z: 0.0013270825}
+--- !u!1 &759723907810709662
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6317692518890321950}
+  - component: {fileID: 5072851669462917829}
+  m_Layer: 0
+  m_Name: RhythmPartPosition_1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6317692518890321950
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 759723907810709662}
+  serializedVersion: 2
+  m_LocalRotation: {x: -2.3729568e-10, y: 0.1253235, z: -0.0000000018785369, w: 0.9921159}
+  m_LocalPosition: {x: -0.72, y: -0.779, z: -6.58}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 687802369877376964}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5072851669462917829
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 759723907810709662}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b0a9d4b28428b74a87ca15cbb541309, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1 &769473682279240184
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5501933821499238917}
+  m_Layer: 0
+  m_Name: GhostBulletWaitPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5501933821499238917
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 769473682279240184}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.99999976, y: 1, z: 0.99999976}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2754310707386569704}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &784219634152285791
 GameObject:
   m_ObjectHideFlags: 0
@@ -986,6 +1148,102 @@ Transform:
   m_Children: []
   m_Father: {fileID: 621960902947878514}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1256628295042716658
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 687802369877376964}
+  - component: {fileID: 4413992074933830677}
+  - component: {fileID: 6058639067587776822}
+  m_Layer: 8
+  m_Name: 03_19_model airplane_1_fbx
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &687802369877376964
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1256628295042716658}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0.9238796, z: -0, w: -0.38268325}
+  m_LocalPosition: {x: 4.26, y: 2.469, z: -5.44}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children:
+  - {fileID: 7658463846766105738}
+  - {fileID: 8509925365562879452}
+  - {fileID: 6317692518890321950}
+  - {fileID: 4618769730292628437}
+  - {fileID: 6994188919819301792}
+  - {fileID: 362882162233119765}
+  - {fileID: 5946029756660103030}
+  m_Father: {fileID: 1442664474571644060}
+  m_LocalEulerAnglesHint: {x: 0, y: 225, z: 0}
+--- !u!114 &4413992074933830677
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1256628295042716658}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  poltergeistTable: {fileID: 11400000, guid: 7ed27a792c708e643a4f26120188e01c, type: 2}
+  ghostInStaticObjectStruct:
+    poltergeistViewID: 0
+    useStatus: 0
+    membersCount: 0
+    attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
+  settings:
+    ghostAttack:
+      ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 11400000, guid: ecbfbd08c9815dc438b7e976077fcc7a, type: 2}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
+--- !u!65 &6058639067587776822
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1256628295042716658}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 0
+  serializedVersion: 3
+  m_Size: {x: 0.70779, y: 0.2831766, z: 0.7301552}
+  m_Center: {x: -0.005000397, y: -0.010000005, z: -0.07907712}
 --- !u!1 &1425133309301571287
 GameObject:
   m_ObjectHideFlags: 0
@@ -1156,6 +1414,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 6029719773448744037}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1605104544589189674
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7151068899997940160}
+  m_Layer: 0
+  m_Name: MissGhostEscapePosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7151068899997940160
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1605104544589189674}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 904238735169572040}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1773965793271173653
 GameObject:
   m_ObjectHideFlags: 0
@@ -1191,7 +1480,7 @@ Transform:
   - {fileID: 4197003672172791263}
   - {fileID: 7093971573561488748}
   - {fileID: 8876516281122738778}
-  - {fileID: 8590628701537228053}
+  - {fileID: 2754310707386569704}
   - {fileID: 3974794803398211582}
   - {fileID: 4770866489433626224}
   - {fileID: 9161933667694528976}
@@ -1200,6 +1489,37 @@ Transform:
   - {fileID: 2923122088627866832}
   - {fileID: 3145704385332334901}
   m_Father: {fileID: 6434730148163936814}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1820646816704344365
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2419739001276171000}
+  m_Layer: 0
+  m_Name: DustParticlePosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2419739001276171000
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1820646816704344365}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 6024820747439739523}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1837638450510438561
 GameObject:
@@ -1325,6 +1645,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 9196504095544997640}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2062661763125232529
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8525908707577720508}
+  m_Layer: 0
+  m_Name: MissGhostEscapePosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8525908707577720508
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2062661763125232529}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: -0.92387956, z: 0, w: 0.38268343}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 6024820747439739523}
+  m_LocalEulerAnglesHint: {x: 0, y: -135, z: 0}
 --- !u!1 &2157253087737638800
 GameObject:
   m_ObjectHideFlags: 0
@@ -1431,6 +1782,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d26f5a0c71543a14e906260314f8208d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &2233675848418705789
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3032314574006328665}
+  m_Layer: 0
+  m_Name: MissGhostEscapePosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3032314574006328665
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2233675848418705789}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.99999964, y: 1, z: 0.99999964}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7528984396084232725}
+  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
 --- !u!1 &2253443054546696036
 GameObject:
   m_ObjectHideFlags: 0
@@ -1539,6 +1921,37 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.2857516, y: 1, z: 1}
   m_Center: {x: -0.00673891, y: 0, z: 0}
+--- !u!1 &2271207713062068609
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6590603728093793428}
+  m_Layer: 0
+  m_Name: GhostBulletWaitPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6590603728093793428
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2271207713062068609}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.9848078, z: -0, w: 0.17364825}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.99999964, y: 1, z: 0.99999964}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7528984396084232725}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2311998724167021011
 GameObject:
   m_ObjectHideFlags: 0
@@ -1628,15 +2041,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 7ed27a792c708e643a4f26120188e01c, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 1
     membersCount: 8
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &4073243182640853075
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1710,15 +2137,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 7ed27a792c708e643a4f26120188e01c, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 1
     membersCount: 8
     attackType: 0
+    moveType: 1
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &7747579518179849065
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1740,6 +2181,37 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.611501, y: 0.8621969, z: 1}
   m_Center: {x: 0.00000011920929, y: 0.00729847, z: 0}
+--- !u!1 &2476239127028303324
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3043514468381379244}
+  m_Layer: 0
+  m_Name: MissGhostEscapePosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3043514468381379244
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2476239127028303324}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.99999976, y: 1, z: 0.99999976}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2754310707386569704}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2578803420116660790
 GameObject:
   m_ObjectHideFlags: 0
@@ -1867,15 +2339,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 7ed27a792c708e643a4f26120188e01c, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 1
     membersCount: 10
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &3614679900399710313
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1959,6 +2445,50 @@ Transform:
   m_Children: []
   m_Father: {fileID: 9196504095544997640}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2769279049674267964
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6852182982304370950}
+  - component: {fileID: 7036260421426154855}
+  m_Layer: 0
+  m_Name: RhythmPartPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6852182982304370950
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2769279049674267964}
+  serializedVersion: 2
+  m_LocalRotation: {x: 6.7659767e-10, y: 0.35757422, z: 0.0000000017670855, w: 0.93388474}
+  m_LocalPosition: {x: -0.52, y: -1.51, z: 0.59}
+  m_LocalScale: {x: 0.99999976, y: 1, z: 0.99999976}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2754310707386569704}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7036260421426154855
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2769279049674267964}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d26f5a0c71543a14e906260314f8208d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2893297459307597027
 GameObject:
   m_ObjectHideFlags: 0
@@ -2051,6 +2581,37 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 621960902947878514}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2986541676760435740
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 362882162233119765}
+  m_Layer: 0
+  m_Name: GhostTurretPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &362882162233119765
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2986541676760435740}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.38268343, z: -0, w: 0.92387956}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 687802369877376964}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3000849100953632531
 GameObject:
@@ -2166,15 +2727,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 7ed27a792c708e643a4f26120188e01c, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &8420131354783766232
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2671,6 +3246,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 344427282061902030}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3673031527599047617
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7350074393093661504}
+  m_Layer: 0
+  m_Name: DustParticlePosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7350074393093661504
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3673031527599047617}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.99999976, y: 1, z: 0.99999976}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2754310707386569704}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3704329795183089220
 GameObject:
   m_ObjectHideFlags: 0
@@ -2701,6 +3307,37 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8525185197008373771}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3739212426119225015
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8371693839661896535}
+  m_Layer: 0
+  m_Name: GhostBulletWaitPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8371693839661896535
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3739212426119225015}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 904238735169572040}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3740595957968048665
 GameObject:
@@ -2820,15 +3457,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 7ed27a792c708e643a4f26120188e01c, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &544060483153107438
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3039,15 +3690,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 7ed27a792c708e643a4f26120188e01c, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &8289956596331338850
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3169,7 +3834,7 @@ Transform:
   - {fileID: 5349970725745356085}
   - {fileID: 9196504095544997640}
   - {fileID: 3587916528891230040}
-  - {fileID: 5353791604984460996}
+  - {fileID: 904238735169572040}
   - {fileID: 5683337857519498590}
   - {fileID: 321254981686000202}
   - {fileID: 8525185197008373771}
@@ -3180,6 +3845,190 @@ Transform:
   - {fileID: 1442664474571644060}
   m_Father: {fileID: 6434730148163936814}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3954348440624185685
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8177020659955588942}
+  - component: {fileID: 6785357859161702780}
+  m_Layer: 0
+  m_Name: RhythmPartPosition_1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8177020659955588942
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3954348440624185685}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.000000001849335, y: 0.97745466, z: -3.99485e-10, w: 0.21114534}
+  m_LocalPosition: {x: -2.15, y: -0.34, z: 6.37}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 904238735169572040}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6785357859161702780
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3954348440624185685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b0a9d4b28428b74a87ca15cbb541309, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1 &3991540122708529211
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2754310707386569704}
+  - component: {fileID: 5649063749872236056}
+  - component: {fileID: 3999192718606984302}
+  m_Layer: 8
+  m_Name: 03_09_wall clock_fbx
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2754310707386569704
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3991540122708529211}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.7071068, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 2.62, y: 2.01, z: -5.59}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 8590628701537228053}
+  - {fileID: 6852182982304370950}
+  - {fileID: 1782739255022841261}
+  - {fileID: 7350074393093661504}
+  - {fileID: 3043514468381379244}
+  - {fileID: 8814062885330224562}
+  - {fileID: 5501933821499238917}
+  m_Father: {fileID: 3618559919224271890}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5649063749872236056
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3991540122708529211}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  poltergeistTable: {fileID: 11400000, guid: 7ed27a792c708e643a4f26120188e01c, type: 2}
+  ghostInStaticObjectStruct:
+    poltergeistViewID: 0
+    useStatus: 1
+    membersCount: 8
+    attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
+  settings:
+    ghostAttack:
+      ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 11400000, guid: ecbfbd08c9815dc438b7e976077fcc7a, type: 2}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
+--- !u!65 &3999192718606984302
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3991540122708529211}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 0
+  serializedVersion: 3
+  m_Size: {x: 0.34431458, y: 0.79414165, z: 0.2156086}
+  m_Center: {x: -0.0013275146, y: 0.000000059604645, z: 0.0017747879}
+--- !u!1 &4001985476312165824
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1782739255022841261}
+  - component: {fileID: 5688748622134329160}
+  m_Layer: 0
+  m_Name: RhythmPartPosition_1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1782739255022841261
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4001985476312165824}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0.9338847, z: 0, w: -0.3575743}
+  m_LocalPosition: {x: 3.85, y: -0.34, z: 5.46}
+  m_LocalScale: {x: 0.99999976, y: 1, z: 0.99999976}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2754310707386569704}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5688748622134329160
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4001985476312165824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b0a9d4b28428b74a87ca15cbb541309, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4063891873979002824
 GameObject:
   m_ObjectHideFlags: 0
@@ -3255,6 +4104,102 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b0a9d4b28428b74a87ca15cbb541309, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &4099961069809576147
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6024820747439739523}
+  - component: {fileID: 2409997907547069710}
+  - component: {fileID: 154952826466256710}
+  m_Layer: 8
+  m_Name: 03_19_model airplane_fbx
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6024820747439739523
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4099961069809576147}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
+  m_LocalPosition: {x: 3.63, y: 3.08, z: -6.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children:
+  - {fileID: 8325373176524778591}
+  - {fileID: 7598276686397454076}
+  - {fileID: 190004058867571548}
+  - {fileID: 2419739001276171000}
+  - {fileID: 8525908707577720508}
+  - {fileID: 8391843196080599376}
+  - {fileID: 223434906212912863}
+  m_Father: {fileID: 1442664474571644060}
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
+--- !u!114 &2409997907547069710
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4099961069809576147}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  poltergeistTable: {fileID: 11400000, guid: 7ed27a792c708e643a4f26120188e01c, type: 2}
+  ghostInStaticObjectStruct:
+    poltergeistViewID: 0
+    useStatus: 0
+    membersCount: 0
+    attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
+  settings:
+    ghostAttack:
+      ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 11400000, guid: ecbfbd08c9815dc438b7e976077fcc7a, type: 2}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
+--- !u!65 &154952826466256710
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4099961069809576147}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 0
+  serializedVersion: 3
+  m_Size: {x: 0.62248534, y: 0.3256359, z: 0.66765845}
+  m_Center: {x: 0.0016136738, y: 0.0016132812, z: 0.05001258}
 --- !u!1 &4109658785456438999
 GameObject:
   m_ObjectHideFlags: 0
@@ -4007,15 +4952,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 7ed27a792c708e643a4f26120188e01c, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &2782495473820817998
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4561,15 +5520,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 7ed27a792c708e643a4f26120188e01c, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 1
+      membersCount: 24
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 1
 --- !u!65 &7032716239292055653
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4591,6 +5564,50 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.5026718, y: 1.2058586, z: 1.047736}
   m_Center: {x: -0.0028862953, y: 0.00912914, z: 0.0014038682}
+--- !u!1 &5763571292261883507
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8600668287796927593}
+  - component: {fileID: 6973573875969826067}
+  m_Layer: 0
+  m_Name: RhythmPartPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8600668287796927593
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5763571292261883507}
+  serializedVersion: 2
+  m_LocalRotation: {x: 3.9948495e-10, y: 0.21114531, z: -0.000000001849335, w: -0.97745466}
+  m_LocalPosition: {x: 0.56, y: -1.51, z: 0.39}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 904238735169572040}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6973573875969826067
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5763571292261883507}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d26f5a0c71543a14e906260314f8208d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5777671355959845958
 GameObject:
   m_ObjectHideFlags: 0
@@ -4688,6 +5705,102 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.1479527, y: 1.5091314, z: 1}
   m_Center: {x: 0.00000017881393, y: 0.010765552, z: 8.4703214e-22}
+--- !u!1 &5858699023511872221
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7528984396084232725}
+  - component: {fileID: 5963253565838429458}
+  - component: {fileID: 8104239494081666842}
+  m_Layer: 8
+  m_Name: 03_19_model airplane_2_fbx
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7528984396084232725
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5858699023511872221}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0.9848078, z: 0, w: 0.17364825}
+  m_LocalPosition: {x: 3.91, y: 2.949, z: -4.18}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 7625735183803442417}
+  - {fileID: 6463903749662635797}
+  - {fileID: 6283635052343727012}
+  - {fileID: 4567389152157770160}
+  - {fileID: 3032314574006328665}
+  - {fileID: 517070301439909082}
+  - {fileID: 6590603728093793428}
+  m_Father: {fileID: 1442664474571644060}
+  m_LocalEulerAnglesHint: {x: 0, y: 160, z: 0}
+--- !u!114 &5963253565838429458
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5858699023511872221}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  poltergeistTable: {fileID: 11400000, guid: 7ed27a792c708e643a4f26120188e01c, type: 2}
+  ghostInStaticObjectStruct:
+    poltergeistViewID: 0
+    useStatus: 0
+    membersCount: 0
+    attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
+  settings:
+    ghostAttack:
+      ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 11400000, guid: ecbfbd08c9815dc438b7e976077fcc7a, type: 2}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
+--- !u!65 &8104239494081666842
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5858699023511872221}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 0
+  serializedVersion: 3
+  m_Size: {x: 0.62248534, y: 0.3256359, z: 0.6488415}
+  m_Center: {x: 0.0016136722, y: 0.0016132742, z: -0.07035162}
 --- !u!1 &5878047532282839766
 GameObject:
   m_ObjectHideFlags: 0
@@ -4985,15 +6098,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 7ed27a792c708e643a4f26120188e01c, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &6891268625920832027
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5088,6 +6215,50 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d26f5a0c71543a14e906260314f8208d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1 &6202447344888325399
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 190004058867571548}
+  - component: {fileID: 1788308978485218586}
+  m_Layer: 0
+  m_Name: RhythmPartPosition_1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &190004058867571548
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6202447344888325399}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.0000000014359038, y: 0.37916982, z: -0.0000000035041838, w: 0.9253271}
+  m_LocalPosition: {x: -5.27, y: -1.39, z: -4.43}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 6024820747439739523}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1788308978485218586
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6202447344888325399}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b0a9d4b28428b74a87ca15cbb541309, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &6370019305731734437
@@ -5230,15 +6401,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 7ed27a792c708e643a4f26120188e01c, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &3493342589309471623
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5368,6 +6553,81 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.03755167, y: 1, z: 0.363723}
   m_Center: {x: -0.48030612, y: 0, z: 0.3181385}
+--- !u!1 &6622186857549636586
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6283635052343727012}
+  - component: {fileID: 6301212111268810992}
+  m_Layer: 0
+  m_Name: RhythmPartPosition_1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6283635052343727012
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6622186857549636586}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0.9357746, z: 0, w: 0.35259888}
+  m_LocalPosition: {x: -4.47, y: -1.259, z: 3.98}
+  m_LocalScale: {x: 0.99999964, y: 1, z: 0.99999964}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7528984396084232725}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6301212111268810992
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6622186857549636586}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b0a9d4b28428b74a87ca15cbb541309, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1 &6659706563042354216
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5946029756660103030}
+  m_Layer: 0
+  m_Name: GhostBulletWaitPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5946029756660103030
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6659706563042354216}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.38268343, z: -0, w: 0.92387956}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 687802369877376964}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6853485975534786774
 GameObject:
   m_ObjectHideFlags: 0
@@ -5397,10 +6657,41 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 8325373176524778591}
-  - {fileID: 7658463846766105738}
-  - {fileID: 7625735183803442417}
+  - {fileID: 6024820747439739523}
+  - {fileID: 687802369877376964}
+  - {fileID: 7528984396084232725}
   m_Father: {fileID: 768339420185183306}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &6919112360813287401
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8508792568133096605}
+  m_Layer: 0
+  m_Name: DustParticlePosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8508792568133096605
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6919112360813287401}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 904238735169572040}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7017769334026669962
 GameObject:
@@ -5433,6 +6724,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4197003672172791263}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7036917244635708341
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6994188919819301792}
+  m_Layer: 0
+  m_Name: MissGhostEscapePosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6994188919819301792
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7036917244635708341}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: -1, z: 0, w: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 687802369877376964}
+  m_LocalEulerAnglesHint: {x: 0, y: -180, z: 0}
 --- !u!1 &7046910553248174680
 GameObject:
   m_ObjectHideFlags: 0
@@ -5585,6 +6907,37 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!1 &7083085617947261449
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4567389152157770160}
+  m_Layer: 0
+  m_Name: DustParticlePosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4567389152157770160
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7083085617947261449}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.9848078, z: -0, w: 0.17364825}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.99999964, y: 1, z: 0.99999964}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7528984396084232725}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7177987930963370049
 GameObject:
   m_ObjectHideFlags: 0
@@ -5628,6 +6981,94 @@ Transform:
   - {fileID: 7505777491316784665}
   m_Father: {fileID: 3352223608252960629}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7203320639219043305
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7598276686397454076}
+  - component: {fileID: 6114632953069791351}
+  m_Layer: 0
+  m_Name: RhythmPartPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7598276686397454076
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7203320639219043305}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.0000000035041838, y: 0.9253271, z: -0.0000000014359036, w: -0.37916976}
+  m_LocalPosition: {x: -0.7, y: -2.58, z: 0.21}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 6024820747439739523}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6114632953069791351
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7203320639219043305}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d26f5a0c71543a14e906260314f8208d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1 &7219092609689147120
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6463903749662635797}
+  - component: {fileID: 1348463598709111823}
+  m_Layer: 0
+  m_Name: RhythmPartPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6463903749662635797
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7219092609689147120}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.0000000033374015, y: 0.3525989, z: 0.0000000088572465, w: -0.93577456}
+  m_LocalPosition: {x: -0.14000008, y: -2.449, z: -0.9500002}
+  m_LocalScale: {x: 0.99999964, y: 1, z: 0.99999964}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7528984396084232725}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1348463598709111823
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7219092609689147120}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d26f5a0c71543a14e906260314f8208d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7226560664593041570
 GameObject:
   m_ObjectHideFlags: 0
@@ -5760,6 +7201,37 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.282698, y: 1.819761, z: 0.88372517}
   m_Center: {x: -0.0010172725, y: 0.006080509, z: 0.006014228}
+--- !u!1 &7249762443430471503
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 517070301439909082}
+  m_Layer: 0
+  m_Name: GhostTurretPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &517070301439909082
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7249762443430471503}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.9848078, z: -0, w: 0.17364825}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.99999964, y: 1, z: 0.99999964}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7528984396084232725}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7407464165817524364
 GameObject:
   m_ObjectHideFlags: 0
@@ -5900,6 +7372,37 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.3299367, y: 1, z: 1}
   m_Center: {x: -0.3355924, y: 0, z: 0}
+--- !u!1 &7569192634416887888
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 883511228523860729}
+  m_Layer: 0
+  m_Name: GhostTurretPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &883511228523860729
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7569192634416887888}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 904238735169572040}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7573150166207134765
 GameObject:
   m_ObjectHideFlags: 0
@@ -6036,6 +7539,164 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3974794803398211582}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7788852975913901143
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4618769730292628437}
+  m_Layer: 0
+  m_Name: DustParticlePosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4618769730292628437
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7788852975913901143}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.38268343, z: -0, w: 0.92387956}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 687802369877376964}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7800887952935512347
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 904238735169572040}
+  - component: {fileID: 4350403133194241316}
+  - component: {fileID: 5611559423849172912}
+  m_Layer: 8
+  m_Name: 03_09_wall clock_1_fbx
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &904238735169572040
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7800887952935512347}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 7, y: 2.01, z: -8}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 5353791604984460996}
+  - {fileID: 8600668287796927593}
+  - {fileID: 8177020659955588942}
+  - {fileID: 8508792568133096605}
+  - {fileID: 7151068899997940160}
+  - {fileID: 883511228523860729}
+  - {fileID: 8371693839661896535}
+  m_Father: {fileID: 768339420185183306}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4350403133194241316
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7800887952935512347}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  poltergeistTable: {fileID: 11400000, guid: 7ed27a792c708e643a4f26120188e01c, type: 2}
+  ghostInStaticObjectStruct:
+    poltergeistViewID: 0
+    useStatus: 0
+    membersCount: 0
+    attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
+  settings:
+    ghostAttack:
+      ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 11400000, guid: ecbfbd08c9815dc438b7e976077fcc7a, type: 2}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
+--- !u!65 &5611559423849172912
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7800887952935512347}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 0
+  serializedVersion: 3
+  m_Size: {x: 0.34431458, y: 0.79414165, z: 0.2156086}
+  m_Center: {x: -0.0013275146, y: 0.000000059604645, z: 0.0017747879}
+--- !u!1 &7801720904093852514
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8814062885330224562}
+  m_Layer: 0
+  m_Name: GhostTurretPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8814062885330224562
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7801720904093852514}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.99999976, y: 1, z: 0.99999976}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2754310707386569704}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7948772224855990181
 GameObject:
@@ -6317,15 +7978,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 7ed27a792c708e643a4f26120188e01c, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &7161478731814884707
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6523,15 +8198,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 7ed27a792c708e643a4f26120188e01c, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &726689780633518613
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6553,6 +8242,37 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.22321749, y: 0.22204785, z: 0.22362709}
   m_Center: {x: -0.0035421848, y: 0.03962394, z: -0.0014019012}
+--- !u!1 &8317205785108120999
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 223434906212912863}
+  m_Layer: 0
+  m_Name: GhostBulletWaitPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &223434906212912863
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8317205785108120999}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 6024820747439739523}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8367245097498982980
 GameObject:
   m_ObjectHideFlags: 0
@@ -6623,6 +8343,50 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8472791585633299407}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d26f5a0c71543a14e906260314f8208d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1 &8475041624921744766
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8509925365562879452}
+  - component: {fileID: 5899248782969585427}
+  m_Layer: 0
+  m_Name: RhythmPartPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8509925365562879452
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8475041624921744766}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.000000001878537, y: 0.9921159, z: -2.372957e-10, w: -0.1253235}
+  m_LocalPosition: {x: 0.9, y: -1.9690001, z: -0.27}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 687802369877376964}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5899248782969585427
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8475041624921744766}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d26f5a0c71543a14e906260314f8208d, type: 3}
@@ -7116,15 +8880,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 7ed27a792c708e643a4f26120188e01c, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 1
     membersCount: 10
     attackType: 0
+    moveType: 1
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &3386232761600743916
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -9232,19 +11010,19 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 768339420185183306}
+    m_TransformParent: {fileID: 904238735169572040}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 143fd5b1dc573ad448d7049b55602efd, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 6.998
+      value: -0.001999855
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 143fd5b1dc573ad448d7049b55602efd, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.2
+      value: 0.19000006
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 143fd5b1dc573ad448d7049b55602efd, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -8.1005
+      value: -0.10050011
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 143fd5b1dc573ad448d7049b55602efd, type: 3}
       propertyPath: m_LocalRotation.w
@@ -9954,7 +11732,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 1442664474571644060}
+    m_TransformParent: {fileID: 687802369877376964}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
       propertyPath: m_LocalScale.x
@@ -9970,31 +11748,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 4.263
+      value: -0.0007070567
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3.042
+      value: 0.57299995
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -5.438
+      value: -0.0035352774
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.92387956
+      value: 0.00000017881393
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.38268343
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -10138,35 +11916,35 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 1442664474571644060}
+    m_TransformParent: {fileID: 7528984396084232725}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 3.91
+      value: 0.0010261496
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3.1261246
+      value: 0.17712474
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -4.183
+      value: 0.002819322
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.9848078
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.17364825
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -10294,35 +12072,35 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 3618559919224271890}
+    m_TransformParent: {fileID: 2754310707386569704}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 143fd5b1dc573ad448d7049b55602efd, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.721
+      value: -0.0019998702
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 143fd5b1dc573ad448d7049b55602efd, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.2
+      value: 0.19000006
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 143fd5b1dc573ad448d7049b55602efd, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -5.592
+      value: -0.101000085
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 143fd5b1dc573ad448d7049b55602efd, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.7071068
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 143fd5b1dc573ad448d7049b55602efd, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 143fd5b1dc573ad448d7049b55602efd, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.7071068
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 143fd5b1dc573ad448d7049b55602efd, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 143fd5b1dc573ad448d7049b55602efd, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -10368,7 +12146,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 1442664474571644060}
+    m_TransformParent: {fileID: 6024820747439739523}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
       propertyPath: m_LocalScale.x
@@ -10384,31 +12162,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 3.63
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3.078
+      value: -0.001999855
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -6.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

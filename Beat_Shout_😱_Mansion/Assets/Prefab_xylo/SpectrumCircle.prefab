@@ -49,8 +49,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   barPrefab: {fileID: 5778173210135038400, guid: 2ec4f9149766e71449cc6f84c9c9bfce, type: 3}
-  barCount: 128
-  radius: 200
+  barCount: 64
+  radius: 80
   startAngle: 0
   autoRotateBars: 1
   bars: []

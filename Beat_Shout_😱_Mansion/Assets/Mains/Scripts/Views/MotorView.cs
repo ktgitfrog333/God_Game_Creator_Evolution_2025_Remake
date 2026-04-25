@@ -33,10 +33,29 @@ namespace Mains.Views
         private PoltergeistViewModel _poltergeistViewModel;
         /// <summary>ポルターガイストが有効か</summary>
         public bool IsEnabledPoltergeist { get; set; }
+        /// <summary>ポルターガイストアニメーションSO（nullなら従来物理）</summary>
+        private PoltergeistAnimationSO _poltergeistAnimationSO;
+        /// <summary>ポルターガイストアニメーションSOセッター</summary>
+        public PoltergeistAnimationSO PoltergeistAnimationSO
+        {
+            set
+            {
+                if (_poltergeistAnimationSO != null)
+                {
+                    Destroy(_poltergeistAnimationSO);
+                }
+                // SOがアタッチされた場合、個別の状態管理ができるようにクローンを生成して保持する
+                _poltergeistAnimationSO = value != null ? Instantiate(value) : null;
+            }
+        }
+        /// <summary>壁掛け揺らしのDOTween Sequence</summary>
+        private Sequence _wallHangingShakeSequence;
         /// <summary>トランスフォーム</summary>
         private Transform _transform;
         /// <summary>アクション発火の監視</summary>
         private ReactiveCommand<bool> _onAction = new ReactiveCommand<bool>();
+        /// <summary>アクション発火の監視(外部公開用)</summary>
+        public Observable<bool> OnActionAsObservable => _onAction;
         /// <summary>初期回転値</summary>
         private Quaternion _initialRotation;
         /// <summary>初期ローカル回転値</summary>
@@ -64,6 +83,8 @@ namespace Mains.Views
         private bool _isPlayingFreakout;
         /// <summary>土煙パーティクルのトランスフォーム</summary>
         public Transform DustParticlePosition { get; set; }
+        /// <summary>オバケの音響タイプ</summary>
+        public SoundOutputType SoundOutput { get; set; }
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
         /// <summary>R3のリソース管理</summary>
@@ -91,7 +112,7 @@ namespace Mains.Views
             Se_3D_PickerCustomizeView t3DSoundPlayer = objectsPoolView.Get3DSoundPlayer();
             _objectsPoolView = objectsPoolView;
             CompositeDisposable disposables = null;
-            var interactionPart = _poltergeistViewModel.InteractionPart;
+            var interactionPart = _poltergeistViewModel.InteractionPartReactive;
             interactionPart.DistinctUntilChanged()
                 .Subscribe(x =>
                 {
@@ -146,11 +167,10 @@ namespace Mains.Views
             _onAction.Where(x => x)
                 .Subscribe(_ =>
                 {
-                    DoInstanceDustAndPlaySE(IsEnabledPoltergeist, dustParticlePrefab, _transform,
+                    DoInstanceDust(IsEnabledPoltergeist, dustParticlePrefab, _transform,
                         dustParticleInstance,
                         DustParticlePosition,
                         _poltergeistViewModel.PlayerTransform, maxDistance,
-                        t3DSoundPlayer,
                         _poltergeistViewModel,
                         true);
 
@@ -165,6 +185,11 @@ namespace Mains.Views
 
         private void OnDestroy()
         {
+            _wallHangingShakeSequence?.Kill();
+            if (_poltergeistAnimationSO != null)
+            {
+                Destroy(_poltergeistAnimationSO);
+            }
             _disposableBag.Dispose();
             _script_XyloApi?.Dispose();
             _disposables.Dispose();
@@ -188,11 +213,10 @@ namespace Mains.Views
 
             Se_3D_PickerCustomizeView t3DSoundPlayer = objectsPoolView.Get3DSoundPlayer();
             Transform dustParticleInstance = null;
-            DoInstanceDustAndPlaySE(IsEnabledPoltergeist, dustParticlePrefab, _transform,
+            DoInstanceDust(IsEnabledPoltergeist, dustParticlePrefab, _transform,
                 dustParticleInstance,
                 DustParticlePosition,
                 _poltergeistViewModel.PlayerTransform, maxDistance,
-                t3DSoundPlayer,
                 _poltergeistViewModel);
         }
 
@@ -202,8 +226,55 @@ namespace Mains.Views
         /// <see cref="Assets/Mains/Animations/Poltergeists/Poltergeist.controller"/>
         public void OnActionFreakout()
         {
-            PlayActionAnimation(IsEnabledPoltergeist, _transform, forceVariation, torqueMagnitude, _initialRotation, tiltThreshold,
-                rigidbody, _poltergeistViewModel, _onAction);
+            var interactionPart = _poltergeistViewModel.InteractionPart;
+            switch (interactionPart)
+            {
+                case InteractionPart.Search:
+                case InteractionPart.ShoutChance:
+                    if (!IsEnabledPoltergeist || _transform == null) return;
+
+                    if (_poltergeistAnimationSO != null)
+                    {
+                        // 壁掛け揺らしのDOTween Sequence等のSOアニメ設定優先
+                        var sequence = _wallHangingShakeSequence;
+                        sequence?.Kill();
+                        sequence = _poltergeistAnimationSO.Play(_transform, _initialLocalRotation);
+                        _onAction.Execute(true);
+                    }
+                    else if (SoundOutput == SoundOutputType.ReactiveShout_CallAndResponse)
+                    {
+                        // ノリノリオバケ優先（はねる）
+                        rigidbody.isKinematic = true;
+                        rigidbody.useGravity = false;
+
+                        var sequence = _wallHangingShakeSequence;
+                        sequence?.Kill();
+                        
+                        // 連続発火によるオフセットの蓄積上昇を防ぐため、実行前に初期位置へ一旦戻す
+                        _transform.localPosition = _initialLocalPosition;
+
+                        _wallHangingShakeSequence = DOTween.Sequence()
+                            .Append(_transform.DOPunchPosition(Vector3.up * 0.2f, 0.4f, 5, 0.5f).SetEase(Ease.OutQuad))
+                            .OnKill(() =>
+                            {
+                                if (_transform != null) _transform.localPosition = _initialLocalPosition;
+                            })
+                            .OnComplete(() =>
+                            {
+                                if (_transform != null) _transform.localPosition = _initialLocalPosition;
+                            });
+                        
+                        _onAction.Execute(true);
+                    }
+                    else
+                    {
+                        // デフォルトアニメーション（物理演算でのガタガタ）
+                        PlayActionAnimation(IsEnabledPoltergeist, _transform, forceVariation, torqueMagnitude, _initialRotation, tiltThreshold,
+                            rigidbody, _poltergeistViewModel, _onAction);
+                    }
+
+                    break;
+            }
         }
 
         /// <summary>
@@ -256,7 +327,7 @@ namespace Mains.Views
         }
 
         /// <summary>
-        /// パーティクル生成及びSE再生
+        /// パーティクル生成
         /// </summary>
         /// <param name="isEnabledPoltergeist">ポルターガイストが有効か</param>
         /// <param name="dustParticlePrefab">Assets/Mains/Prefabs/Effects/DustParticle.prefabをセットしておく。</param>
@@ -265,14 +336,12 @@ namespace Mains.Views
         /// <param name="dustParticlePosition">土煙パーティクルのトランスフォーム</param>
         /// <param name="playerTransform">プレイヤーのトランスフォーム</param>
         /// <param name="maxDistance">振動を開始する最長距離</param>
-        /// <param name="t3DSoundPlayer">Se_3D_Pickerのカスタマイズビュー</param>
         /// <param name="poltergeistViewModel">ポルターガイストのビューモデル</param>
         /// <param name="isInstanceDust">DustParticleを生成するか</param>
-        private void DoInstanceDustAndPlaySE(bool isEnabledPoltergeist, GameObject dustParticlePrefab, Transform transform,
+        private void DoInstanceDust(bool isEnabledPoltergeist, GameObject dustParticlePrefab, Transform transform,
             Transform dustParticleInstance,
             Transform dustParticlePosition,
             Transform playerTransform, float maxDistance,
-            Se_3D_PickerCustomizeView t3DSoundPlayer,
             PoltergeistViewModel poltergeistViewModel,
             bool isInstanceDust = false)
         {
@@ -297,17 +366,6 @@ namespace Mains.Views
             {
                 // モーターの現在位置を取得
                 Vector3 motorPosition = transform.position;
-                // 距離を計算
-                float distance = Vector3.Distance(motorPosition, playerTransform.position);
-                // 一定距離に近づいたら振動させる
-                if (distance <= maxDistance)
-                {
-                    // 近いほど振動が強くなる（遠いと0、近いと1）
-                    float intensity = Mathf.Clamp01(1f - (distance / maxDistance));
-
-                    // 3D空間での音の出力
-                    t3DSoundPlayer.PlaySound("footstep", intensity);
-                }
                 poltergeistViewModel.SetOnActionPoltergeistPosition(motorPosition);
             }
         }
@@ -325,6 +383,11 @@ namespace Mains.Views
         /// <remarks>クラゲの様にふわふわ空中に漂うDOTweenアニメーション</remarks>
         public IEnumerator DoPlayFloaterAnimation()
         {
+            // 壁掛け揺らしのDOTween Sequence
+            var sequence = _wallHangingShakeSequence;
+            sequence?.Rewind();
+            sequence?.Pause();
+
             if (_transform != null &&
                 _script_XyloApi != null)
             {

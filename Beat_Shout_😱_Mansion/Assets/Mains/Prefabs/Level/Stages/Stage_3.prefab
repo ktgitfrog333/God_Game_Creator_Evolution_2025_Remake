@@ -1,5 +1,67 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &72899637037582508
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 585807139513050595}
+  m_Layer: 0
+  m_Name: GhostTurretPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &585807139513050595
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 72899637037582508}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0.288}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8443069845003883618}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &234085993093077689
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 901798427339949937}
+  m_Layer: 0
+  m_Name: GhostBulletWaitPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &901798427339949937
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 234085993093077689}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0, y: -0.462, z: 0.386}
+  m_LocalScale: {x: 0.99999976, y: 1, z: 0.99999976}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6069522063584703951}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &304148995139228401
 GameObject:
   m_ObjectHideFlags: 0
@@ -515,15 +577,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &8012745961839469849
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -796,6 +872,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d26f5a0c71543a14e906260314f8208d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1405680254500900979
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1202479215743295905}
+  m_Layer: 0
+  m_Name: MissGhostEscapePosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1202479215743295905
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1405680254500900979}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.99999976, y: 1, z: 0.99999976}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6069522063584703951}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1422100716171443303
 GameObject:
   m_ObjectHideFlags: 0
@@ -954,15 +1061,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 1
     membersCount: 8
     attackType: 1
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &1039895076831253155
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1885,15 +2006,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &5294461173115112807
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1967,15 +2102,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &7145795049341841178
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2523,6 +2672,50 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5122497431578047354}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
+--- !u!1 &3350306281891288868
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3181709518357538495}
+  - component: {fileID: 5721007245696548344}
+  m_Layer: 0
+  m_Name: RhythmPartPosition_1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3181709518357538495
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3350306281891288868}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0.84337133, z: 0, w: -0.5373312}
+  m_LocalPosition: {x: 5.49, y: -0.047, z: 3.41}
+  m_LocalScale: {x: 0.99999976, y: 1, z: 0.99999976}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6069522063584703951}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5721007245696548344
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3350306281891288868}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b0a9d4b28428b74a87ca15cbb541309, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3436212950123231726
 GameObject:
   m_ObjectHideFlags: 0
@@ -2598,6 +2791,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d26f5a0c71543a14e906260314f8208d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &3570088326817650423
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4964295815132066042}
+  m_Layer: 0
+  m_Name: MissGhostEscapePosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4964295815132066042
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3570088326817650423}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8443069845003883618}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3717810010236349615
 GameObject:
   m_ObjectHideFlags: 0
@@ -2953,15 +3177,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &7788041558091624690
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2983,6 +3221,102 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.36297545, y: 0.05838661, z: 0.26755702}
   m_Center: {x: -0.001183331, y: 0.005393277, z: 0.002064705}
+--- !u!1 &4093296054563803954
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8443069845003883618}
+  - component: {fileID: 596732725062066393}
+  - component: {fileID: 3629290170944268447}
+  m_Layer: 8
+  m_Name: 04_10_houseplant3_fbx
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8443069845003883618
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4093296054563803954}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -9.74, y: 1.82, z: -6.682}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1489341210661315369}
+  - {fileID: 415183940558282863}
+  - {fileID: 7886785305168600905}
+  - {fileID: 3805272745180412896}
+  - {fileID: 4964295815132066042}
+  - {fileID: 585807139513050595}
+  - {fileID: 3255619900639137399}
+  m_Father: {fileID: 8512356248123439183}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &596732725062066393
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4093296054563803954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
+  ghostInStaticObjectStruct:
+    poltergeistViewID: 0
+    useStatus: 0
+    membersCount: 0
+    attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
+  settings:
+    ghostAttack:
+      ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 11400000, guid: ecbfbd08c9815dc438b7e976077fcc7a, type: 2}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
+--- !u!65 &3629290170944268447
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4093296054563803954}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 0
+  serializedVersion: 3
+  m_Size: {x: 0.8218126, y: 0.38917208, z: 0.43528414}
+  m_Center: {x: -0.0013709068, y: 0.008627534, z: -0.010965586}
 --- !u!1 &4128546269777305990
 GameObject:
   m_ObjectHideFlags: 0
@@ -3442,6 +3776,50 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &4623768468997243806
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7886785305168600905}
+  - component: {fileID: 7026320076865787967}
+  m_Layer: 0
+  m_Name: RhythmPartPosition_1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7886785305168600905
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4623768468997243806}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0.8113837, z: 0, w: -0.58451396}
+  m_LocalPosition: {x: 5.9, y: -0.198, z: 2.89}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8443069845003883618}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7026320076865787967
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4623768468997243806}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b0a9d4b28428b74a87ca15cbb541309, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4628434234224216702
 GameObject:
   m_ObjectHideFlags: 0
@@ -3778,6 +4156,50 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5122497431578047354}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &5285361072052851774
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 415183940558282863}
+  - component: {fileID: 2182480389573496586}
+  m_Layer: 0
+  m_Name: RhythmPartPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &415183940558282863
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5285361072052851774}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.0000000022093312, y: 0.584514, z: 0.0000000030668468, w: 0.8113836}
+  m_LocalPosition: {x: -0.3, y: -1.32, z: 0.82}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8443069845003883618}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2182480389573496586
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5285361072052851774}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d26f5a0c71543a14e906260314f8208d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5300561435519671739
 GameObject:
   m_ObjectHideFlags: 0
@@ -3946,6 +4368,81 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b0a9d4b28428b74a87ca15cbb541309, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &5477544302793652580
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5671833678201012478}
+  m_Layer: 0
+  m_Name: DustParticlePosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5671833678201012478
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5477544302793652580}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.99999976, y: 1, z: 0.99999976}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6069522063584703951}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &5610283632103470929
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8251276739653404779}
+  - component: {fileID: 5975803135170378233}
+  m_Layer: 0
+  m_Name: RhythmPartPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8251276739653404779
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5610283632103470929}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0.5373313, z: 0, w: 0.84337133}
+  m_LocalPosition: {x: -0.43, y: -1.216, z: 0.65}
+  m_LocalScale: {x: 0.99999976, y: 1, z: 0.99999976}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6069522063584703951}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5975803135170378233
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5610283632103470929}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d26f5a0c71543a14e906260314f8208d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5624535041481110121
 GameObject:
   m_ObjectHideFlags: 0
@@ -4029,15 +4526,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 1
     membersCount: 16
     attackType: 1
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &5757509698214548477
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4089,6 +4600,37 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1183307509767164394}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &5758581450583376424
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3255619900639137399}
+  m_Layer: 0
+  m_Name: GhostBulletWaitPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3255619900639137399
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5758581450583376424}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.76, z: 0.654}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8443069845003883618}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5958519758978210606
 GameObject:
@@ -4209,15 +4751,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 1
     membersCount: 16
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &1565899884611887819
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4239,6 +4795,37 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.5163174, y: 0.7157564, z: 0.91276956}
   m_Center: {x: 0.0015602112, y: 0.004078179, z: -0.0013219118}
+--- !u!1 &6080745775493020135
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6706998873948245914}
+  m_Layer: 0
+  m_Name: GhostTurretPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6706998873948245914
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6080745775493020135}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.99999976, y: 1, z: 0.99999976}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6069522063584703951}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6258260199953482617
 GameObject:
   m_ObjectHideFlags: 0
@@ -4605,6 +5192,102 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b0a9d4b28428b74a87ca15cbb541309, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &6605481846231295370
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6069522063584703951}
+  - component: {fileID: 7980355477081372759}
+  - component: {fileID: 5423376296374541429}
+  m_Layer: 8
+  m_Name: 04_07_wall lamp_fbx
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6069522063584703951
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6605481846231295370}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.7071068, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 10.925, y: 1.716, z: -1.68}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 883691343003568759}
+  - {fileID: 8251276739653404779}
+  - {fileID: 3181709518357538495}
+  - {fileID: 5671833678201012478}
+  - {fileID: 1202479215743295905}
+  - {fileID: 6706998873948245914}
+  - {fileID: 901798427339949937}
+  m_Father: {fileID: 8512356248123439183}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7980355477081372759
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6605481846231295370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
+  ghostInStaticObjectStruct:
+    poltergeistViewID: 0
+    useStatus: 0
+    membersCount: 0
+    attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
+  settings:
+    ghostAttack:
+      ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 11400000, guid: 58be444ce5cc15a47a990a6fc245ed4d, type: 2}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
+--- !u!65 &5423376296374541429
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6605481846231295370}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 0
+  serializedVersion: 3
+  m_Size: {x: 0.30432934, y: 0.38059485, z: 0.19551937}
+  m_Center: {x: 0.0038442314, y: 0.039648235, z: 0.01800163}
 --- !u!1 &6686520979484273938
 GameObject:
   m_ObjectHideFlags: 0
@@ -4657,15 +5340,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 1
     membersCount: 10
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &4834217982255837214
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5674,15 +6371,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 1
     membersCount: 10
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &554950614618258643
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5831,15 +6542,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &7697687583522768080
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6001,15 +6726,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 1
+      membersCount: 24
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 1
 --- !u!65 &549936081476039221
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6159,15 +6898,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 0
     membersCount: 0
     attackType: 0
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &4610081829009073897
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6449,6 +7202,37 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &8478498919968343603
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3805272745180412896}
+  m_Layer: 0
+  m_Name: DustParticlePosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3805272745180412896
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8478498919968343603}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8443069845003883618}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8589068683230745768
 GameObject:
   m_ObjectHideFlags: 0
@@ -6879,10 +7663,10 @@ Transform:
   - {fileID: 3376874807994143031}
   - {fileID: 8264475944944583186}
   - {fileID: 1366133935882246276}
-  - {fileID: 883691343003568759}
+  - {fileID: 6069522063584703951}
   - {fileID: 5772178083873988537}
   - {fileID: 5242827485484229320}
-  - {fileID: 1489341210661315369}
+  - {fileID: 8443069845003883618}
   - {fileID: 1482227056794565240}
   - {fileID: 3930077907728525849}
   - {fileID: 7898481762876433023}
@@ -6977,15 +7761,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8363cce683eb62343ab75211e660d361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poltergeistTable: {fileID: 11400000, guid: 53a366959a5d5dc4a9e372013d4fd643, type: 2}
+  poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
     useStatus: 1
     membersCount: 10
     attackType: 1
+    moveType: 0
+    customShoutRadius: 0
+    soundOutputType: 0
+    role: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
+    poltergeistAnimationSO: {fileID: 0}
+    midBossGhostInStaticObjectStruct:
+      poltergeistViewID: 0
+      useStatus: 0
+      membersCount: 0
+      attackType: 0
+      moveType: 0
+      customShoutRadius: 0
+      soundOutputType: 0
+      role: 0
 --- !u!65 &3653883622640950950
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -7469,23 +8267,23 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 8512356248123439183}
+    m_TransformParent: {fileID: 6069522063584703951}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 2657650646d6898488f99afa91e90524, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 11
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2657650646d6898488f99afa91e90524, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.62
+      value: -0.095999956
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2657650646d6898488f99afa91e90524, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1.68
+      value: -0.07499982
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2657650646d6898488f99afa91e90524, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.7071068
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2657650646d6898488f99afa91e90524, type: 3}
       propertyPath: m_LocalRotation.x
@@ -7493,7 +8291,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2657650646d6898488f99afa91e90524, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.7071068
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2657650646d6898488f99afa91e90524, type: 3}
       propertyPath: m_LocalRotation.z
@@ -8015,19 +8813,19 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 8512356248123439183}
+    m_TransformParent: {fileID: 8443069845003883618}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 3aea5a4e99551e94999f881a647c6ab7, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -9.74
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 3aea5a4e99551e94999f881a647c6ab7, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.82
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 3aea5a4e99551e94999f881a647c6ab7, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -6.682
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 3aea5a4e99551e94999f881a647c6ab7, type: 3}
       propertyPath: m_LocalRotation.w

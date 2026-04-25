@@ -1,15 +1,15 @@
-using UnityEngine;
-using Rewired;
-using R3;
-using Mains.Commons;
-using Mains.ViewModels;
-using System.Linq;
-using Mains.External;
-using System.Collections.Generic;
-using Mains.Manager;
 using DG.Tweening;
+using Mains.Commons;
+using Mains.External;
+using Mains.Manager;
+using Mains.ViewModels;
+using R3;
+using Rewired;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace Mains.Views
@@ -52,6 +52,12 @@ namespace Mains.Views
         private Script_xyloApi _script_XyloApi;
         /// <summary>Start完了を通知するObservable（Trueになったら1度だけ発火）</summary>
         private Subject<Unit> _didStartAsObservable = new Subject<Unit>();
+        /// <summary>吸気入力監視用_ボタン</summary>
+        private bool _isInhaling;
+        /// <summary>吸気入力監視用_LRトリガー</summary>
+        private bool _isDualInhaling;
+        /// <summary>ボタン入力によるマイク入力時間</summary>
+        private float _shoutNoteMicTimer;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -519,6 +525,7 @@ namespace Mains.Views
                                     })
                                     .AddTo(ref _disposableBag);
                                 observableUpdateIsFailedDisposable = Observable.EveryUpdate()
+                                    .Where(_ => _playerViewModel.EnemyBattlePart.Equals(EnemyBattlePart.Normal))
                                     .Select(_ => _playerViewModel.IsFailed)
                                     .Where(x => x != null)
                                     .Take(1)
@@ -762,77 +769,19 @@ namespace Mains.Views
                 })
                 .AddTo(ref _disposableBag);
 
-            // 吸気入力監視用
-            bool isInhaling = false;
-            bool isDualInhaling = false;
-
             Observable.EveryUpdate()
                 .Where(_ => characterController.enabled)
                 .Subscribe(_ =>
                 {
-                    bool inhaleHeld = player.GetButtonDown("Inhale");
-                    bool inhaleHeldCon = (player.GetButtonDown("InhaleHalfLeft") && player.GetButton("InhaleHalfRight")) ||
-                        (player.GetButton("InhaleHalfLeft") && player.GetButtonDown("InhaleHalfRight"));
-                    bool isMicInput = _script_XyloApi.IsMicInput();
-
-                    // Inhale 単体の入力
-                    if (inhaleHeld &&
-                        !inhaleHeldCon &&
-                        !isMicInput)
-                    {
-                        if (!isInhaling)
-                        {
-                            isInhaling = true;
-                            // キー／トリガー入力のためそれっぽいMAX値をセット
-                            dbLevel.Value = シャウトチャンスパートの共通パラメータ管理用テーブル.シャウトゲージスライダー最大値;
-                        }
-                    }
-                    else
-                    {
-                        if (isInhaling)
-                        {
-                            isInhaling = false;
-                        }
-                    }
-
-                    // 両方のHalfInhaleを長押し
-                    if (inhaleHeldCon &&
-                        !inhaleHeld &&
-                        !isMicInput)
-                    {
-                        if (!isDualInhaling)
-                        {
-                            isDualInhaling = true;
-                            // キー／トリガー入力のためそれっぽいMAX値をセット
-                            dbLevel.Value = シャウトチャンスパートの共通パラメータ管理用テーブル.シャウトゲージスライダー最大値;
-                        }
-                    }
-                    else
-                    {
-                        if (isDualInhaling)
-                        {
-                            isDualInhaling = false;
-                        }
-                    }
-
-                    // マイク入力の取得
-                    if (!inhaleHeld &&
-                        !inhaleHeldCon &&
-                        isMicInput)
-                    {
-                        dbLevel.Value = _script_XyloApi.GetDBLevel();
-                    }
-
-                    _playerViewModel.SetDbLevel(dbLevel.Value);
-                    // どちらも押されていない場合も毎フレーム 0 に戻す（押し直しに備える）
-                    if (!inhaleHeld && !inhaleHeldCon &&
-                        !isMicInput)
-                    {
-                        if (!isInhaling && !isDualInhaling)
-                        {
-                            dbLevel.Value = 0f;
-                        }
-                    }
+                    InputMic(player, dbLevel);
+                })
+                .AddTo(ref _disposableBag);
+            ReactiveProperty<float> dbLevelShoutNote = new ReactiveProperty<float>();
+            Observable.EveryUpdate()
+                .Where(_ => _playerViewModel.ShoutNoteActive)
+                .Subscribe(_ =>
+                {
+                    InputMicButtonOnly(player, dbLevelShoutNote);
                 })
                 .AddTo(ref _disposableBag);
             // ライトは一旦、消す
@@ -881,17 +830,127 @@ namespace Mains.Views
             _didStartAsObservable.OnCompleted();
         }
 
-        private void OnGUI()
+        /// <summary>
+        /// マイク入力を反映
+        /// </summary>
+        /// <param name="player">Rewired</param>
+        /// <param name="dbLevel">デシベルレベル</param>
+        private void InputMic(Player player, ReactiveProperty<float> dbLevel)
         {
-#if UNITY_EDITOR
-            // ボタンの位置とサイズ (x, y, width, height)
-            Rect buttonRect = new Rect(10, 10, 150, 50);
-            if (GUI.Button(buttonRect, "InteractionPart を初期化"))
+            bool inhaleHeld = player.GetButtonDown("Inhale");
+            bool inhaleHeldCon = (player.GetButtonDown("InhaleHalfLeft") && player.GetButton("InhaleHalfRight")) ||
+                (player.GetButton("InhaleHalfLeft") && player.GetButtonDown("InhaleHalfRight"));
+            bool isMicInput = _script_XyloApi.IsMicInput();
+
+            // Inhale 単体の入力
+            if (inhaleHeld &&
+                !inhaleHeldCon &&
+                !isMicInput)
             {
-                _playerViewModel.SetInteractionPart(InteractionPart.None);
-                _playerViewModel.SetInteractionPart(InteractionPart.Search);
+                if (!_isInhaling)
+                {
+                    _isInhaling = true;
+                    // キー／トリガー入力のためそれっぽいMAX値をセット
+                    dbLevel.Value = シャウトチャンスパートの共通パラメータ管理用テーブル.シャウトゲージスライダー最大値;
+                }
             }
-#endif
+            else
+            {
+                if (_isInhaling)
+                {
+                    _isInhaling = false;
+                }
+            }
+
+            // 両方のHalfInhaleを長押し
+            if (inhaleHeldCon &&
+                !inhaleHeld &&
+                !isMicInput)
+            {
+                if (!_isDualInhaling)
+                {
+                    _isDualInhaling = true;
+                    // キー／トリガー入力のためそれっぽいMAX値をセット
+                    dbLevel.Value = シャウトチャンスパートの共通パラメータ管理用テーブル.シャウトゲージスライダー最大値;
+                }
+            }
+            else
+            {
+                if (_isDualInhaling)
+                {
+                    _isDualInhaling = false;
+                }
+            }
+
+            // マイク入力の取得
+            if (!inhaleHeld &&
+                !inhaleHeldCon &&
+                isMicInput)
+            {
+                dbLevel.Value = _script_XyloApi.GetDBLevel();
+            }
+
+            _playerViewModel.SetDbLevel(dbLevel.Value);
+            // どちらも押されていない場合も毎フレーム 0 に戻す（押し直しに備える）
+            if (!inhaleHeld && !inhaleHeldCon &&
+                !isMicInput)
+            {
+                if (!_isInhaling && !_isDualInhaling)
+                {
+                    dbLevel.Value = 0f;
+                }
+            }
+        }
+
+        /// <summary>
+        /// マイク入力を反映
+        /// </summary>
+        /// <param name="player">Rewired</param>
+        /// <param name="dbLevelShoutNote">デシベルレベル（シャウトノーツ用）</param>
+        /// <remarks>ボタン入力のみ</remarks>
+        private void InputMicButtonOnly(Player player, ReactiveProperty<float> dbLevelShoutNote)
+        {
+            float releaseTimeSec = シャウトチャンスパートの共通パラメータ管理用テーブル.マイク手動入力解放時間;
+
+            bool inhaleHeld = player.GetButtonDown("Inhale");
+            bool inhaleHeldCon = (player.GetButtonDown("InhaleHalfLeft") && player.GetButton("InhaleHalfRight")) ||
+                (player.GetButton("InhaleHalfLeft") && player.GetButtonDown("InhaleHalfRight"));
+            bool isMicInput = _script_XyloApi.IsMicInput();
+
+            // Inhale 単体の入力 (長押しには対応させないのでGetButtonDownの時のみ判定)
+            if (inhaleHeld &&
+                !inhaleHeldCon &&
+                !isMicInput)
+            {
+                // タイマーの延長（セット）
+                _shoutNoteMicTimer = releaseTimeSec;
+            }
+
+            // 両方のHalfInhaleの入力 (長押しには対応させない)
+            if (inhaleHeldCon &&
+                !inhaleHeld &&
+                !isMicInput)
+            {
+                // タイマーの延長（セット）
+                _shoutNoteMicTimer = releaseTimeSec;
+            }
+
+            // タイマーが有効な場合は入力値として渡す
+            if (_shoutNoteMicTimer > 0f)
+            {
+                _shoutNoteMicTimer -= Time.deltaTime;
+                dbLevelShoutNote.Value = シャウトチャンスパートの共通パラメータ管理用テーブル.マイク手動入力値;
+
+                if (_shoutNoteMicTimer <= 0f)
+                {
+                    dbLevelShoutNote.Value = 0f;
+                }
+            }
+
+            if (0f < dbLevelShoutNote.Value)
+            {
+                _script_XyloApi.SetMicButtonInput(dbLevelShoutNote.Value);
+            }
         }
 
         private void OnDestroy()
@@ -972,8 +1031,7 @@ namespace Mains.Views
                 currentPitch -= aimY * aimSensitivity * Time.deltaTime;
 
                 // ピッチ角度を制限 (-90度～90度)
-                // TODO: 外的要因（シャウト成功による自動移動等）で取得角度がエッジケースに該当することがある
-                //       currentPitchが0⇒359.3694⇒90（※Mathf.Clampの補間）⇒唐突にプレイヤーが土下座する
+                currentPitch = Mathf.DeltaAngle(0, currentPitch); // 340度なら-20度に変換される
                 currentPitch = Mathf.Clamp(currentPitch, -90f, 90f);
             }
         }

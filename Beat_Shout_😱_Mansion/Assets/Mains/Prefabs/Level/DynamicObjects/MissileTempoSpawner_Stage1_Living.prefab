@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4950961727753380321}
   - component: {fileID: 5825195859893826710}
   m_Layer: 0
-  m_Name: MissileTempoSpawner
+  m_Name: MissileTempoSpawner_Stage1_Living
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

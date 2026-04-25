@@ -21,14 +21,18 @@ namespace Mains.Models
         public PoltergeistTable PoltergeistTable { get; set; }
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
+        /// <summary>オバケ管理</summary>
+        private GhostContainer _ghostContainer;
+        /// <summary>オバケ管理</summary>
+        public GhostContainer GhostContainer => _ghostContainer != null ? _ghostContainer : _ghostContainer = new GhostContainer(new NormalGhostFactory());
         /// <summary>オバケの家具入居管理の構造体リスト</summary>
-        private ObservableList<GhostInStaticObjectStruct> _ghostInStaticObjectStructs = new ObservableList<GhostInStaticObjectStruct>();
-        /// <summary>オバケの家具入居管理の構造体リスト</summary>
-        public ObservableList<GhostInStaticObjectStruct> GhostInStaticObjectStructs => _ghostInStaticObjectStructs;
+        public ObservableList<GhostInStaticObjectStruct> GhostInStaticObjectStructs => GhostContainer.Ghosts;
+        /// <summary>オバケトランザクション管理</summary>
+        private GhostTransaction _ghostTransaction;
+        /// <summary>オバケトランザクション管理</summary>
+        public GhostTransaction GhostTransaction => _ghostTransaction != null ? _ghostTransaction : _ghostTransaction = new GhostTransaction(new NormalGhostFactory());
         /// <summary>オバケの家具入居管理の構造体トランザクション</summary>
-        private GhostInStaticObjectStruct _transactionGhostInStaticObjectStruct;
-        /// <summary>オバケの家具入居管理の構造体トランザクション</summary>
-        public GhostInStaticObjectStruct TransactionGhostInStaticObjectStruct => _transactionGhostInStaticObjectStruct;
+        public GhostInStaticObjectStruct TransactionGhostInStaticObjectStruct => GhostTransaction.TransactionGhostInStaticObjectStruct;
         /// <summary>プレイヤープロパティの構造体</summary>
         private PlayerPropertiesStruct _playerPropertiesStruct = new PlayerPropertiesStruct()
         {
@@ -127,6 +131,30 @@ namespace Mains.Models
         private ReactiveCommand<bool> _isHitGhostAttack = new ReactiveCommand<bool>();
         /// <summary>オバケ攻撃のヒットフラグ</summary>
         public ReactiveCommand<bool> IsHitGhostAttack => _isHitGhostAttack;
+        /// <summary>シャウトノーツアクティブフラグ</summary>
+        private ReactiveCommand<bool> _shoutNoteActiveReactive = new ReactiveCommand<bool>();
+        /// <summary>シャウトノーツアクティブフラグ</summary>
+        public ReactiveCommand<bool> ShoutNoteActiveReactive => _shoutNoteActiveReactive;
+        /// <summary>シャウトノーツアクティブフラグ</summary>
+        private bool _shoutNoteActive;
+        /// <summary>シャウトノーツアクティブフラグ</summary>
+        public bool ShoutNoteActive => _shoutNoteActive;
+        /// <summary>敵戦パート</summary>
+        private ReactiveCommand<EnemyBattlePart> _enemyBattlePartReactive = new ReactiveCommand<EnemyBattlePart>();
+        /// <summary>敵戦パート</summary>
+        public ReactiveCommand<EnemyBattlePart> EnemyBattlePartReactive => _enemyBattlePartReactive;
+        /// <summary>敵戦パート</summary>
+        private EnemyBattlePart _enemyBattlePart;
+        /// <summary>敵戦パート</summary>
+        public EnemyBattlePart EnemyBattlePart => _enemyBattlePart;
+        /// <summary>中ボスオバケ退治率</summary>
+        private ReactiveCommand<float> _midBosskillsRateReactive = new ReactiveCommand<float>();
+        /// <summary>中ボスオバケ退治率</summary>
+        public ReactiveCommand<float> MidBosskillsRateReactive => _midBosskillsRateReactive;
+        /// <summary>中ボスオバケ退治率</summary>
+        private float _midBosskillsRate;
+        /// <summary>中ボスオバケ退治率</summary>
+        public float MidBosskillsRate => _midBosskillsRate;
 
         private void Start()
         {
@@ -164,7 +192,7 @@ namespace Mains.Models
 
         public void AddGhostInStaticObjectStructs(GhostInStaticObjectStruct ghostInStaticObjectStruct)
         {
-            _ghostInStaticObjectStructs.Add(ghostInStaticObjectStruct);
+            GhostContainer.Add(ghostInStaticObjectStruct);
         }
 
         public void SetPlayerTransform(Transform transform)
@@ -224,25 +252,51 @@ namespace Mains.Models
 
         public void SetTransactionGhostInStaticObjectStruct(GhostInStaticObjectStruct ghostInStaticObjectStruct)
         {
-            _transactionGhostInStaticObjectStruct = ghostInStaticObjectStruct;
+            GhostTransaction.SetTransactionGhostInStaticObjectStruct(ghostInStaticObjectStruct);
         }
 
         public void SubtractionTransactionGhostInStaticObjectStruct()
         {
-            var ghostStuct = _transactionGhostInStaticObjectStruct;
-            if (ghostStuct.ghostTeamID != null &&
-                !string.IsNullOrEmpty(ghostStuct.ghostTeamID.Value) &&
-                ghostStuct.useStatus.Equals(UseStatus.Using) &&
-                0 < ghostStuct.membersCount)
+            GhostTransaction.SubtractionTransactionGhostInStaticObjectStruct();
+            var transaction = TransactionGhostInStaticObjectStruct;
+            switch (transaction.role)
             {
-                ghostStuct.membersCount--;
+                case GhostRole.MidBoss:
+                    var ghosts = GhostContainer.Ghosts;
+                    var beforeGhost = ghosts.Where(x => x.poltergeistViewID == transaction.poltergeistViewID)
+                        .FirstOrDefault();
+                    var beforeMembersCount = beforeGhost.membersCount;
+                    if (beforeMembersCount <= 0)
+                    {
+                        _midBosskillsRate = 0f;
+                        _midBosskillsRateReactive.Execute(_midBosskillsRate);
+                        return;
+                    }
+
+                    // リズムパート前の人数 - リズムパート後の人数 = 退治数
+                    var afterPoint = beforeMembersCount - transaction.membersCount;
+                    float midBosskillsRate = (float)afterPoint / beforeMembersCount;
+                    // 切り上げ処理
+                    midBosskillsRate = Mathf.Ceil(midBosskillsRate * 100f) / 100f;
+                    _midBosskillsRate = midBosskillsRate;
+                    _midBosskillsRateReactive.Execute(_midBosskillsRate);
+
+                    break;
             }
-            _transactionGhostInStaticObjectStruct = ghostStuct;
         }
 
         public void SetDefaultTransactionGhostInStaticObjectStruct()
         {
-            _transactionGhostInStaticObjectStruct = new GhostInStaticObjectStruct();
+            //var role = TransactionGhostInStaticObjectStruct.role;
+            GhostTransaction.SetDefaultTransactionGhostInStaticObjectStruct();
+            //switch (role)
+            //{
+            //    case GhostRole.MidBoss:
+            //        _midBosskillsRate = 0f;
+            //        _midBosskillsRateReactive.Execute(_midBosskillsRate);
+
+            //        break;
+            //}
         }
 
         public void SetInteractionPartToSearch()
@@ -472,6 +526,32 @@ namespace Mains.Models
         {
             _isHitGhostAttack.Execute(isHitGhostAttack);
         }
+
+        public void SetShoutNoteActive(bool shoutNoteActive)
+        {
+            if (_shoutNoteActive != shoutNoteActive)
+            {
+                _shoutNoteActive = shoutNoteActive;
+                _shoutNoteActiveReactive.Execute(shoutNoteActive);
+            }
+        }
+
+        public void SetEnemyBattlePart(EnemyBattlePart enemyBattlePart)
+        {
+            _enemyBattlePart = enemyBattlePart;
+            _enemyBattlePartReactive.Execute(enemyBattlePart);
+        }
+
+        public void ReplaceGhostInStaticObjectStructs(GhostInStaticObjectStruct ghostInStaticObjectStruct)
+        {
+            GhostContainer.Replace(ghostInStaticObjectStruct);
+        }
+
+        public void SetMidBosskillsRate(float midBosskillsRate)
+        {
+            _midBosskillsRate = midBosskillsRate;
+            _midBosskillsRateReactive.Execute(_midBosskillsRate);
+        }
     }
 
     /// <summary>
@@ -594,6 +674,21 @@ namespace Mains.Models
         /// </summary>
         /// <param name="isCompletedMoveGhostDirection">オバケ移動演出の完了フラグ</param>
         public void SetIsCompletedMoveGhostDirection(bool isCompletedMoveGhostDirection);
+        /// <summary>
+        /// 敵戦パートをセット
+        /// </summary>
+        /// <param name="enemyBattlePart">敵戦パート</param>
+        public void SetEnemyBattlePart(EnemyBattlePart enemyBattlePart);
+        /// <summary>
+        /// オバケの家具入居管理のデータクラスリストにて対象レコードを更新する
+        /// </summary>
+        /// <param name="ghostInStaticObjectStruct">オバケの家具入居管理のデータクラス</param>
+        public void ReplaceGhostInStaticObjectStructs(GhostInStaticObjectStruct ghostInStaticObjectStruct);
+        /// <summary>
+        /// 中ボスオバケ退治率をセット
+        /// </summary>
+        /// <param name="midBosskillsRate">中ボスオバケ退治率</param>
+        public void SetMidBosskillsRate(float midBosskillsRate);
     }
 
     /// <summary>
@@ -681,6 +776,11 @@ namespace Mains.Models
         /// <param name="transform">トランスフォーム</param>
         /// <returns>最前面に存在するか</returns>
         public bool IsFrontMissileDirectAnim(Transform transform);
+        /// <summary>
+        /// シャウトノーツアクティブフラグをセット
+        /// </summary>
+        /// <param name="shoutNoteActive">シャウトノーツアクティブフラグ</param>
+        public void SetShoutNoteActive(bool shoutNoteActive);
     }
 
     /// <summary>

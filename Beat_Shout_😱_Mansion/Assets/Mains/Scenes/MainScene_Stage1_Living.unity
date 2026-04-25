@@ -1728,7 +1728,7 @@ MonoBehaviour:
   _listenerOnStart: {fileID: 0}
   _use3dPositioning: 0
   _freezeOrientation: 0
-  _loop: 0
+  _loop: 1
   _volume: 1
   _pitch: 0
   _androidUseLowLatencyVoicePool: 0
@@ -1761,7 +1761,7 @@ MonoBehaviour:
   _listenerOnStart: {fileID: 0}
   _use3dPositioning: 0
   _freezeOrientation: 0
-  _loop: 0
+  _loop: 1
   _volume: 1
   _pitch: 0
   _androidUseLowLatencyVoicePool: 0

@@ -23,6 +23,12 @@ namespace Mains.ViewModels
         }
         /// <summary>デシベルレベル</summary>
         public ReactiveCommand<float> DbLevel => _playerModel?.InteractionPartTable?.dbLevel ?? null;
+        /// <summary>シャウトノーツアクティブフラグ</summary>
+        private ReactiveCommand<bool> _shoutNoteActiveReactive = new ReactiveCommand<bool>();
+        /// <summary>シャウトノーツアクティブフラグ</summary>
+        public ReactiveCommand<bool> ShoutNoteActiveReactive => _shoutNoteActiveReactive;
+        /// <summary>シャウトノーツアクティブフラグ</summary>
+        public bool ShoutNoteActive => _playerModel?.ShoutNoteActive ?? false;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -36,8 +42,12 @@ namespace Mains.ViewModels
                 .Subscribe(x =>
                 {
                     _playerModel = x;
-                    // 1度のみ実行されれば良いので破棄しても問題なし
-                    _disposableBag.Dispose();
+                    var model = _playerModel;
+                    model.ShoutNoteActiveReactive.Subscribe(shoutNoteActive =>
+                    {
+                        _shoutNoteActiveReactive.Execute(shoutNoteActive);
+                    })
+                        .AddTo(ref _disposableBag);
                 })
                 .AddTo(ref _disposableBag);
         }

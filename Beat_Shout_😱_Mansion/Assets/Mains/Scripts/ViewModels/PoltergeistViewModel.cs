@@ -1,9 +1,10 @@
 using Mains.Commons;
 using Mains.Models;
-using R3;
-using UnityEngine;
 using ObservableCollections;
+using R3;
 using R3.Triggers;
+using System.Linq;
+using UnityEngine;
 
 namespace Mains.ViewModels
 {
@@ -25,9 +26,13 @@ namespace Mains.ViewModels
             }
         }
         /// <summary>【探索／シャウトチャンス／リズム】パート</summary>
-        private ReactiveCommand<InteractionPart> _interactionPart = new ReactiveCommand<InteractionPart>();
+        private InteractionPart _interactionPart;
         /// <summary>【探索／シャウトチャンス／リズム】パート</summary>
-        public ReactiveCommand<InteractionPart> InteractionPart => _interactionPart;
+        public InteractionPart InteractionPart => _interactionPart;
+        /// <summary>【探索／シャウトチャンス／リズム】パート</summary>
+        private ReactiveCommand<InteractionPart> _interactionPartReactive = new ReactiveCommand<InteractionPart>();
+        /// <summary>【探索／シャウトチャンス／リズム】パート</summary>
+        public ReactiveCommand<InteractionPart> InteractionPartReactive => _interactionPartReactive;
         /// <summary>オバケの家具入居管理の構造体リスト</summary>
         public ObservableList<GhostInStaticObjectStruct> GhostInStaticObjectStructs => _playerModel?.GhostInStaticObjectStructs ?? null;
         /// <summary>プレイヤーのトランスフォーム</summary>
@@ -62,6 +67,14 @@ namespace Mains.ViewModels
         private ReactiveCommand<Transform> _isStartAttack = new ReactiveCommand<Transform>();
         /// <summary>攻撃開始フラグ</summary>
         public ReactiveCommand<Transform> IsStartAttack => _isStartAttack;
+        /// <summary>敵戦パート</summary>
+        private ReactiveCommand<EnemyBattlePart> _enemyBattlePartReactive = new ReactiveCommand<EnemyBattlePart>();
+        /// <summary>敵戦パート</summary>
+        public ReactiveCommand<EnemyBattlePart> EnemyBattlePartReactive => _enemyBattlePartReactive;
+        /// <summary>敵戦パート</summary>
+        public EnemyBattlePart EnemyBattlePart => _playerModel?.EnemyBattlePart ?? EnemyBattlePart.Normal;
+        /// <summary>中ボスオバケ退治率</summary>
+        public float MidBosskillsRate => _playerModel?.MidBosskillsRate ?? 0f;
 
         public PoltergeistViewModel(PoltergeistTable poltergeistTable, Transform startAttackInstance = null)
         {
@@ -72,7 +85,8 @@ namespace Mains.ViewModels
                 .Subscribe(x =>
                 {
                     _playerModel = x;
-                    _playerModel.PoltergeistTable = poltergeistTable;
+                    if (poltergeistTable != null)
+                        _playerModel.PoltergeistTable = poltergeistTable;
                     _playerModel.IsCompletedDirection.Subscribe(isCompleted =>
                     {
                         _isCompletedDirection.Execute(isCompleted);
@@ -93,6 +107,11 @@ namespace Mains.ViewModels
                         _isPostRhythmFaceOff.Execute(isPostRhythmFaceOff);
                     })
                         .AddTo(ref _disposableBag);
+                    _playerModel.EnemyBattlePartReactive.Subscribe(enemyBattlePart =>
+                    {
+                        _enemyBattlePartReactive.Execute(enemyBattlePart);
+                    })
+                        .AddTo(ref _disposableBag);
                     Observable.EveryUpdate()
                         .Select(_ => _playerModel.InteractionPartTable)
                         .Where(x => x != null)
@@ -101,7 +120,8 @@ namespace Mains.ViewModels
                         {
                             table.interactionPart.Subscribe(interactionPart =>
                             {
-                                _interactionPart.Execute(interactionPart);
+                                _interactionPart = interactionPart;
+                                _interactionPartReactive.Execute(interactionPart);
                             })
                             .AddTo(ref _disposableBag);
                         })
@@ -225,6 +245,71 @@ namespace Mains.ViewModels
         public void SetIsStartAttack(Transform isStartAttack)
         {
             _isStartAttack.Execute(isStartAttack);
+        }
+
+        /// <summary>
+        /// 移動元の家具のポルターガイスト情報を初期化
+        /// </summary>
+        /// <param name="ghostInStaticObjectStruct">オバケの家具入居管理のデータクラス</param>
+        public void ResetStaticObject(GhostInStaticObjectStruct ghostInStaticObjectStruct)
+        {
+            if (_playerModel != null)
+                _playerModel.GhostContainer.Reset(ghostInStaticObjectStruct);
+        }
+
+        /// <summary>
+        /// オバケの引っ越し
+        /// </summary>
+        /// <param name="ghostInStaticObjectStruct">オバケの家具入居管理のデータクラス</param>
+        public void ShuffleNewStaticObject(GhostInStaticObjectStruct ghostInStaticObjectStruct)
+        {
+            if (_playerModel != null)
+                _playerModel.GhostContainer.Shuffle(ghostInStaticObjectStruct);
+        }
+
+        /// <summary>
+        /// 通常戦パートとステージ番号を考慮したクリア判定が有効な場合
+        /// </summary>
+        /// <returns>クリア判定結果</returns>
+        public bool CheckClearAndUpdateEnemyBattlePart()
+        {
+            var table = _playerModel?.PoltergeistTable ?? null;
+            if (table == null)
+            {
+                Debug.LogWarning("プレイヤーモデルまたはポルターガイストのアニメーション管理テーブルがnull");
+                return false;
+            }
+
+            var part = EnemyBattlePart;
+            var checkClearStruct = table.subSettings.checkClearStruct;
+            var result = checkClearStruct.enemyBattlePart.Equals(part);
+            if (!result)
+            {
+                int index = (int)part;
+                index++;
+                EnemyBattlePart updPart = (EnemyBattlePart)index;
+                SetEnemyBattlePart(updPart);
+            }
+
+            return result;
+        }
+
+        public void SetEnemyBattlePart(EnemyBattlePart enemyBattlePart)
+        {
+            if (_playerModel != null)
+                _playerModel.SetEnemyBattlePart(enemyBattlePart);
+        }
+
+        public void ReplaceGhostInStaticObjectStructs(GhostInStaticObjectStruct ghostInStaticObjectStruct)
+        {
+            if (_playerModel != null)
+                _playerModel.ReplaceGhostInStaticObjectStructs(ghostInStaticObjectStruct);
+        }
+
+        public void SetMidBosskillsRate(float midBosskillsRate)
+        {
+            if (_playerModel != null)
+                _playerModel.SetMidBosskillsRate(midBosskillsRate);
         }
 
         public void Dispose()

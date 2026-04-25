@@ -1,0 +1,119 @@
+using UnityEngine;
+using Mains.Models;
+using R3;
+using System;
+using Mains.Commons;
+
+namespace Mains.Tests
+{
+    public class PlayerModelTest1 : MonoBehaviour
+    {
+        private float _lastReactiveValue;
+        private IDisposable _subscription;
+        private int _testCounter = 1;
+
+        private void OnGUI()
+        {
+            int rectWidth = 400;
+            int rectHeight = 45;
+            int margin = 5;
+            
+            Rect buttonRect1 = new Rect(10, 10, rectWidth, rectHeight);
+            Rect buttonRect2 = new Rect(10, 10 + (rectHeight + margin) * 1, rectWidth, rectHeight);
+            Rect buttonRect3 = new Rect(10, 10 + (rectHeight + margin) * 2, rectWidth, rectHeight);
+            Rect buttonRect4 = new Rect(10, 10 + (rectHeight + margin) * 3, rectWidth, rectHeight);
+            Rect buttonRect5 = new Rect(10, 10 + (rectHeight + margin) * 4, rectWidth, rectHeight);
+
+            if (GUI.Button(buttonRect1, "【80%境界値】 ちょうど80% (0.8) になるテスト"))
+            {
+                RunTest(10, 2, 0.8f);
+            }
+
+            if (GUI.Button(buttonRect2, "【80%境界値】 79.1% -> 切り上げて80% (0.8) になるテスト"))
+            {
+                RunTest(1000, 209, 0.8f);
+            }
+
+            if (GUI.Button(buttonRect3, "【80%近傍値】 79.0% -> そのまま 79% (0.79) になるテスト"))
+            {
+                RunTest(100, 21, 0.79f);
+            }
+
+            if (GUI.Button(buttonRect4, "【80%近傍値】 80.1% -> 切り上げて81% (0.81) になるテスト"))
+            {
+                RunTest(1000, 199, 0.81f);
+            }
+            
+            if (GUI.Button(buttonRect5, "【一括実行】 上記のすべてのテストを実行"))
+            {
+                RunTest(10, 2, 0.8f);
+                RunTest(1000, 209, 0.8f);
+                RunTest(100, 21, 0.79f);
+                RunTest(1000, 199, 0.81f);
+                Debug.Log("<color=green>すべての境界値テストを実行しました。</color>");
+            }
+        }
+
+        private void RunTest(int beforeMembersCount, int currentMembersCount, float expectedRate)
+        {
+            PlayerModel playerModel = FindAnyObjectByType<PlayerModel>();
+            if (playerModel == null)
+            {
+                GameObject go = new GameObject("PlayerModelForTest");
+                playerModel = go.AddComponent<PlayerModel>();
+            }
+
+            // 古いサブスクリプションを破棄
+            _subscription?.Dispose();
+            // イベントの購読をセットアップ
+            _subscription = playerModel.MidBosskillsRateReactive.Subscribe(x =>
+            {
+                _lastReactiveValue = x;
+            });
+
+            // ユニークなIDを生成
+            int testId = _testCounter++;
+
+            // 1. GhostContainerへデータを追加（退治前の状態）
+            var beforeGhost = new GhostInStaticObjectStruct
+            {
+                poltergeistViewID = testId,
+                role = GhostRole.MidBoss,
+                membersCount = beforeMembersCount
+            };
+            playerModel.AddGhostInStaticObjectStructs(beforeGhost);
+
+            // 2. TransactionGhostInStaticObjectStruct へトランザクション用データ（退治後）を設定
+            var transactionGhost = new GhostInStaticObjectStruct
+            {
+                poltergeistViewID = testId,
+                role = GhostRole.MidBoss,
+                membersCount = currentMembersCount
+            };
+            playerModel.SetTransactionGhostInStaticObjectStruct(transactionGhost);
+
+            // 3. テスト対象メソッドを実行
+            playerModel.SubtractionTransactionGhostInStaticObjectStruct();
+
+            // 4. 結果判定 (MidBosskillsRateのプロパティ値とReactiveの値が正しく更新されているか)
+            float actualRateProperty = playerModel.MidBosskillsRate;
+            float actualRateReactive = _lastReactiveValue;
+
+            bool isSuccess = Mathf.Approximately(actualRateProperty, expectedRate) && Mathf.Approximately(actualRateReactive, expectedRate);
+
+            if (isSuccess)
+            {
+                Debug.Log($"<color=cyan>[Test SUCCESS]</color> ID:{testId} | Before:{beforeMembersCount}, Current:{currentMembersCount} => Expected:{expectedRate:F2} | GetResult:{actualRateProperty:F2}, Reactive:{actualRateReactive:F2}");
+            }
+            else
+            {
+                Debug.LogError($"<color=red>[Test FAILED]</color> ID:{testId} | Before:{beforeMembersCount}, Current:{currentMembersCount} => Expected:{expectedRate:F2} | GetResult:{actualRateProperty:F2}, Reactive:{actualRateReactive:F2}");
+            }
+        }
+
+        private void OnDestroy()
+        {
+            _subscription?.Dispose();
+        }
+    }
+}
