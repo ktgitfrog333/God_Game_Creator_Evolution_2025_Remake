@@ -12,8 +12,7 @@ ALLOWED_EXT = {
     ".cginc", ".hlsl",
     ".py", ".json", ".txt",
     ".md", ".xml", ".yaml",
-    ".yml", ".js",
-    ".unity"
+    ".yml", ".js"
 }
 
 IGNORE_DIRS = {
