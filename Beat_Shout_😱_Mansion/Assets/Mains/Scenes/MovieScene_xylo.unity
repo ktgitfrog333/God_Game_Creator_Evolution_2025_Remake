@@ -276,8 +276,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -468.7}
-  m_SizeDelta: {x: 1920, y: 300}
+  m_AnchoredPosition: {x: 0, y: -420}
+  m_SizeDelta: {x: 1920, y: 240}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &13250625
 MonoBehaviour:
@@ -3007,7 +3007,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -430}
+  m_AnchoredPosition: {x: 0, y: -420}
   m_SizeDelta: {x: 1800, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &693782590
@@ -3534,8 +3534,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 3840, y: 2160}
+  m_AnchoredPosition: {x: 0, y: 120}
+  m_SizeDelta: {x: 3840, y: 1680}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &795090607
 MonoBehaviour:
@@ -5741,64 +5741,64 @@ MonoBehaviour:
     clearInstead: 0
     durationBeats: 32
     durationSeconds: 0
-    startAnchoredPos: {x: -100, y: 500}
-    startScale: 1.1
-    endAnchoredPos: {x: 0, y: 150}
-    endScale: 1
+    startAnchoredPos: {x: -100, y: 240}
+    startScale: 0.8
+    endAnchoredPos: {x: 0, y: 120}
+    endScale: 0.5
     ease: 0
   - sprite: {fileID: 21300000, guid: 5489c7e5846a3f74481b201da7b40c94, type: 3}
     clearInstead: 0
     durationBeats: 16
     durationSeconds: 0
-    startAnchoredPos: {x: -100, y: 500}
-    startScale: 1.1
-    endAnchoredPos: {x: 0, y: 150}
-    endScale: 1
+    startAnchoredPos: {x: 0, y: 240}
+    startScale: 0.7
+    endAnchoredPos: {x: 0, y: 120}
+    endScale: 0.5
     ease: 0
   - sprite: {fileID: 21300000, guid: fa91b02c38d1c5c49a75fa108d8b2b57, type: 3}
     clearInstead: 0
     durationBeats: 16
     durationSeconds: 0
-    startAnchoredPos: {x: -100, y: 500}
-    startScale: 1.1
-    endAnchoredPos: {x: 0, y: 150}
-    endScale: 1
+    startAnchoredPos: {x: -100, y: 240}
+    startScale: 0.8
+    endAnchoredPos: {x: 0, y: 120}
+    endScale: 0.5
     ease: 0
   - sprite: {fileID: 21300000, guid: ce34d4887e3f321458bd1a3a57fffd5f, type: 3}
     clearInstead: 0
     durationBeats: 8
     durationSeconds: 0
-    startAnchoredPos: {x: 100, y: 0}
-    startScale: 1.1
-    endAnchoredPos: {x: -100, y: 0}
-    endScale: 1
+    startAnchoredPos: {x: 100, y: 120}
+    startScale: 0.6
+    endAnchoredPos: {x: 0, y: 120}
+    endScale: 0.5
     ease: 0
   - sprite: {fileID: 21300000, guid: 8bb53e023eba4474a85c9cb0ed40b257, type: 3}
     clearInstead: 0
     durationBeats: 8
     durationSeconds: 0
-    startAnchoredPos: {x: 0, y: 0}
-    startScale: 1
-    endAnchoredPos: {x: 0, y: 0}
-    endScale: 1
+    startAnchoredPos: {x: 100, y: 120}
+    startScale: 0.6
+    endAnchoredPos: {x: 0, y: 120}
+    endScale: 0.5
     ease: 0
   - sprite: {fileID: 21300000, guid: 81692fb7ea3683f478fb15aecb715eab, type: 3}
     clearInstead: 0
     durationBeats: 4
     durationSeconds: 0
-    startAnchoredPos: {x: 150, y: 500}
-    startScale: 1
-    endAnchoredPos: {x: 100, y: 500}
-    endScale: 1
+    startAnchoredPos: {x: 0, y: 120}
+    startScale: 0.5
+    endAnchoredPos: {x: 0, y: 120}
+    endScale: 0.5
     ease: 0
-  - sprite: {fileID: 21300000, guid: 81692fb7ea3683f478fb15aecb715eab, type: 3}
+  - sprite: {fileID: 21300000, guid: 82ea2b0fad5ec864ea52416634f8d85f, type: 3}
     clearInstead: 0
     durationBeats: 4
     durationSeconds: 0
-    startAnchoredPos: {x: 100, y: 500}
-    startScale: 1
-    endAnchoredPos: {x: 50, y: 500}
-    endScale: 1
+    startAnchoredPos: {x: 100, y: 120}
+    startScale: 0.6
+    endAnchoredPos: {x: 0, y: 120}
+    endScale: 0.5
     ease: 0
   - sprite: {fileID: 21300000, guid: 82ea2b0fad5ec864ea52416634f8d85f, type: 3}
     clearInstead: 0
