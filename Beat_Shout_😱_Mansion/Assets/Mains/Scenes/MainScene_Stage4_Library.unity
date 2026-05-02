@@ -622,15 +622,15 @@ MonoBehaviour:
   acfFile: BSM_xylo.acf
   cueSheets:
   - name: SE_System
-    acbFile: BSM_xylo_250215/SE_System.acb
+    acbFile: SE_System.acb
     awbFile: 
     loaderStatus: 0
   - name: BGM
-    acbFile: BSM_xylo_250215/BGM.acb
-    awbFile: 
+    acbFile: BGM.acb
+    awbFile: BGM.awb
     loaderStatus: 0
   - name: SE_Long
-    acbFile: BSM_xylo_250215/SE_Long.acb
+    acbFile: SE_Long.acb
     awbFile: 
     loaderStatus: 0
   dspBusSetting: 
