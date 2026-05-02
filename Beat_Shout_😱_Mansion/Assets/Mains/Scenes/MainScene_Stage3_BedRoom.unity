@@ -2703,7 +2703,7 @@ MonoBehaviour:
     - 0
     - 0
     - 0
-  _cueName: rhythm-part_B_BPM155
+  _cueName: Stage3_rhythm_BPM160
   _cueSheet: BGM
 --- !u!114 &1730013432
 MonoBehaviour:
@@ -2798,7 +2798,7 @@ MonoBehaviour:
     - 0
     - 0
     - 0
-  _cueName: rhythm-part_B_BPM155
+  _cueName: Stage3_rhythm_BPM160
   _cueSheet: BGM
 --- !u!134 &1743817601
 PhysicsMaterial:
