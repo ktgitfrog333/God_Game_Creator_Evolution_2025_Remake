@@ -329,7 +329,7 @@ public class IntroMovieScene : MonoBehaviour
 
         // ---- 全部終わったら遷移（自動）----
         timelineCompleted = true;
-        yield return new WaitForSecondsRealtime(0.5f);
+        yield return new WaitForSecondsRealtime(5f);
         if (!isTransitioning) StartCoroutine(GoToScene());
     }
 
