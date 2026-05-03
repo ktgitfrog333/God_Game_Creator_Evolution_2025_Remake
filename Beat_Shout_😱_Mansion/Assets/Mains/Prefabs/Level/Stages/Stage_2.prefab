@@ -249,8 +249,8 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 7ed27a792c708e643a4f26120188e01c, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 1
-    membersCount: 16
+    useStatus: 0
+    membersCount: 0
     attackType: 0
     moveType: 0
     customShoutRadius: 0
@@ -2044,8 +2044,8 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 7ed27a792c708e643a4f26120188e01c, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 1
-    membersCount: 8
+    useStatus: 0
+    membersCount: 0
     attackType: 0
     moveType: 0
     customShoutRadius: 0
@@ -2140,10 +2140,10 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 7ed27a792c708e643a4f26120188e01c, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 1
-    membersCount: 8
+    useStatus: 0
+    membersCount: 0
     attackType: 0
-    moveType: 1
+    moveType: 0
     customShoutRadius: 0
     soundOutputType: 0
     role: 0
@@ -2342,8 +2342,8 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 7ed27a792c708e643a4f26120188e01c, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 1
-    membersCount: 10
+    useStatus: 0
+    membersCount: 0
     attackType: 0
     moveType: 0
     customShoutRadius: 0
@@ -3944,8 +3944,8 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 7ed27a792c708e643a4f26120188e01c, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 1
-    membersCount: 8
+    useStatus: 0
+    membersCount: 0
     attackType: 0
     moveType: 0
     customShoutRadius: 0
@@ -5536,13 +5536,13 @@ MonoBehaviour:
     poltergeistAnimationSO: {fileID: 0}
     midBossGhostInStaticObjectStruct:
       poltergeistViewID: 0
-      useStatus: 1
-      membersCount: 24
+      useStatus: 0
+      membersCount: 0
       attackType: 0
       moveType: 0
       customShoutRadius: 0
       soundOutputType: 0
-      role: 1
+      role: 0
 --- !u!65 &7032716239292055653
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6101,8 +6101,8 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 7ed27a792c708e643a4f26120188e01c, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 0
-    membersCount: 0
+    useStatus: 1
+    membersCount: 1
     attackType: 0
     moveType: 0
     customShoutRadius: 0
@@ -6114,13 +6114,13 @@ MonoBehaviour:
     poltergeistAnimationSO: {fileID: 0}
     midBossGhostInStaticObjectStruct:
       poltergeistViewID: 0
-      useStatus: 0
-      membersCount: 0
+      useStatus: 1
+      membersCount: 90
       attackType: 0
       moveType: 0
       customShoutRadius: 0
       soundOutputType: 0
-      role: 0
+      role: 1
 --- !u!65 &6891268625920832027
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -8883,10 +8883,10 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 7ed27a792c708e643a4f26120188e01c, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 1
-    membersCount: 10
+    useStatus: 0
+    membersCount: 0
     attackType: 0
-    moveType: 1
+    moveType: 0
     customShoutRadius: 0
     soundOutputType: 0
     role: 0
