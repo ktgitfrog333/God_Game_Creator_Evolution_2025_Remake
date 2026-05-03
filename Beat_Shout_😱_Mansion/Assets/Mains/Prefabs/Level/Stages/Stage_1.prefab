@@ -2671,8 +2671,8 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: f7ea3759941cfe44bab4f129a22bd41c, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 1
-    membersCount: 24
+    useStatus: 0
+    membersCount: 0
     attackType: 0
     moveType: 0
     customShoutRadius: 0
@@ -3428,8 +3428,8 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: f7ea3759941cfe44bab4f129a22bd41c, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 0
-    membersCount: 0
+    useStatus: 1
+    membersCount: 90
     attackType: 0
     moveType: 0
     customShoutRadius: 0
@@ -3906,8 +3906,8 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: f7ea3759941cfe44bab4f129a22bd41c, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 1
-    membersCount: 10
+    useStatus: 0
+    membersCount: 0
     attackType: 0
     moveType: 0
     customShoutRadius: 0
@@ -4483,8 +4483,8 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: f7ea3759941cfe44bab4f129a22bd41c, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 1
-    membersCount: 8
+    useStatus: 0
+    membersCount: 0
     attackType: 0
     moveType: 0
     customShoutRadius: 0
@@ -4623,8 +4623,8 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: f7ea3759941cfe44bab4f129a22bd41c, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 1
-    membersCount: 8
+    useStatus: 0
+    membersCount: 0
     attackType: 0
     moveType: 0
     customShoutRadius: 0
