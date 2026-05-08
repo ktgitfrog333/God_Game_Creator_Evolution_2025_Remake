@@ -113,6 +113,10 @@ namespace Mains.Views
                                         bool isInputJoystick = Mathf.Abs(moveX) > 0.1f || Mathf.Abs(moveZ) > 0.1f || isGetBattery;
                                         Vector2 movePosition = isInputJoystick && !isInputMouse ? new Vector2(moveX, moveZ) : Vector2.zero;
 
+                                        if (mainCamera == null)
+                                            // ゲームオーバー時などカメラが取得できない場合の対策用
+                                            return;
+
                                         // 入力排他制御：同一フレーム内でマウスとジョイスティックが両方有効になることを防ぐ
                                         if (isInputMouse && !isInputJoystick)
                                         {
