@@ -1,14 +1,24 @@
 fileFormatVersion: 2
-guid: 52bab9407c15ac14083b8fa6c753a8ce
+guid: b54fc63b7e8d29641a704c81456ba2c3
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 01_11_14_18_painting
+    second: {fileID: 2100000, guid: d1df762b99f9b6349a966519084568c7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 01_11_14_18_picture_frame
+    second: {fileID: 2100000, guid: e70f21a14572b0d44b812a30701b1a65, type: 2}
   materials:
     materialImportMode: 2
-    materialName: 0
-    materialSearch: 1
-    materialLocation: 0
+    materialName: 1
+    materialSearch: 2
+    materialLocation: 1
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0

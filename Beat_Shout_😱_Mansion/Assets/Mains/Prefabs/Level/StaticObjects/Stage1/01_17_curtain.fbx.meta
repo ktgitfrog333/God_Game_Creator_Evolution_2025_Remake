@@ -3,12 +3,22 @@ guid: 8cf4256f1230d4e4e8963c706a3b2a90
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 01_17_curtain
+    second: {fileID: 2100000, guid: 998fbfa5ea813fe4cb04cd2372292e28, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 01_17_curtain1
+    second: {fileID: 2100000, guid: 998fbfa5ea813fe4cb04cd2372292e28, type: 2}
   materials:
     materialImportMode: 2
-    materialName: 0
-    materialSearch: 1
-    materialLocation: 0
+    materialName: 1
+    materialSearch: 2
+    materialLocation: 1
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0
