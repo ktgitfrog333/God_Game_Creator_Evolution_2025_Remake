@@ -5753,7 +5753,7 @@ MonoBehaviour:
     startAnchoredPos: {x: 0, y: 240}
     startScale: 0.7
     endAnchoredPos: {x: 0, y: 120}
-    endScale: 0.5
+    endScale: 0.7
     ease: 0
   - sprite: {fileID: 21300000, guid: fa91b02c38d1c5c49a75fa108d8b2b57, type: 3}
     clearInstead: 0
@@ -5769,16 +5769,16 @@ MonoBehaviour:
     durationBeats: 8
     durationSeconds: 5
     startAnchoredPos: {x: 150, y: 120}
-    startScale: 0.8
+    startScale: 0.6
     endAnchoredPos: {x: 0, y: 120}
-    endScale: 0.5
+    endScale: 0.6
     ease: 0
   - sprite: {fileID: 21300000, guid: 8bb53e023eba4474a85c9cb0ed40b257, type: 3}
     clearInstead: 0
     durationBeats: 8
     durationSeconds: 4
-    startAnchoredPos: {x: 50, y: 120}
-    startScale: 0.6
+    startAnchoredPos: {x: 20, y: 120}
+    startScale: 0.55
     endAnchoredPos: {x: 0, y: 120}
     endScale: 0.5
     ease: 0
