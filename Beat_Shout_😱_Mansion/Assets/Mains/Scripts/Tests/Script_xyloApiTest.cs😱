@@ -1,0 +1,34 @@
+using Mains.External;
+using UnityEngine;
+
+namespace Mains.Tests
+{
+    /// <summary>
+    /// シロさんのコンポーネントへアクセスするAPIテスト
+    /// </summary>
+    public class Script_xyloApiTest : MonoBehaviour
+    {
+        [SerializeField] private bool ショートノーツクリック可否;
+        [SerializeField] private bool ロングノーツクリック可否;
+
+        /// <summary>シロさんのコンポーネントへアクセスするAPI</summary>
+        private Script_xyloApi _script_XyloApi;
+
+        private void Start()
+        {
+            _script_XyloApi = new Script_xyloApi();
+        }
+
+        private void Update()
+        {
+            var api = _script_XyloApi;
+            ショートノーツクリック可否 = api.IsAnyShortNoteClickable();
+            ロングノーツクリック可否 = api.IsAnyLongNoteClickable();
+        }
+
+        private void OnDestroy()
+        {
+            _script_XyloApi?.Dispose();
+        }
+    }
+}

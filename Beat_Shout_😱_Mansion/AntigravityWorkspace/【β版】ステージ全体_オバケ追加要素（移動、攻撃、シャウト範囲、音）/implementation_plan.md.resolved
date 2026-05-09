@@ -1,0 +1,132 @@
+# **シャウト範囲と音の出力機能に関する調査・実装要件**
+
+## **1. 調査結果**
+
+`Assets/Mains` 内のスクリプト（`PoltergeistView.cs`, `GhostInStaticObjectStruct.cs` など）、および関連するプレハブ・シーン設定を調査しました。 結果として、**ユーザーの要件は現状のプロジェクトで未実装（不足している）** 状態です。
+
+- **不足している要素**:
+    - `ShoutRadiusType` (シャウト範囲タイプ) と `SoundOutputType` (音の出力タイプ) の Enum の定義
+    - `GhostInStaticObjectStruct` または `PoltergeistView`（家具側）への上記プロパティの保持
+    - 家具インスペクタ側からの `ShoutRadius`, `SoundOutputType` の設定項目
+    - 各音の出力タイプ（常にループ、静止時のみ、シャウト時反応）に応じた笑い声の AudioSource 制御処理
+    - シャウト時のデシベル値に応じた音量のフェードアウト処理
+
+## **2. 実装要件のまとめ**
+
+これらを満たすため、以下の実装が必要です。
+
+### **① データ構造とインスペクタの拡張**
+
+- `Mains.Commons` 名前空間等に以下の Enum を追加します。
+    - `ShoutRadiusType`（例：1.0f, 1.5f, 2.0f などの識別用。または float 値を直接保持するか、マスターデータで管理）
+    - `SoundOutputType`（値：`Loop`, `ReactiveStatic`, `ReactiveShout` など）
+- `GhostInStaticObjectStruct` にこれらを追加し、トランザクションを通してポルターガイストの入居状態として保持します。
+- 家具のプレハブ（または `PoltergeistView`）のSerializeFieldとして設定できるようにし、インスペクタ候補（家具：シャウト範囲＝1.5、家具：音の出力タイプ＝ループ等）を反映します。
+
+### **② シャウト範囲の動的適用**
+
+- 現在固定サイズになっている可能性のあるシャウトチャンス用・被発見用の `SphereCollider` (例: `ShoutChanceRange` や `StartAttackRange`) の `radius` を、オバケ入居時に `ShoutRadiusType`（または設定されたfloat値）に基づいて上書き（1.0f / 1.5f / 2.0f）します。
+
+### **③ 音の出力機構（笑い声）の追加**
+
+- 本機能の音源は既存プロジェクトの運用に合わせて **CRIWARE** で実装します。
+- `PoltergeistView` または関連クラスにて、オバケの笑い声をCRIWARE API経由で再生します。
+- **プレイヤーの位置による音量制御**: `MotorView` の振動音（footstep）実装と同様に、毎フレーム（または再生タイミングで）プレイヤーと家具間の距離（Distance）を計算し、「（最大聞こえる距離 - 現在距離）/ 最大聞こえる距離」で算出した `intensity` を音量（Volumeパラメータ）として CRIWARE の再生APIへ渡すことで、3D音響の距離減衰を自前でシミュレートします。
+- **出力タイプごとの制御（UniRxを活用）**:
+    - **ループ固定 (Loop)**: 0.1秒間隔（またはループ設定）で自動的に再生。
+    - **静止時反応 (ReactiveStatic - ビビリオバケ想定)**: プレイヤーの移動入力や Rigidbody の速度（`PlayerModel`等）を監視し、停止している間だけ笑い声を再生するロジック（`Observable.EveryUpdate` 等とフラグ管理）を実装。
+    - **シャウト後減衰**: シャウトゲージ（デシベル）に合わせて、対象家具の `AudioSource.volume` を操作し、最終的に消える処理（DOTweenなどを活用）。
+
+### **【採用案】「コール＆レスポンス」形式（B案）**
+
+- **基本仕様**: シャウトと「同時」にオバケの声を鳴らすのではなく、**シャウトが終了し、ガタガタ音が鳴り止んだ直後（デシベルが落ちた数秒後）**に、オバケが家具の中から反応を返す仕様にします。
+- **意図**: ダウジング中の物理音と混ざって聞き取りづらくなるのを防ぎます。暗闇の中で自分の叫び声と家具の音が止んだ直後に声が返ってくることで、ホラーゲームとしての不気味さや「対話感・そこにいる感」が非常に強く演出できます。
+
+### **🌟 ノリノリオバケの専用演出（コール＆レスポンスの拡張）**
+
+ノリノリオバケ特有の「ノリノリ感」をさらに引き立てるため、以下の専用仕様を講じます。
+
+1. **ファンキーなレスポンス音**: 不気味な「…フフフ」という笑い声ではなく、マイクアピールを返すような「Yeah!」「Woo-hoo!」といったテンポの良い、あるいは煽るような専用音声（AudioClip）を持たせます。
+2. **ノリノリな家具のステップ（DOTween）**: レスポンス音を返すタイミングに合わせて、家具自身がリズムに乗って軽く跳ねる（Bounce）アニメーションを `DOTween` で実行します。ダウジング時の「ガタガタ（震え）」とは異なる、「ピョンッピョンッ」というリズミカルな動きで視覚的にも個性を際立たせます。
+
+---
+
+## **4. 実装仕様の概要と具体的な変更スクリプト**
+
+### **実装仕様の概要**
+
+1. **オバケのプロパティ拡張**: シャウト範囲（半径）と音の出力タイプの定義を追加します。
+    - `PoltergeistTable`（ScriptableObject）にデフォルト値として「シャウト範囲：1.5f」「音の出力タイプ：Loop」を持たせます。
+    - 各家具の `GhostInStaticObjectStruct` にて、個別に上書き（オーバーライド）設定できるようにします。
+2. **シャウト範囲の動的変更**: 家具生成時、内部に持っているオバケ判定用コライダーの半径を、設定されたプロパティに合わせて上書きします。
+3. **音の出力制御機能**: オバケのプロパティに応じて、家具から鳴る音響（AudioSource）をUniRxを利用して制御します。
+4. **コール＆レスポンス（B案）の実装**: ダウジングシャウトによる家具のガタガタ音が鳴り終わった直後（遅延処理）に、その家具が固有のレスポンス（笑い声、またはノリノリ専用のBounceアニメ等）を返す処理を追加します。
+
+### **対象スクリプトの追加・変更内容**
+
+### **[NEW] `Assets/Mains/Scripts/Commons/ShoutRadiusType.cs`**
+
+- シャウト範囲の Enum 定義を追加（例：`TableDefault`, `Custom` など。Custom時はStruct側のfloat値を参照させるか、複数の固定値 `Range_1_0f`, `Range_2_0f` を持たせる形にします）。
+
+### **[NEW] `Assets/Mains/Scripts/Commons/SoundOutputType.cs`**
+
+- 音の出力タイプの Enum 定義を追加（`TableDefault`, `Loop`, `ReactiveStatic`, `ReactiveShout_CallAndResponse` など）。
+
+### **[MODIFY] `Assets/Mains/Scripts/Commons/PoltergeistTable.cs`**
+
+- `PoltergeistTableSubSettings` にデフォルトプロパティ（`float defaultShoutRadius = 1.5f;`, `SoundOutputType defaultSoundOutputType = SoundOutputType.Loop;`）を追加します。
+
+### **[MODIFY] `Assets/Mains/Scripts/Commons/GhostInStaticObjectStruct.cs`**
+
+- 上記の2つの Enum をフィールド（`ShoutRadiusType shoutRadiusType;`, `SoundOutputType soundOutputType;`）としてプレハブから設定できるように追加します。（カスタム時の専用floatフィールドも用意します）
+
+### **[MODIFY] `Assets/Mains/Scripts/Views/MotorView.cs`**
+
+- アニメータから既存の処理でガタガタ鳴らしている箇所（`OnAction`からの呼び出し先等）については、再生されるSEを「笑い声」のSE（`ghost_laugh`等）へ変更します。
+- 一方で、プレイヤーのシャウトによって家具が揺れる場合（ダウジングアクション等）のSEは既存のまま（`footstep`等のガタガタ音）とします。
+- 呼び出し元に応じてSEを出し分けられるように `DoInstanceDustAndPlaySE` 等の引数を拡張して対応します。
+
+### **[MODIFY] `Assets/Mains/Scripts/Views/PoltergeistView.cs`**
+
+ここがメインの追加箇所になります。
+
+1. `Start()` 内で、`startAttackInstance` などの `SphereCollider` を取得している箇所に合わせて、`shoutChanceInstance` の `radius` を、`PoltergeistTable`のデフォルト値と`ghostInStaticObjectStruct.shoutRadiusType` 等の設定値を用いて上書きする処理を追加。
+2. 音声再生用に `Se_3D_PickerCustomizeView`（または `Script_xyloApi`）への参照を確保。
+3. `Start()` 内で、`ghostInStaticObjectStruct.soundOutputType` の値に応じた `Observable` を登録。
+    - `Loop`: 0.1秒間隔などで、プレイヤーとの距離から算出した音量（intensity）を用いて CRIWARE経由で「笑い声」SEを再生するストリーム。
+    - `ReactiveStatic`: プレイヤーの現在位置ベクトル（前回フレームとの差分など）を監視し、移動していなければ再生するストリーム。
+4. ダウジングシャウト終了イベント（または `PlayerModel` / `PlayerView` からの通知）をフックし、遅延（`Delay`）を挟んでレスポンス音を再生する処理（コール＆レスポンス機能）と、ノリノリオバケ用の `Transform.DOPunchPosition` などの DOTween 演出を追加。
+
+### **[MODIFY] `Assets/Mains/Scripts/Views/PlayerView.cs` または関連ViewModel（必要に応じて）**
+
+- ダウジングシャウトが**終了**した（またはガタガタ判定が完了した）タイミングを `PoltergeistView` が検知できるよう、ViewModelに終了通知用（または成功時デシベル減衰開始時用）の `ReactiveCommand` などを発行する処理を追記。
+
+---
+
+## **5. 動作確認ケース（テストケース）**
+
+実装後、以下のケースでUnityエディタ上（または実機）で動作確認を行います。
+
+### **① シャウト範囲設定の反映確認**
+
+- **条件**: 各タイプのオバケ（デブ:1.0f、ノーマル:1.5f、アタック:2.0f）が家具に隠れている状態。
+- **確認内容**: Sceneビューで対象の家具を選択し、子の `SphereCollider` の半径（radius）が設定値通りに上書きされて描画されているか。また、プレイヤーがその範囲内に立ち入った際にのみシャウトパートへ移行できるか。
+
+### **② 音の出力：ループ固定の確認**
+
+- **条件**: ノーマル、アタック、デブオバケが家具に隠れている状態。
+- **確認内容**: ゲーム中、対象の家具から（CRIWARE を通じて）0.1秒間隔等の設定で音が鳴り続けているか。プレイヤーと家具の距離に応じて計算された音量になり、離れると小さく、近づくと大きくなるか。
+
+### **③ 音の出力：静止時反応の確認**
+
+- **条件**: ビビリオバケが家具に隠れている状態。
+- **確認内容**: プレイヤーが移動キーを入力している間は無音であり、ピタッと止まると設定時間後に笑い声が鳴り始めるか。
+
+### **④ コール＆レスポンス（シャウト反応）の確認**
+
+- **条件**: ノリノリオバケ等が対象。
+- **確認内容**:
+    1. プレイヤーがシャウトアクションを起こし、必要なデシベルを超えて成功する。
+    2. 既存仕様通り、ダウジングとして家具がガタガタと鳴る。
+    3. **音が鳴り止んだ直後の静寂時**に、家具から「オバケの固有レスポンス音声」が鳴るか。
+    4. （ノリノリオバケの場合）レスポンス音声のタイミングに合わせて、家具がリズミカルにBounce（跳ねる）アニメーションを行うか。

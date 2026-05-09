@@ -133,9 +133,9 @@ namespace Mains.External
         }
         /// <summary>BGMの再生状態</summary>
         /// <see cref="CriWare.CriAtomSourceBase.Status"/>
-        private readonly ReactiveCommand<int> _bgmBStatus = new ReactiveCommand<int>();
+        private readonly ReactiveCommand<int> _bgmCStatus = new ReactiveCommand<int>();
         /// <summary>BGMの再生状態</summary>
-        public ReactiveCommand<int> BgmBStatus => _bgmBStatus;
+        public ReactiveCommand<int> BgmCStatus => _bgmCStatus;
         /// <summary>BGMの更新</summary>
         System.IDisposable _currentSourceStatusDisposable;
         private ObjectPoolerXyloOther _objectPoolerXyloOther;
@@ -384,7 +384,108 @@ namespace Mains.External
                         _isFailed.Execute(isFailed);
                     })
                     .AddTo(ref _disposableBag);
+                Observable.EveryUpdate()
+                    .Select(_ =>
+                    {
+                        var type = missileDirectAnimManagerB.GetType();
+                        FieldInfo fieldInfo = type.GetField("micInputManager", BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (fieldInfo == null)
+                        {
+                            Debug.LogWarning("micInputManagerフィールドが見つかりませんでした。");
+
+                            return 0;
+                        }
+                        var value = fieldInfo.GetValue(missileDirectAnimManagerB);
+                        if (value == null)
+                        {
+                            Debug.LogWarning("micInputManagerフィールドから値の取得に失敗しました。");
+
+                            return 0;
+                        }
+                        MissileMicInputManager manager = (MissileMicInputManager)value;
+                        int score = manager.GetCurrentScore();
+
+                        return score;
+                    })
+                    .DistinctUntilChanged()
+                    .Subscribe(score =>
+                    {
+                        _score.Execute(score);
+                    })
+                    .AddTo(ref _disposableBag);
+                Observable.EveryUpdate()
+                    .Where(_ => missileDirectAnimManagerB.gameObject.activeSelf)
+                    .Select(_ => missileDirectAnimManagerB.GetComponentInChildren<SpectrumGauge>())
+                    .Where(x => x != null)
+                    .Take(1)
+                    .Subscribe(_ =>
+                    {
+                        _durabilityRateTarget.OnNext(Unit.Default);
+                        _durabilityRateTarget.OnCompleted();
+                    })
+                    .AddTo(ref _disposableBag);
             }
+        }
+
+        /// <summary>耐久率UI表示フラグ</summary>
+        private Subject<Unit> _durabilityRateTarget = new Subject<Unit>();
+        /// <summary>耐久率UI表示フラグ</summary>
+        public Subject<Unit> DurabilityRateTarget => _durabilityRateTarget;
+
+        private ReactiveCommand<int> _score = new ReactiveCommand<int>();
+        public ReactiveCommand<int> Score => _score;
+
+        /// <summary>
+        /// マイクボタン入力セット処理
+        /// </summary>
+        /// <param name="dbLevel">デシベルレベル</param>
+        public void SetMicButtonInput(float dbLevel)
+        {
+            if (_micInput_Criware == null)
+                return;
+
+            var type = typeof(MicInput_Criware);
+
+            // privateフィールドをリフレクションで取得
+            var volumeHistoryField = type.GetField("volumeHistory", BindingFlags.NonPublic | BindingFlags.Instance);
+            var timeHistoryField = type.GetField("timeHistory", BindingFlags.NonPublic | BindingFlags.Instance);
+            var totalVolumeField = type.GetField("totalVolume", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            if (volumeHistoryField == null || timeHistoryField == null || totalVolumeField == null)
+            {
+                Debug.LogWarning("MicInput_Criware の volumeHistory / timeHistory / totalVolume フィールドが見つかりませんでした。");
+                return;
+            }
+
+            var volumeHistory = volumeHistoryField.GetValue(_micInput_Criware) as Queue<float>;
+            var timeHistory = timeHistoryField.GetValue(_micInput_Criware) as Queue<float>;
+            var totalVolumeObj = totalVolumeField.GetValue(_micInput_Criware);
+
+            if (volumeHistory == null || timeHistory == null || totalVolumeObj == null)
+            {
+                Debug.LogWarning("MicInput_Criware の volumeHistory / timeHistory / totalVolume の値取得に失敗しました。");
+                return;
+            }
+
+            float totalVolume = (float)totalVolumeObj;
+            float currentTime = Time.time;
+            // publicフィールドを直接参照
+            float averagingDuration = _micInput_Criware.averagingDuration;
+
+            // 新しいデータを履歴へ追加
+            volumeHistory.Enqueue(dbLevel);
+            timeHistory.Enqueue(currentTime);
+            totalVolume += dbLevel;
+
+            // 古いデータを除去（averagingDuration秒より古いデータ）
+            while (timeHistory.Count > 0 && currentTime - timeHistory.Peek() > averagingDuration)
+            {
+                timeHistory.Dequeue();
+                totalVolume -= volumeHistory.Dequeue();
+            }
+
+            // totalVolumeをリフレクションで書き戻す
+            totalVolumeField.SetValue(_micInput_Criware, totalVolume);
         }
 
         public void SetHomingObject(Transform transform)
@@ -693,6 +794,22 @@ namespace Mains.External
             sePicker.PlayGhostLaugh3(seVolumeIndex);
         }
 
+        public void PlayDoorOpen3()
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            var manager = Manager.GameManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
+            sePicker.PlayDoorOpen3(seVolumeIndex);
+        }
+
         /// <summary>
         /// ヘルパー関数StartManagedCoroutineにReturnToPoolWithDelayを渡して実行する
         /// </summary>
@@ -735,6 +852,17 @@ namespace Mains.External
                 _missileTempoSpawner.gameObject.SetActive(isEnabled);
                 Debug.LogWarning($"_missileTempoSpawner: [{_missileTempoSpawner.gameObject.activeSelf}]");
             }
+        }
+
+        public void SetMissilePattern(string newPattern)
+        {
+            if (_missileTempoSpawner == null)
+            {
+                Debug.LogWarning("MissileTempoSpawnerがセットされていません。");
+                return;
+            }
+
+            _missileTempoSpawner.SetMissilePattern(newPattern);
         }
 
         /// <summary>
@@ -859,12 +987,8 @@ namespace Mains.External
                             methodInfoUpdateChangeDetectionHistory.Invoke(_micInput_Criware, parameters);
                         }
                         // 平均音量を計算
-                        MethodInfo methodInfoGetAveragedVolume = _micInput_Criware.GetType().GetMethod("GetAveragedVolume", BindingFlags.NonPublic | BindingFlags.Instance);
                         float averagedVolume = 0f;
-                        if (methodInfoGetAveragedVolume != null)
-                        {
-                            averagedVolume = (float)methodInfoGetAveragedVolume.Invoke(_micInput_Criware, null);
-                        }
+                        averagedVolume = _micInput_Criware.GetAveragedVolume();
 
                         float level = 0f;
                         MethodInfo methodInfoGetVolumeDisplayLevel = _micInput_Criware.GetType().GetMethod("GetVolumeDisplayLevel", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -899,6 +1023,7 @@ namespace Mains.External
             }
         }
 
+        /// <see cref="CRIWARE_conductor.InitializeWhenReady"/>
         public void ChangeBgmB()
         {
             var conductor = CRIWARE_conductor.Instance;
@@ -908,20 +1033,51 @@ namespace Mains.External
                 bool isCompletedIntro = aisac.IsCompletedPlayStart;
                 if (!isCompletedIntro)
                 {
-                    // イントロ再生のInvokeをキャンセル（探索パートBGMの再生を防ぐ）
-                    conductor.CancelInvoke("DelayBGMLoopStart");
+                    /*
+                     * TODO: イントロを即時終了したいために呼び出している処理
+                     * この処理が呼ばれるタイミングでは、OnEnable->InitializeWhenReady->yield return new WaitForSecondsRealtime(introDelayTime); まで呼ばれている前提
+                     * 上記の後の、DelayBGMLoopStartを呼ばせたくはないので暫定的にコルーチンを止めている
+                     * 他の処理との不整合が生じた場合、方針を変更
+                     */
+                    conductor.StopAllCoroutines();
                     // TODO: デバッグを元にBGMのAのフレームの設定しているため、BPMが変わった場合は修正する
                     conductor.frameRate = 85f;
                     // イントロを停止
                     StopIntro();
                 }
                 conductor.ChangeBgmB(3);
+            }
+        }
+
+        /// <see cref="CRIWARE_conductor.InitializeWhenReady"/>
+        public void ChangeBgmC()
+        {
+            var conductor = CRIWARE_conductor.Instance;
+            var aisac = CRIWARE_AisacChange.Instance;
+            if (conductor != null && aisac != null)
+            {
+                bool isCompletedIntro = aisac.IsCompletedPlayStart;
+                if (!isCompletedIntro)
+                {
+                    /*
+                     * TODO: イントロを即時終了したいために呼び出している処理
+                     * この処理が呼ばれるタイミングでは、OnEnable->InitializeWhenReady->yield return new WaitForSecondsRealtime(introDelayTime); まで呼ばれている前提
+                     * 上記の後の、DelayBGMLoopStartを呼ばせたくはないので暫定的にコルーチンを止めている
+                     * 他の処理との不整合が生じた場合、方針を変更
+                     */
+                    conductor.StopAllCoroutines();
+                    // TODO: デバッグを元にBGMのAのフレームの設定しているため、BPMが変わった場合は修正する
+                    conductor.frameRate = 85f;
+                    // イントロを停止
+                    StopIntro();
+                }
+                conductor.ChangeBgmC(3);
                 _currentSourceStatusDisposable?.Dispose();
                 _currentSourceStatusDisposable = Observable.EveryUpdate()
                     .Select(_ => conductor.currentSource.status)
                     .Subscribe(status =>
                     {
-                        _bgmBStatus.Execute((int)status);
+                        _bgmCStatus.Execute((int)status);
                     })
                     .AddTo(ref _disposableBag);
             }
@@ -1261,6 +1417,214 @@ namespace Mains.External
             var isUIActive = ((MissileUIManager)uiManager).IsUIActive();
 
             return isUIActive;
+        }
+
+        /// <summary>
+        /// BGMの一時停止・再開を切り替える
+        /// </summary>
+        /// <param name="isPause">trueで一時停止、falseで再開</param>
+        public void SetBgmPause(bool isPause)
+        {
+            var conductor = CRIWARE_conductor.Instance;
+            if (conductor == null)
+            {
+                Debug.LogWarning("CRIWARE_conductorのインスタンスが見つかりませんでした。");
+                return;
+            }
+
+            // 既存コードで currentSource を参照しているのに倣い同じ経路でアクセス
+            var source = conductor.currentSource;
+            if (source == null)
+            {
+                Debug.LogWarning("conductor.currentSource が null です。");
+                return;
+            }
+
+            source.Pause(isPause);
+        }
+
+        /// <summary>
+        /// シーン内の全ノーツのクリック判定のみを有効・無効にする
+        /// </summary>
+        /// <remarks>
+        /// enabled = false と違いアニメーション・リングの表示は維持される
+        /// enableClickDetection フィールドをリフレクションで操作
+        /// </remarks>
+        public void SetAllNotesClickDetection(bool isEnable)
+        {
+            var managers = GameObject.FindObjectsByType<MissileDirectAnimManagerB>(FindObjectsSortMode.None);
+            if (managers == null || managers.Length == 0)
+            {
+                Debug.LogWarning("MissileDirectAnimManagerB がシーン内に見つかりませんでした。");
+                return;
+            }
+
+            var managerType = typeof(MissileDirectAnimManagerB);
+            var enableClickDetectionField = managerType.GetField("enableClickDetection", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (enableClickDetectionField == null)
+            {
+                Debug.LogWarning("enableClickDetection フィールドが見つかりませんでした。");
+                return;
+            }
+
+            foreach (var manager in managers)
+            {
+                enableClickDetectionField.SetValue(manager, isEnable);
+            }
+        }
+
+        /// <summary>
+        /// アクティブなショートノーツを監視して、クリック可能なタイミングになったらtrueを返す
+        /// </summary>
+        /// <returns>クリック可能なタイミングのショートノーツが存在するか</returns>
+        public bool IsAnyShortNoteClickable()
+        {
+            var managers = GameObject.FindObjectsByType<MissileDirectAnimManagerB>(FindObjectsSortMode.None);
+            if (managers == null || managers.Length == 0) return false;
+
+            var managerType = typeof(MissileDirectAnimManagerB);
+            var clickGracePeriodField = managerType.GetField("clickGracePeriod", BindingFlags.NonPublic | BindingFlags.Instance);
+            var oneBeatField = managerType.GetField("oneBeat", BindingFlags.NonPublic | BindingFlags.Instance);
+            var objectCreationTimeField = managerType.GetField("objectCreationTime", BindingFlags.NonPublic | BindingFlags.Instance);
+            var enableClickDetectionField = managerType.GetField("enableClickDetection", BindingFlags.NonPublic | BindingFlags.Instance);
+            var isFailedField = managerType.GetField("isFailed", BindingFlags.NonPublic | BindingFlags.Instance);
+            var isSuccessfulField = managerType.GetField("isSuccessful", BindingFlags.NonPublic | BindingFlags.Instance);
+            var isReturningToPoolField = managerType.GetField("isReturningToPool", BindingFlags.NonPublic | BindingFlags.Instance);
+            var isForceReturningField = managerType.GetField("isForceReturning", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            if (clickGracePeriodField == null || oneBeatField == null || objectCreationTimeField == null)
+            {
+                return false;
+            }
+
+            foreach (var manager in managers)
+            {
+                if (manager == null || !manager.gameObject.activeInHierarchy) continue;
+
+                if (manager.noteType != MissileNoteType.Short) continue;
+
+                if (isFailedField != null && (bool)isFailedField.GetValue(manager)) continue;
+                if (isSuccessfulField != null && (bool)isSuccessfulField.GetValue(manager)) continue;
+                if (enableClickDetectionField != null && !(bool)enableClickDetectionField.GetValue(manager)) continue;
+                if (isReturningToPoolField != null && (bool)isReturningToPoolField.GetValue(manager)) continue;
+                if (isForceReturningField != null && (bool)isForceReturningField.GetValue(manager)) continue;
+
+                float clickGracePeriod = (float)clickGracePeriodField.GetValue(manager);
+                float oneBeat = (float)oneBeatField.GetValue(manager);
+                float objectCreationTime = (float)objectCreationTimeField.GetValue(manager);
+
+                float elapsedTime = Time.time - objectCreationTime;
+                float absoluteClickTargetTime = oneBeat * 4;
+                float timingDifference = elapsedTime - absoluteClickTargetTime;
+
+                bool inClickWindow = Mathf.Abs(timingDifference) <= clickGracePeriod;
+
+                if (inClickWindow)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// アクティブなロングノーツを監視して、クリック可能なタイミング、または長押し中であればtrueを返す
+        /// </summary>
+        /// <returns>重なっている（判定有効な）ロングノーツが存在するか</returns>
+        public bool IsAnyLongNoteClickable()
+        {
+            var managers = GameObject.FindObjectsByType<MissileDirectAnimManagerB>(FindObjectsSortMode.None);
+            if (managers == null || managers.Length == 0) return false;
+
+            var managerType = typeof(MissileDirectAnimManagerB);
+            var clickGracePeriodField = managerType.GetField("clickGracePeriod", BindingFlags.NonPublic | BindingFlags.Instance);
+            var oneBeatField = managerType.GetField("oneBeat", BindingFlags.NonPublic | BindingFlags.Instance);
+            var objectCreationTimeField = managerType.GetField("objectCreationTime", BindingFlags.NonPublic | BindingFlags.Instance);
+            var enableClickDetectionField = managerType.GetField("enableClickDetection", BindingFlags.NonPublic | BindingFlags.Instance);
+            var isFailedField = managerType.GetField("isFailed", BindingFlags.NonPublic | BindingFlags.Instance);
+            var isSuccessfulField = managerType.GetField("isSuccessful", BindingFlags.NonPublic | BindingFlags.Instance);
+            var isReturningToPoolField = managerType.GetField("isReturningToPool", BindingFlags.NonPublic | BindingFlags.Instance);
+            var isForceReturningField = managerType.GetField("isForceReturning", BindingFlags.NonPublic | BindingFlags.Instance);
+            var inputManagerField = managerType.GetField("inputManager", BindingFlags.NonPublic | BindingFlags.Instance);
+            var micInputManagerField = managerType.GetField("micInputManager", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            if (clickGracePeriodField == null || oneBeatField == null || objectCreationTimeField == null)
+            {
+                return false;
+            }
+
+            foreach (var manager in managers)
+            {
+                if (manager == null || !manager.gameObject.activeInHierarchy) continue;
+
+                if (manager.noteType != MissileNoteType.Long1Beat &&
+                    manager.noteType != MissileNoteType.Long2Beat &&
+                    manager.noteType != MissileNoteType.Long3Beat &&
+                    manager.noteType != MissileNoteType.Long2Beat_Mic) continue;
+
+                if (isFailedField != null && (bool)isFailedField.GetValue(manager)) continue;
+                if (isSuccessfulField != null && (bool)isSuccessfulField.GetValue(manager)) continue;
+                if (enableClickDetectionField != null && !(bool)enableClickDetectionField.GetValue(manager)) continue;
+                if (isReturningToPoolField != null && (bool)isReturningToPoolField.GetValue(manager)) continue;
+                if (isForceReturningField != null && (bool)isForceReturningField.GetValue(manager)) continue;
+
+                float clickGracePeriod = (float)clickGracePeriodField.GetValue(manager);
+                float oneBeat = (float)oneBeatField.GetValue(manager);
+                float objectCreationTime = (float)objectCreationTimeField.GetValue(manager);
+
+                float elapsedTime = Time.time - objectCreationTime;
+                float absoluteClickTargetTime = oneBeat * 4;
+                float timingDifference = elapsedTime - absoluteClickTargetTime;
+
+                bool inClickWindow = Mathf.Abs(timingDifference) <= clickGracePeriod;
+
+                if (inClickWindow)
+                {
+                    return true;
+                }
+
+                if (manager.noteType == MissileNoteType.Long2Beat_Mic)
+                {
+                    if (micInputManagerField != null)
+                    {
+                        var micInputManager = micInputManagerField.GetValue(manager);
+                        if (micInputManager != null)
+                        {
+                            var methodInfo = micInputManager.GetType().GetMethod("IsLongPressStarted", BindingFlags.Public | BindingFlags.Instance);
+                            if (methodInfo != null)
+                            {
+                                bool isLongPressStarted = (bool)methodInfo.Invoke(micInputManager, null);
+                                if (isLongPressStarted)
+                                {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (inputManagerField != null)
+                    {
+                        var inputManager = inputManagerField.GetValue(manager);
+                        if (inputManager != null)
+                        {
+                            var methodInfo = inputManager.GetType().GetMethod("IsLongPressStarted", BindingFlags.Public | BindingFlags.Instance);
+                            if (methodInfo != null)
+                            {
+                                bool isLongPressStarted = (bool)methodInfo.Invoke(inputManager, null);
+                                if (isLongPressStarted)
+                                {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return false;
         }
 
         public void Dispose()

@@ -4,6 +4,7 @@ using Rewired;
 using UnityEngine;
 using Mains.Commons;
 using System.Linq;
+using UnityEngine.UI;
 
 namespace Mains.Views
 {
@@ -14,6 +15,8 @@ namespace Mains.Views
     {
         /// <summary>中央パネル</summary>
         [SerializeField] private RectTransform centerPanel;
+        /// <summary>リズムパートパネルの設定</summary>
+        [SerializeField] private RhythmPartPanelSettings settings;
         /// <summary>リズムパートパネルのビューモデル</summary>
         private RhythmPartPanelViewModel _rhythmPartPanelViewModel;
         /// <summary>R3のリソース管理</summary>
@@ -25,12 +28,39 @@ namespace Mains.Views
         {
             if (centerPanel == null)
                 centerPanel = transform.GetChild(0) as RectTransform;
+            foreach (Transform child in transform)
+            {
+                var set = settings;
+                if (child.name.Equals("HeaderPanel"))
+                {
+                    if (set.headerPanel == null)
+                        set.headerPanel = child as RectTransform;
+                    foreach (Transform item in child)
+                    {
+                        if (item.name.Equals("MidbossQuotaGaugePanel"))
+                        {
+                            if (set.midbossQuotaGaugePanel == null)
+                                set.midbossQuotaGaugePanel = item as RectTransform;
+                            foreach (Transform item1 in item)
+                            {
+                                if (item1.name.Equals("MidbossQuotaGaugeFillImage"))
+                                {
+                                    if (set.midbossQuotaGaugeFillImage == null)
+                                        set.midbossQuotaGaugeFillImage = item1.GetComponent<Image>();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         private void Start()
         {
             _rhythmPartPanelViewModel = new();
             var player = ReInput.players.GetPlayer(0);
+            var viewModel = _rhythmPartPanelViewModel;
+            var set = settings;
             // リズムパート用のUI表示切り替え
             Observable.EveryUpdate()
                 .Select(_ => _rhythmPartPanelViewModel.InteractionPart)
@@ -44,13 +74,19 @@ namespace Mains.Views
                     // 当該プレハブから実施すること（シーンからの変更は適用されない）
                     RectTransform targetCrossImage = centerPanel.GetChild(0) as RectTransform;
                     System.IDisposable targetCrossDisposable = null;
+                    System.IDisposable midBosskillsRateDisposable = null;
+                    // ゲージUIイメージのマテリアル
+                    Material runtimeMaterial = Instantiate(set.midbossQuotaGaugeFillImage.material);
+                    set.midbossQuotaGaugeFillImage.material = runtimeMaterial;
                     x.Subscribe(interactionPart =>
                     {
                         switch (interactionPart)
                         {
                             case Commons.InteractionPart.Rhythm:
                                 centerPanel.gameObject.SetActive(true);
+                                set.headerPanel.gameObject.SetActive(true);
                                 targetCrossDisposable?.Dispose();
+                                midBosskillsRateDisposable?.Dispose();
                                 int layerMaskTerrainObjects = 1 << LayerMask.NameToLayer("TerrainObjects");
                                 int layerMaskDropItems = 1 << LayerMask.NameToLayer("DropItems");
                                 int layerMaskGhost = 1 << LayerMask.NameToLayer("Ghost");
@@ -76,6 +112,10 @@ namespace Mains.Views
                                         bool isInputMouse = Input.GetAxis("Mouse X") != 0f || Input.GetAxis("Mouse Y") != 0f;
                                         bool isInputJoystick = Mathf.Abs(moveX) > 0.1f || Mathf.Abs(moveZ) > 0.1f || isGetBattery;
                                         Vector2 movePosition = isInputJoystick && !isInputMouse ? new Vector2(moveX, moveZ) : Vector2.zero;
+
+                                        if (mainCamera == null)
+                                            // ゲームオーバー時などカメラが取得できない場合の対策用
+                                            return;
 
                                         // 入力排他制御：同一フレーム内でマウスとジョイスティックが両方有効になることを防ぐ
                                         if (isInputMouse && !isInputJoystick)
@@ -173,10 +213,37 @@ namespace Mains.Views
                                         }
                                     })
                                     .AddTo(ref _disposableBag);
+                                // 敵戦パート
+                                var enemyBattlePart = viewModel.EnemyBattlePart;
+                                // ゲージUIのパネル
+                                var midbossQuotaGaugePanel = set.midbossQuotaGaugePanel;
+                                switch (enemyBattlePart)
+                                {
+                                    case EnemyBattlePart.Normal:
+                                        if (midbossQuotaGaugePanel.gameObject.activeSelf)
+                                            midbossQuotaGaugePanel.gameObject.SetActive(false);
+
+                                        break;
+                                    case EnemyBattlePart.MidBoss:
+                                        if (!midbossQuotaGaugePanel.gameObject.activeSelf)
+                                            midbossQuotaGaugePanel.gameObject.SetActive(true);
+                                        // 中ボスオバケ退治率を監視
+                                        midBosskillsRateDisposable = viewModel.MidBosskillsRateReactive.Subscribe(midBosskillsRate =>
+                                        {
+                                            SetFloatFill(midBosskillsRate, runtimeMaterial);
+                                        })
+                                            .AddTo(ref _disposableBag);
+                                        // 中ボスオバケ退治率
+                                        var midBosskillsRate = viewModel.MidBosskillsRate;
+                                        SetFloatFill(midBosskillsRate, runtimeMaterial);
+
+                                        break;
+                                }
 
                                 break;
                             default:
                                 centerPanel.gameObject.SetActive(false);
+                                set.headerPanel.gameObject.SetActive(false);
 
                                 break;
                         }
@@ -189,6 +256,33 @@ namespace Mains.Views
         private void OnDestroy()
         {
             _disposableBag.Dispose();
+            _rhythmPartPanelViewModel?.Dispose();
         }
+
+        /// <summary>
+        /// Imageのマテリアル.SetFloat("_Fill", 値);を更新
+        /// </summary>
+        /// <param name="midBosskillsRate">中ボスオバケ退治率</param>
+        /// <param name="runtimeMaterial">ゲージUIイメージのマテリアル</param>
+        /// <see cref="Assets/Mains/Materials/UIs/GaugeMaterial.mat"/>
+        private void SetFloatFill(float midBosskillsRate, Material runtimeMaterial)
+        {
+            runtimeMaterial.SetFloat("_Fill", midBosskillsRate);
+        }
+    }
+
+    /// <summary>
+    /// リズムパートパネルの設定
+    /// </summary>
+    [System.Serializable]
+    public class RhythmPartPanelSettings
+    {
+        [Tooltip("RhythmPartPanel > HeaderPanel をセット")]
+        /// <summary>ヘッダパネル</summary>
+        public RectTransform headerPanel;
+        /// <summary>ゲージUIのパネル</summary>
+        public RectTransform midbossQuotaGaugePanel;
+        /// <summary>ゲージUIのイメージ</summary>
+        public Image midbossQuotaGaugeFillImage;
     }
 }

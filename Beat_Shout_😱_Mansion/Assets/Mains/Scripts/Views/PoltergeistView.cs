@@ -19,10 +19,6 @@ namespace Mains.Views
     {
         [Tooltip("Assets/Mains/Scripts/Commons/PoltergeistTable.assetをセットしておく。")]
         [SerializeField] private PoltergeistTable poltergeistTable;
-        [Tooltip("Assets/Mains/Prefabs/Level/Motor.prefabをセットしておく。")]
-        [SerializeField] private GameObject motorPrefab;
-        [Tooltip("Assets/Mains/Prefabs/Level/ShoutChanceRange.prefabをセットしておく。")]
-        [SerializeField] private GameObject shoutChanceRangePrefab;
         /// <summary>リズムパート位置（プレイヤー位置をリズムパート用に移動させる）</summary>
         private Vector3 _rhythmPartPosition;
         /// <summary>リズムパート角度（プレイヤー位置をリズムパート用に移動させる）</summary>
@@ -49,14 +45,10 @@ namespace Mains.Views
                 ghostInStaticObjectStruct = value;
             }
         }
-        [Tooltip("Assets/Mains/Prefabs/Effects/GhostBursts.prefabをセットしておく。")]
-        [SerializeField] private GameObject ghostBurstsPrefab;
-        [Tooltip("Assets/Mains/Prefabs/Level/DynamicObjects/MissileTempoSpawner.prefabをセットしておく。")]
-        [SerializeField] private Transform missileTempoSpawnerPrefab;
+        /// <summary>ポルターガイストの設定</summary>
+        [SerializeField] private PoltergeistSettings settings;
         /// <summary>ミサイルテンポスポナー</summary>
         private Transform _missileTempoSpawnerInstance;
-        /// <summary>オバケが飛び出すエフェクト</summary>
-        private Transform _ghostBurstsInstance;
         /// <summary>ポルターガイストのビューモデル</summary>
         private PoltergeistViewModel _poltergeistViewModel;
         /// <summary>モーターのビュー</summary>
@@ -81,6 +73,28 @@ namespace Mains.Views
         private Rigidbody _rigidbody;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
+        /// <summary>パトロール（引っ越し）タイマー</summary>
+        private System.IDisposable _patrolTimerDisposable = null;
+        /// <summary>移動用オバケ生成位置</summary>
+        private Vector3 _missGhostEscapePosition = Vector3.zero;
+        /// <summary>移動用オバケ生成角度</summary>
+        private Vector3 _missGhostEscapeEulerAngles = Vector3.zero;
+
+        /// <summary>パトロール（引っ越し）の残り時間</summary>
+        private float _patrolRemainingTime = -1f;
+
+#if UNITY_EDITOR
+        /// <summary>エディター表示用：パトロールの残り時間 (-1なら停止中)</summary>
+        public float DebugPatrolRemainingTime => _patrolRemainingTime;
+        /// <summary>エディター表示用：パトロール間隔</summary>
+        public float DebugPatrolInterval { get; private set; } = -1f;
+#endif
+        /// <summary>監視かつSE再生用のDisposable</summary>
+        private System.IDisposable _soundOutputBehaviorDisposable = null;
+        /// <summary>オブジェクトプールビュー</summary>
+        private ObjectsPoolView _objectsPoolView;
+        /// <summary>オブジェクトプールビュー</summary>
+        private ObjectsPoolView ObjectsPoolView => _objectsPoolView != null ? _objectsPoolView : _objectsPoolView = GameObject.FindAnyObjectByType<ObjectsPoolView>();
 
         private void Reset()
         {
@@ -90,6 +104,12 @@ namespace Mains.Views
             FindOrInstanceGameObject("RhythmPartPosition_1");
             // パーティクル位置の生成
             FindOrInstanceGameObject("DustParticlePosition");
+            // 移動用オバケ位置の生成
+            FindOrInstanceGameObject("MissGhostEscapePosition");
+            // オバケ攻撃（遠距離系）
+            FindOrInstanceGameObject("GhostTurretPosition");
+            // オバケ攻撃予備動作の停止位置
+            FindOrInstanceGameObject("GhostBulletWaitPosition");
             // リズムパート時の移動先情報を設定するためボックスコライダーを必要に応じて生成
             var collider = transform.GetComponent<BoxCollider>();
             if (collider == null)
@@ -102,13 +122,25 @@ namespace Mains.Views
 
         private void Start()
         {
-            _transform = transform;
+            var trans = transform;
+            _transform = trans;
             _initialPosition = _transform.position;
             _initialEulerAngles = _transform.eulerAngles;
             // Poltergeistの生成
             var originParent = _transform.parent;
             // 初期化
-            var motorInstance = Instantiate(motorPrefab, _transform.position, Quaternion.identity);
+            var motorInstance = Instantiate(poltergeistTable.motorPrefab, _transform.position, Quaternion.identity);
+            // 弾との衝突対象外コライダー情報
+            /*
+             * 攻撃オバケが放つ弾オブジェクトは親子関係を持たずに管理する前提のため、
+             * 当該オブジェクト内に自身の親が持つ干渉コライダー情報を渡す
+             * 
+             * 子側で親のみ対象から外すことで
+             *  ●発射時にプレイヤーへ向かう
+             *  ●親のコライダーに接触して落下処理へ移行
+             * の様な事故を回避する
+             */
+            List<int> ignorePhysicsGhostBullets = new List<int>();
             // ベースとなるオブジェクトのコライダーのプロパティをMotorへコピー
             motorInstance.GetComponent<BoxCollider>().center = _transform.GetComponent<BoxCollider>().center;
             motorInstance.GetComponent<BoxCollider>().size = _transform.GetComponent<BoxCollider>().size;
@@ -119,19 +151,42 @@ namespace Mains.Views
             _noTriggerColliders = new List<Collider>();
             _noTriggerColliders.Add(motorInstance.GetComponent<BoxCollider>());
             _rigidbody = motorInstance.GetComponent<Rigidbody>();
-            // ShoutChanceRangeの生成
+            // 静的コライダー群の生成
             var originParent_1 = motorInstance.transform.parent;
-            Transform shoutChanceInstance = Instantiate(shoutChanceRangePrefab, motorInstance.transform.position, Quaternion.identity).transform;
-            // ベースとなるオブジェクトのコライダーのプロパティをShoutChanceRangeへコピー
-            shoutChanceInstance.GetComponent<BoxCollider>().center = _transform.GetComponent<BoxCollider>().center;
-            shoutChanceInstance.GetComponent<BoxCollider>().size = _transform.GetComponent<BoxCollider>().size;
-            shoutChanceInstance.transform.eulerAngles = _transform.eulerAngles;
-            shoutChanceInstance.SetParent(originParent_1);
-            motorInstance.transform.SetParent(shoutChanceInstance);
-            _noTriggerColliders.Add(shoutChanceInstance.GetComponent<BoxCollider>());
+            // 静的コライダー群
+            Transform staticColldersInstance = Instantiate(poltergeistTable.staticColldersPrefab, motorInstance.transform.position, Quaternion.identity).transform;
+            // シャウトチャンスの範囲
+            Transform shoutChanceInstance = null;
+            // プレイヤーガード
+            Transform playerGuardInstance = null;
+            // オバケの攻撃開始範囲
+            Transform startAttackInstance = null;
+            foreach (Transform child in staticColldersInstance)
+            {
+                if (child.name.Equals("ShoutChanceRange"))
+                {
+                    shoutChanceInstance = child;
+                }
+                if (child.name.Equals("PlayerGuard"))
+                {
+                    playerGuardInstance = child;
+                }
+                if (child.name.Equals("StartAttackRange"))
+                {
+                    startAttackInstance = child;
+                }
+            }
+            // ベースとなるオブジェクトのコライダーのプロパティをPlayerGuardへコピー
+            playerGuardInstance.GetComponent<BoxCollider>().center = _transform.GetComponent<BoxCollider>().center;
+            playerGuardInstance.GetComponent<BoxCollider>().size = _transform.GetComponent<BoxCollider>().size;
+            staticColldersInstance.transform.eulerAngles = _transform.eulerAngles;
+            staticColldersInstance.SetParent(originParent_1);
+            motorInstance.transform.SetParent(staticColldersInstance);
+            _noTriggerColliders.Add(playerGuardInstance.GetComponent<BoxCollider>());
             motorInstance.transform.localPosition = Vector3.zero;
             _transform.SetParent(motorInstance.transform);
             _transform.localPosition = Vector3.zero;
+            ignorePhysicsGhostBullets.Add(playerGuardInstance.GetComponent<BoxCollider>().GetInstanceID());
             foreach (Transform child in _transform)
             {
                 if (child.name.Equals("RhythmPartPosition"))
@@ -151,7 +206,43 @@ namespace Mains.Views
                 }
             }
             _motorView = motorInstance.GetComponent<MotorView>();
-            _poltergeistViewModel = new PoltergeistViewModel(poltergeistTable);
+            // 音の出力タイプ
+            var soundOutputType = ghostInStaticObjectStruct.soundOutputType;
+            switch (soundOutputType)
+            {
+                case SoundOutputType.TableDefault:
+                    soundOutputType = poltergeistTable.subSettings.defaultSoundOutputType;
+
+                    break;
+            }
+            _motorView.SoundOutput = soundOutputType;
+            // ポルターガイストの設定
+            var set = settings;
+            // 壁掛けオブジェクト用アニメーションSO
+            PoltergeistAnimationSO poltergeistAnimationSO = set.poltergeistAnimationSO;
+            if (poltergeistAnimationSO != null)
+            {
+                _motorView.PoltergeistAnimationSO = poltergeistAnimationSO;
+                _rigidbody.isKinematic = true;
+                _rigidbody.useGravity = false;
+            }
+            // オバケの攻撃開始範囲の半径は振動を開始する最長距離の値を使用する
+            var startAttackCollider = startAttackInstance.GetComponent<SphereCollider>();
+            startAttackCollider.radius = _motorView.MaxDistance;
+            
+            if (shoutChanceInstance != null)
+            {
+                var shoutChanceCollider = shoutChanceInstance.GetComponent<SphereCollider>();
+                shoutChanceCollider.radius = ghostInStaticObjectStruct.customShoutRadius > 0f 
+                    ? ghostInStaticObjectStruct.customShoutRadius 
+                    : poltergeistTable.subSettings.defaultShoutRadius;
+            }
+
+            _poltergeistViewModel = new PoltergeistViewModel(poltergeistTable, startAttackInstance);
+            // ポルターガイストのビューモデル
+            var viewModel = _poltergeistViewModel;
+            // オバケの攻撃タイプ
+            ReactiveProperty<GhostAttackType> ghostAttackType = new ReactiveProperty<GhostAttackType>();
             // リストに追加される度にリストへ追加された要素のゴーストIDを見るのはコンポーネントが持つ要素と同じでは？
             // 各コンポーネントのStartイベントにて要素をセットする。ViewModelを経由してModel内にリストを持っておいてそれにAddする。
             // 配列が変更される度に、その要素がゴーストIDと一致するなら、その情報を元のコンポーネントのStructへも反映する
@@ -170,14 +261,44 @@ namespace Mains.Views
                             ghostInStaticObjectStruct.ghostTeamID = x.NewValue.ghostTeamID;
                             ghostInStaticObjectStruct.useStatus = x.NewValue.useStatus;
                             ghostInStaticObjectStruct.membersCount = x.NewValue.membersCount;
+                            ghostInStaticObjectStruct.attackType = x.NewValue.attackType;
+                            ghostInStaticObjectStruct.moveType = x.NewValue.moveType;
+                            ghostInStaticObjectStruct.customShoutRadius = x.NewValue.customShoutRadius;
+                            ghostInStaticObjectStruct.soundOutputType = x.NewValue.soundOutputType;
+                            ghostInStaticObjectStruct.role = x.NewValue.role;
+                            var soundOutputType = ghostInStaticObjectStruct.soundOutputType;
+                            switch (soundOutputType)
+                            {
+                                case SoundOutputType.TableDefault:
+                                    soundOutputType = poltergeistTable.subSettings.defaultSoundOutputType;
+
+                                    break;
+                            }
+                            ghostAttackType.Value = ghostInStaticObjectStruct.attackType;
+                            _motorView.SoundOutput = ghostInStaticObjectStruct.soundOutputType;
                             // ghostTeamIDが空なら、motorInstanceへポルターガイストを無効に更新する
                             // 空でないなら、有効に更新する
                             _motorView.IsEnabledPoltergeist = !string.IsNullOrEmpty(x.NewValue.ghostTeamID.Value);
                             _motorView.DustParticlePosition = FindOrInstanceGameObject("DustParticlePosition");
+
+                            StopPatrolTimer();
+                            StopSoundOutputBehavior();
+                            if (x.NewValue.useStatus == UseStatus.Using)
+                            {
+                                StartSoundOutputBehavior(soundOutputType);
+                                if (x.NewValue.moveType == MoveType.Patrol)
+                                {
+                                    StartPatrolTimer();
+                                }
+                            }
                         })
                         .AddTo(ref _disposableBag);
                     // オブジェクトIDを割り振る
-                    ghostInStaticObjectStruct.poltergeistViewID = GetInstanceID();
+                    var instanceID = GetInstanceID();
+                    ghostInStaticObjectStruct.poltergeistViewID = instanceID;
+                    // 中ボスオバケの家具入居管理のデータクラス
+                    var midBossGhostInStaticObjectStruct = set.midBossGhostInStaticObjectStruct;
+                    midBossGhostInStaticObjectStruct.poltergeistViewID = instanceID;
                     switch (ghostInStaticObjectStruct.useStatus)
                     {
                         case UseStatus.Using:
@@ -194,8 +315,200 @@ namespace Mains.Views
 
                             break;
                     }
+                    switch (midBossGhostInStaticObjectStruct.useStatus)
+                    {
+                        case UseStatus.Using:
+                            // 使用中ならIDを割り振る
+                            // オバケ団体IDは基本的に使っていないのでとりあえず値が入っていれば何でもいい
+                            midBossGhostInStaticObjectStruct.ghostTeamID = new ReactiveProperty<string>();
+                            midBossGhostInStaticObjectStruct.ghostTeamID.Value = System.Guid.NewGuid().ToString();
+
+                            break;
+                        default:
+                            midBossGhostInStaticObjectStruct.ghostTeamID = new ReactiveProperty<string>();
+                            midBossGhostInStaticObjectStruct.ghostTeamID.Value = string.Empty;
+
+                            break;
+                    }
                     _poltergeistViewModel.AddGhostInStaticObjectStructs(ghostInStaticObjectStruct);
+                    ghostAttackType.Value = ghostInStaticObjectStruct.attackType;
                 })
+                .AddTo(ref _disposableBag);
+            foreach (Transform child in _transform)
+            {
+                if (child.name.Equals("MissGhostEscapePosition"))
+                {
+                    _missGhostEscapePosition = child.position;
+                    _missGhostEscapeEulerAngles = child.eulerAngles;
+                    break;
+                }
+            }
+            
+            if (ghostInStaticObjectStruct.useStatus == UseStatus.Using)
+            {
+                StartSoundOutputBehavior(soundOutputType);
+            }
+
+            // パート切り替え時にもタイマーを制御
+            _poltergeistViewModel.InteractionPartReactive.Subscribe(part => 
+            {
+                if (part == InteractionPart.Search || part == InteractionPart.ShoutChance) 
+                {
+                    if (ghostInStaticObjectStruct.moveType == MoveType.Patrol && ghostInStaticObjectStruct.useStatus == UseStatus.Using)
+                    {
+                        // 該当パートに戻ったらタイマー再開
+                        StartPatrolTimer();
+                    }
+                } 
+                else if (part == InteractionPart.Rhythm)
+                {
+                    // リズムパート時は一時停止
+                    PausePatrolTimer();
+                }
+            }).AddTo(ref _disposableBag);
+            // オバケ移動演出の再生完了を監視する
+            System.IDisposable playMoveGhostDirectionDisposable = null;
+            // リズムパートが終了⇒フェードインアウト完了⇒家具とプレイヤーがお互い向き合っている状態を監視
+            _poltergeistViewModel.IsPostRhythmFaceOff.Where(x => x &&
+                // 直前にオバケが隠れていたかの判定をつけて全ての家具が対象にならないようにする
+                _poltergeistViewModel.IsMoveGhostDirectionTarget)
+                .Subscribe(_ =>
+                {
+                    // 移動用オバケプレハブ（生成済み）
+                    Transform instanceMissGhostEscape = null;
+                    var direction = PlayMoveGhostDirection(poltergeistTable.missGhostEscapePrefab, _missGhostEscapePosition, _missGhostEscapeEulerAngles, _transform, _script_XyloApi,
+                        _poltergeistViewModel, instanceMissGhostEscape);
+                    playMoveGhostDirectionDisposable = direction.Take(1)
+                        .Subscribe(_ =>
+                        {
+                            _poltergeistViewModel.SetTargetGhost(null);
+                            _poltergeistViewModel.SetIsCompletedMoveGhostDirection(true);
+                            _poltergeistViewModel.SetIsMoveGhostDirectionTarget(false);
+                        })
+                        .AddTo(ref _disposableBag);
+                    // リズムパートへ移行した際に実行中なら中断する（再び呼ばれることがあった場合は最初から再生）
+                    _poltergeistViewModel.InteractionPartReactive.Where(x => x.Equals(InteractionPart.Rhythm))
+                        .Take(1)
+                        .Subscribe(_ =>
+                        {
+                            if (instanceMissGhostEscape != null &&
+                                instanceMissGhostEscape.gameObject.activeSelf)
+                                instanceMissGhostEscape.gameObject.SetActive(false);
+                            playMoveGhostDirectionDisposable.Dispose();
+                            _poltergeistViewModel.SetTargetGhost(null);
+                            _poltergeistViewModel.SetIsMoveGhostDirectionTarget(false);
+                        })
+                        .AddTo(ref _disposableBag);
+                })
+                .AddTo(ref _disposableBag);
+            // オバケの攻撃タイプを監視する
+            ghostAttackType.Subscribe(attackType =>
+            {
+                switch (attackType)
+                {
+                    case GhostAttackType.None:
+                        startAttackCollider.enabled = false;
+
+                        break;
+                    case GhostAttackType.ThrowBookInstance:
+                        startAttackCollider.enabled = true;
+
+                        break;
+                    case GhostAttackType.ThrowBookNotInstance:
+                        startAttackCollider.enabled = true;
+
+                        break;
+                }
+            })
+                .AddTo(ref _disposableBag);
+            // オバケ弾のインスタンス
+            Dictionary<GhostAttackType, GhostBulletAbstractView> ghostBulletsInstance = new Dictionary<GhostAttackType, GhostBulletAbstractView>();
+            // オバケタレットの位置
+            Vector3 ghostTurretPosition = Vector3.zero;
+            // オバケタレットの角度
+            Vector3 ghostTurretEulerAngles = Vector3.zero;
+            foreach (Transform child in trans)
+            {
+                if (child.name.Equals("GhostTurretPosition"))
+                {
+                    ghostTurretPosition = child.position;
+                    ghostTurretEulerAngles = child.eulerAngles;
+                    break;
+                }
+            }
+            // オバケ攻撃予備動作の停止位置
+            Vector3 ghostBulletWaitPosition = Vector3.zero;
+            Transform ghostBulletWaitPositionTrans = null;
+            foreach (Transform child in trans)
+            {
+                if (child.name.Equals("GhostBulletWaitPosition"))
+                {
+                    ghostBulletWaitPosition = child.position;
+                    ghostBulletWaitPositionTrans = child;
+                    break;
+                }
+            }
+            // オバケの攻撃タイプの場合、攻撃開始状態を監視
+            var ghostAttack = poltergeistTable.subSettings.ghostAttack;
+            _poltergeistViewModel.IsStartAttack
+                .Subscribe(player =>
+                {
+                    var type = ghostAttackType.Value;
+                    switch (type)
+                    {
+                        case GhostAttackType.ThrowBookInstance:
+                            DoGhostAttackThrowBookInstance(ghostTurretPosition, ghostTurretEulerAngles, ghostBulletWaitPosition, player, ignorePhysicsGhostBullets,
+                                ghostAttack.ghostBulletBookPrefab,
+                                ghostBulletsInstance).Take(1)
+                                .Subscribe(_ =>
+                                {
+                                    _poltergeistViewModel.SetIsStartAttack(null);
+                                })
+                                .AddTo(ref _disposableBag);
+
+                            break;
+                        case GhostAttackType.ThrowBookNotInstance:
+                            var ghostBulletBookInstance = set.ghostAttack.ghostBulletBookInstance;
+                            if (ghostBulletBookInstance != null)
+                            {
+                                ghostBulletsInstance[type] = ghostBulletBookInstance.GetComponent<GhostBulletBookView>();
+                                DoGhostAttackThrowBookNotInstance(ghostBulletsInstance, ghostBulletWaitPosition, player, ignorePhysicsGhostBullets).Take(1)
+                                    .Subscribe(_ =>
+                                    {
+                                        _poltergeistViewModel.SetIsStartAttack(null);
+                                    })
+                                    .AddTo(ref _disposableBag);
+                            }
+                            else
+                            {
+                                // 前提：攻撃オバケも家具を移動する対象であること
+                                // 攻撃オバケかつ、生成なし設定の場合、移動先によって対象のオブジェクトがNULLになるため
+                                // 逃げの対策として、動的生成のパターンへ切り替える
+                                DoGhostAttackThrowBookInstance(ghostTurretPosition, ghostTurretEulerAngles, ghostBulletWaitPosition, player, ignorePhysicsGhostBullets,
+                                    ghostAttack.ghostBulletBookPrefab,
+                                    ghostBulletsInstance).Take(1)
+                                    .Subscribe(_ =>
+                                    {
+                                        _poltergeistViewModel.SetIsStartAttack(null);
+                                    })
+                                    .AddTo(ref _disposableBag);
+                            }
+
+                            break;
+                    }
+                })
+                .AddTo(ref _disposableBag);
+            // 敵戦パートの切替を監視する
+            viewModel.EnemyBattlePartReactive.Subscribe(enemyBattlePart =>
+            {
+                switch (enemyBattlePart)
+                {
+                    case EnemyBattlePart.MidBoss:
+                        viewModel.ReplaceGhostInStaticObjectStructs(set.midBossGhostInStaticObjectStruct);
+
+                        break;
+                }
+            })
                 .AddTo(ref _disposableBag);
             _script_XyloApi = new Script_xyloApi();
             _fadeImageView = FindAnyObjectByType<FadeImageView>();
@@ -203,11 +516,160 @@ namespace Mains.Views
             _objectPoolerXyloOtherCustomizeView = FindAnyObjectByType<ObjectPoolerXyloOtherCustomizeView>();
         }
 
+        /// <summary>
+        /// オバケ攻撃を実行
+        /// </summary>
+        /// <param name="ghostTurretPosition">オバケタレットの位置</param>
+        /// <param name="ghostTurretEulerAngles">オバケタレットの角度</param>
+        /// <param name="ghostBulletWaitPosition">オバケ攻撃予備動作の停止位置</param>
+        /// <param name="player">追尾の対象</param>
+        /// <param name="ignorePhysicsGhostBullets">弾との衝突対象外コライダー情報</param>
+        /// <param name="ghostBulletBookPrefab">オバケ弾</param>
+        /// <param name="ghostBulletsInstance">オバケ弾のインスタンス</param>
+        /// <returns>オブザーバブル</returns>
+        /// <remarks>スロー（本）動的生成モード</remarks>
+        private Observable<Unit> DoGhostAttackThrowBookInstance(Vector3 ghostTurretPosition, Vector3 ghostTurretEulerAngles, Vector3 ghostBulletWaitPosition, Transform player, List<int> ignorePhysicsGhostBullets,
+            Transform ghostBulletBookPrefab,
+            Dictionary<GhostAttackType, GhostBulletAbstractView> ghostBulletsInstance)
+        {
+            return Observable.Create<Unit>(observer =>
+            {
+                var instance = Instantiate(ghostBulletBookPrefab, ghostTurretPosition, Quaternion.identity);
+                instance.eulerAngles = ghostTurretEulerAngles;
+                var ghostBulletBookView = instance.GetComponent<Views.GhostBulletBookView>();
+                ghostBulletsInstance[GhostAttackType.ThrowBookInstance] = ghostBulletBookView;
+                ghostBulletBookView.SetBulletWaitPosition(ghostBulletWaitPosition);
+                ghostBulletBookView.SetTarget(player);
+                ghostBulletBookView.SetIgnorePhysicsGhostBullets(ignorePhysicsGhostBullets);
+                ghostBulletBookView.IsCompletedMoveToTarget.Where(x => x)
+                    .Take(1)
+                    .Subscribe(_ =>
+                    {
+                        observer.OnNext(Unit.Default);
+                        observer.OnCompleted();
+                    })
+                    .AddTo(ref _disposableBag);
+
+                return Disposable.Empty;
+            });
+        }
+
+        /// <summary>
+        /// オバケ攻撃を実行
+        /// </summary>
+        /// <param name="ghostBulletsInstance">オバケ弾のインスタンス</param>
+        /// <param name="ghostBulletWaitPosition">オバケ攻撃予備動作の停止位置</param>
+        /// <param name="player">追尾の対象</param>
+        /// <param name="ignorePhysicsGhostBullets">弾との衝突対象外コライダー情報</param>
+        /// <returns>オブザーバブル</returns>
+        /// <remarks>スロー（本）生成なしモード</remarks>
+        private Observable<Unit> DoGhostAttackThrowBookNotInstance(Dictionary<GhostAttackType, GhostBulletAbstractView> ghostBulletsInstance, Vector3 ghostBulletWaitPosition, Transform player, List<int> ignorePhysicsGhostBullets)
+        {
+            return Observable.Create<Unit>(observer =>
+            {
+                var ghostBulletBook = ghostBulletsInstance[GhostAttackType.ThrowBookNotInstance];
+                var ghostBulletBookView = (GhostBulletBookView)ghostBulletBook;
+                ghostBulletBookView.SetBulletWaitPosition(ghostBulletWaitPosition);
+                ghostBulletBookView.SetTarget(player);
+                ghostBulletBookView.SetIgnorePhysicsGhostBullets(ignorePhysicsGhostBullets);
+                // 生成なしの場合はイベント依存不可のため明示的に攻撃メソッドを呼び出す
+                ghostBulletBookView.DoMoveToTarget();
+                ghostBulletBookView.IsCompletedMoveToTarget.Where(x => x)
+                    .Take(1)
+                    .Subscribe(_ =>
+                    {
+                        observer.OnNext(Unit.Default);
+                        observer.OnCompleted();
+                    })
+                    .AddTo(ref _disposableBag);
+
+                return Disposable.Empty;
+            });
+        }
+
         private void OnDestroy()
         {
+            StopPatrolTimer();
             _disposableBag.Dispose();
             _script_XyloApi?.Dispose();
             _poltergeistViewModel?.Dispose();
+        }
+
+        /// <summary>
+        /// スピードオバケ用のパトロール（引っ越し）タイマーを開始する
+        /// </summary>
+        private void StartPatrolTimer()
+        {
+            _patrolTimerDisposable?.Dispose();
+
+            // Inspectorで設定した秒数を取得（例: 30秒）
+            float interval = poltergeistTable.subSettings.moveIntervalSeconds;
+
+            // 初回またはリセット後のみ満タンにする
+            if (_patrolRemainingTime < 0f)
+            {
+                _patrolRemainingTime = interval;
+            }
+
+#if UNITY_EDITOR
+            DebugPatrolInterval = interval;
+#endif
+
+            _patrolTimerDisposable = Observable.EveryUpdate()
+                .Subscribe(_ =>
+                {
+                    _patrolRemainingTime -= Time.deltaTime;
+
+                    if (_patrolRemainingTime <= 0f)
+                    {
+                        _patrolTimerDisposable?.Dispose();
+                        _patrolRemainingTime = -1f; // 次回のStartでリセットされるようにする
+                        
+                        // ターゲットを自分に設定し、演出対象であることをViewModelに通知
+                        _poltergeistViewModel.SetTargetGhost(_transform);
+                        _poltergeistViewModel.SetIsMoveGhostDirectionTarget(true);
+
+                        // 逃げる演出を呼び出し
+                        Transform instanceMissGhostEscape = null;
+                        var direction = PlayMoveGhostDirection(
+                            poltergeistTable.missGhostEscapePrefab, 
+                            _missGhostEscapePosition, 
+                            _missGhostEscapeEulerAngles, 
+                            _transform, 
+                            _script_XyloApi,
+                            _poltergeistViewModel, 
+                            instanceMissGhostEscape
+                        );
+
+                        direction.Take(1).Subscribe(__ =>
+                        {
+                            // 演出完了後
+                            _poltergeistViewModel.SetTargetGhost(null);
+                            _poltergeistViewModel.SetIsCompletedMoveGhostDirection(true);
+                            _poltergeistViewModel.SetIsMoveGhostDirectionTarget(false);
+                            
+                            // 実際の引っ越し処理を実行
+                            ShuffleNewStaticObject();
+                        }).AddTo(ref _disposableBag);
+                    }
+                }).AddTo(ref _disposableBag);
+        }
+
+        /// <summary>
+        /// スピードオバケ用のパトロール（引っ越し）タイマーを一時停止する
+        /// </summary>
+        private void PausePatrolTimer()
+        {
+            _patrolTimerDisposable?.Dispose();
+        }
+
+        /// <summary>
+        /// スピードオバケ用のパトロール（引っ越し）タイマーを停止・リセットする
+        /// </summary>
+        private void StopPatrolTimer()
+        {
+            _patrolTimerDisposable?.Dispose();
+            _patrolRemainingTime = -1f;
         }
 
         /// <summary>
@@ -263,17 +725,22 @@ namespace Mains.Views
         /// </remarks>
         public void BeginTransactionGhostInStaticObjectStruct()
         {
-            _script_XyloApi.ChangeBgmB();
+            var viewModel = _poltergeistViewModel;
+            switch (viewModel.EnemyBattlePart)
+            {
+                case EnemyBattlePart.Normal:
+                    _script_XyloApi.ChangeBgmB();
+
+                    break;
+                case EnemyBattlePart.MidBoss:
+                    _script_XyloApi.ChangeBgmC();
+
+                    break;
+            }
+            var subSettings = poltergeistTable.subSettings;
             List<System.IDisposable> disposables = new List<System.IDisposable>();
-            //// リズムパート完了フラグ
-            ////  [0]: 未完了
-            ////  [1]: 成功
-            ////  [2]: 失敗中断
-            //ReactiveCommand<int> isCompletedRhythmPart = new ReactiveCommand<int>();
-            //// リズムパートでミスした時にハートが減少する演出完了フラグ
-            //ReactiveCommand<bool> isCompletedDirection = new ReactiveCommand<bool>();
             disposables.Add(
-                /*isCompletedRhythmPart*/_poltergeistViewModel.IsCompletedDirection.Where(x => x)
+                _poltergeistViewModel.IsCompletedDirection.Where(x => x)
                     .Take(1)
                     .Subscribe(_ =>
                     {
@@ -285,28 +752,114 @@ namespace Mains.Views
 
                         // 1. 暗幕フェード処理（条件付き）
                         var ghostStructs = _poltergeistViewModel.GhostInStaticObjectStructs;
-                        var cnt = ghostStructs.Select(q => q.membersCount).Sum();
+                        var cnt = ghostStructs.Where(q => q.role.Equals(GhostRole.Normal))
+                            .Select(q => q.membersCount).Sum();
+                        var midBosskillsRate = viewModel.MidBosskillsRate;
                         var healthPoint = _poltergeistViewModel.PlayerHealthPoint.Value;
-                        if (0 < cnt && 0 < healthPoint)
+                        // ポルターガイストの設定
+                        var set = settings;
+                        // 壁掛けオブジェクト用アニメーションSO
+                        PoltergeistAnimationSO poltergeistAnimationSO = set.poltergeistAnimationSO;
+                        switch (viewModel.EnemyBattlePart)
                         {
-                            completionObservables.Add(
-                                Observable.Create<bool>(observer =>
+                            case EnemyBattlePart.Normal:
+                                if (0 < cnt && 0 < healthPoint)
                                 {
-                                    StartCoroutine(_fadeImageView.PlayFadeInDirection(observer));
-                                    return Disposable.Empty;
-                                })
-                                .Do(_ =>
+                                    completionObservables.Add(
+                                        Observable.Create<bool>(observer =>
+                                        {
+                                            StartCoroutine(_fadeImageView.PlayFadeInDirection(observer));
+                                            return Disposable.Empty;
+                                        })
+                                        .Do(_ =>
+                                        {
+                                            _motorView?.DoStopFloaterAnimation();
+                                            ResetMovePosition(_initialPosition, _initialEulerAngles, _noTriggerColliders, _rigidbody, poltergeistAnimationSO);
+                                        })
+                                    );
+                                }
+                                else if (cnt < 1 && 0 < healthPoint)
                                 {
-                                    _motorView?.DoStopFloaterAnimation();
-                                    ResetMovePosition(_initialPosition, _initialEulerAngles, _noTriggerColliders, _rigidbody);
-                                })
-                            );
+                                    if (viewModel.CheckClearAndUpdateEnemyBattlePart())
+                                    {
+                                        completionObservables.Add(
+                                            Observable.Create<bool>(observer =>
+                                            {
+                                                StartCoroutine(_fadeImageView.PlayFadeInDirection(observer));
+                                                return Disposable.Empty;
+                                            })
+                                            .Do(_ =>
+                                            {
+                                                _motorView?.DoStopFloaterAnimation();
+                                                ResetMovePosition(_initialPosition, _initialEulerAngles, _noTriggerColliders, _rigidbody, poltergeistAnimationSO);
+                                                _poltergeistViewModel.SetIsMissionClear(true);
+                                            })
+                                        );
+                                    }
+                                    else
+                                    {
+                                        completionObservables.Add(
+                                            Observable.Create<bool>(observer =>
+                                            {
+                                                StartCoroutine(_fadeImageView.PlayFadeInDirection(observer));
+                                                return Disposable.Empty;
+                                            })
+                                            .Do(_ =>
+                                            {
+                                                _motorView?.DoStopFloaterAnimation();
+                                                ResetMovePosition(_initialPosition, _initialEulerAngles, _noTriggerColliders, _rigidbody, poltergeistAnimationSO);
+                                            })
+                                        );
+                                    }
+                                }
+                                else
+                                {
+                                    // 条件を満たさない場合は即座に完了するObservableを追加（デッドロジック）
+                                    completionObservables.Add(Observable.Return(true));
+                                }
+
+                                break;
+                            case EnemyBattlePart.MidBoss:
+                                if (midBosskillsRate < subSettings.targetkillsRate && 0 < healthPoint)
+                                {
+                                    completionObservables.Add(
+                                        Observable.Create<bool>(observer =>
+                                        {
+                                            StartCoroutine(_fadeImageView.PlayFadeInDirection(observer));
+                                            return Disposable.Empty;
+                                        })
+                                        .Do(_ =>
+                                        {
+                                            _motorView?.DoStopFloaterAnimation();
+                                            ResetMovePosition(_initialPosition, _initialEulerAngles, _noTriggerColliders, _rigidbody, poltergeistAnimationSO);
+                                        })
+                                    );
+                                }
+                                else if (subSettings.targetkillsRate <= midBosskillsRate && 0 < healthPoint)
+                                {
+                                    completionObservables.Add(
+                                        Observable.Create<bool>(observer =>
+                                        {
+                                            StartCoroutine(_fadeImageView.PlayFadeInDirection(observer));
+                                            return Disposable.Empty;
+                                        })
+                                        .Do(_ =>
+                                        {
+                                            _motorView?.DoStopFloaterAnimation();
+                                            ResetMovePosition(_initialPosition, _initialEulerAngles, _noTriggerColliders, _rigidbody, poltergeistAnimationSO);
+                                            _poltergeistViewModel.SetIsMissionClear(true);
+                                        })
+                                    );
+                                }
+                                else
+                                {
+                                    // 条件を満たさない場合は即座に完了するObservableを追加（デッドロジック）
+                                    completionObservables.Add(Observable.Return(true));
+                                }
+
+                                break;
                         }
-                        else
-                        {
-                            // 条件を満たさない場合は即座に完了するObservableを追加
-                            completionObservables.Add(Observable.Return(true));
-                        }
+                        viewModel.SetMidBosskillsRate(0f);
 
                         // 2. オバケが残っていたらプールへ戻す（Other）
                         completionObservables.Add(
@@ -382,32 +935,43 @@ namespace Mains.Views
                     .AddTo(ref _disposableBag)
             );
             disposables.Add(
-                _script_XyloApi.BgmBStatus.DistinctUntilChanged()
-                    .Where(x => x == 3)
+                _script_XyloApi.BgmCStatus.DistinctUntilChanged()
+                    .Where(x => x == 3 &&
+                    viewModel.EnemyBattlePart.Equals(EnemyBattlePart.MidBoss))
                     .Subscribe(_ =>
                     {
-                        //isCompletedRhythmPart.Execute(1);
-                        _poltergeistViewModel.SetIsCompletedRhythmPart(1);
+                        var midBosskillsRate = viewModel.MidBosskillsRate;
+                        if (subSettings.targetkillsRate <= midBosskillsRate)
+                        {
+                            _poltergeistViewModel.SetIsCompletedRhythmPart(1);
+                        }
+                        else
+                        {
+                            _poltergeistViewModel.SetIsCompletedRhythmPart(2);
+                            _poltergeistViewModel.SetIsMoveGhostDirectionTarget(true);
+                        }
                     })
                     .AddTo(ref _disposableBag)
             );
             ReactiveCommand<int> membersCount = new ReactiveCommand<int>();
             disposables.Add(
-                membersCount.Where(x => x < 1)
+                membersCount.Where(x => x < 1 &&
+                    viewModel.EnemyBattlePart.Equals(EnemyBattlePart.Normal))
                     .Take(1)
                     .Subscribe(_ =>
                     {
-                        //isCompletedRhythmPart.Execute(1);
                         _poltergeistViewModel.SetIsCompletedRhythmPart(1);
                     })
                     .AddTo(ref _disposableBag)
             );
             disposables.Add(
-                _poltergeistViewModel.IsBadEndRhythmPart.Where(x => x)
+                _poltergeistViewModel.IsBadEndRhythmPart.Where(x => x &&
+                    viewModel.EnemyBattlePart.Equals(EnemyBattlePart.Normal))
                     .Take(1)
                     .Subscribe(_ =>
                     {
                         _poltergeistViewModel.SetIsCompletedRhythmPart(2);
+                        _poltergeistViewModel.SetIsMoveGhostDirectionTarget(true);
                     })
                     .AddTo(ref _disposableBag)
             );
@@ -430,13 +994,33 @@ namespace Mains.Views
         private void CommitTransactionGhostInStaticObjectStruct(PoltergeistViewModel viewModel)
         {
             var transactionGhostStruct = viewModel.TransactionGhostInStaticObjectStruct;
-            if (transactionGhostStruct.membersCount < 1)
+            var enemyBattlePart = viewModel.EnemyBattlePart;
+            var subSettings = poltergeistTable.subSettings;
+            switch (enemyBattlePart)
             {
-                ExitGhost();
-            }
-            else
-            {
-                ShuffleNewStaticObject();
+                case EnemyBattlePart.Normal:
+                    if (transactionGhostStruct.membersCount < 1)
+                    {
+                        ExitGhost();
+                    }
+                    else
+                    {
+                        ShuffleNewStaticObject();
+                    }
+
+                    break;
+                case EnemyBattlePart.MidBoss:
+                    float midBosskillsRate = viewModel.MidBosskillsRate;
+                    if (subSettings.targetkillsRate <= midBosskillsRate)
+                    {
+                        ExitGhost();
+                    }
+                    else
+                    {
+                        ShuffleNewStaticObject();
+                    }
+
+                    break;
             }
             viewModel.SetDefaultTransactionGhostInStaticObjectStruct();
         }
@@ -446,35 +1030,7 @@ namespace Mains.Views
         /// </summary>
         public void ShuffleNewStaticObject()
         {
-            var ghostStructs = _poltergeistViewModel.GhostInStaticObjectStructs.ToList();
-            // 空いているポルターガイストのインデックスを取得
-            var emptyGhostStructIndices = ghostStructs
-                .Select((p, i) => new { Content = p, Index = i })
-                .Where(x => x.Content.useStatus.Equals(UseStatus.Empty))
-                .Select(x => x.Index)
-                .ToList();
-
-            // 空きがある場合のみ処理を続行
-            if (0 < emptyGhostStructIndices.Count)
-            {
-                // インデックスをランダムで選択
-                int randomIndex = emptyGhostStructIndices[Random.Range(0, emptyGhostStructIndices.Count)];
-
-                // 移動先の家具へポルターガイスト情報を更新
-                var nextGhostInStaticObjectStruct = new GhostInStaticObjectStruct();
-                nextGhostInStaticObjectStruct.poltergeistViewID = _poltergeistViewModel.GhostInStaticObjectStructs[randomIndex].poltergeistViewID;
-                nextGhostInStaticObjectStruct.ghostTeamID = _poltergeistViewModel.GhostInStaticObjectStructs[randomIndex].ghostTeamID;
-                nextGhostInStaticObjectStruct.ghostTeamID.Value = ghostInStaticObjectStruct.ghostTeamID.Value;
-                nextGhostInStaticObjectStruct.useStatus = ghostInStaticObjectStruct.useStatus;
-                nextGhostInStaticObjectStruct.membersCount = ghostInStaticObjectStruct.membersCount;
-                _poltergeistViewModel.GhostInStaticObjectStructs[randomIndex] = nextGhostInStaticObjectStruct;
-
-                ResetStaticObject();
-            }
-            else
-            {
-                Debug.Log("移動できる空きがありません。");
-            }
+            _poltergeistViewModel.ShuffleNewStaticObject(ghostInStaticObjectStruct);
         }
 
         /// <summary>
@@ -482,7 +1038,7 @@ namespace Mains.Views
         /// </summary>
         public void ExitGhost()
         {
-            ResetStaticObject();
+            _poltergeistViewModel.ResetStaticObject(ghostInStaticObjectStruct);
         }
 
         /// <summary>
@@ -501,7 +1057,7 @@ namespace Mains.Views
         public void InstanceMissileTempoSpawner()
         {
             var originParent = _transform.parent;
-            var missileTempoSpawnerInstance = Instantiate(missileTempoSpawnerPrefab, _rhythmPartPosition_1, Quaternion.identity);
+            var missileTempoSpawnerInstance = Instantiate(poltergeistTable.missileTempoSpawnerPrefab, _rhythmPartPosition_1, Quaternion.identity);
             missileTempoSpawnerInstance.transform.SetParent(originParent);
             // リズムパートの調整（家具に対して真正面に配置するとオバケがずれることがある？）
             var originAngles = _rhythmPartEulerAngles_1;
@@ -514,7 +1070,11 @@ namespace Mains.Views
         /// </summary>
         public void MovePosition()
         {
-            SetRigidbodyStatus(_rigidbody, false);
+            // ポルターガイストの設定
+            var set = settings;
+            // 壁掛けオブジェクト用アニメーションSO
+            PoltergeistAnimationSO poltergeistAnimationSO = set.poltergeistAnimationSO;
+            SetRigidbodyStatus(_rigidbody, false, poltergeistAnimationSO);
             SetNoTriggerColliders(_noTriggerColliders, false);
             _transform.position = _rhythmPartPosition_1;
             _transform.eulerAngles = _rhythmPartEulerAngles_1;
@@ -528,7 +1088,11 @@ namespace Mains.Views
         /// <returns>コルーチン</returns>
         public IEnumerator PlayMovePositionAnimation(Observer<bool> observer, Transform playerTransform)
         {
-            SetRigidbodyStatus(_rigidbody, false);
+            // ポルターガイストの設定
+            var set = settings;
+            // 壁掛けオブジェクト用アニメーションSO
+            PoltergeistAnimationSO poltergeistAnimationSO = set.poltergeistAnimationSO;
+            SetRigidbodyStatus(_rigidbody, false, poltergeistAnimationSO);
             SetNoTriggerColliders(_noTriggerColliders, false);
 
             Vector3 targetPosition = _rhythmPartPosition_1;
@@ -601,48 +1165,6 @@ namespace Mains.Views
         }
 
         /// <summary>
-        /// 移動元の家具のポルターガイスト情報を初期化
-        /// </summary>
-        private void ResetStaticObject()
-        {
-            var ghostStructs = _poltergeistViewModel.GhostInStaticObjectStructs.ToList();
-
-            // 移動元の家具のポルターガイスト情報は初期化
-            var prevIndex = ghostStructs
-                .Select((p, i) => new { Content = p, Index = i })
-                .FirstOrDefault(x => x.Content.poltergeistViewID == ghostInStaticObjectStruct.poltergeistViewID)
-                .Index;
-            var prevGhostInStaticObjectStruct = new GhostInStaticObjectStruct();
-            prevGhostInStaticObjectStruct.poltergeistViewID = ghostInStaticObjectStruct.poltergeistViewID;
-            prevGhostInStaticObjectStruct.ghostTeamID = ghostInStaticObjectStruct.ghostTeamID;
-            prevGhostInStaticObjectStruct.ghostTeamID.Value = string.Empty;
-            prevGhostInStaticObjectStruct.useStatus = UseStatus.Empty;
-            prevGhostInStaticObjectStruct.membersCount = 0;
-            _poltergeistViewModel.GhostInStaticObjectStructs[prevIndex] = prevGhostInStaticObjectStruct;
-        }
-
-        /// <summary>
-        /// ゴーストを飛び出させる
-        /// </summary>
-        /// <param name="ghostBurstsInstance">オバケが飛び出すエフェクト</param>
-        /// <param name="transform">トランスフォーム</param>
-        private void BurstGhosts(Transform ghostBurstsInstance, Transform transform)
-        {
-            if (ghostBurstsInstance == null)
-            {
-                ghostBurstsInstance = Instantiate(ghostBurstsPrefab).transform;
-                // 親（ShoutChanceRange） > 親（Motor） > 家具
-                ghostBurstsInstance.SetParent(transform.parent.parent);
-                ghostBurstsInstance.localPosition = Vector3.zero;
-            }
-            else
-            {
-                ghostBurstsInstance.gameObject.SetActive(false);
-                ghostBurstsInstance.gameObject.SetActive(true);
-            }
-        }
-
-        /// <summary>
         /// リズムパート終了時にDestroy
         /// </summary>
         /// <param name="missileTempoSpawnerInstance">ミサイルテンポスポナー</param>
@@ -660,9 +1182,14 @@ namespace Mains.Views
         /// </summary>
         /// <param name="rigidbody">Rigidbody</param>
         /// <param name="isEnabled">有効／無効</param>
-        private void SetRigidbodyStatus(Rigidbody rigidbody, bool isEnabled)
+        /// <param name="poltergeistAnimationSO">壁掛けオブジェクト用アニメーションSO</param>
+        private void SetRigidbodyStatus(Rigidbody rigidbody, bool isEnabled, PoltergeistAnimationSO poltergeistAnimationSO)
         {
             if (rigidbody == null)
+                return;
+
+            // SO設定済み（壁掛け）の場合は常にKinematic維持（落下防止）
+            if (poltergeistAnimationSO != null)
                 return;
 
             if (isEnabled &&
@@ -719,12 +1246,233 @@ namespace Mains.Views
         /// <param name="initialEulerAngles">初期オイラー角度</param>
         /// <param name="noTriggerColliders">コライダーリスト</param>
         /// <param name="rigidbody">Rigidbody</param>
-        private void ResetMovePosition(Vector3 initialPosition, Vector3 initialEulerAngles, List<Collider> noTriggerColliders, Rigidbody rigidbody)
+        /// <param name="poltergeistAnimationSO">壁掛けオブジェクト用アニメーションSO</param>
+        private void ResetMovePosition(Vector3 initialPosition, Vector3 initialEulerAngles, List<Collider> noTriggerColliders, Rigidbody rigidbody, PoltergeistAnimationSO poltergeistAnimationSO)
         {
             _transform.position = initialPosition;
             _transform.eulerAngles = initialEulerAngles;
             SetNoTriggerColliders(noTriggerColliders, true);
-            SetRigidbodyStatus(rigidbody, true);
+            SetRigidbodyStatus(rigidbody, true, poltergeistAnimationSO);
+        }
+
+        /// <summary>
+        /// オバケ移動演出を再生
+        /// </summary>
+        /// <param name="missGhostEscapePrefab">移動用オバケプレハブ</param>
+        /// <param name="missGhostEscapePosition">移動用オバケ生成位置</param>
+        /// <param name="missGhostEscapeEulerAngles">移動用オバケ生成角度</param>
+        /// <param name="trans">トランスフォーム</param>
+        /// <param name="script_XyloApi">シロさんのコンポーネントへアクセスするAPI</param>
+        /// <param name="poltergeistViewModel">ポルターガイストのビューモデル</param>
+        /// <param name="instanceMissGhostEscape">移動用オバケプレハブ（生成済み）</param>
+        /// <returns>オブザーバブル</returns>
+        private Observable<Unit> PlayMoveGhostDirection(Transform missGhostEscapePrefab, Vector3 missGhostEscapePosition, Vector3 missGhostEscapeEulerAngles, Transform trans, Script_xyloApi script_XyloApi,
+            PoltergeistViewModel poltergeistViewModel, Transform instanceMissGhostEscape)
+        {
+            return Observable.Create<Unit>(observer =>
+            {
+                if (instanceMissGhostEscape == null)
+                {
+                    Transform instance = Instantiate(missGhostEscapePrefab, missGhostEscapePosition, Quaternion.identity).transform;
+                    instance.eulerAngles = missGhostEscapeEulerAngles;
+                    instance.SetParent(trans);
+                    instanceMissGhostEscape = instance;
+                }
+                var missGhost = instanceMissGhostEscape;
+                if (!missGhost.gameObject.activeSelf)
+                    missGhost.gameObject.SetActive(true);
+                var missGhostView = missGhost.GetComponent<MissGhostEscapeView>();
+                // DOTweenでオバケが家具から出現して他の家具へ移動するアニメーションを追加
+                missGhostView.IsEscapeCompleted.Where(x => x)
+                    .Take(1)
+                    .Subscribe(_ =>
+                    {
+                        // オバケ笑い声SE再生機能の追加
+                        script_XyloApi.PlayGhostLaugh3();
+                        observer.OnNext(Unit.Default);
+                        observer.OnCompleted();
+                    })
+                    .AddTo(ref _disposableBag);
+                poltergeistViewModel.SetTargetGhost(missGhost);
+
+                return Disposable.Empty;
+            });
+        }
+
+        /// <summary>
+        /// 監視開始かつSE再生
+        /// </summary>
+        /// <param name="soundOutputType">音の出力タイプ</param>
+        private void StartSoundOutputBehavior(SoundOutputType soundOutputType)
+        {
+            StopSoundOutputBehavior();
+
+            var d = new CompositeDisposable();
+            var laughSettings = poltergeistTable.subSettings.laughSettings;
+            float shoutRadius = ghostInStaticObjectStruct.customShoutRadius > 0f 
+                ? ghostInStaticObjectStruct.customShoutRadius 
+                : poltergeistTable.subSettings.defaultShoutRadius;
+
+            // ダウジング時の基本応答（ノリノリオバケ以外）
+            if (soundOutputType != SoundOutputType.ReactiveShout_CallAndResponse)
+            {
+                if (_motorView != null)
+                {
+                    _motorView.OnActionAsObservable.Where(x => x)
+                        .Subscribe(_ =>
+                        {
+                            PlayLaughSE(shoutRadius, laughSettings, false);
+                        })
+                        .AddTo(d);
+                }
+            }
+
+            if (soundOutputType == SoundOutputType.Loop || soundOutputType == SoundOutputType.ReactiveStatic)
+            {
+                int laughCount = 0;
+                float currentInterval = laughSettings.baseInterval;
+                float timer = currentInterval;
+                Vector3 lastPos = Vector3.zero;
+
+                Observable.EveryUpdate()
+                    .Subscribe(_ =>
+                    {
+                        if (_motorView == null || _poltergeistViewModel?.PlayerTransform == null || !_motorView.IsEnabledPoltergeist)
+                            return;
+
+                        var playerPos = _poltergeistViewModel.PlayerTransform.position;
+                        float dist = Vector3.Distance(_motorView.transform.position, playerPos);
+
+                        if (dist <= shoutRadius)
+                        {
+                            // 距離が近い間のみカウントおよび適用
+                            bool canCountDown = true;
+                            if (soundOutputType == SoundOutputType.ReactiveStatic)
+                            {
+                                if (Vector3.Distance(playerPos, lastPos) >= 0.01f)
+                                {
+                                    canCountDown = false; // 動いているとカウントダウンを一時停止
+                                }
+                            }
+
+                            if (canCountDown)
+                            {
+                                timer -= Time.deltaTime;
+                                if (timer <= 0f)
+                                {
+                                    PlayLaughSE(shoutRadius, laughSettings, true);
+                                    laughCount++;
+
+                                    // 次回の間隔を計算
+                                    if (laughCount >= laughSettings.slowDownStartCount)
+                                    {
+                                        currentInterval = Mathf.Min(currentInterval + laughSettings.slowDownIncrement, laughSettings.maxInterval);
+                                    }
+                                    timer = currentInterval;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // 範囲外に出た場合はタイマーおよび回数をリセット
+                            laughCount = 0;
+                            currentInterval = laughSettings.baseInterval;
+                            timer = currentInterval;
+                        }
+
+                        lastPos = playerPos;
+                    })
+                    .AddTo(d);
+            }
+            else if (soundOutputType == SoundOutputType.ReactiveShout_CallAndResponse)
+            {
+                if (_motorView != null)
+                {
+                    _motorView.OnActionAsObservable.Where(x => x)
+                        .ThrottleFirst(System.TimeSpan.FromSeconds(2f)) // 連続発動を防ぐ
+                        .Subscribe(_ =>
+                        {
+                            // スクラッチ演出 (複数回連続で短く呼ぶ)
+                            Observable.Timer(System.TimeSpan.Zero, System.TimeSpan.FromMilliseconds(150))
+                                .Take(3)
+                                .Subscribe(__ => PlayLaughSE(shoutRadius, laughSettings, false))
+                                .AddTo(d);
+                        })
+                        .AddTo(d);
+                }
+            }
+
+            _soundOutputBehaviorDisposable = d;
+        }
+
+        /// <summary>
+        /// 監視停止（SE再生用）
+        /// </summary>
+        private void StopSoundOutputBehavior()
+        {
+            _soundOutputBehaviorDisposable?.Dispose();
+            _soundOutputBehaviorDisposable = null;
+        }
+
+        /// <summary>
+        /// オバケの笑い声SEを再生（簡易3Dサウンド）
+        /// </summary>
+        private void PlayLaughSE(float shoutRadius, PoltergeistTableSubSettings.PoltergeistLaughSettings laughSettings, bool enableEcho)
+        {
+            ObjectsPoolView objectsPoolView = ObjectsPoolView;
+            Se_3D_PickerCustomizeView t3DSoundPlayer = objectsPoolView?.Get3DSoundPlayer();
+
+            if (t3DSoundPlayer != null && _motorView != null && _motorView.IsEnabledPoltergeist && _poltergeistViewModel?.PlayerTransform != null)
+            {
+                Vector3 motorPos = _motorView.transform.position;
+                float dist = Vector3.Distance(motorPos, _poltergeistViewModel.PlayerTransform.position);
+                if (dist <= _motorView.MaxDistance)
+                {
+                    float intensity = Mathf.Clamp01(1f - (dist / _motorView.MaxDistance));
+                    t3DSoundPlayer.PlaySound("GhostLaugh3", intensity);
+
+                    // エコー再生処理
+                    if (enableEcho && dist <= shoutRadius * laughSettings.echoDistanceThresholdRatio)
+                    {
+                        float echoIntensity = intensity * Random.Range(laughSettings.minEchoVolumeRatio, laughSettings.maxEchoVolumeRatio);
+                        Observable.Timer(System.TimeSpan.FromSeconds(laughSettings.echoDelay))
+                            .Subscribe(_ =>
+                            {
+                                // オブジェクトが有効か再確認
+                                if (_motorView != null && _motorView.IsEnabledPoltergeist)
+                                {
+                                    t3DSoundPlayer.PlaySound("GhostLaugh3", echoIntensity);
+                                }
+                            })
+                            .AddTo(ref _disposableBag);
+                    }
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// ポルターガイストの設定
+    /// </summary>
+    [System.Serializable]
+    public class PoltergeistSettings
+    {
+        /// <summary>オバケの攻撃タイプの設定</summary>
+        public GhostAttack ghostAttack;
+        [Tooltip("壁掛けオブジェクト用アニメーションSO。セットすると従来の物理揺らしに代わりDOTweenで再生する。")]
+        public PoltergeistAnimationSO poltergeistAnimationSO;
+        /// <summary>中ボスオバケの家具入居管理のデータクラス</summary>
+        public GhostInStaticObjectStruct midBossGhostInStaticObjectStruct;
+
+        /// <summary>
+        /// オバケの攻撃タイプの設定
+        /// </summary>
+        [System.Serializable]
+        public class GhostAttack
+        {
+            /// <summary>オバケ弾（本）</summary>
+            /// <see cref="GhostAttackType.ThrowBookNotInstance"/>
+            public Transform ghostBulletBookInstance;
         }
     }
 }

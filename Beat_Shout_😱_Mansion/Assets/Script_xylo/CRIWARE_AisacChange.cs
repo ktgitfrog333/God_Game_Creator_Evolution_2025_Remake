@@ -10,35 +10,34 @@ public class CRIWARE_AisacChange : MonoBehaviour
     private CriAtomSource currentSource;
     private CriAtomExPlayer atomExPlayer;
     private bool ChangeLock = false;
-    //縦の遷移は４パターンまで登録可能。必要に応じて追加する
-    public string AisacControl_00;
-    public string AisacControl_01;
-    public string AisacControl_02;
-    public string AisacControl_03;
+
+    // AISACコントロール名（互換性のため残す）
+    public string AisacControl_00 = "Aisac_0";
+    public string AisacControl_01 = "Aisac_1";
 
     [HideInInspector] public bool OnNoBgm = false; // BGM変更をロックするかどうか
 
-    // AISACコントロールの変更にかかる時間をインスペクターから設定可能にする
+    // フェード時間の設定
     public float transitionDuration = 3.0f;
     public float transitionDuration2 = 0.05f;
 
-    // AISACコントロールの現在値を追跡するための変数
-    private float currentAisacValue_00 = 0.9f; // 初期値
-    private float currentAisacValue_01 = 0.0f; // 初期値
-    private float currentAisacValue_02 = 0.0f; // 初期値
-    private float currentAisacValue_03 = 0.0f; // 初期値
+    // AISACコントロールの現在値を追跡するための変数（互換性のため残す）
+    private float currentAisacValue_00 = 0.9f;
+    private float currentAisacValue_01 = 0.0f;
+
+    // 音量管理
+    private float targetVolume = 1.0f; // 目標音量
+    private float baseVolume = 1.0f; // 基本音量（外部から設定される）
+
     public bool isAutoStart = false;
     private Dictionary<string, Coroutine> currentCoroutines = new Dictionary<string, Coroutine>();
+    private Coroutine volumeFadeCoroutine = null; // 音量フェード用コルーチン
 
     // インスペクターから設定するBPMと開始拍
     public float bpm = 120.0f;
     public int startBeat = 0; // 初期値はゼロ拍目から
 
     /// <summary>最初に呼ばれる再生処理が完了しているか</summary>
-    /// <remarks>[Amagata]下記の非正規ルートへ入った際に初期化処理が不完全となってしまうため、回避用フラグ<br/>
-    /// ●正規ルート：イントロSE→探索BGM→リズムBGM<br/>
-    /// ●非正規ルート：イントロSE→リズムBGM
-    /// </remarks>
     private bool _isCompletedPlayStart;
     /// <summary>最初に呼ばれる再生処理が完了しているか</summary>
     public bool IsCompletedPlayStart => _isCompletedPlayStart;
@@ -52,7 +51,7 @@ public class CRIWARE_AisacChange : MonoBehaviour
         }
         else
         {
-            Destroy(gameObject); // 二つ目のインスタンスが作成された場合は破棄
+            Destroy(gameObject);
         }
     }
 
@@ -60,40 +59,34 @@ public class CRIWARE_AisacChange : MonoBehaviour
     {
         if (isAutoStart)
         {
-            // BGMとSEの音量をDataクラスから取得して設定するメソッドをここに追記
-            //    float bgmVolume = 
-            //    float seVolume = 
-
-            // 取得した音量をCriAtomのカテゴリに設定
-            //   CriAtom.SetCategoryVolume("BGM", bgmVolume);
-            //   CriAtom.SetCategoryVolume("SE", seVolume);
-
-
             float startTimeInSeconds = BeatToSeconds(startBeat, bpm);
-            atomExPlayer.SetStartTime((long)(startTimeInSeconds * 1000)); // ミリ秒単位で設定
+            atomExPlayer.SetStartTime((long)(startTimeInSeconds * 1000));
             BGM0();
             currentSource.Play();
         }
 
         if (OnNoBgm)
         {
-            ChangeAisacControl(AisacControl_00, 0.0f, transitionDuration2);
-            ChangeAisacControl(AisacControl_01, 0.0f, transitionDuration2);
-            ChangeAisacControl(AisacControl_02, 0.0f, transitionDuration2);
-            ChangeAisacControl(AisacControl_03, 0.0f, transitionDuration2);
+            FadeVolume(0.0f, transitionDuration2);
         }
     }
 
     public void SetSource(CriAtomSource atomSource)
     {
         currentSource = atomSource;
-        atomExPlayer = currentSource.player; // CriAtomExPlayer を取得
+        atomExPlayer = currentSource.player;
+
+        // 現在のソースの音量を基本音量として保存
+        if (currentSource != null)
+        {
+            baseVolume = currentSource.volume;
+        }
     }
 
     public void PlayStart()
     {
         float startTimeInSeconds = BeatToSeconds(startBeat, bpm);
-        atomExPlayer.SetStartTime((long)(startTimeInSeconds * 1000)); // ミリ秒単位で設定
+        atomExPlayer.SetStartTime((long)(startTimeInSeconds * 1000));
         currentSource.Play();
         Debug.Log("再生開始");
         _isCompletedPlayStart = true;
@@ -106,11 +99,16 @@ public class CRIWARE_AisacChange : MonoBehaviour
         {
             currentSource.Stop();
         }
+
+        // コルーチンを停止
+        if (volumeFadeCoroutine != null)
+        {
+            StopCoroutine(volumeFadeCoroutine);
+            volumeFadeCoroutine = null;
+        }
     }
 
     public void PauseOn()
-    //一時停止中はビート同期を停止させる。BGMではなく単発SEという形で音楽を再生する
-    //CRIWARE側の設定でカテゴリをBGMとしておけば、音量調整はBGMのものが適用される
     {
         if (currentSource != null)
         {
@@ -132,147 +130,185 @@ public class CRIWARE_AisacChange : MonoBehaviour
 
         if (currentSource == null) return;
 
-        ChangeAisacControl(AisacControl_00, currentAisacValue_00, transitionDuration * 2);
-        ChangeAisacControl(AisacControl_01, currentAisacValue_01, transitionDuration * 2);
-        ChangeAisacControl(AisacControl_02, currentAisacValue_02, transitionDuration * 2);
-        ChangeAisacControl(AisacControl_03, currentAisacValue_03, transitionDuration * 2);
+        // 新しいソースに切り替わった時は基本音量を更新
+        baseVolume = currentSource.volume;
+
+        // 現在の目標音量を適用
+        currentSource.volume = baseVolume * targetVolume;
     }
 
-    //ここから先はAisacの変更と変更秒数に関するメソッド。必要に応じて作成する
-    public void BGM0()　//ゆっくりBGM_Aへ
+    /// <summary>
+    /// 音量をフェードさせる
+    /// </summary>
+    /// <param name="volume">目標音量（0.0 ~ 1.0）</param>
+    /// <param name="duration">フェード時間（秒）</param>
+    public void FadeVolume(float volume, float duration)
+    {
+        if (currentSource == null) return;
+
+        // 既存のフェードコルーチンがあれば停止
+        if (volumeFadeCoroutine != null)
+        {
+            StopCoroutine(volumeFadeCoroutine);
+        }
+
+        volumeFadeCoroutine = StartCoroutine(FadeVolumeCoroutine(volume, duration));
+    }
+
+    private IEnumerator FadeVolumeCoroutine(float targetVol, float duration)
+    {
+        float startVolume = targetVolume;
+        float startTime = Time.time;
+
+        Debug.Log($"音量フェード開始: {startVolume} → {targetVol} ({duration}秒)");
+
+        while (Time.time - startTime < duration)
+        {
+            float t = (Time.time - startTime) / duration;
+            targetVolume = Mathf.Lerp(startVolume, targetVol, t);
+            currentSource.volume = baseVolume * targetVolume;
+            yield return null;
+        }
+
+        targetVolume = targetVol;
+        currentSource.volume = baseVolume * targetVolume;
+
+        Debug.Log($"音量フェード完了: volume = {currentSource.volume}");
+
+        volumeFadeCoroutine = null;
+    }
+
+    /// <summary>
+    /// 外部から基本音量を設定する（CRIWARE_conductorから呼ばれる）
+    /// </summary>
+    public void SetBaseVolume(float volume)
+    {
+        baseVolume = Mathf.Clamp01(volume);
+        if (currentSource != null)
+        {
+            currentSource.volume = baseVolume * targetVolume;
+        }
+    }
+
+    //ここから先はBGM切り替えメソッド
+    public void BGM0() // 通常再生
     {
         if (ChangeLock || OnNoBgm) return;
+        FadeVolume(1.0f, transitionDuration * 2);
         ChangeAisacControlIfExists(AisacControl_00, 0.9f, transitionDuration * 2);
         ChangeAisacControlIfExists(AisacControl_01, 0.0f, transitionDuration * 2);
-        ChangeAisacControlIfExists(AisacControl_02, 0.0f, transitionDuration * 2);
-        ChangeAisacControlIfExists(AisacControl_03, 0.0f, transitionDuration * 2);
     }
 
-    public void BGM0Now()　//瞬時にBGM_Aへ
+    public void BGM0Now() // 瞬時に通常再生
     {
         if (ChangeLock || OnNoBgm) return;
+        FadeVolume(1.0f, 0.1f);
         ChangeAisacControlIfExists(AisacControl_00, 0.9f, 0.1f);
         ChangeAisacControlIfExists(AisacControl_01, 0.0f, 0.1f);
-        ChangeAisacControlIfExists(AisacControl_02, 0.0f, 0.1f);
-        ChangeAisacControlIfExists(AisacControl_03, 0.0f, 0.1f);
     }
 
     public void BGM1()
     {
         if (ChangeLock || OnNoBgm) return;
+        FadeVolume(1.0f, transitionDuration);
         ChangeAisacControlIfExists(AisacControl_00, 0.0f, transitionDuration);
         ChangeAisacControlIfExists(AisacControl_01, 0.9f, transitionDuration);
-        ChangeAisacControlIfExists(AisacControl_02, 0.0f, transitionDuration);
-        ChangeAisacControlIfExists(AisacControl_03, 0.0f, transitionDuration);
     }
 
     public void BGM1Now()
     {
         if (ChangeLock || OnNoBgm) return;
+        FadeVolume(1.0f, 0.1f);
         ChangeAisacControlIfExists(AisacControl_00, 0.0f, 0.1f);
         ChangeAisacControlIfExists(AisacControl_01, 0.9f, 0.1f);
-        ChangeAisacControlIfExists(AisacControl_02, 0.0f, 0.1f);
-        ChangeAisacControlIfExists(AisacControl_03, 0.0f, 0.1f);
     }
 
     public void BGM2()
     {
         if (ChangeLock || OnNoBgm) return;
+        FadeVolume(1.0f, transitionDuration2);
         ChangeAisacControlIfExists(AisacControl_00, 0.0f, transitionDuration2);
         ChangeAisacControlIfExists(AisacControl_01, 0.0f, transitionDuration2);
-        ChangeAisacControlIfExists(AisacControl_02, 0.9f, transitionDuration2);
-        ChangeAisacControlIfExists(AisacControl_03, 0.0f, transitionDuration2);
     }
 
     public void BGM3()
     {
         if (ChangeLock || OnNoBgm) return;
+        FadeVolume(1.0f, transitionDuration);
         ChangeAisacControlIfExists(AisacControl_00, 0.0f, transitionDuration);
         ChangeAisacControlIfExists(AisacControl_01, 0.0f, transitionDuration);
-        ChangeAisacControlIfExists(AisacControl_02, 0.0f, transitionDuration);
-        ChangeAisacControlIfExists(AisacControl_03, 0.9f, transitionDuration);
     }
 
-    public void BGM4()
+    public void BGM4() // フェードアウト（無音化）
     {
         if (OnNoBgm) return;
-        ChangeLock = true; // BGM変更をロック
-        ChangeAisacControlIfExists(AisacControl_00, 0.0f, transitionDuration2);
-        ChangeAisacControlIfExists(AisacControl_01, 0.0f, transitionDuration2);
-        ChangeAisacControlIfExists(AisacControl_02, 0.0f, transitionDuration2);
-        ChangeAisacControlIfExists(AisacControl_03, 0.0f, transitionDuration2);
+        ChangeLock = true;
+        FadeVolume(0.0f, transitionDuration2);
+        Debug.Log("BGM4: フェードアウト開始");
     }
 
-    public void BGM5()
+    public void BGM5() // フェードイン
     {
         if (OnNoBgm) return;
-        ChangeLock = false; // BGM変更ロックを解除
+        ChangeLock = false;
+        FadeVolume(1.0f, transitionDuration2);
         ChangeAisacControlIfExists(AisacControl_00, 0.9f, transitionDuration2);
         ChangeAisacControlIfExists(AisacControl_01, 0.0f, transitionDuration2);
-        ChangeAisacControlIfExists(AisacControl_02, 0.0f, transitionDuration2);
-        ChangeAisacControlIfExists(AisacControl_03, 0.0f, transitionDuration2);
     }
 
-    public void BGM6()
+    public void BGM6() // フェードイン（速め）
     {
         if (OnNoBgm) return;
-        ChangeLock = false; // BGM変更ロックを解除
+        ChangeLock = false;
+        FadeVolume(1.0f, transitionDuration / 2);
         ChangeAisacControlIfExists(AisacControl_00, 0.9f, transitionDuration / 2);
         ChangeAisacControlIfExists(AisacControl_01, 0.0f, transitionDuration / 2);
-        ChangeAisacControlIfExists(AisacControl_02, 0.0f, transitionDuration / 2);
-        ChangeAisacControlIfExists(AisacControl_03, 0.0f, transitionDuration / 2);
     }
 
-    public void BGM7() // 1秒かけてフェードアウト
+    public void BGM7() // フェードアウト
     {
         if (OnNoBgm) return;
-        ChangeLock = false; // BGM変更ロックを解除
-        ChangeAisacControlIfExists(AisacControl_00, 0.0f, transitionDuration / 3);
-        ChangeAisacControlIfExists(AisacControl_01, 0.0f, transitionDuration / 3);
-        ChangeAisacControlIfExists(AisacControl_02, 0.0f, transitionDuration / 3);
-        ChangeAisacControlIfExists(AisacControl_03, 0.0f, transitionDuration / 3);
+        ChangeLock = false;
+        FadeVolume(0.0f, transitionDuration / 3);
     }
 
-    public void BGM8() // 1秒かけてフェードアウト
+    public void BGM8() // フェードアウト（長め）
     {
         if (OnNoBgm) return;
-        ChangeLock = true; // BGM変更ロック
+        ChangeLock = true;
+        FadeVolume(0.0f, transitionDuration);
         ChangeAisacControlIfExists(AisacControl_00, 0.0f, transitionDuration);
-        ChangeAisacControlIfExists(AisacControl_01, 0.0f, transitionDuration);
-        ChangeAisacControlIfExists(AisacControl_02, 0.9f, transitionDuration);
-        ChangeAisacControlIfExists(AisacControl_03, 0.0f, transitionDuration);
+        ChangeAisacControlIfExists(AisacControl_01, 0.9f, transitionDuration);
     }
 
+    // AISAC関連のメソッド（互換性のため残す）
     private bool HasAisacControl(string aisacName)
     {
+        if (string.IsNullOrEmpty(aisacName)) return false;
+
         try
         {
-            // 一時的にAISACコントロールを設定しようとする
             atomExPlayer.SetAisacControl(aisacName, 0.0f);
             return true;
         }
         catch (System.Exception)
         {
-            // 失敗した場合はAISACコントロールが存在しないと判断
             return false;
         }
     }
 
     private void ChangeAisacControlIfExists(string aisacName, float targetValue, float Setduration)
     {
+        if (string.IsNullOrEmpty(aisacName)) return;
+
         if (HasAisacControl(aisacName))
         {
             ChangeAisacControl(aisacName, targetValue, Setduration);
-        }
-        else
-        {
-            Debug.LogWarning("指定されたAISACが存在しません: " + aisacName);
         }
     }
 
     private void ChangeAisacControl(string aisacName, float targetValue, float Setduration)
     {
-        // 既に実行中のコルーチンがあれば停止
         if (currentCoroutines.TryGetValue(aisacName, out Coroutine runningCoroutine))
         {
             StopCoroutine(runningCoroutine);
@@ -287,6 +323,7 @@ public class CRIWARE_AisacChange : MonoBehaviour
     {
         float startTime = Time.time;
         float startValue = GetCurrentAisacValue(aisacName);
+
         while (Time.time - startTime < Setduration)
         {
             float t = (Time.time - startTime) / Setduration;
@@ -298,7 +335,6 @@ public class CRIWARE_AisacChange : MonoBehaviour
         currentSource.SetAisacControl(aisacName, targetValue);
         SetCurrentAisacValue(aisacName, targetValue);
 
-        // コルーチンの実行が完了したら辞書から削除
         if (currentCoroutines.ContainsKey(aisacName))
         {
             currentCoroutines.Remove(aisacName);
@@ -307,34 +343,22 @@ public class CRIWARE_AisacChange : MonoBehaviour
 
     private float GetCurrentAisacValue(string aisacName)
     {
-        switch (aisacName)
-        {
-            case "AisacControl_00": return currentAisacValue_00;
-            case "AisacControl_01": return currentAisacValue_01;
-            case "AisacControl_02": return currentAisacValue_02;
-            case "AisacControl_03": return currentAisacValue_03;
-            default: return 0.0f; // 不明なAISAC名の場合は0.0fを返す
-        }
+        if (aisacName == AisacControl_00) return currentAisacValue_00;
+        if (aisacName == AisacControl_01) return currentAisacValue_01;
+        return 0.0f;
     }
 
     private void SetCurrentAisacValue(string aisacName, float newValue)
     {
-        switch (aisacName)
-        {
-            case "AisacControl_00": currentAisacValue_00 = newValue; break;
-            case "AisacControl_01": currentAisacValue_01 = newValue; break;
-            case "AisacControl_02": currentAisacValue_02 = newValue; break;
-            case "AisacControl_03": currentAisacValue_03 = newValue; break;
-        }
+        if (aisacName == AisacControl_00) currentAisacValue_00 = newValue;
+        else if (aisacName == AisacControl_01) currentAisacValue_01 = newValue;
     }
 
-    // 拍数から秒数への変換メソッド
     private float BeatToSeconds(int beat, float bpm)
     {
         return (beat * 60.0f) / bpm;
     }
 
-    // transitionDurationのセッター
     public void SetTransitionDuration(float duration)
     {
         transitionDuration = duration;
