@@ -1,5 +1,4 @@
 using Mains.ViewModels;
-using Mains.External;
 using R3;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,21 +12,12 @@ namespace Mains.Views
     {
         /// <summary>MissileTempoSpawnerのカスタマイズのビューモデル</summary>
         private MissileTempoSpawnerCustomizeViewModel _viewModel;
-        /// <summary>シロさんのコンポーネントへアクセスするAPI</summary>
-        private Script_xyloApi _script_XyloApi;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
         private void Start()
         {
             _viewModel = new MissileTempoSpawnerCustomizeViewModel();
-            _script_XyloApi = new Script_xyloApi();
-            
-            var spawner = Object.FindAnyObjectByType<MissileTempoSpawner>();
-            if (spawner != null)
-            {
-                _script_XyloApi.SetMissileTempoSpawner(spawner.transform);
-            }
             Transform[] missileEffectContainers = null;
             Observable.EveryUpdate()
                 .Select(_ => _viewModel.BatteryTransform)
@@ -81,7 +71,6 @@ namespace Mains.Views
         {
             _disposableBag.Dispose();
             _viewModel?.Dispose();
-            _script_XyloApi?.Dispose();
         }
     }
 }

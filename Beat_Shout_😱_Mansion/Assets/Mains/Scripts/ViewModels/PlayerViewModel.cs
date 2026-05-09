@@ -69,22 +69,6 @@ namespace Mains.ViewModels
         public ReactiveCommand<Transform> StartPointTrans => _startPointTrans;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
-        /// <summary>ミッションクリアフラグ</summary>
-        private bool _isMissionClear;
-        /// <summary>ミッションクリアフラグ</summary>
-        public bool IsMissionClear => _isMissionClear;
-        /// <summary>ミッションクリアフラグ</summary>
-        private ReactiveCommand<bool> _isMissionClearReactive = new ReactiveCommand<bool>();
-        /// <summary>ミッションクリアフラグ</summary>
-        public ReactiveCommand<bool> IsMissionClearReactive => _isMissionClearReactive;
-        /// <summary>視界ジャック用ゴースト</summary>
-        private ReactiveCommand<Transform> _targetGhost = new ReactiveCommand<Transform>();
-        /// <summary>視界ジャック用ゴースト</summary>
-        public ReactiveCommand<Transform> TargetGhost => _targetGhost;
-        /// <summary>シャウトノーツアクティブフラグ</summary>
-        public bool ShoutNoteActive => _playerModel?.ShoutNoteActive ?? false;
-        /// <summary>敵戦パート</summary>
-        public EnemyBattlePart EnemyBattlePart => _playerModel?.EnemyBattlePart ?? EnemyBattlePart.Normal;
 
         public PlayerViewModel(InteractionPartTable interactionPartTable)
         {
@@ -108,16 +92,6 @@ namespace Mains.ViewModels
             _playerModel.IsCompletedStartDirection.Subscribe(x =>
             {
                 _isCompletedStartDirection = x;
-            })
-                .AddTo(ref _disposableBag);
-            _playerModel.IsMissionClear.Subscribe(isMissionClear =>
-            {
-                _isMissionClearReactive.Execute(isMissionClear);
-            })
-                .AddTo(ref _disposableBag);
-            _playerModel.TargetGhost.Subscribe(targetGhost =>
-            {
-                _targetGhost.Execute(targetGhost);
             })
                 .AddTo(ref _disposableBag);
         }
@@ -239,12 +213,6 @@ namespace Mains.ViewModels
         {
             return searchAngleMin <= eulerAngles.x &&
                 eulerAngles.x <= searchAngleMax;
-        }
-
-        public void SetIsPostRhythmFaceOff(bool isPostRhythmFaceOff)
-        {
-            if (_playerModel != null)
-                _playerModel.SetIsPostRhythmFaceOff(isPostRhythmFaceOff);
         }
 
         public void Dispose()

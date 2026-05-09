@@ -56,12 +56,6 @@ namespace Mains.ViewModels
             return false;
         }
 
-        public void SetShoutNoteActive(bool shoutNoteActive)
-        {
-            if (_playerModel != null)
-                _playerModel.SetShoutNoteActive(shoutNoteActive);
-        }
-
         public void Dispose()
         {
             _disposableBag.Dispose();

@@ -127,7 +127,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 129101217183788500}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -501,6 +501,7 @@ MonoBehaviour:
   iconMicAlertLevel: 0.1
   shoutPowerGaugeImage: {fileID: 6626191310414242200}
   "\u30B7\u30E3\u30A6\u30C8\u30C1\u30E3\u30F3\u30B9\u30D1\u30FC\u30C8\u306E\u5171\u901A\u30D1\u30E9\u30E1\u30FC\u30BF\u7BA1\u7406\u7528\u30C6\u30FC\u30D6\u30EB": {fileID: 11400000, guid: 26cf0f7685ea1264693db1122256379b, type: 2}
+  duration: 0.3
 --- !u!1 &7901427825040424169
 GameObject:
   m_ObjectHideFlags: 0

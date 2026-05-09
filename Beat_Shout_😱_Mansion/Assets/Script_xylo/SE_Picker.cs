@@ -159,12 +159,10 @@ Move4 = "Move4";
         HitMiss5 = "HitMiss5";
         HeartbeatFast = "HeartbeatFast";
         HeartbeatSlow = "HeartbeatSlow";
-        Shouchitsu = "Shouchitsu";
-        garakuta = "garakuta";
 
 
-        // •Û‘¶‚³‚ê‚Ä‚¢‚éSE‰¹—Ê‚ğ“Ç‚İ‚Ş
-        LoadMasterSEVolume();
+    // •Û‘¶‚³‚ê‚Ä‚¢‚éSE‰¹—Ê‚ğ“Ç‚İ‚Ş
+    LoadMasterSEVolume();
     }
 
     /// <summary>

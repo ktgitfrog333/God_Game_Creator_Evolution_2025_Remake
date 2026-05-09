@@ -128,22 +128,6 @@ namespace Mains.Views
         }
 
         /// <summary>
-        /// 暗幕フェードアウト演出を呼び出す
-        /// </summary>
-        /// <see cref="Assets/Mains/TimeLines/StageClearDirection.playable"/>
-        /// <see cref="Assets/Mains/TimeLines/FadeOutDirection.signal"/>
-        public void DoPlayFadeOutDirection()
-        {
-            Observable.Create<bool>(observer =>
-            {
-                StartCoroutine(PlayFadeOutDirection(observer));
-                return Disposable.Empty;
-            })
-                .Subscribe(_ => { })
-                .AddTo(ref _disposableBag);
-        }
-
-        /// <summary>
         /// 暗幕フェードアウト演出
         /// </summary>
         /// <param name="observer">オブザーバー</param>

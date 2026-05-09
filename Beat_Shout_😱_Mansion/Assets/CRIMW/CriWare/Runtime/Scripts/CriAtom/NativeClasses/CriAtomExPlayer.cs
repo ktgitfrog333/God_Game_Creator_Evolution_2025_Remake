@@ -3310,12 +3310,9 @@ public class CriAtomExPlayer : CriDisposable
 			criAtomExPlayer_LimitLoopCount(this.handle, -3);
 		}else
 		{
-            // ▼▼ テスト用強制ハック：ループを無視（-2）のフラグを立てる ▼▼
-            criAtomExPlayer_LimitLoopCount(this.handle, -2);
-
-   //         uint CRIATOMPARAMETER2_ID_LOOP_COUNT = CriAtomPlugin.GetLoopCountParameterId();
-			//IntPtr player_parameter = criAtomExPlayer_GetPlayerParameter(this.handle);
-			//criAtomExPlayerParameter_RemoveParameter(player_parameter, CRIATOMPARAMETER2_ID_LOOP_COUNT);
+			uint CRIATOMPARAMETER2_ID_LOOP_COUNT = CriAtomPlugin.GetLoopCountParameterId();
+			IntPtr player_parameter = criAtomExPlayer_GetPlayerParameter(this.handle);
+			criAtomExPlayerParameter_RemoveParameter(player_parameter, CRIATOMPARAMETER2_ID_LOOP_COUNT);
 		}
 	}
 

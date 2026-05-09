@@ -8,7 +8,7 @@ namespace Mains.ViewModels
     /// <summary>
     /// リズムパートパネルのビューモデル
     /// </summary>
-    public class RhythmPartPanelViewModel : IRhythmPartPanelModel, System.IDisposable
+    public class RhythmPartPanelViewModel : IRhythmPartPanelModel
     {
         /// <summary>プレイヤーのモデル</summary>
         private PlayerModel _playerModel;
@@ -24,33 +24,20 @@ namespace Mains.ViewModels
         public Transform BatteryTransform => _playerModel?.BatteryTransform ?? null;
         /// <summary>MissileDirectAnimManagerBのカスタマイズ構造体</summary>
         public MissileDirectAnimCustomizeStruct[] MissileDirectAnimCustomizeStructs => _playerModel?.MissileDirectAnimCustomizeStructs ?? new MissileDirectAnimCustomizeStruct[0];
-        /// <summary>中ボスオバケ退治率</summary>
-        private ReactiveCommand<float> _midBosskillsRateReactive = new ReactiveCommand<float>();
-        /// <summary>中ボスオバケ退治率</summary>
-        public ReactiveCommand<float> MidBosskillsRateReactive => _midBosskillsRateReactive;
-        /// <summary>中ボスオバケ退治率</summary>
-        public float MidBosskillsRate => _playerModel?.MidBosskillsRate ?? 0f;
-        /// <summary>敵戦パート</summary>
-        public EnemyBattlePart EnemyBattlePart => _playerModel?.EnemyBattlePart ?? EnemyBattlePart.Normal;
-        /// <summary>R3のリソース管理</summary>
-        private DisposableBag _disposableBag = new DisposableBag();
 
         public RhythmPartPanelViewModel()
         {
-            Observable.EveryUpdate()
+            System.IDisposable disposable = null;
+            disposable = Observable.EveryUpdate()
                 .Select(_ => GameObject.FindAnyObjectByType<PlayerModel>())
                 .Where(x => x != null)
                 .Take(1)
                 .Subscribe(x =>
                 {
                     _playerModel = x;
-                    _playerModel.MidBosskillsRateReactive.Subscribe(midBosskillsRate =>
-                    {
-                        _midBosskillsRateReactive.Execute(midBosskillsRate);
-                    })
-                        .AddTo(ref _disposableBag);
-                })
-                .AddTo(ref _disposableBag);
+                    // 1度のみ実行されれば良いので破棄しても問題なし
+                    disposable.Dispose();
+                });
         }
 
         public void SetTargetCrossPosition(Vector3 targetCrossPosition)
@@ -75,11 +62,6 @@ namespace Mains.ViewModels
         {
             if (_playerModel != null)
                 _playerModel.SetTargetCrossAnchoredPosition(targetCrossAnchoredPosition);
-        }
-
-        public void Dispose()
-        {
-            _disposableBag.Dispose();
         }
     }
 }

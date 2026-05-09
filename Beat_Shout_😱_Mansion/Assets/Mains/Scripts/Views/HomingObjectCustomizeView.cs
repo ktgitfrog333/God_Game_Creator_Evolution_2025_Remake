@@ -22,8 +22,6 @@ namespace Mains.Views
         [SerializeField] private Transform badParticleSysPrefab;
         [Tooltip("オバケの3Dモデルレンダラー GhostBodyModel/ghost_normal")]
         [SerializeField] private Renderer modelRenderer;
-        /// <summary>オブジェクトをホーミングする処理のカスタマイズ設定</summary>
-        [SerializeField] private HomingObjectCustomizeSettins settins;
         /// <summary>シロさんのコンポーネントへアクセスするAPI</summary>
         private Script_xyloApi _script_XyloApi;
         /// <summary>オブジェクトをホーミングする処理のカスタマイズビューモデル</summary>
@@ -44,14 +42,10 @@ namespace Mains.Views
             var canvasTransform = GameObject.Find("OverlayCanvas").transform;
             _script_XyloApi.SetMissileDirectAnimManagerB(trans);
             _viewModel = new HomingObjectCustomizeViewModel();
-            // goodPanelPrefabとgoodParticleSysPrefabのインスタンス情報
-            (GoodPanelView, ParticleSystem) instancesGoodContents = (null, null);
             _script_XyloApi.IsSuccessfulReactive.Where(x => x)
                 .Subscribe(_ =>
                 {
-                    var instances = ShowUIPanelAtObjectPosition(goodPanelPrefab, canvasTransform, goodParticleSysPrefab, _script_XyloApi.NoteTransform, trans);
-                    instancesGoodContents.Item1 = instances.Item1.GetComponent<GoodPanelView>();
-                    instancesGoodContents.Item2 = instances.Item2.GetComponent<ParticleSystem>();
+                    ShowUIPanelAtObjectPosition(goodPanelPrefab, canvasTransform, goodParticleSysPrefab, _script_XyloApi.NoteTransform, trans);
                     DoSubtractionTransactionGhostInStaticObjectStruct(_viewModel);
                     _script_XyloApi.PlayHitSuccess3();
                 })
@@ -88,74 +82,6 @@ namespace Mains.Views
                     }
                 })
                 .AddTo(ref _disposableBag);
-            // クリア済みなら再生中の演出を無効にする
-            _viewModel.IsMissionClear.Where(x => x)
-                .Subscribe(_ =>
-                {
-                    Observable.EveryUpdate()
-                        .Select(_ => instancesGoodContents.Item1)
-                        .Where(x => x != null &&
-                            x.gameObject.activeSelf &&
-                            x.IsPlaying)
-                        .Take(1)
-                        .Subscribe(view =>
-                        {
-                            view.StopAnimation();
-                        })
-                        .AddTo(ref _disposableBag);
-                    Observable.EveryUpdate()
-                        .Select(_ => instancesGoodContents.Item2)
-                        .Where(x => x != null &&
-                            x.gameObject.activeSelf &&
-                                (x.isPlaying || x.IsAlive()))
-                        .Take(1)
-                        .Subscribe(particleSys =>
-                        {
-                            particleSys.gameObject.SetActive(false);
-                        })
-                        .AddTo(ref _disposableBag);
-                })
-                .AddTo(ref _disposableBag);
-            // Script_xyloApi.耐久率UI表示フラグが有効の場合、DurabilityRatePanelプレハブのクローンを生成する（子要素として生成）
-            _script_XyloApi.DurabilityRateTarget.Subscribe(_ =>
-            {
-                var table = settins.homingObjectCustomizeTable;
-                var noteTransform = _script_XyloApi.NoteTransform as RectTransform;
-                RectTransform durabilityRatePanelInstance = ShowUIPanelAtObjectPosition(table.durabilityRatePanelPrefab, canvasTransform, noteTransform, trans);
-                DurabilityRatePanelView durabilityRatePanelView = durabilityRatePanelInstance.GetComponent<DurabilityRatePanelView>();
-                _script_XyloApi.Score.Pairwise()
-                    .Subscribe(score =>
-                    {
-                        int from = 0 <= score.Previous ? score.Previous : 0;
-                        int to = 0 <= score.Current ? score.Current : 0;
-                        durabilityRatePanelView.PlayDurabilityAnimation(from, to, .25f);
-                    })
-                    .AddTo(ref _disposableBag);
-                Observable.EveryUpdate()
-                    .Subscribe(_ =>
-                    {
-                        var noteAnchoredPosition = noteTransform.anchoredPosition;
-                        durabilityRatePanelInstance.anchoredPosition = noteAnchoredPosition;
-                        var noteLocalScale = noteTransform.localScale;
-                        durabilityRatePanelInstance.localScale = noteLocalScale;
-                    })
-                    .AddTo(ref _disposableBag);
-                noteTransform.OnEnableAsObservable()
-                    .Subscribe(_ =>
-                    {
-                        if (!durabilityRatePanelInstance.gameObject.activeSelf)
-                            durabilityRatePanelInstance.gameObject.SetActive(true);
-                    })
-                    .AddTo(ref _disposableBag);
-                noteTransform.OnDisableAsObservable()
-                    .Subscribe(_ =>
-                    {
-                        if (durabilityRatePanelInstance.gameObject.activeSelf)
-                            durabilityRatePanelInstance.gameObject.SetActive(false);
-                    })
-                    .AddTo(ref _disposableBag);
-            })
-                .AddTo(ref _disposableBag);
         }
 
         private void OnDestroy()
@@ -173,7 +99,7 @@ namespace Mains.Views
         /// <param name="particleSysPrefab">パーティクルプレハブ</param>
         /// <param name="noteTransform">UIトランスフォーム</param>
         /// <param name="trans">トランスフォーム</param>
-        private (RectTransform, Transform) ShowUIPanelAtObjectPosition(Transform uiPrefab, Transform canvasTransform, Transform particleSysPrefab, Transform noteTransform, Transform trans)
+        private void ShowUIPanelAtObjectPosition(Transform uiPrefab, Transform canvasTransform, Transform particleSysPrefab, Transform noteTransform, Transform trans)
         {
             // UIを生成
             Transform instance = Instantiate(uiPrefab, canvasTransform);
@@ -192,28 +118,6 @@ namespace Mains.Views
             // 新しい回転を作成
             Quaternion finalRotation = Quaternion.Euler(euler);
             Transform particleInstance = Instantiate(particleSysPrefab, trans.position, finalRotation);
-
-            (RectTransform, Transform) instances = (rectTransform, particleInstance);
-            return instances;
-        }
-
-        /// <summary>
-        /// オブジェクトをベースにCanvasの座標へ変換して、プレハブをインスタンス
-        /// </summary>
-        /// <param name="uiPrefab">UIプレハブ</param>
-        /// <param name="canvasTransform">キャンバストランスフォーム</param>
-        /// <param name="particleSysPrefab">パーティクルプレハブ</param>
-        /// <param name="noteTransform">UIトランスフォーム</param>
-        /// <param name="trans">トランスフォーム</param>
-        private RectTransform ShowUIPanelAtObjectPosition(Transform uiPrefab, Transform canvasTransform, Transform noteTransform, Transform trans)
-        {
-            // UIを生成
-            Transform instance = Instantiate(uiPrefab, canvasTransform);
-            RectTransform rectTransform = instance.GetComponent<RectTransform>();
-            var noteAnchoredPosition = (noteTransform as RectTransform).anchoredPosition;
-            rectTransform.anchoredPosition = noteAnchoredPosition;
-
-            return rectTransform;
         }
 
         /// <summary>
@@ -239,15 +143,5 @@ namespace Mains.Views
                 modelRenderer.material.SetColor("_RimLight_Color", color);
             }
         }
-    }
-
-    /// <summary>
-    /// オブジェクトをホーミングする処理のカスタマイズ設定
-    /// </summary>
-    [System.Serializable]
-    public class HomingObjectCustomizeSettins
-    {
-        /// <summary>オブジェクトをホーミングする処理のカスタマイズテーブル</summary>
-        public HomingObjectCustomizeTable homingObjectCustomizeTable;
     }
 }

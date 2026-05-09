@@ -66,14 +66,10 @@ namespace Mains.Views
                     yield return new WaitForSeconds(0.125f);
                 }
 
-                var viewModel = _shoutChancePartPanelViewModel;
                 switch (_shoutChancePartPanelViewModel.InteractionPart.Value)
                 {
                     case Commons.InteractionPart.Rhythm:
-                        if (!viewModel.ShoutNoteActive)
-                        {
-                            centerPanel.gameObject.SetActive(false);
-                        }
+                        centerPanel.gameObject.SetActive(false);
 
                         break;
                 }

@@ -221,8 +221,6 @@ public class HomingObject : MonoBehaviour
         }
         else
         {
-
-       
             // 移動フェーズの更新
             UpdateMovement();
 
