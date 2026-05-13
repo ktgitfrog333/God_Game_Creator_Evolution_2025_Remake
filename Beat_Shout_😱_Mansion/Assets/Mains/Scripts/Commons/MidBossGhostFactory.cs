@@ -22,6 +22,8 @@ namespace Mains.Commons
                 customShoutRadius = 0f,
                 soundOutputType = SoundOutputType.TableDefault,
                 role = GhostRole.MidBoss,
+                ghostModelType = GhostModelType.ghost_model_normal_type,
+                ghostVoiceType = GhostVoiceType.ghost_voice_normal_type,
             };
         }
 
@@ -38,6 +40,8 @@ namespace Mains.Commons
                 customShoutRadius = baseData.customShoutRadius,
                 soundOutputType = baseData.soundOutputType,
                 role = GhostRole.MidBoss,
+                ghostModelType = baseData.ghostModelType,
+                ghostVoiceType = baseData.ghostVoiceType,
             };
         }
     }

@@ -1,0 +1,145 @@
+using Mains.Commons;
+using UnityEngine;
+
+namespace Mains.Tests
+{
+    /// <summary>
+    /// NormalGhostFactoryのテスト
+    /// </summary>
+    public class NormalGhostFactoryTest : MonoBehaviour
+    {
+        [SerializeField] private StubSO stubSO;
+
+        private void Start()
+        {
+            Debug.Log($"NormalGhostFactoryTest Start");
+            Debug.Log($" - Section 0");
+            Init();
+            Execute();
+            Debug.Log($" - Section 1");
+            Init1();
+            Execute1();
+            Debug.Log($"NormalGhostFactoryTest End");
+        }
+
+        private void Init()
+        {
+            var stub = stubSO.commons.normalGhostFactory.CreateEmpty呼び出し時に初期値になること;
+            var inputs = stub.inputs;
+            var outputs = stub.outputs;
+            if (inputs.Length == outputs.Length)
+            {
+                for (int i = 0; i < inputs.Length; i++)
+                {
+                    int caseId = i;
+                    GhostInStaticObjectStruct target = inputs[caseId].ghostInStaticObjectStruct;
+                    var ghostTeamID = inputs[caseId].ghostTeamID;
+                    target.ghostTeamID.Value = ghostTeamID;
+                }
+                for (int i = 0; i < outputs.Length; i++)
+                {
+                    int caseId = i;
+                    GhostInStaticObjectStruct target = outputs[caseId].ghostInStaticObjectStruct;
+                    var ghostTeamID = outputs[caseId].ghostTeamID;
+                    target.ghostTeamID.Value = ghostTeamID;
+                }
+            }
+        }
+
+        private void Init1()
+        {
+            var stub = stubSO.commons.normalGhostFactory.CreateFrom呼び出し時にbaseの値になること;
+            var inputs = stub.inputs;
+            var outputs = stub.outputs;
+            if (inputs.Length == outputs.Length)
+            {
+                for (int i = 0; i < inputs.Length; i++)
+                {
+                    int caseId = i;
+                    GhostInStaticObjectStruct target = inputs[caseId].ghostInStaticObjectStruct;
+                    var ghostTeamID = inputs[caseId].ghostTeamID;
+                    target.ghostTeamID.Value = ghostTeamID;
+                }
+                for (int i = 0; i < outputs.Length; i++)
+                {
+                    int caseId = i;
+                    GhostInStaticObjectStruct target = outputs[caseId].ghostInStaticObjectStruct;
+                    var ghostTeamID = outputs[caseId].ghostTeamID;
+                    target.ghostTeamID.Value = ghostTeamID;
+                }
+            }
+        }
+
+        private void Execute()
+        {
+            var stub = stubSO.commons.normalGhostFactory.CreateEmpty呼び出し時に初期値になること;
+            var inputs = stub.inputs;
+            var outputs = stub.outputs;
+            if (inputs.Length == outputs.Length)
+            {
+                for (int i = 0; i < inputs.Length; i++)
+                {
+                    int caseId = i;
+                    IGhostStructFactory factory = new NormalGhostFactory();
+                    GhostInStaticObjectStruct target = inputs[caseId].ghostInStaticObjectStruct;
+                    var newStruct = factory.CreateEmpty(target);
+                    var expected = outputs[caseId].ghostInStaticObjectStruct;
+                    var actual = newStruct;
+                    var result = expected.poltergeistViewID == actual.poltergeistViewID &&
+                        expected.ghostTeamID != null &&
+                        actual.ghostTeamID != null &&
+                        expected.ghostTeamID.Value.Equals(actual.ghostTeamID.Value) &&
+                        expected.useStatus.Equals(actual.useStatus) &&
+                        expected.membersCount == actual.membersCount &&
+                        expected.attackType.Equals(actual.attackType) &&
+                        expected.moveType.Equals(actual.moveType) &&
+                        expected.customShoutRadius == actual.customShoutRadius &&
+                        expected.soundOutputType.Equals(actual.soundOutputType) &&
+                        expected.role.Equals(actual.role) &&
+                        expected.ghostModelType.Equals(actual.ghostModelType) &&
+                        expected.ghostVoiceType.Equals(actual.ghostVoiceType);
+                    if (result)
+                        Debug.Log($" -- caseId: [{caseId}] Success");
+                    else
+                        Debug.LogError($" -- caseId: [{caseId}] Faild");
+                }
+            }
+        }
+
+        private void Execute1()
+        {
+            var stub = stubSO.commons.normalGhostFactory.CreateFrom呼び出し時にbaseの値になること;
+            var inputs = stub.inputs;
+            var outputs = stub.outputs;
+            if (inputs.Length == outputs.Length)
+            {
+                for (int i = 0; i < inputs.Length; i++)
+                {
+                    int caseId = i;
+                    IGhostStructFactory factory = new NormalGhostFactory();
+                    GhostInStaticObjectStruct target = inputs[caseId].ghostInStaticObjectStruct;
+                    var newStruct = factory.CreateFrom(target);
+                    var expected = outputs[caseId].ghostInStaticObjectStruct;
+                    var actual = newStruct;
+                    var result = expected.poltergeistViewID == actual.poltergeistViewID &&
+                        expected.ghostTeamID != null &&
+                        actual.ghostTeamID != null &&
+                        expected.ghostTeamID.Value.Equals(actual.ghostTeamID.Value) &&
+                        expected.useStatus.Equals(actual.useStatus) &&
+                        expected.membersCount == actual.membersCount &&
+                        expected.attackType.Equals(actual.attackType) &&
+                        expected.moveType.Equals(actual.moveType) &&
+                        expected.customShoutRadius == actual.customShoutRadius &&
+                        expected.soundOutputType.Equals(actual.soundOutputType) &&
+                        expected.role.Equals(actual.role) &&
+                        expected.ghostModelType.Equals(actual.ghostModelType) &&
+                        expected.ghostVoiceType.Equals(actual.ghostVoiceType);
+                    if (result)
+                        Debug.Log($" -- caseId: [{caseId}] Success");
+                    else
+                        Debug.LogError($" -- caseId: [{caseId}] Faild");
+                }
+            }
+        }
+    }
+}

@@ -69,6 +69,18 @@ namespace Mains.ViewModels
                 _playerModel.SetIsFailed(isFailed);
         }
 
+        /// <summary>
+        /// 現在のトランザクション中のオバケボイスタイプを取得する
+        /// </summary>
+        public GhostVoiceType CurrentGhostVoiceType =>
+            _playerModel?.TransactionGhostInStaticObjectStruct.ghostVoiceType ?? GhostVoiceType.ghost_voice_normal_type;
+
+        /// <summary>
+        /// 現在のトランザクション中のオバケモデルタイプを取得する
+        /// </summary>
+        public GhostModelType CurrentGhostModelType =>
+            _playerModel?.TransactionGhostInStaticObjectStruct.ghostModelType ?? GhostModelType.ghost_model_normal_type;
+
         public void Dispose()
         {
             _disposableBag.Dispose();

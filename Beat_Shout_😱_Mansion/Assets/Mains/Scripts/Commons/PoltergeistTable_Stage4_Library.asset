@@ -36,3 +36,17 @@ MonoBehaviour:
     targetkillsRate: 0.8
     checkClearStruct:
       enemyBattlePart: 1
+    ghostModelTypePrefabSettings:
+      missGhostEscapePrefabMappings:
+      - ghostModelType: 0
+        prefab: {fileID: 1027239793714559372, guid: f57dd99553cf3954582c4d66680a9f05, type: 3}
+      - ghostModelType: 1
+        prefab: {fileID: 9121456503968643796, guid: da543d28ce827ce4b890e26d2eb567e5, type: 3}
+      - ghostModelType: 2
+        prefab: {fileID: 9121456503968643796, guid: a7128d3608510f6449133627af369096, type: 3}
+      - ghostModelType: 3
+        prefab: {fileID: 9121456503968643796, guid: 905ee85ce9f9a21448b8ae9c1c36f047, type: 3}
+      - ghostModelType: 4
+        prefab: {fileID: 9121456503968643796, guid: 48e9a5630bac7fd4e96b1041033049d3, type: 3}
+      - ghostModelType: 5
+        prefab: {fileID: 9121456503968643796, guid: aa5629d688b038342b2195f0148eb8bd, type: 3}

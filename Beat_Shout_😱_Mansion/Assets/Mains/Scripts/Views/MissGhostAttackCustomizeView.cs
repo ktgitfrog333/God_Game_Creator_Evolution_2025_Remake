@@ -16,6 +16,8 @@ namespace Mains.Views
         [SerializeField] private BoxCollider boxCollider;
         /// <summary>シロさんのコンポーネントへアクセスするAPI</summary>
         private Script_xyloApi _script_XyloApi;
+        /// <summary>MissGhostAttackのカスタマイズビューモデル</summary>
+        private MissGhostAttackCustomizeViewModel _viewModel;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -23,6 +25,19 @@ namespace Mains.Views
         {
             if (boxCollider == null)
                 boxCollider = GetComponent<BoxCollider>();
+        }
+
+        private void Awake()
+        {
+            _viewModel = new MissGhostAttackCustomizeViewModel();
+            MissGhostAttackCustomizeViewModel viewModel = _viewModel;
+            // OnEnable時にモデルタイプに応じたFBX表示切替
+            this.OnEnableAsObservable()
+                .Subscribe(_ =>
+                {
+                    SwitchGhostModel(viewModel.CurrentGhostModelType);
+                })
+                .AddTo(ref _disposableBag);
         }
 
         private void Start()
@@ -35,7 +50,7 @@ namespace Mains.Views
                     trans.LookAt(camera.position);
                 })
                 .AddTo(ref _disposableBag);
-            MissGhostAttackCustomizeViewModel viewModel = new MissGhostAttackCustomizeViewModel();
+            MissGhostAttackCustomizeViewModel viewModel = _viewModel;
             Observable.EveryUpdate()
                 .Select(_ => viewModel.InteractionPart)
                 .Where(x => x != null)
@@ -94,6 +109,7 @@ namespace Mains.Views
         {
             _disposableBag.Dispose();
             _script_XyloApi?.Dispose();
+            _viewModel?.Dispose();
         }
 
         /// <summary>
@@ -103,6 +119,47 @@ namespace Mains.Views
         private void SubtractionPlayerHealth(MissGhostAttackCustomizeViewModel viewModel)
         {
             viewModel.SetIsBadEndRhythmPart(true);
+        }
+
+        /// <summary>
+        /// モデルタイプに応じて子モデルを切り替える
+        /// </summary>
+        /// <param name="modelType">オバケモデルタイプ</param>
+        private void SwitchGhostModel(Commons.GhostModelType modelType)
+        {
+            // GhostBodyModelを探す
+            Transform ghostBodyModel = null;
+            foreach (Transform child in transform)
+            {
+                if (child.name.Equals("GhostBodyModel"))
+                {
+                    ghostBodyModel = child;
+
+                    break;
+                }
+            }
+            if (ghostBodyModel == null || ghostBodyModel.childCount < 1)
+                return;
+
+            string targetName = modelType.ToString();
+            bool found = false;
+
+            for (int i = 0; i < ghostBodyModel.childCount; i++)
+            {
+                var child = ghostBodyModel.GetChild(i);
+                bool isTarget = child.name.Equals(targetName);
+                child.gameObject.SetActive(isTarget);
+                if (isTarget)
+                {
+                    found = true;
+                }
+            }
+
+            // 該当モデルが見つからない場合はデフォルト（最初の子）を表示
+            if (!found && ghostBodyModel.childCount > 0)
+            {
+                ghostBodyModel.GetChild(0).gameObject.SetActive(true);
+            }
         }
     }
 }

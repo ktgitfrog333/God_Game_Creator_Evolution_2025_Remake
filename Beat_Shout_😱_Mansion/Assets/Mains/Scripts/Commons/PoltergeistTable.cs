@@ -1,5 +1,7 @@
 using ObservableCollections;
 using R3;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Mains.Commons
@@ -24,6 +26,30 @@ namespace Mains.Commons
         public Transform missGhostEscapePrefab;
         /// <summary>ポルターガイストの発生位置</summary>
         public PoltergeistTableSubSettings subSettings;
+
+        /// <summary>
+        /// モデルタイプに応じたプレハブを取得する
+        /// </summary>
+        /// <param name="mappings">マッピングリスト</param>
+        /// <param name="modelType">オバケモデルタイプ</param>
+        /// <returns>対応するプレハブ（見つからない場合はnull）</returns>
+        public Transform GetPrefabByModelType(List<GhostModelTypePrefabMapping> mappings, GhostModelType modelType)
+        {
+            var mapping = mappings.FirstOrDefault(m => m.ghostModelType == modelType);
+            return mapping != null ? mapping.prefab : null;
+        }
+    }
+
+    /// <summary>
+    /// オバケモデルタイプとプレハブの紐付け
+    /// </summary>
+    [System.Serializable]
+    public class GhostModelTypePrefabMapping
+    {
+        /// <summary>オバケモデルタイプ</summary>
+        public GhostModelType ghostModelType;
+        /// <summary>対応するプレハブ</summary>
+        public Transform prefab;
     }
 
     /// <summary>
@@ -93,6 +119,21 @@ namespace Mains.Commons
         {
             /// <summary>敵戦パート</summary>
             public EnemyBattlePart enemyBattlePart;
+        }
+
+        [Header("オバケモデルタイプ別プレハブマッピング")]
+        /// <summary>オバケモデルタイプ別プレハブ設定</summary>
+        public GhostModelTypePrefabSettings ghostModelTypePrefabSettings;
+
+        /// <summary>
+        /// オバケモデルタイプ別プレハブ設定
+        /// </summary>
+        [System.Serializable]
+        public class GhostModelTypePrefabSettings
+        {
+
+            [Tooltip("探索パート：モデルタイプ別の逃走用オバケプレハブ")]
+            public List<GhostModelTypePrefabMapping> missGhostEscapePrefabMappings = new List<GhostModelTypePrefabMapping>();
         }
     }
 }

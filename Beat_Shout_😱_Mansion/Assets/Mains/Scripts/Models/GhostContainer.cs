@@ -86,6 +86,8 @@ namespace Mains.Models
                 nextGhostInStaticObjectStruct.customShoutRadius = target.customShoutRadius;
                 nextGhostInStaticObjectStruct.soundOutputType = target.soundOutputType;
                 nextGhostInStaticObjectStruct.role = target.role;
+                nextGhostInStaticObjectStruct.ghostModelType = target.ghostModelType;
+                nextGhostInStaticObjectStruct.ghostVoiceType = target.ghostVoiceType;
                 Ghosts[randomIndex] = nextGhostInStaticObjectStruct;
 
                 Reset(target);

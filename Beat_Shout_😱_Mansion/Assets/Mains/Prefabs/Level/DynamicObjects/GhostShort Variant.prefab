@@ -382,6 +382,8 @@ MonoBehaviour:
   badPanelPrefab: {fileID: 6422276594484730783, guid: cd28cda1a4be09d4392a6101c263fe71, type: 3}
   badParticleSysPrefab: {fileID: 1394655228571085345, guid: 0a0cdc51eb3927540a6329db734f0458, type: 3}
   modelRenderer: {fileID: 1523247472436742953}
+  settins:
+    homingObjectCustomizeTable: {fileID: 0}
 --- !u!114 &1610384640426063018
 MonoBehaviour:
   m_ObjectHideFlags: 0

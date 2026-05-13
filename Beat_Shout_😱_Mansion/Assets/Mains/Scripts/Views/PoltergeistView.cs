@@ -266,6 +266,8 @@ namespace Mains.Views
                             ghostInStaticObjectStruct.customShoutRadius = x.NewValue.customShoutRadius;
                             ghostInStaticObjectStruct.soundOutputType = x.NewValue.soundOutputType;
                             ghostInStaticObjectStruct.role = x.NewValue.role;
+                            ghostInStaticObjectStruct.ghostModelType = x.NewValue.ghostModelType;
+                            ghostInStaticObjectStruct.ghostVoiceType = x.NewValue.ghostVoiceType;
                             var soundOutputType = ghostInStaticObjectStruct.soundOutputType;
                             switch (soundOutputType)
                             {
@@ -371,19 +373,23 @@ namespace Mains.Views
             // リズムパートが終了⇒フェードインアウト完了⇒家具とプレイヤーがお互い向き合っている状態を監視
             _poltergeistViewModel.IsPostRhythmFaceOff.Where(x => x &&
                 // 直前にオバケが隠れていたかの判定をつけて全ての家具が対象にならないようにする
-                _poltergeistViewModel.IsMoveGhostDirectionTarget)
-                .Subscribe(_ =>
+                _poltergeistViewModel.MoveTargetGhostDirection != null)
+                .Select(_ => _poltergeistViewModel.MoveTargetGhostDirection)
+                .Subscribe(ghostInStaticObjectStruct =>
                 {
                     // 移動用オバケプレハブ（生成済み）
                     Transform instanceMissGhostEscape = null;
-                    var direction = PlayMoveGhostDirection(poltergeistTable.missGhostEscapePrefab, _missGhostEscapePosition, _missGhostEscapeEulerAngles, _transform, _script_XyloApi,
+                    var modelType = ghostInStaticObjectStruct.ghostModelType;
+                    var escapePrefab = GetMissGhostEscapePrefab(modelType);
+                    var voiceType = ghostInStaticObjectStruct.ghostVoiceType;
+                    var direction = PlayMoveGhostDirection(escapePrefab, _missGhostEscapePosition, _missGhostEscapeEulerAngles, _transform, _script_XyloApi, voiceType,
                         _poltergeistViewModel, instanceMissGhostEscape);
                     playMoveGhostDirectionDisposable = direction.Take(1)
                         .Subscribe(_ =>
                         {
                             _poltergeistViewModel.SetTargetGhost(null);
                             _poltergeistViewModel.SetIsCompletedMoveGhostDirection(true);
-                            _poltergeistViewModel.SetIsMoveGhostDirectionTarget(false);
+                            _poltergeistViewModel.SetMoveTargetGhostDirection(null);
                         })
                         .AddTo(ref _disposableBag);
                     // リズムパートへ移行した際に実行中なら中断する（再び呼ばれることがあった場合は最初から再生）
@@ -396,7 +402,7 @@ namespace Mains.Views
                                 instanceMissGhostEscape.gameObject.SetActive(false);
                             playMoveGhostDirectionDisposable.Dispose();
                             _poltergeistViewModel.SetTargetGhost(null);
-                            _poltergeistViewModel.SetIsMoveGhostDirectionTarget(false);
+                            _poltergeistViewModel.SetMoveTargetGhostDirection(null);
                         })
                         .AddTo(ref _disposableBag);
                 })
@@ -627,16 +633,20 @@ namespace Mains.Views
                         
                         // ターゲットを自分に設定し、演出対象であることをViewModelに通知
                         _poltergeistViewModel.SetTargetGhost(_transform);
-                        _poltergeistViewModel.SetIsMoveGhostDirectionTarget(true);
+                        _poltergeistViewModel.SetMoveTargetGhostDirection(ghostInStaticObjectStruct);
 
                         // 逃げる演出を呼び出し
                         Transform instanceMissGhostEscape = null;
+                        var modelType = ghostInStaticObjectStruct.ghostModelType;
+                        var escapePrefab = GetMissGhostEscapePrefab(modelType);
+                        var voiceType = ghostInStaticObjectStruct.ghostVoiceType;
                         var direction = PlayMoveGhostDirection(
-                            poltergeistTable.missGhostEscapePrefab, 
+                            escapePrefab, 
                             _missGhostEscapePosition, 
                             _missGhostEscapeEulerAngles, 
                             _transform, 
                             _script_XyloApi,
+                            voiceType,
                             _poltergeistViewModel, 
                             instanceMissGhostEscape
                         );
@@ -646,7 +656,7 @@ namespace Mains.Views
                             // 演出完了後
                             _poltergeistViewModel.SetTargetGhost(null);
                             _poltergeistViewModel.SetIsCompletedMoveGhostDirection(true);
-                            _poltergeistViewModel.SetIsMoveGhostDirectionTarget(false);
+                            _poltergeistViewModel.SetMoveTargetGhostDirection(null);
                             
                             // 実際の引っ越し処理を実行
                             ShuffleNewStaticObject();
@@ -948,7 +958,7 @@ namespace Mains.Views
                         else
                         {
                             _poltergeistViewModel.SetIsCompletedRhythmPart(2);
-                            _poltergeistViewModel.SetIsMoveGhostDirectionTarget(true);
+                            _poltergeistViewModel.SetMoveTargetGhostDirection(ghostInStaticObjectStruct);
                         }
                     })
                     .AddTo(ref _disposableBag)
@@ -971,7 +981,7 @@ namespace Mains.Views
                     .Subscribe(_ =>
                     {
                         _poltergeistViewModel.SetIsCompletedRhythmPart(2);
-                        _poltergeistViewModel.SetIsMoveGhostDirectionTarget(true);
+                        _poltergeistViewModel.SetMoveTargetGhostDirection(ghostInStaticObjectStruct);
                     })
                     .AddTo(ref _disposableBag)
             );
@@ -1263,10 +1273,11 @@ namespace Mains.Views
         /// <param name="missGhostEscapeEulerAngles">移動用オバケ生成角度</param>
         /// <param name="trans">トランスフォーム</param>
         /// <param name="script_XyloApi">シロさんのコンポーネントへアクセスするAPI</param>
+        /// <param name="ghostVoiceType">オバケボイスタイプ（SE差分）</param>
         /// <param name="poltergeistViewModel">ポルターガイストのビューモデル</param>
         /// <param name="instanceMissGhostEscape">移動用オバケプレハブ（生成済み）</param>
         /// <returns>オブザーバブル</returns>
-        private Observable<Unit> PlayMoveGhostDirection(Transform missGhostEscapePrefab, Vector3 missGhostEscapePosition, Vector3 missGhostEscapeEulerAngles, Transform trans, Script_xyloApi script_XyloApi,
+        private Observable<Unit> PlayMoveGhostDirection(Transform missGhostEscapePrefab, Vector3 missGhostEscapePosition, Vector3 missGhostEscapeEulerAngles, Transform trans, Script_xyloApi script_XyloApi, GhostVoiceType ghostVoiceType,
             PoltergeistViewModel poltergeistViewModel, Transform instanceMissGhostEscape)
         {
             return Observable.Create<Unit>(observer =>
@@ -1287,8 +1298,8 @@ namespace Mains.Views
                     .Take(1)
                     .Subscribe(_ =>
                     {
-                        // オバケ笑い声SE再生機能の追加
-                        script_XyloApi.PlayGhostLaugh3();
+                        // オバケ笑い声SE再生機能の追加（ボイスタイプ分岐）
+                        script_XyloApi.PlayGhostLaughByVoiceType(ghostVoiceType);
                         observer.OnNext(Unit.Default);
                         observer.OnCompleted();
                     })
@@ -1429,7 +1440,8 @@ namespace Mains.Views
                 if (dist <= _motorView.MaxDistance)
                 {
                     float intensity = Mathf.Clamp01(1f - (dist / _motorView.MaxDistance));
-                    t3DSoundPlayer.PlaySound("GhostLaugh3", intensity);
+                    string seName = Script_xyloApi.GetGhostLaughSEName(ghostInStaticObjectStruct.ghostVoiceType);
+                    t3DSoundPlayer.PlaySound(seName, intensity);
 
                     // エコー再生処理
                     if (enableEcho && dist <= shoutRadius * laughSettings.echoDistanceThresholdRatio)
@@ -1441,13 +1453,24 @@ namespace Mains.Views
                                 // オブジェクトが有効か再確認
                                 if (_motorView != null && _motorView.IsEnabledPoltergeist)
                                 {
-                                    t3DSoundPlayer.PlaySound("GhostLaugh3", echoIntensity);
+                                    t3DSoundPlayer.PlaySound(seName, echoIntensity);
                                 }
                             })
                             .AddTo(ref _disposableBag);
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// モデルタイプ別の逃走用オバケプレハブを取得する
+        /// </summary>
+        /// <param name="modelType">オバケモデルタイプ（FBX差分）</param>
+        /// <returns>対応するプレハブ（マッピングに存在しない場合はデフォルトのmissGhostEscapePrefab）</returns>
+        private Transform GetMissGhostEscapePrefab(GhostModelType modelType)
+        {
+            var mappedPrefab = poltergeistTable.GetPrefabByModelType(poltergeistTable.subSettings.ghostModelTypePrefabSettings.missGhostEscapePrefabMappings, modelType);
+            return mappedPrefab != null ? mappedPrefab : poltergeistTable.missGhostEscapePrefab;
         }
     }
 
