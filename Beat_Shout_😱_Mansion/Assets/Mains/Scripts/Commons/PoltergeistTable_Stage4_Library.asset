@@ -24,9 +24,10 @@ MonoBehaviour:
     defaultShoutRadius: 1.5
     defaultSoundOutputType: 1
     laughSettings:
-      baseInterval: 1
-      slowDownStartCount: 3
-      slowDownIncrement: 1
+      firstInterval: 1
+      firstStartCount: 1
+      secondInterval: 2.5
+      secondStartCount: 2
       maxInterval: 5
       echoDistanceThresholdRatio: 0.8
       echoDelay: 0.3

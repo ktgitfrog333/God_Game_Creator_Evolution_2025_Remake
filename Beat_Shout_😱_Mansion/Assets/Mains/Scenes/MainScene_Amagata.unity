@@ -725,6 +725,30 @@ PrefabInstance:
       propertyPath: m_Name
       value: Stage_0
       objectReference: {fileID: 0}
+    - target: {fileID: 3992349890545659507, guid: 81f59d4cdbdd59f46a224abdfddc4e86, type: 3}
+      propertyPath: ghostInStaticObjectStruct.useStatus
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3992349890545659507, guid: 81f59d4cdbdd59f46a224abdfddc4e86, type: 3}
+      propertyPath: ghostInStaticObjectStruct.membersCount
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5180443509854826240, guid: 81f59d4cdbdd59f46a224abdfddc4e86, type: 3}
+      propertyPath: ghostInStaticObjectStruct.useStatus
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5180443509854826240, guid: 81f59d4cdbdd59f46a224abdfddc4e86, type: 3}
+      propertyPath: ghostInStaticObjectStruct.membersCount
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5964474074711809783, guid: 81f59d4cdbdd59f46a224abdfddc4e86, type: 3}
+      propertyPath: ghostInStaticObjectStruct.membersCount
+      value: 24
+      objectReference: {fileID: 0}
+    - target: {fileID: 5964474074711809783, guid: 81f59d4cdbdd59f46a224abdfddc4e86, type: 3}
+      propertyPath: ghostInStaticObjectStruct.soundOutputType
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7038912477566225353, guid: 81f59d4cdbdd59f46a224abdfddc4e86, type: 3}
       propertyPath: m_SceneBindings.Array.data[1].value
       value: 

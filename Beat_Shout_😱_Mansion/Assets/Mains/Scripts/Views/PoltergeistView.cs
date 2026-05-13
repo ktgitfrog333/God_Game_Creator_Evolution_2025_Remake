@@ -95,6 +95,24 @@ namespace Mains.Views
         private ObjectsPoolView _objectsPoolView;
         /// <summary>オブジェクトプールビュー</summary>
         private ObjectsPoolView ObjectsPoolView => _objectsPoolView != null ? _objectsPoolView : _objectsPoolView = GameObject.FindAnyObjectByType<ObjectsPoolView>();
+        /// <summary>
+        /// 笑い声再生間隔のタイプ
+        /// </summary>
+        private enum LaughPhase
+        {
+            /// <summary>初回：1秒間隔で1回</summary>
+            First,
+            /// <summary>2回目～：2.5秒間隔で3回</summary>
+            Second,
+            /// <summary>最終：5秒間隔で無制限</summary>
+            Final,
+        }
+        /// <summary>笑い声再生間隔のタイプ</summary>
+        private LaughPhase _currentLaughPhase = LaughPhase.First;
+        /// <summary>現在のフェーズで残り何回まで連続再生するか（-1は無制限）</summary>
+        private int _remainingRepeatsInPhase;
+        /// <summary>現在のフェーズでの再生間隔（秒）</summary>
+        private float _currentLaughInterval;
 
         private void Reset()
         {
@@ -287,7 +305,6 @@ namespace Mains.Views
                             StopSoundOutputBehavior();
                             if (x.NewValue.useStatus == UseStatus.Using)
                             {
-                                StartSoundOutputBehavior(soundOutputType);
                                 if (x.NewValue.moveType == MoveType.Patrol)
                                 {
                                     StartPatrolTimer();
@@ -361,13 +378,26 @@ namespace Mains.Views
                         // 該当パートに戻ったらタイマー再開
                         StartPatrolTimer();
                     }
-                } 
+                }
                 else if (part == InteractionPart.Rhythm)
                 {
                     // リズムパート時は一時停止
                     PausePatrolTimer();
+                    StopSoundOutputBehavior();
                 }
             }).AddTo(ref _disposableBag);
+            _poltergeistViewModel.InteractionPartReactive.Pairwise()
+                .Subscribe(part =>
+                {
+                    var prev = part.Previous;
+                    var current = part.Current;
+                    if (prev == InteractionPart.Rhythm &&
+                        current != InteractionPart.Rhythm)
+                    {
+                        StartSoundOutputBehavior(soundOutputType);
+                    }
+                })
+                .AddTo(ref _disposableBag);
             // オバケ移動演出の再生完了を監視する
             System.IDisposable playMoveGhostDirectionDisposable = null;
             // リズムパートが終了⇒フェードインアウト完了⇒家具とプレイヤーがお互い向き合っている状態を監視
@@ -1332,7 +1362,7 @@ namespace Mains.Views
                     _motorView.OnActionAsObservable.Where(x => x)
                         .Subscribe(_ =>
                         {
-                            PlayLaughSE(shoutRadius, laughSettings, false);
+                            PlayLaughSE(laughSettings);
                         })
                         .AddTo(d);
                 }
@@ -1340,9 +1370,16 @@ namespace Mains.Views
 
             if (soundOutputType == SoundOutputType.Loop || soundOutputType == SoundOutputType.ReactiveStatic)
             {
-                int laughCount = 0;
-                float currentInterval = laughSettings.baseInterval;
-                float timer = currentInterval;
+                // ★ 状態を初期化（範囲外リセット用）
+                void ResetLaughSequence()
+                {
+                    _currentLaughPhase = LaughPhase.First;
+                    _remainingRepeatsInPhase = laughSettings.firstStartCount;               // 初回フェーズ：1回のみ
+                    _currentLaughInterval = laughSettings.firstInterval;
+                }
+                ResetLaughSequence();
+
+                float timer = _currentLaughInterval;
                 Vector3 lastPos = Vector3.zero;
 
                 Observable.EveryUpdate()
@@ -1356,14 +1393,12 @@ namespace Mains.Views
 
                         if (dist <= shoutRadius)
                         {
-                            // 距離が近い間のみカウントおよび適用
+                            // 静止時のみカウントダウンするか（ReactiveStatic 用）
                             bool canCountDown = true;
                             if (soundOutputType == SoundOutputType.ReactiveStatic)
                             {
                                 if (Vector3.Distance(playerPos, lastPos) >= 0.01f)
-                                {
-                                    canCountDown = false; // 動いているとカウントダウンを一時停止
-                                }
+                                    canCountDown = false; // 動いているとタイマー停止
                             }
 
                             if (canCountDown)
@@ -1371,24 +1406,43 @@ namespace Mains.Views
                                 timer -= Time.deltaTime;
                                 if (timer <= 0f)
                                 {
-                                    PlayLaughSE(shoutRadius, laughSettings, true);
-                                    laughCount++;
+                                    // SEを再生
+                                    PlayLaughSE(laughSettings);
 
-                                    // 次回の間隔を計算
-                                    if (laughCount >= laughSettings.slowDownStartCount)
+                                    // 次の再生までの時間と回数を設定
+                                    if (_remainingRepeatsInPhase > 0)
+                                        _remainingRepeatsInPhase--;
+
+                                    // フェーズ遷移
+                                    if (_remainingRepeatsInPhase == 0)
                                     {
-                                        currentInterval = Mathf.Min(currentInterval + laughSettings.slowDownIncrement, laughSettings.maxInterval);
+                                        switch (_currentLaughPhase)
+                                        {
+                                            case LaughPhase.First:
+                                                _currentLaughPhase = LaughPhase.Second;
+                                                _remainingRepeatsInPhase = laughSettings.secondStartCount;      // 第二フェーズ：3回連続
+                                                _currentLaughInterval = laughSettings.secondInterval;
+                                                break;
+                                            case LaughPhase.Second:
+                                                _currentLaughPhase = LaughPhase.Final;
+                                                _remainingRepeatsInPhase = -1;     // 最終フェーズ：無制限
+                                                _currentLaughInterval = laughSettings.maxInterval;
+                                                break;
+                                            case LaughPhase.Final:
+                                                // 最終フェーズは回数無制限なのでそのまま
+                                                break;
+                                        }
                                     }
-                                    timer = currentInterval;
+
+                                    timer = _currentLaughInterval;
                                 }
                             }
                         }
                         else
                         {
-                            // 範囲外に出た場合はタイマーおよび回数をリセット
-                            laughCount = 0;
-                            currentInterval = laughSettings.baseInterval;
-                            timer = currentInterval;
+                            // 範囲外に出たら状態をリセット（次に近づいたとき初回から）
+                            ResetLaughSequence();
+                            timer = _currentLaughInterval;
                         }
 
                         lastPos = playerPos;
@@ -1406,7 +1460,7 @@ namespace Mains.Views
                             // スクラッチ演出 (複数回連続で短く呼ぶ)
                             Observable.Timer(System.TimeSpan.Zero, System.TimeSpan.FromMilliseconds(150))
                                 .Take(3)
-                                .Subscribe(__ => PlayLaughSE(shoutRadius, laughSettings, false))
+                                .Subscribe(__ => PlayLaughSE(laughSettings))
                                 .AddTo(d);
                         })
                         .AddTo(d);
@@ -1428,7 +1482,8 @@ namespace Mains.Views
         /// <summary>
         /// オバケの笑い声SEを再生（簡易3Dサウンド）
         /// </summary>
-        private void PlayLaughSE(float shoutRadius, PoltergeistTableSubSettings.PoltergeistLaughSettings laughSettings, bool enableEcho)
+        /// <param name="laughSettings">オバケ笑い声の再生間隔・エコー設定</param>
+        private void PlayLaughSE(PoltergeistTableSubSettings.PoltergeistLaughSettings laughSettings)
         {
             ObjectsPoolView objectsPoolView = ObjectsPoolView;
             Se_3D_PickerCustomizeView t3DSoundPlayer = objectsPoolView?.Get3DSoundPlayer();
@@ -1442,22 +1497,6 @@ namespace Mains.Views
                     float intensity = Mathf.Clamp01(1f - (dist / _motorView.MaxDistance));
                     string seName = Script_xyloApi.GetGhostLaughSEName(ghostInStaticObjectStruct.ghostVoiceType);
                     t3DSoundPlayer.PlaySound(seName, intensity);
-
-                    // エコー再生処理
-                    if (enableEcho && dist <= shoutRadius * laughSettings.echoDistanceThresholdRatio)
-                    {
-                        float echoIntensity = intensity * Random.Range(laughSettings.minEchoVolumeRatio, laughSettings.maxEchoVolumeRatio);
-                        Observable.Timer(System.TimeSpan.FromSeconds(laughSettings.echoDelay))
-                            .Subscribe(_ =>
-                            {
-                                // オブジェクトが有効か再確認
-                                if (_motorView != null && _motorView.IsEnabledPoltergeist)
-                                {
-                                    t3DSoundPlayer.PlaySound(seName, echoIntensity);
-                                }
-                            })
-                            .AddTo(ref _disposableBag);
-                    }
                 }
             }
         }
