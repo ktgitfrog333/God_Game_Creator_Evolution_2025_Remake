@@ -17,7 +17,7 @@ MonoBehaviour:
   motorPrefab: {fileID: 1215156780124661367, guid: 3bfc5e33bb3d71e458ffa2b473959872, type: 3}
   staticColldersPrefab: {fileID: 5648631365315597916, guid: 62e553a4c2060fd4ea23a256b4ad2ea5, type: 3}
   missileTempoSpawnerPrefab: {fileID: 401138369664789558, guid: b884b75fd024dbe4884d96e9b68ae9ae, type: 3}
-  missGhostEscapePrefab: {fileID: 1027239793714559372, guid: f57dd99553cf3954582c4d66680a9f05, type: 3}
+  missGhostEscapePrefab: {fileID: 1027239793714559372, guid: 225b86e99f416f74d8e0d026b57191e0, type: 3}
   subSettings:
     ghostAttack:
       ghostBulletBookPrefab: {fileID: 7025978952883633557, guid: 07924653185ca7e4aa29e87f2f2c436d, type: 3}
@@ -29,10 +29,6 @@ MonoBehaviour:
       secondInterval: 2.5
       secondStartCount: 2
       maxInterval: 5
-      echoDistanceThresholdRatio: 0.8
-      echoDelay: 0.3
-      maxEchoVolumeRatio: 0.6
-      minEchoVolumeRatio: 0.2
     moveIntervalSeconds: 30
     targetkillsRate: 0.8
     checkClearStruct:
@@ -40,14 +36,14 @@ MonoBehaviour:
     ghostModelTypePrefabSettings:
       missGhostEscapePrefabMappings:
       - ghostModelType: 0
-        prefab: {fileID: 1027239793714559372, guid: f57dd99553cf3954582c4d66680a9f05, type: 3}
+        prefab: {fileID: 1027239793714559372, guid: 225b86e99f416f74d8e0d026b57191e0, type: 3}
       - ghostModelType: 1
-        prefab: {fileID: 9121456503968643796, guid: da543d28ce827ce4b890e26d2eb567e5, type: 3}
+        prefab: {fileID: 397289490512358814, guid: 493bb2fb79b4baa4da259dea5960f63e, type: 3}
       - ghostModelType: 2
-        prefab: {fileID: 9121456503968643796, guid: a7128d3608510f6449133627af369096, type: 3}
+        prefab: {fileID: 397289490512358814, guid: 7c4500b7597eff74da2c7e5b3e84321e, type: 3}
       - ghostModelType: 3
-        prefab: {fileID: 9121456503968643796, guid: 905ee85ce9f9a21448b8ae9c1c36f047, type: 3}
+        prefab: {fileID: 397289490512358814, guid: f7bde4289c3f78645af96cad5dec69dd, type: 3}
       - ghostModelType: 4
-        prefab: {fileID: 9121456503968643796, guid: 48e9a5630bac7fd4e96b1041033049d3, type: 3}
+        prefab: {fileID: 397289490512358814, guid: de7d3cc6efbdcfc4c8bc3dbaaa9b76d5, type: 3}
       - ghostModelType: 5
-        prefab: {fileID: 9121456503968643796, guid: aa5629d688b038342b2195f0148eb8bd, type: 3}
+        prefab: {fileID: 397289490512358814, guid: 7920e2d3f69227a46a408e0473247d17, type: 3}

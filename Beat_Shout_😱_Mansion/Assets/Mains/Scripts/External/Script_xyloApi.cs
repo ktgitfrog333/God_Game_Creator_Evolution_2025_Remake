@@ -794,22 +794,6 @@ namespace Mains.External
             sePicker.PlayGhostLaugh3(seVolumeIndex);
         }
 
-        public void PlayDoorOpen3()
-        {
-            var sePicker = SE_Picker.Instance;
-            if (sePicker == null)
-            {
-                return;
-            }
-            var manager = Manager.GameManager.Instance;
-            if (manager == null)
-            {
-                return;
-            }
-            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
-            sePicker.PlayDoorOpen3(seVolumeIndex);
-        }
-
         /// <summary>
         /// ボイスタイプに応じたオバケ笑い声SEを再生する
         /// </summary>
