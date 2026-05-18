@@ -794,6 +794,61 @@ namespace Mains.External
             sePicker.PlayGhostLaugh3(seVolumeIndex);
         }
 
+        /// <summary>
+        /// ボイスタイプに応じたオバケ笑い声SEを再生する
+        /// </summary>
+        /// <param name="voiceType">オバケボイスタイプ</param>
+        public void PlayGhostLaughByVoiceType(Commons.GhostVoiceType voiceType)
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            var manager = Manager.GameManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
+            switch (voiceType)
+            {
+                case Commons.GhostVoiceType.ghost_voice_chatter_type:
+                    sePicker.PlayGhostLaughV2Chatter(seVolumeIndex);
+
+                    break;
+                case Commons.GhostVoiceType.ghost_voice_fat_type:
+                    sePicker.PlayGhostLaughV2Fat(seVolumeIndex);
+
+                    break;
+                case Commons.GhostVoiceType.ghost_voice_normal_type:
+                default:
+                    sePicker.PlayGhostLaughV2Normal(seVolumeIndex);
+
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// ボイスタイプに応じた3Dサウンド用SE名を取得する
+        /// </summary>
+        /// <param name="voiceType">オバケボイスタイプ</param>
+        /// <returns>SE名</returns>
+        public static string GetGhostLaughSEName(Commons.GhostVoiceType voiceType)
+        {
+            switch (voiceType)
+            {
+                case Commons.GhostVoiceType.ghost_voice_chatter_type:
+                    return "GhostLaughV2Chatter";
+                case Commons.GhostVoiceType.ghost_voice_fat_type:
+                    return "GhostLaughV2Fat";
+                case Commons.GhostVoiceType.ghost_voice_normal_type:
+                default:
+                    return "GhostLaughV2Normal";
+            }
+        }
+
+
         public void PlayDoorOpen3()
         {
             var sePicker = SE_Picker.Instance;

@@ -75,6 +75,11 @@ public class SE_Picker : MonoBehaviour
     private string HeartbeatSlow;
     private string Shouchitsu;
     private string garakuta;
+    // [2026/05/08] Amagata Support for Obake FBX variations and Obake voice variations start
+    private string GhostLaughV2Normal;
+    private string GhostLaughV2Fat;
+    private string GhostLaughV2Chatter;
+    // [2026/05/08] Amagata Support for Obake FBX variations and Obake voice variations end
 
 
     private void OnEnable()
@@ -161,6 +166,11 @@ Move4 = "Move4";
         HeartbeatSlow = "HeartbeatSlow";
         Shouchitsu = "Shouchitsu";
         garakuta = "garakuta";
+        // [2026/05/08] Amagata Support for Obake FBX variations and Obake voice variations start
+        GhostLaughV2Normal = "GhostLaughV2Normal";
+        GhostLaughV2Fat = "GhostLaughV2Fat";
+        GhostLaughV2Chatter = "GhostLaughV2Chatter";
+        // [2026/05/08] Amagata Support for Obake FBX variations and Obake voice variations end
 
 
         // ï€ë∂Ç≥ÇÍÇƒÇ¢ÇÈSEâπó Çì«Ç›çûÇﬁ
@@ -453,4 +463,20 @@ Move4 = "Move4";
         PlaySound(garakuta, volume);
     }
 
+    // [2026/05/08] Amagata Support for Obake FBX variations and Obake voice variations start
+    public void PlayGhostLaughV2Normal(float volume)
+    {
+        PlaySound(GhostLaughV2Normal, volume);
+    }
+
+    public void PlayGhostLaughV2Fat(float volume)
+    {
+        PlaySound(GhostLaughV2Fat, volume);
+    }
+
+    public void PlayGhostLaughV2Chatter(float volume)
+    {
+        PlaySound(GhostLaughV2Chatter, volume);
+    }
+    // [2026/05/08] Amagata Support for Obake FBX variations and Obake voice variations end
 }

@@ -17,22 +17,33 @@ MonoBehaviour:
   motorPrefab: {fileID: 1215156780124661367, guid: 3bfc5e33bb3d71e458ffa2b473959872, type: 3}
   staticColldersPrefab: {fileID: 5648631365315597916, guid: 62e553a4c2060fd4ea23a256b4ad2ea5, type: 3}
   missileTempoSpawnerPrefab: {fileID: 8974958869280160380, guid: 024657a9c0a15134882e0c2578fb6a70, type: 3}
-  missGhostEscapePrefab: {fileID: 1027239793714559372, guid: f57dd99553cf3954582c4d66680a9f05, type: 3}
+  missGhostEscapePrefab: {fileID: 1027239793714559372, guid: 225b86e99f416f74d8e0d026b57191e0, type: 3}
   subSettings:
     ghostAttack:
       ghostBulletBookPrefab: {fileID: 7025978952883633557, guid: 07924653185ca7e4aa29e87f2f2c436d, type: 3}
     defaultShoutRadius: 1.5
     defaultSoundOutputType: 1
     laughSettings:
-      baseInterval: 1
-      slowDownStartCount: 3
-      slowDownIncrement: 1
+      firstInterval: 1
+      firstStartCount: 1
+      secondInterval: 2.5
+      secondStartCount: 2
       maxInterval: 5
-      echoDistanceThresholdRatio: 0.8
-      echoDelay: 0.3
-      maxEchoVolumeRatio: 0.6
-      minEchoVolumeRatio: 0.2
     moveIntervalSeconds: 30
     targetkillsRate: 0.8
     checkClearStruct:
       enemyBattlePart: 1
+    ghostModelTypePrefabSettings:
+      missGhostEscapePrefabMappings:
+      - ghostModelType: 0
+        prefab: {fileID: 1027239793714559372, guid: 225b86e99f416f74d8e0d026b57191e0, type: 3}
+      - ghostModelType: 1
+        prefab: {fileID: 397289490512358814, guid: 493bb2fb79b4baa4da259dea5960f63e, type: 3}
+      - ghostModelType: 2
+        prefab: {fileID: 397289490512358814, guid: 7c4500b7597eff74da2c7e5b3e84321e, type: 3}
+      - ghostModelType: 3
+        prefab: {fileID: 397289490512358814, guid: f7bde4289c3f78645af96cad5dec69dd, type: 3}
+      - ghostModelType: 4
+        prefab: {fileID: 397289490512358814, guid: de7d3cc6efbdcfc4c8bc3dbaaa9b76d5, type: 3}
+      - ghostModelType: 5
+        prefab: {fileID: 397289490512358814, guid: 7920e2d3f69227a46a408e0473247d17, type: 3}

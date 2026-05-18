@@ -28,5 +28,31 @@ namespace Mains.Commons
         public SoundOutputType soundOutputType;
         /// <summary>オバケの役割</summary>
         public GhostRole role;
+        /// <summary>オバケモデルタイプ（FBX差分）</summary>
+        public GhostModelType ghostModelType;
+        /// <summary>オバケボイスタイプ（SE差分）</summary>
+        public GhostVoiceType ghostVoiceType;
+
+        public GhostInStaticObjectStruct()
+        {
+
+        }
+
+        public GhostInStaticObjectStruct(GhostInStaticObjectStruct ghostInStaticObjectStruct)
+        {
+            poltergeistViewID = ghostInStaticObjectStruct.poltergeistViewID;
+            string ghostTeamIDValue = ghostInStaticObjectStruct.ghostTeamID?.Value ?? null;
+            ghostTeamID = new ReactiveProperty<string>();
+            ghostTeamID.Value = ghostTeamIDValue != null ? ghostTeamIDValue : string.Empty;
+            useStatus = ghostInStaticObjectStruct.useStatus;
+            membersCount = ghostInStaticObjectStruct.membersCount;
+            attackType = ghostInStaticObjectStruct.attackType;
+            moveType = ghostInStaticObjectStruct.moveType;
+            customShoutRadius = ghostInStaticObjectStruct.customShoutRadius;
+            soundOutputType = ghostInStaticObjectStruct.soundOutputType;
+            role = ghostInStaticObjectStruct.role;
+            ghostModelType = ghostInStaticObjectStruct.ghostModelType;
+            ghostVoiceType = ghostInStaticObjectStruct.ghostVoiceType;
+        }
     }
 }

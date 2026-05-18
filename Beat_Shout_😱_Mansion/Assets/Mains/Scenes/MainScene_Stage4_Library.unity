@@ -541,6 +541,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5319130221711851135, guid: a358affd96cb42140a5d17944515c1a4, type: 3}
+      propertyPath: gameOverPanel
+      value: 
+      objectReference: {fileID: 1954877537}
     - target: {fileID: 6266780223078806780, guid: a358affd96cb42140a5d17944515c1a4, type: 3}
       propertyPath: m_Name
       value: CommonPanel
@@ -2665,6 +2669,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 765722718}
     m_Modifications:
+    - target: {fileID: 4801171275514463134, guid: 4dca20b0fd8815d409481c309015a421, type: 3}
+      propertyPath: nextSceneName
+      value: MainScene_Stage4_Library
+      objectReference: {fileID: 0}
     - target: {fileID: 5806625955530259298, guid: 4dca20b0fd8815d409481c309015a421, type: 3}
       propertyPath: m_Name
       value: GameoverPanel

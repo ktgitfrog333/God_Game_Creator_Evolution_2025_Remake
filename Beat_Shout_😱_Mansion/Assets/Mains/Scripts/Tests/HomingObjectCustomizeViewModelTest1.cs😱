@@ -1,0 +1,163 @@
+using Mains.Commons;
+using Mains.Models;
+using Mains.ViewModels;
+using System.Reflection;
+using UnityEngine;
+
+namespace Mains.Tests
+{
+    /// <summary>
+    /// HomingObjectCustomizeViewModelのテスト
+    /// </summary>
+    public class HomingObjectCustomizeViewModelTest1 : MonoBehaviour
+    {
+        [SerializeField] private StubSO stubSO;
+        private PlayerModel _model;
+        // リフレクション用のフィールド情報（キャッシュ）
+        private FieldInfo _playerModelField;
+
+        private void Start()
+        {
+            Debug.Log($"HomingObjectCustomizeViewModelTest1 Start");
+            Debug.Log($" - Section 0");
+            Init();
+            Execute();
+            Debug.Log($" - Section 1");
+            Init1();
+            Execute1();
+            Debug.Log($"HomingObjectCustomizeViewModelTest1 End");
+        }
+
+        private void Init()
+        {
+            var stub = stubSO.commons.homingObjectCustomizeViewModel._現在のトランザクション中のオバケボイスタイプが取得できること;
+            var inputs = stub.inputs;
+            var outputs = stub.outputs;
+            if (inputs.Length == outputs.Length)
+            {
+                for (int i = 0; i < inputs.Length; i++)
+                {
+                    int caseId = i;
+                    var model = inputs[caseId].playerModel;
+                    if (model != null)
+                    {
+                        GhostInStaticObjectStruct target = model.TransactionGhostInStaticObjectStruct;
+                        var ghostTeamID = model.ghostTeamID;
+                        target.ghostTeamID.Value = ghostTeamID;
+                    }
+                }
+            }
+            _model = FindAnyObjectByType<PlayerModel>();
+        }
+
+        private void Init1()
+        {
+            var stub = stubSO.commons.homingObjectCustomizeViewModel._現在のトランザクション中のオバケモデルタイプが取得できること;
+            var inputs = stub.inputs;
+            var outputs = stub.outputs;
+            if (inputs.Length == outputs.Length)
+            {
+                for (int i = 0; i < inputs.Length; i++)
+                {
+                    int caseId = i;
+                    var model = inputs[caseId].playerModel;
+                    if (model != null)
+                    {
+                        GhostInStaticObjectStruct target = model.TransactionGhostInStaticObjectStruct;
+                        var ghostTeamID = model.ghostTeamID;
+                        target.ghostTeamID.Value = ghostTeamID;
+                    }
+                }
+            }
+            _model = FindAnyObjectByType<PlayerModel>();
+        }
+
+        private void Execute()
+        {
+            // リフレクションのフィールド情報を事前に取得（パフォーマンス向上のため）
+            var viewModelType = typeof(HomingObjectCustomizeViewModel);
+            _playerModelField = viewModelType.GetField("_playerModel", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            if (_playerModelField == null)
+            {
+                Debug.LogError("_playerModel フィールドが見つかりませんでした");
+                return;
+            }
+
+            var stub = stubSO.commons.homingObjectCustomizeViewModel._現在のトランザクション中のオバケボイスタイプが取得できること;
+            var inputs = stub.inputs;
+            var outputs = stub.outputs;
+            if (inputs.Length == outputs.Length)
+            {
+                for (int i = 0; i < inputs.Length; i++)
+                {
+                    int caseId = i;
+                    GhostInStaticObjectStruct target = inputs[caseId].playerModel?.TransactionGhostInStaticObjectStruct ?? null;
+                    HomingObjectCustomizeViewModel viewModel = new HomingObjectCustomizeViewModel();
+                    if (!inputs[caseId].isNullPlayerModel)
+                    {
+                        // リフレクションを使用して _playerModel をセット
+                        _playerModelField.SetValue(viewModel, _model);
+                        _model?.SetTransactionGhostInStaticObjectStruct(target);
+                    }
+                    else
+                    {
+                        _playerModelField.SetValue(viewModel, null);
+                    }
+                    var currentGhostVoiceType = viewModel.CurrentGhostVoiceType;
+                    var expected = outputs[caseId].ghostVoiceType;
+                    var actual = currentGhostVoiceType;
+                    var result = expected.Equals(actual);
+                    if (result)
+                        Debug.Log($" -- caseId: [{caseId}] Success");
+                    else
+                        Debug.LogError($" -- caseId: [{caseId}] Faild");
+                }
+            }
+        }
+
+        private void Execute1()
+        {
+            // リフレクションのフィールド情報を事前に取得（パフォーマンス向上のため）
+            var viewModelType = typeof(HomingObjectCustomizeViewModel);
+            _playerModelField = viewModelType.GetField("_playerModel", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            if (_playerModelField == null)
+            {
+                Debug.LogError("_playerModel フィールドが見つかりませんでした");
+                return;
+            }
+
+            var stub = stubSO.commons.homingObjectCustomizeViewModel._現在のトランザクション中のオバケモデルタイプが取得できること;
+            var inputs = stub.inputs;
+            var outputs = stub.outputs;
+            if (inputs.Length == outputs.Length)
+            {
+                for (int i = 0; i < inputs.Length; i++)
+                {
+                    int caseId = i;
+                    GhostInStaticObjectStruct target = inputs[caseId].playerModel?.TransactionGhostInStaticObjectStruct ?? null;
+                    HomingObjectCustomizeViewModel viewModel = new HomingObjectCustomizeViewModel();
+                    if (!inputs[caseId].isNullPlayerModel)
+                    {
+                        // リフレクションを使用して _playerModel をセット
+                        _playerModelField.SetValue(viewModel, _model);
+                        _model?.SetTransactionGhostInStaticObjectStruct(target);
+                    }
+                    else
+                    {
+                        _playerModelField.SetValue(viewModel, null);
+                    }
+                    var currentGhostModelType = viewModel.CurrentGhostModelType;
+                    var expected = outputs[caseId].ghostModelType;
+                    var actual = currentGhostModelType;
+                    var result = expected.Equals(actual);
+                    if (result)
+                        Debug.Log($" -- caseId: [{caseId}] Success");
+                    else
+                        Debug.LogError($" -- caseId: [{caseId}] Faild");
+                }
+            }
+        }
+    }
+}

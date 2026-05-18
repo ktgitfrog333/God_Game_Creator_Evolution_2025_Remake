@@ -88,6 +88,8 @@ namespace Mains.Views
         private bool _hasCurrentGaugeFillConfig;
         /// <summary>プレイヤーの体力を取得してハートアイコンへ反映する処理を実装</summary>
         private List<IconHeartImageView> _iconHeartImageViews;
+        /// <summary>ゲームオーバーパネル</summary>
+        [SerializeField] private RectTransform gameOverPanel;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -706,23 +708,7 @@ namespace Mains.Views
             {
                 _script_XyloApi.SetMicrophoneActive(false);
             }
-            Observable.Create<bool>(observer =>
-            {
-                StartCoroutine(fadeImageView.PlayFadeInDirection(observer, 1.5f));
-                return Disposable.Empty;
-            })
-                .Subscribe(_ =>
-                {
-                    Observable.Create<bool>(observer =>
-                    {
-                        string sceneName = SceneManager.GetActiveScene().name;
-                        StartCoroutine(LoadSceneCoroutine(observer, sceneName));
-                        return Disposable.Empty;
-                    })
-                        .Subscribe(_ => { })
-                        .AddTo(ref _disposableBag);
-                })
-                .AddTo(ref _disposableBag);
+            gameOverPanel.gameObject.SetActive(true);
         }
 
         /// <summary>

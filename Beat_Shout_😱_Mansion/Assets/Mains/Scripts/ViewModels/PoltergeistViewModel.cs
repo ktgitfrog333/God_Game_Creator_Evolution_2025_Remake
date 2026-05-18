@@ -60,9 +60,9 @@ namespace Mains.ViewModels
         /// <summary>家具とプレイヤーがお互い向き合っている状態フラグ</summary>
         public ReactiveCommand<bool> IsPostRhythmFaceOff => _isPostRhythmFaceOff;
         /// <summary>オバケ移動演出の対象</summary>
-        private bool _isMoveGhostDirectionTarget;
+        private GhostInStaticObjectStruct _moveTargetGhostDirection;
         /// <summary>オバケ移動演出の対象</summary>
-        public bool IsMoveGhostDirectionTarget => _isMoveGhostDirectionTarget;
+        public GhostInStaticObjectStruct MoveTargetGhostDirection => _moveTargetGhostDirection;
         /// <summary>攻撃開始フラグ</summary>
         private ReactiveCommand<Transform> _isStartAttack = new ReactiveCommand<Transform>();
         /// <summary>攻撃開始フラグ</summary>
@@ -232,10 +232,17 @@ namespace Mains.ViewModels
         /// <summary>
         /// オバケ移動演出の対象をセット
         /// </summary>
-        /// <param name="isMoveGhostDirectionTarget">オバケ移動演出の対象</param>
-        public void SetIsMoveGhostDirectionTarget(bool isMoveGhostDirectionTarget)
+        /// <param name="moveTargetGhostDirection">オバケ移動演出の対象</param>
+        public void SetMoveTargetGhostDirection(GhostInStaticObjectStruct moveTargetGhostDirection)
         {
-            _isMoveGhostDirectionTarget = isMoveGhostDirectionTarget;
+            if (moveTargetGhostDirection != null)
+            {
+                _moveTargetGhostDirection = new GhostInStaticObjectStruct(moveTargetGhostDirection);
+            }
+            else
+            {
+                _moveTargetGhostDirection = null;
+            }
         }
 
         /// <summary>

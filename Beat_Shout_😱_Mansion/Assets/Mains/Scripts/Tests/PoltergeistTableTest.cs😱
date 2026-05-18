@@ -1,0 +1,47 @@
+using Mains.Commons;
+using UnityEngine;
+
+namespace Mains.Tests
+{
+    /// <summary>
+    /// PoltergeistTableのテスト
+    /// </summary>
+    public class PoltergeistTableTest : MonoBehaviour
+    {
+        [Tooltip("Assets/Mains/Scripts/Commons/PoltergeistTable.assetをセットしておく。")]
+        [SerializeField] private PoltergeistTable poltergeistTable;
+        [SerializeField] private StubSO stubSO;
+
+        private void Start()
+        {
+            Debug.Log($"PoltergeistTableTest Start");
+            Debug.Log($" - Section 0");
+            Execute();
+            Debug.Log($"PoltergeistTableTest End");
+        }
+
+        private void Execute()
+        {
+            var stub = stubSO.commons.poltergeistTable._マッピングリストとオバケモデルタイプを渡して対応するプレハブが取得できること;
+            var inputs = stub.inputs;
+            var outputs = stub.outputs;
+            if (inputs.Length == outputs.Length)
+            {
+                for (int i = 0; i < inputs.Length; i++)
+                {
+                    int caseId = i;
+                    var missGhostEscapePrefabMappings = inputs[i].mappings;
+                    var modelType = inputs[i].modelType;
+                    var mappedPrefab = poltergeistTable.GetPrefabByModelType(missGhostEscapePrefabMappings, modelType);
+                    var expected = outputs[caseId].transform;
+                    var actual = mappedPrefab;
+                    var result = expected.Equals(actual);
+                    if (result)
+                        Debug.Log($" -- caseId: [{caseId}] Success");
+                    else
+                        Debug.LogError($" -- caseId: [{caseId}] Faild");
+                }
+            }
+        }
+    }
+}

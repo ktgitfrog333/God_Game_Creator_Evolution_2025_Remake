@@ -20,6 +20,11 @@ public class GameOverPanel : MonoBehaviour
     private Image panelImage;
     private TextMeshProUGUI[] textComponents;
 
+    // [2026/05/13] Amagata [Beta Version] Panel Display (Mock-up Section) + Game Over Handling Fix start
+    private AsyncOperation _loadOperation;
+    private bool _isLoading;
+    // [2026/05/13] Amagata [Beta Version] Panel Display (Mock-up Section) + Game Over Handling Fix end
+
     private void Awake()
     {
         // パネル自身のImageコンポーネントを取得
@@ -50,8 +55,14 @@ public class GameOverPanel : MonoBehaviour
 
     private void OnEnable()
     {
+        // [2026/05/13] Amagata [Beta Version] Panel Display (Mock-up Section) + Game Over Handling Fix start
+        if (_isLoading) return;
+        // [2026/05/13] Amagata [Beta Version] Panel Display (Mock-up Section) + Game Over Handling Fix end
         CRIWARE_AisacChange.Instance.FadeVolume(0, waitDuration-0.2f);
         // フェードイン処理を開始
+        // [2026/05/13] Amagata [Beta Version] Panel Display (Mock-up Section) + Game Over Handling Fix start
+        StartLoad();
+        // [2026/05/13] Amagata [Beta Version] Panel Display (Mock-up Section) + Game Over Handling Fix end
 
 
         StartFadeIn();
@@ -63,6 +74,20 @@ public class GameOverPanel : MonoBehaviour
         DOTween.Kill(this);
     }
 
+    // [2026/05/13] Amagata [Beta Version] Panel Display (Mock-up Section) + Game Over Handling Fix start
+    private void StartLoad()
+    {
+        if (string.IsNullOrEmpty(nextSceneName))
+        {
+            Debug.LogWarning("GameOverPanel: 遷移先のシーン名が設定されていません");
+            return;
+        }
+        _loadOperation = SceneManager.LoadSceneAsync(nextSceneName);
+        _loadOperation.allowSceneActivation = false;
+        _isLoading = true;
+    }
+    // [2026/05/13] Amagata [Beta Version] Panel Display (Mock-up Section) + Game Over Handling Fix end
+
     private void StartFadeIn()
     {
         // パネルのフェードイン
@@ -70,6 +95,9 @@ public class GameOverPanel : MonoBehaviour
         {
             panelImage.DOFade(1f, fadeInDuration)
                 .SetEase(Ease.OutQuad)
+                // [2026/05/13] Amagata [Beta Version] Panel Display (Mock-up Section) + Game Over Handling Fix start
+                .SetUpdate(true)
+                // [2026/05/13] Amagata [Beta Version] Panel Display (Mock-up Section) + Game Over Handling Fix end
                 .SetId(this);
         }
 
@@ -78,24 +106,51 @@ public class GameOverPanel : MonoBehaviour
         {
             text.DOFade(1f, fadeInDuration)
                 .SetEase(Ease.OutQuad)
+                // [2026/05/13] Amagata [Beta Version] Panel Display (Mock-up Section) + Game Over Handling Fix start
+                .SetUpdate(true)
+                // [2026/05/13] Amagata [Beta Version] Panel Display (Mock-up Section) + Game Over Handling Fix end
                 .SetId(this);
         }
 
         // フェードイン完了後、待機してシーン遷移
         DOVirtual.DelayedCall(fadeInDuration + waitDuration, () =>
         {
-            LoadNextScene();
-        }).SetId(this);
+            // [2026/05/13] Amagata [Beta Version] Panel Display (Mock-up Section) + Game Over Handling Fix start
+            OnAnimationComplete();
+            //LoadNextScene();
+            // [2026/05/13] Amagata [Beta Version] Panel Display (Mock-up Section) + Game Over Handling Fix end
+        })
+            // [2026/05/13] Amagata [Beta Version] Panel Display (Mock-up Section) + Game Over Handling Fix start
+            .SetUpdate(true)
+            // [2026/05/13] Amagata [Beta Version] Panel Display (Mock-up Section) + Game Over Handling Fix end
+            .SetId(this);
     }
 
-    private void LoadNextScene()
+    // [2026/05/13] Amagata [Beta Version] Panel Display (Mock-up Section) + Game Over Handling Fix start
+    private void OnAnimationComplete()
     {
-        if (string.IsNullOrEmpty(nextSceneName))
-        {
-            Debug.LogWarning("GameOverPanel: 遷移先のシーン名が設定されていません");
-            return;
-        }
-
-        SceneManager.LoadScene(nextSceneName);
+        ActivateScene();
     }
+
+    private void ActivateScene()
+    {
+        if (_loadOperation != null)
+        {
+            // 時間を再生
+            Time.timeScale = 1f;
+            _loadOperation.allowSceneActivation = true;
+        }
+    }
+
+    //private void LoadNextScene()
+    //{
+    //    if (string.IsNullOrEmpty(nextSceneName))
+    //    {
+    //        Debug.LogWarning("GameOverPanel: 遷移先のシーン名が設定されていません");
+    //        return;
+    //    }
+
+    //    SceneManager.LoadScene(nextSceneName);
+    //}
+    // [2026/05/13] Amagata [Beta Version] Panel Display (Mock-up Section) + Game Over Handling Fix end
 }

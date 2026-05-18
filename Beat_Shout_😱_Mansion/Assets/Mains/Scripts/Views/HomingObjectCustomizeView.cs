@@ -37,13 +37,31 @@ namespace Mains.Views
                 modelRenderer = transform.GetChild(0).GetChild(0).GetComponent<Renderer>();
         }
 
+        private void Awake()
+        {
+            _script_XyloApi = new Script_xyloApi();
+            _viewModel = new HomingObjectCustomizeViewModel();
+            this.OnEnableAsObservable()
+                .Subscribe(_ =>
+                {
+                    float dice = Random.value; // 0.0〜1.0 の乱数
+                                               // 30%の確率で再生
+                    if (dice <= .3f)
+                    {
+                        // ボイスタイプに応じた笑い声SEを再生
+                        _script_XyloApi.PlayGhostLaughByVoiceType(_viewModel.CurrentGhostVoiceType);
+                    }
+                    // モデルタイプに応じたFBX表示切替
+                    SwitchGhostModel(_viewModel.CurrentGhostModelType);
+                })
+                .AddTo(ref _disposableBag);
+        }
+
         private void Start()
 		{
-            _script_XyloApi = new Script_xyloApi();
             Transform trans = transform;
             var canvasTransform = GameObject.Find("OverlayCanvas").transform;
             _script_XyloApi.SetMissileDirectAnimManagerB(trans);
-            _viewModel = new HomingObjectCustomizeViewModel();
             // goodPanelPrefabとgoodParticleSysPrefabのインスタンス情報
             (GoodPanelView, ParticleSystem) instancesGoodContents = (null, null);
             _script_XyloApi.IsSuccessfulReactive.Where(x => x)
@@ -68,24 +86,6 @@ namespace Mains.Views
                 .Subscribe(isFailed =>
                 {
                     _viewModel.SetIsFailed(isFailed);
-                })
-                .AddTo(ref _disposableBag);
-            _script_XyloApi.SetMissileRendererColor();
-            // MissileDirectAnimManagerBのmissileRendererを監視して、それをオバケのモデル側のRendererへ反映
-            _script_XyloApi.MissileRendererColor.Subscribe(color =>
-            {
-                SetRendererColor(modelRenderer, color);
-            })
-                .AddTo(ref _disposableBag);
-            this.OnEnableAsObservable()
-                .Subscribe(_ =>
-                {
-                    float dice = Random.value; // 0.0〜1.0 の乱数
-                    // 30%の確率で再生
-                    if (dice <= .3f)
-                    {
-                        _script_XyloApi.PlayGhostLaugh3();
-                    }
                 })
                 .AddTo(ref _disposableBag);
             // クリア済みなら再生中の演出を無効にする
@@ -227,16 +227,48 @@ namespace Mains.Views
         }
 
         /// <summary>
-        /// レンダラーの色をセット
+        /// モデルタイプに応じてGhostBodyModel配下の子モデルを切り替える
         /// </summary>
-        /// <param name="modelRenderer">オバケの3Dモデルレンダラー</param>
-        /// <param name="color">色</param>
-        private void SetRendererColor(Renderer modelRenderer, Color color)
+        /// <param name="modelType">オバケモデルタイプ</param>
+        /// <remarks>
+        /// プレハブ内に各タイプのモデルを配置しておき、名前が一致するものだけ表示する方式。
+        /// 例: GhostBodyModel/ghost_model_normal_type, GhostBodyModel/ghost_model_fat_type など
+        /// 該当するモデルが見つからない場合はデフォルト（最初の子）を表示する。
+        /// </remarks>
+        private void SwitchGhostModel(Commons.GhostModelType modelType)
         {
-            // RimLight Colorプロパティに色を適用
-            if (modelRenderer.material.HasProperty("_RimLight_Color"))
+            // GhostBodyModelを探す
+            Transform ghostBodyModel = null;
+            foreach (Transform child in transform)
             {
-                modelRenderer.material.SetColor("_RimLight_Color", color);
+                if (child.name.Equals("GhostBodyModel"))
+                {
+                    ghostBodyModel = child;
+
+                    break;
+                }
+            }
+            if (ghostBodyModel == null || ghostBodyModel.childCount < 1)
+                return;
+
+            string targetName = modelType.ToString();
+            bool found = false;
+
+            for (int i = 0; i < ghostBodyModel.childCount; i++)
+            {
+                var child = ghostBodyModel.GetChild(i);
+                bool isTarget = child.name.Equals(targetName);
+                child.gameObject.SetActive(isTarget);
+                if (isTarget)
+                {
+                    found = true;
+                }
+            }
+
+            // 該当モデルが見つからない場合はデフォルト（最初の子）を表示
+            if (!found && ghostBodyModel.childCount > 0)
+            {
+                ghostBodyModel.GetChild(0).gameObject.SetActive(true);
             }
         }
     }

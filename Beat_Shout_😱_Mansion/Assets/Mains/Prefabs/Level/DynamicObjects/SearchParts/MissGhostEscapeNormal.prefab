@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 770694572206932630}
   - component: {fileID: 354029062245562080}
   m_Layer: 0
-  m_Name: MissGhostEscape
+  m_Name: MissGhostEscapeNormal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -80,6 +80,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1027239793714559372}
     m_Modifications:
+    - target: {fileID: 1148770785919734592, guid: 26922f3c26bc9ce4aa4d51a265fe5f92, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2652521226571307256, guid: 26922f3c26bc9ce4aa4d51a265fe5f92, type: 3}
       propertyPath: m_Name
       value: GhostBodyModel
@@ -122,6 +126,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6853784894609534560, guid: 26922f3c26bc9ce4aa4d51a265fe5f92, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8012056635117871647, guid: 26922f3c26bc9ce4aa4d51a265fe5f92, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

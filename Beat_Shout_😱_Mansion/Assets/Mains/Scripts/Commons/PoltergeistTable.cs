@@ -1,5 +1,7 @@
 using ObservableCollections;
 using R3;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Mains.Commons
@@ -24,6 +26,30 @@ namespace Mains.Commons
         public Transform missGhostEscapePrefab;
         /// <summary>ポルターガイストの発生位置</summary>
         public PoltergeistTableSubSettings subSettings;
+
+        /// <summary>
+        /// モデルタイプに応じたプレハブを取得する
+        /// </summary>
+        /// <param name="mappings">マッピングリスト</param>
+        /// <param name="modelType">オバケモデルタイプ</param>
+        /// <returns>対応するプレハブ（見つからない場合はnull）</returns>
+        public Transform GetPrefabByModelType(List<GhostModelTypePrefabMapping> mappings, GhostModelType modelType)
+        {
+            var mapping = mappings.FirstOrDefault(m => m.ghostModelType == modelType);
+            return mapping != null ? mapping.prefab : null;
+        }
+    }
+
+    /// <summary>
+    /// オバケモデルタイプとプレハブの紐付け
+    /// </summary>
+    [System.Serializable]
+    public class GhostModelTypePrefabMapping
+    {
+        /// <summary>オバケモデルタイプ</summary>
+        public GhostModelType ghostModelType;
+        /// <summary>対応するプレハブ</summary>
+        public Transform prefab;
     }
 
     /// <summary>
@@ -38,34 +64,30 @@ namespace Mains.Commons
         public float defaultShoutRadius = 1.5f;
         /// <summary>音の出力タイプのデフォルト値</summary>
         public SoundOutputType defaultSoundOutputType = SoundOutputType.Loop;
-        /// <summary>笑い声の再生間隔・遅延・エコー設定</summary>
+        /// <summary>笑い声の再生間隔設定</summary>
         public PoltergeistLaughSettings laughSettings = new PoltergeistLaughSettings();
 
         /// <summary>
-        /// オバケ笑い声の再生間隔・遅延・エコー設定
+        /// オバケ笑い声の再生間隔設定
         /// </summary>
+        /// <remarks>1. 最初の笑い声を再生<br/>
+        /// 2. 最初の笑い声の再生回数を超えた場合、次点の笑い声再生へ移行<br/>
+        /// 3. 次点の笑い声を再生<br/>
+        /// 4. 最初の笑い声の再生回数を超えた場合、間隔は最大値になる</remarks>
         [System.Serializable]
         public class PoltergeistLaughSettings
         {
             [Header("ループ間隔設定")]
-            [Tooltip("ベースとなる笑い声の間隔（秒）")]
-            public float baseInterval = 2f;
-            [Tooltip("間隔が延び始めるまでの基準再生回数")]
-            public int slowDownStartCount = 3;
-            [Tooltip("1回ごとに延びる間隔の増加秒数")]
-            public float slowDownIncrement = 1f;
+            [Tooltip("最初の笑い声の再生間隔（秒）")]
+            public float firstInterval = 1f;
+            [Tooltip("最初の笑い声の再生回数")]
+            public int firstStartCount = 1;
+            [Tooltip("次点の笑い声の再生間隔（秒）")]
+            public float secondInterval = 2.5f;
+            [Tooltip("次点の笑い声の再生回数")]
+            public int secondStartCount = 2;
             [Tooltip("間隔の最大値（この秒数以上は遅くならない）")]
             public float maxInterval = 5f;
-
-            [Header("エコー設定")]
-            [Tooltip("エコーが発生する距離の閾値（シャウトラジアスに対する割合。0.5なら最大距離の半分まで近づいた時）")]
-            public float echoDistanceThresholdRatio = 0.5f;
-            [Tooltip("エコーの遅延時間（秒）")]
-            public float echoDelay = 0.3f;
-            [Tooltip("エコーの最大音量（メイン音量を1としたときの割合）")]
-            public float maxEchoVolumeRatio = 0.6f;
-            [Tooltip("エコーの最小音量（メイン音量を1としたときの割合）")]
-            public float minEchoVolumeRatio = 0.2f;
         }
 
         /// <summary>
@@ -93,6 +115,21 @@ namespace Mains.Commons
         {
             /// <summary>敵戦パート</summary>
             public EnemyBattlePart enemyBattlePart;
+        }
+
+        [Header("オバケモデルタイプ別プレハブマッピング")]
+        /// <summary>オバケモデルタイプ別プレハブ設定</summary>
+        public GhostModelTypePrefabSettings ghostModelTypePrefabSettings;
+
+        /// <summary>
+        /// オバケモデルタイプ別プレハブ設定
+        /// </summary>
+        [System.Serializable]
+        public class GhostModelTypePrefabSettings
+        {
+
+            [Tooltip("探索パート：モデルタイプ別の逃走用オバケプレハブ")]
+            public List<GhostModelTypePrefabMapping> missGhostEscapePrefabMappings = new List<GhostModelTypePrefabMapping>();
         }
     }
 }

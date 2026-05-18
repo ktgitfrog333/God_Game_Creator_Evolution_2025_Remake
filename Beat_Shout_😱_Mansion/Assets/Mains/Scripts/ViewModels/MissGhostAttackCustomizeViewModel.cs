@@ -8,10 +8,12 @@ namespace Mains.ViewModels
     /// <summary>
     /// MissGhostAttackのカスタマイズビューモデル
     /// </summary>
-    public class MissGhostAttackCustomizeViewModel : IMissGhostAttackCustomizeModel
+    public class MissGhostAttackCustomizeViewModel : IMissGhostAttackCustomizeModel, System.IDisposable
     {
         /// <summary>プレイヤーのモデル</summary>
         private PlayerModel _playerModel;
+        /// <summary>R3のリソース管理</summary>
+        private DisposableBag _disposableBag = new DisposableBag();
         /// <summary>【探索／シャウトチャンス／リズム】パート</summary>
         public ReactiveProperty<InteractionPart> InteractionPart
         {
@@ -23,17 +25,15 @@ namespace Mains.ViewModels
 
         public MissGhostAttackCustomizeViewModel()
         {
-            System.IDisposable disposable = null;
-            disposable = Observable.EveryUpdate()
+            Observable.EveryUpdate()
                 .Select(_ => GameObject.FindAnyObjectByType<PlayerModel>())
                 .Where(x => x != null)
                 .Take(1)
                 .Subscribe(x =>
                 {
                     _playerModel = x;
-                    // 1度のみ実行されれば良いので破棄しても問題なし
-                    disposable.Dispose();
-                });
+                })
+                .AddTo(ref _disposableBag);
         }
 
         public void SubtractionHealthPoint()
@@ -46,6 +46,17 @@ namespace Mains.ViewModels
         {
             if (_playerModel != null)
                 _playerModel.SetIsBadEndRhythmPart(isBadEndRhythmPart);
+        }
+
+        /// <summary>
+        /// 現在のトランザクション中のオバケモデルタイプを取得する
+        /// </summary>
+        public GhostModelType CurrentGhostModelType =>
+            _playerModel?.TransactionGhostInStaticObjectStruct.ghostModelType ?? GhostModelType.ghost_model_normal_type;
+
+        public void Dispose()
+        {
+            _disposableBag.Dispose();
         }
     }
 }
