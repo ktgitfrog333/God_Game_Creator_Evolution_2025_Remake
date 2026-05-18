@@ -20,6 +20,8 @@ namespace Mains.Views
         private Script_xyloApi _script_XyloApi;
         /// <summary>MissileDirectAnimManagerBのカスタマイズビューモデル</summary>
         private MissileDirectAnimManagerBCustomizeViewModel _viewModel;
+        /// <summary>耐久率UI表示フラグ</summary>
+        private bool _durabilityRateTarget;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -46,6 +48,8 @@ namespace Mains.Views
             var player = ReInput.players.GetPlayer(0);
             MissileDirectAnimManagerBCustomizeInputView inputView = null;
             Transform mainCamera = Camera.main.transform;
+            // MissileDirectAnimManagerBのカスタマイズビューモデル
+            var viewModel = _viewModel;
             Observable.EveryUpdate()
                 .Subscribe(_ =>
                 {
@@ -105,11 +109,24 @@ namespace Mains.Views
                 inputView = findInputView;
             }
             Observable.EveryUpdate()
-                .Select(_ => _viewModel.IsFrontMissileDirectAnim(_script_XyloApi.NoteTransform))
+                .Select(_ => viewModel.IsFrontMissileDirectAnim(_script_XyloApi.NoteTransform))
                 .Subscribe(isFrontMissileDirectAnim =>
                 {
                     _script_XyloApi.SetEnableClickDetection(isFrontMissileDirectAnim);
+                    var noteTransform = _script_XyloApi.NoteTransform;
+                    if (_durabilityRateTarget &&
+                        noteTransform.gameObject.activeSelf &&
+                        0 < noteTransform.localScale.sqrMagnitude)
+                    {
+                        // true/falseの切替は一度のみ、true→true or false→false とならないようにPlayerModel側で制御済み
+                        viewModel.SetShoutNoteActive(true);
+                    }
                 })
+                .AddTo(ref _disposableBag);
+            _script_XyloApi.DurabilityRateTarget.Subscribe(_ =>
+            {
+                _durabilityRateTarget = true;
+            })
                 .AddTo(ref _disposableBag);
         }
 
@@ -120,7 +137,13 @@ namespace Mains.Views
                 transform = _script_XyloApi.NoteTransform,
                 onEnabledTime = 0f,
             };
+            // MissileDirectAnimManagerBのカスタマイズビューモデル
+            var viewModel = _viewModel;
             _viewModel.AddOrSetOnEnabledTime(missileDirectAnimCustomizeStruct);
+            if (_durabilityRateTarget)
+            {
+                viewModel.SetShoutNoteActive(false);
+            }
         }
 
         private void OnDestroy()

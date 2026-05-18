@@ -92,7 +92,6 @@ namespace Mains.Views
                     .Subscribe(_ =>
                     {
                         isOnTriggerEnter = true;
-                        _script_XyloApi.PlayDamage1();
                         SubtractionPlayerHealth(viewModel);
                     })
                     .AddTo(ref _disposableBag);

@@ -1,0 +1,171 @@
+# BGM切り替え機能の実装計画（最終版）
+
+ステージ番号（`UserBean.sceneIdx`）に基づき、探索パートとリズムパートでBGMを切り替える。  
+**[Script_xylo](file:///c:/God_Game_Creator_Evolution_2025_Remake/Beat_Shout_%F0%9F%98%B1_Mansion/Assets/Mains/Scripts/External/Script_xyloApi.cs#16-1302)配下は修正しない。**  ScriptableObjectでステージ→キュー名マッピングを管理し、View→Script_xyloApi→シロさん側スクリプトの流れで設定する。
+
+## アーキテクチャ
+
+```mermaid
+flowchart TD
+    SO["StageBgmTable\n(ScriptableObject)"]
+    V["PlayerView / PoltergeistView\n(View)"]
+    API["Script_xyloApi\n(API層)"]
+    CC["CRIWARE_conductor\n(Script_xylo・修正なし)"]
+
+    SO -->|SerializeField参照| V
+    V -->|"SetStageBgmCueName(struct)"| API
+    API -->|"atomSourceA/B.cueName = ..."| CC
+```
+
+## User Review Required
+
+> [!IMPORTANT]
+> 以下について確認をお願いします。
+
+1. **キュー名**: ステージごとの探索用・リズム用のキュー名を教えてください
+2. **ステージ番号一覧**: `sceneIdx`の値と各ステージの対応を教えてください
+
+## Proposed Changes
+
+### 新規ファイル（Commons層）
+
+#### [NEW] [StageBgmStruct.cs](file:///c:/God_Game_Creator_Evolution_2025_Remake/Beat_Shout_%F0%9F%98%B1_Mansion/Assets/Mains/Scripts/Commons/StageBgmStruct.cs)
+
+ステージごとのBGMキュー名を保持する構造体。
+
+```csharp
+using UnityEngine;
+
+namespace Mains.Commons
+{
+    /// <summary>
+    /// ステージBGM構造体
+    /// </summary>
+    [System.Serializable]
+    public struct StageBgmStruct
+    {
+        [Tooltip("ステージ番号（UserBean.sceneIdx に対応）")]
+        public int ステージ番号;
+        [Tooltip("探索パート用BGMキュー名")]
+        public string 探索キュー名;
+        [Tooltip("リズムパート用BGMキュー名")]
+        public string リズムキュー名;
+    }
+}
+```
+
+#### [NEW] [StageBgmTable.cs](file:///c:/God_Game_Creator_Evolution_2025_Remake/Beat_Shout_%F0%9F%98%B1_Mansion/Assets/Mains/Scripts/Commons/StageBgmTable.cs)
+
+ScriptableObjectでステージ→キュー名マッピングをInspectorで管理。
+
+```csharp
+using System.Linq;
+using UnityEngine;
+
+namespace Mains.Commons
+{
+    /// <summary>
+    /// ステージBGM管理テーブル
+    /// </summary>
+    [CreateAssetMenu(fileName = "StageBgmTable", menuName = "Scriptable Objects/StageBgmTable")]
+    public class StageBgmTable : ScriptableObject
+    {
+        public StageBgmStruct[] ステージBGMリスト;
+
+        /// <summary>
+        /// ステージ番号からBGM構造体を取得
+        /// </summary>
+        public StageBgmStruct? GetStageBgm(int stageIndex)
+        {
+            var result = ステージBGMリスト.FirstOrDefault(q => q.ステージ番号 == stageIndex);
+            // FirstOrDefaultはstructの場合デフォルト値を返すため、存在チェック
+            if (ステージBGMリスト.Any(q => q.ステージ番号 == stageIndex))
+                return result;
+            return null;
+        }
+    }
+}
+```
+
+---
+
+### API層
+
+#### [MODIFY] [Script_xyloApi.cs](file:///c:/God_Game_Creator_Evolution_2025_Remake/Beat_Shout_%F0%9F%98%B1_Mansion/Assets/Mains/Scripts/External/Script_xyloApi.cs)
+
+ステージBGMキュー名を設定するメソッドを追加。
+
+```csharp
+/// <summary>
+/// ステージBGMのキュー名をCRIWARE_conductorの音源へ設定する
+/// </summary>
+/// <param name="stageBgm">ステージBGM構造体</param>
+public void SetStageBgmCueName(StageBgmStruct stageBgm)
+{
+    var conductor = CRIWARE_conductor.Instance;
+    if (conductor == null) return;
+    if (conductor.atomSourceA != null && !string.IsNullOrEmpty(stageBgm.探索キュー名))
+        conductor.atomSourceA.cueName = stageBgm.探索キュー名;
+    if (conductor.atomSourceB != null && !string.IsNullOrEmpty(stageBgm.リズムキュー名))
+        conductor.atomSourceB.cueName = stageBgm.リズムキュー名;
+}
+```
+
+---
+
+### View層
+
+#### [MODIFY] [PlayerView.cs](file:///c:/God_Game_Creator_Evolution_2025_Remake/Beat_Shout_%F0%9F%98%B1_Mansion/Assets/Mains/Scripts/Views/PlayerView.cs)
+
+探索パート開始時にステージBGMを設定する。
+
+**フィールド追加：**
+```csharp
+[SerializeField] private StageBgmTable ステージBGM管理テーブル;
+```
+
+**Start内（`_script_XyloApi = new Script_xyloApi();`の直後）にBGM設定処理を追加：**
+```csharp
+// ステージBGMの設定
+var resourcesUtility = new Universal.Utilities.ResourcesUtility();
+var userBean = resourcesUtility.LoadSaveDatasJsonOfUserBean(
+    Universal.Commons.ConstResorcesNames.USER_DATA);
+if (userBean != null && ステージBGM管理テーブル != null)
+{
+    var stageBgm = ステージBGM管理テーブル.GetStageBgm(userBean.sceneIdx);
+    if (stageBgm.HasValue)
+    {
+        // CRIWARE_conductor.Instance が利用可能になるまで待機して設定
+        Observable.EveryUpdate()
+            .Select(_ => CRIWARE_conductor.Instance)
+            .Where(x => x != null && x.atomSourceA != null)
+            .Take(1)
+            .Subscribe(_ =>
+            {
+                _script_XyloApi.SetStageBgmCueName(stageBgm.Value);
+            })
+            .AddTo(ref _disposableBag);
+    }
+}
+```
+
+> [!NOTE]
+> リズムパートについては、既存の `PoltergeistView.BeginTransactionGhostInStaticObjectStruct()` → [ChangeBgmB()](file:///c:/God_Game_Creator_Evolution_2025_Remake/Beat_Shout_%F0%9F%98%B1_Mansion/Assets/Script_xylo/CRIWARE_conductor.cs#252-289) → `CRIWARE_conductor.ChangeBgmB(3)` → `atomSourceB.Play()` のフローがそのまま使われるため、上記で`atomSourceB.cueName`が事前に設定されていれば追加変更は不要です。
+
+### 修正しないファイル
+
+| ファイル | 理由 |
+|---|---|
+| [Script_xylo/](file:///c:/God_Game_Creator_Evolution_2025_Remake/Beat_Shout_%F0%9F%98%B1_Mansion/Assets/Mains/Scripts/External/Script_xyloApi.cs#16-1302) 配下すべて | 修正しない方針 |
+| [PoltergeistView.cs](file:///c:/God_Game_Creator_Evolution_2025_Remake/Beat_Shout_%F0%9F%98%B1_Mansion/Assets/Mains/Scripts/Views/PoltergeistView.cs) | 既存のChangeBgmB/Aフローで対応 |
+
+## Verification Plan
+
+### Manual Verification
+
+1. `StageBgmTable`アセットをInspectorで作成し、各ステージのキュー名を設定
+2. `PlayerView`のInspectorに`ステージBGM管理テーブル`を割り当て
+3. `UserData.json`の`sceneIdx`を各ステージ番号に変更してゲームを起動
+4. 探索BGMが対応するキューで再生されることを確認
+5. リズムパートBGMが対応するキューで再生されることを確認
+6. 未定義のステージ番号でデフォルトBGMが再生されることを確認

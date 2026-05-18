@@ -1,0 +1,194 @@
+# スピードオバケ（移動オバケ）の実装要件の調査・実装計画
+
+## 対象アセットの調査結果と実装状況
+**1. 指定時間での移動とタイマー処理**
+* **現状**: 一定時間後にオバケが引っ越しする（タイマー）処理は実装されていません。手動（イベント）のみで [ShuffleNewStaticObject()](file:///c:/God_Game_Creator_Evolution_2025_Remake/Beat_Shout_%F0%9F%98%B1_Mansion/Assets/Mains/Scripts/Views/PoltergeistView.cs#709-745) が呼ばれる仕様です。
+* **追加要件**: 30秒などの時間管理を行い、定期的に [ShuffleNewStaticObject()](file:///c:/God_Game_Creator_Evolution_2025_Remake/Beat_Shout_%F0%9F%98%B1_Mansion/Assets/Mains/Scripts/Views/PoltergeistView.cs#709-745) を呼び出すタイマー実装がスクリプト側に必要です。
+
+**2. 移動を行うオバケは「スピードオバケ」のみ**
+* **現状**: 家具とオバケの紐づけ構造体 [GhostInStaticObjectStruct](file:///c:/God_Game_Creator_Evolution_2025_Remake/Beat_Shout_%F0%9F%98%B1_Mansion/Assets/Mains/Scripts/Commons/GhostInStaticObjectStruct.cs#9-23) に移動タイプを判定するパラメータがありません。
+* **追加要件**: `MoveType`（なし／パトロール）というEnumを `Mains/Scripts/Commons` 配下に作成し、[GhostInStaticObjectStruct](file:///c:/God_Game_Creator_Evolution_2025_Remake/Beat_Shout_%F0%9F%98%B1_Mansion/Assets/Mains/Scripts/Commons/GhostInStaticObjectStruct.cs#9-23) のパラメータとして追加し、インスペクターから設定可能にする必要があります。
+
+**3. 移動先はランダムで、他のオバケと重複しない（かつ元の場所と被らない）**
+* **現状**: 既に実装されています。[PoltergeistView](file:///c:/God_Game_Creator_Evolution_2025_Remake/Beat_Shout_%F0%9F%98%B1_Mansion/Assets/Mains/Scripts/Views/PoltergeistView.cs#18-1020) 内の [ShuffleNewStaticObject()](file:///c:/God_Game_Creator_Evolution_2025_Remake/Beat_Shout_%F0%9F%98%B1_Mansion/Assets/Mains/Scripts/Views/PoltergeistView.cs#709-745) メソッドにおいて、`UseStatus.Empty`（空室）の家具の中からランダムなインデックスを取得して移動先を決めているため、被りや別オバケとの重複は発生しません。
+
+**4. 30秒ごとに移動する（指定時間の設定値管理）**
+* **現状**: 該当のパラメータ（30秒）は存在しません。
+* **追加要件**: Commonで管理している [PoltergeistTable](file:///c:/God_Game_Creator_Evolution_2025_Remake/Beat_Shout_%F0%9F%98%B1_Mansion/Assets/Mains/Scripts/Commons/PoltergeistTable.cs#10-28) （ScriptableObject）の [PoltergeistTableSubSettings](file:///c:/God_Game_Creator_Evolution_2025_Remake/Beat_Shout_%F0%9F%98%B1_Mansion/Assets/Mains/Scripts/Commons/PoltergeistTable.cs#32-48) や [PoltergeistSettings](file:///c:/God_Game_Creator_Evolution_2025_Remake/Beat_Shout_%F0%9F%98%B1_Mansion/Assets/Mains/Scripts/Views/PoltergeistView.cs#1024-1041) 等に、`moveIntervalSeconds` (デフォルト: 30f) といった項目を追加する必要があります。
+
+**5. 移動元の家具からはポルターガイストが発生しない**
+* **現状**: 既に実装されています。[ShuffleNewStaticObject()](file:///c:/God_Game_Creator_Evolution_2025_Remake/Beat_Shout_%F0%9F%98%B1_Mansion/Assets/Mains/Scripts/Views/PoltergeistView.cs#709-745) メソッド実行後、元の家具については [ResetStaticObject()](file:///c:/God_Game_Creator_Evolution_2025_Remake/Beat_Shout_%F0%9F%98%B1_Mansion/Assets/Mains/Scripts/Views/PoltergeistView.cs#869-890) が呼ばれ、`UseStatus.Empty` に戻るためポルターガイストは発生しなくなります。
+
+**6. 移動する際に演出も再生する**
+* **現状**: リズムパート失敗時に [PlayMoveGhostDirection](file:///c:/God_Game_Creator_Evolution_2025_Remake/Beat_Shout_%F0%9F%98%B1_Mansion/Assets/Mains/Scripts/Views/PoltergeistView.cs#976-1019) が呼ばれ、オバケが家具から飛び出して逃げるアニメーション（`missGhostEscapePrefab`）が再生されています。
+* **追加要件**: タイマーでの定期移動時にも、この [PlayMoveGhostDirection](file:///c:/God_Game_Creator_Evolution_2025_Remake/Beat_Shout_%F0%9F%98%B1_Mansion/Assets/Mains/Scripts/Views/PoltergeistView.cs#976-1019) を呼び出して演出を再生し、アニメーションが完了した後に [ShuffleNewStaticObject()](file:///c:/God_Game_Creator_Evolution_2025_Remake/Beat_Shout_%F0%9F%98%B1_Mansion/Assets/Mains/Scripts/Views/PoltergeistView.cs#709-745) によって別の家具へ移動させる処理を組み込みます。
+
+---
+
+## 提案する変更内容 (Proposed Changes)
+
+### 1. Mains (Commons)
+> [!NOTE]
+> 家具とオバケの引っ越し管理用構造体に移動タイプパラメータを追加します。
+
+#### [NEW] MoveType.cs
+```csharp
+namespace Mains.Commons
+{
+    /// <summary>
+    /// オバケの移動タイプ
+    /// </summary>
+    public enum MoveType
+    {
+        /// <summary>なし</summary>
+        None,
+        /// <summary>パトロール（スピードオバケ用）</summary>
+        Patrol,
+    }
+}
+```
+
+#### [MODIFY] GhostInStaticObjectStruct.cs
+```diff
+     public struct GhostInStaticObjectStruct
+     {
+         /// <summary>ポルターガイストのビューID</summary>
+         public int poltergeistViewID;
+         /// <summary>オバケ団体ID</summary>
+         public ReactiveProperty<string> ghostTeamID;
+         /// <summary>利用ステータス（空室／使用中）</summary>
+         public UseStatus useStatus;
+         /// <summary>利用人数</summary>
+         public int membersCount;
+         /// <summary>オバケの攻撃タイプ</summary>
+         public GhostAttackType attackType;
++        /// <summary>オバケの移動タイプ</summary>
++        public MoveType moveType;
+     }
+```
+
+#### [MODIFY] PoltergeistTable.cs
+```diff
+     public class PoltergeistTableSubSettings
+     {
+         /// <summary>オバケの攻撃タイプの設定</summary>
+         public GhostAttack ghostAttack;
+ 
+         /// <summary>
+         /// オバケの攻撃タイプの設定
+         /// </summary>
+         [System.Serializable]
+         public class GhostAttack
+         {
+             [Tooltip("Assets/Mains/Prefabs/Level/DynamicObjects/SearchParts/GhostBulletBook.prefabをセットしておく。")]
+             public Transform ghostBulletBookPrefab;
+         }
++        
++        [Tooltip("スピードオバケが別の家具に移動するまでの時間（秒）")]
++        public float moveIntervalSeconds = 30f;
+     }
+
+```
+
+### 2. Mains (Scripts/Views etc.)
+> [!NOTE]
+> スピードオバケ（`MoveType.Patrol`）の場合、指定時間経過後に自動でオバケ逃亡の演出を再生し、その後 [ShuffleNewStaticObject()](file:///c:/God_Game_Creator_Evolution_2025_Remake/Beat_Shout_%F0%9F%98%B1_Mansion/Assets/Mains/Scripts/Views/PoltergeistView.cs#709-745) を呼び出す処理を組み込みます。
+
+#### [MODIFY] PoltergeistView.cs (および可能であれば ViewModel 管理)
+* `moveType` が `Patrol` の家具に入居している場合、[PoltergeistTable](file:///c:/God_Game_Creator_Evolution_2025_Remake/Beat_Shout_%F0%9F%98%B1_Mansion/Assets/Mains/Scripts/Commons/PoltergeistTable.cs#10-28) の `moveIntervalSeconds` を利用してUniRx (R3) のタイマー (`Observable.TimerFrame` 等) をセットします。
+* 30秒経過時に [PlayMoveGhostDirection](file:///c:/God_Game_Creator_Evolution_2025_Remake/Beat_Shout_%F0%9F%98%B1_Mansion/Assets/Mains/Scripts/Views/PoltergeistView.cs#976-1019) メソッドを呼び出し、オバケが飛び出す演出を再生します。演出終了時に [ShuffleNewStaticObject()](file:///c:/God_Game_Creator_Evolution_2025_Remake/Beat_Shout_%F0%9F%98%B1_Mansion/Assets/Mains/Scripts/Views/PoltergeistView.cs#709-745) を実行して移動先へ引っ越します。
+* インタラクション中やシャウトチャンス・リズムパート中は移動処理を一時停止、または破棄する考慮を含めます（`_disposableBag`での管理等）。
+
+**【コード修正案（PoltergeistView.cs）】**
+
+```csharp
+// メンバ変数としてタイマー購読用のDisposableを保持
+private System.IDisposable patrolTimerDisposable = null;
+
+// オバケが入室・部屋の状態が更新されたタイミング（Start内など、ghostInStaticObjectStructを監視している箇所）でタイマーをセット
+_poltergeistViewModel.GhostInStaticObjectStructs.ObserveReplace()
+    .Where(x => x.NewValue.poltergeistViewID == ghostInStaticObjectStruct.poltergeistViewID)
+    .Subscribe(x =>
+    {
+        // ...既存の状態更新処理...
+        
+        // 前回のタイマーを破棄
+        patrolTimerDisposable?.Dispose();
+
+        // 自分がPatrolタイプであり、使用中（空室でない）かつ探索パート中の場合のみタイマースタート
+        if (x.NewValue.moveType == MoveType.Patrol && x.NewValue.useStatus == UseStatus.Using)
+        {
+            StartPatrolTimer();
+        }
+    })
+    .AddTo(ref _disposableBag);
+
+// パート切り替え時にもタイマーを制御（リズムパート中などは停止・再開を考慮）
+_poltergeistViewModel.InteractionPart.Subscribe(part => 
+{
+    if (part != InteractionPart.Search) 
+    {
+        // 探索パート以外は移動タイマーを停止
+        patrolTimerDisposable?.Dispose();
+    } 
+    else if (ghostInStaticObjectStruct.moveType == MoveType.Patrol && ghostInStaticObjectStruct.useStatus == UseStatus.Using)
+    {
+        // 探索パートに戻ったらタイマー再開
+        StartPatrolTimer();
+    }
+}).AddTo(ref _disposableBag);
+
+/// <summary>
+/// スピードオバケ用のパトロール（引っ越し）タイマーを開始する
+/// </summary>
+private void StartPatrolTimer()
+{
+    patrolTimerDisposable?.Dispose();
+
+    // Inspectorで設定した秒数を取得（例: 30秒）
+    float interval = poltergeistTable.subSettings.moveIntervalSeconds;
+
+    patrolTimerDisposable = Observable.Timer(System.TimeSpan.FromSeconds(interval))
+        .Subscribe(_ =>
+        {
+            // まずターゲットを自分に設定し、演出対象であることをViewModelに通知
+            _poltergeistViewModel.SetTargetGhost(_transform);
+            _poltergeistViewModel.SetIsMoveGhostDirectionTarget(true);
+
+            // 逃げる演出（PlayMoveGhostDirection）を呼び出し。
+            // ※ missGhostEscapePosition 等は既存のStart()内で取得しているものを利用
+            Transform instanceMissGhostEscape = null; // またはプールから取得
+            var direction = PlayMoveGhostDirection(
+                poltergeistTable.missGhostEscapePrefab, 
+                missGhostEscapePosition, 
+                missGhostEscapeEulerAngles, 
+                _transform, 
+                _script_XyloApi,
+                _poltergeistViewModel, 
+                instanceMissGhostEscape
+            );
+
+            direction.Take(1).Subscribe(__ =>
+            {
+                // 演出完了後
+                _poltergeistViewModel.SetTargetGhost(null);
+                _poltergeistViewModel.SetIsMoveGhostDirectionTarget(false);
+                
+                // 実際の引っ越し処理を実行
+                ShuffleNewStaticObject();
+            }).AddTo(ref _disposableBag);
+
+        }).AddTo(ref _disposableBag);
+}
+```
+
+---
+
+## 確認事項 (User Review Required)
+> [!IMPORTANT]
+> 以下の点について実装方針に問題がないかご確認をお願いします：
+> 1. 新規Enumの名称は `MoveType` で、値は `None` / `Patrol` の2つでよろしいでしょうか？
+> 2. インスペクターへの追加先として [GhostInStaticObjectStruct](file:///c:/God_Game_Creator_Evolution_2025_Remake/Beat_Shout_%F0%9F%98%B1_Mansion/Assets/Mains/Scripts/Commons/GhostInStaticObjectStruct.cs#9-23) とし、時間パラメータ追加先を [PoltergeistTable](file:///c:/God_Game_Creator_Evolution_2025_Remake/Beat_Shout_%F0%9F%98%B1_Mansion/Assets/Mains/Scripts/Commons/PoltergeistTable.cs#10-28) といたしますが、認識に相違ないでしょうか？
+> 3. 移動後の元の家具は `UseStatus.Empty` (空室状態) に戻します。これによりポルターガイストは停止しますが、後から別のオバケが引っ越してくる可能性は残ります。もし「そのゲーム中二度と使われない」とする場合は、別のステータス(`Disabled`等)を追加する必要がありますが、いかがでしょうか？
+
+よろしければ、この方針に基づいて実際の実装・スクリプト変更を行います。ご指示をお願いいたします。
