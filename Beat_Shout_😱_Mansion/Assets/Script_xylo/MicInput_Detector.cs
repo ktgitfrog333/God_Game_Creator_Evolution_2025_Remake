@@ -71,22 +71,8 @@ public class MicInput_Criware : MonoBehaviour
     private float lastVolumeUpdateTime = 0f; // 前回の音量更新時刻
     private const float VOLUME_UPDATE_INTERVAL = 0.1f; // 音量更新間隔（秒）
 
-
-    // シングルトン
-    public static MicInput_Criware Instance { get; private set; }
-
-    
     void Start()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-
         StartCoroutine(InitializeMicrophoneWithDelay());
 
         // スライダーの範囲を設定
@@ -370,7 +356,7 @@ public class MicInput_Criware : MonoBehaviour
     /// <summary>
     /// 平均化された音量を取得するメソッド
     /// </summary>
-    public float GetAveragedVolume()
+    private float GetAveragedVolume()
     {
         if (volumeHistory.Count == 0)
             return 0f;

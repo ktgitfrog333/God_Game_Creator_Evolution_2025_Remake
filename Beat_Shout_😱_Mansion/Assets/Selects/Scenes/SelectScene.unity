@@ -2421,7 +2421,7 @@ MonoBehaviour:
   _listenerOnStart: {fileID: 0}
   _use3dPositioning: 0
   _freezeOrientation: 0
-  _loop: 1
+  _loop: 0
   _volume: 1
   _pitch: 0
   _androidUseLowLatencyVoicePool: 0
@@ -2451,6 +2451,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   AisacControl_00: Aisac_0
   AisacControl_01: Aisac_1
+  AisacControl_02: Aisac_2
+  AisacControl_03: Aisac_3
   OnNoBgm: 0
   transitionDuration: 3
   transitionDuration2: 0.05
@@ -2470,7 +2472,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ThisStageNumber: 0
-  introDelayTime: 12.2
+  NoIntroScene: 0
   atomSourceA: {fileID: 1184253449}
   atomSourceB: {fileID: 1184253448}
   atomSourceC: {fileID: 1184253448}
@@ -2480,7 +2482,6 @@ MonoBehaviour:
   BeatOffSet: -0.07
   BasicBeat: 0
   frameRate: 0
-  IntroMovieScene: {fileID: 0}
   BGM_A_Sw: 0
   BGM_B_Sw: 0
   BGM_C_Sw: 0
@@ -3607,15 +3608,15 @@ MonoBehaviour:
   acfFile: BSM_xylo.acf
   cueSheets:
   - name: SE_System
-    acbFile: SE_System.acb
+    acbFile: BSM_xylo_250215/SE_System.acb
     awbFile: 
     loaderStatus: 0
   - name: BGM
-    acbFile: BGM.acb
-    awbFile: BGM.awb
+    acbFile: BSM_xylo_250215/BGM.acb
+    awbFile: 
     loaderStatus: 0
   - name: SE_Long
-    acbFile: SE_Long.acb
+    acbFile: BSM_xylo_250215/SE_Long.acb
     awbFile: 
     loaderStatus: 0
   dspBusSetting: 

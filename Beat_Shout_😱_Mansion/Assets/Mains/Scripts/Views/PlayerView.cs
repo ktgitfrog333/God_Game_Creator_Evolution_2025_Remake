@@ -1,15 +1,15 @@
-using DG.Tweening;
-using Mains.Commons;
-using Mains.External;
-using Mains.Manager;
-using Mains.ViewModels;
-using R3;
-using Rewired;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using UnityEngine;
+using Rewired;
+using R3;
+using Mains.Commons;
+using Mains.ViewModels;
+using System.Linq;
+using Mains.External;
+using System.Collections.Generic;
+using Mains.Manager;
+using DG.Tweening;
+using System.Collections;
+using System.Threading.Tasks;
 using UnityEngine.SceneManagement;
 
 namespace Mains.Views
@@ -52,12 +52,6 @@ namespace Mains.Views
         private Script_xyloApi _script_XyloApi;
         /// <summary>Start完了を通知するObservable（Trueになったら1度だけ発火）</summary>
         private Subject<Unit> _didStartAsObservable = new Subject<Unit>();
-        /// <summary>吸気入力監視用_ボタン</summary>
-        private bool _isInhaling;
-        /// <summary>吸気入力監視用_LRトリガー</summary>
-        private bool _isDualInhaling;
-        /// <summary>ボタン入力によるマイク入力時間</summary>
-        private float _shoutNoteMicTimer;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -296,13 +290,6 @@ namespace Mains.Views
             _script_XyloApi.InitVolumeLevelReactive();
             // 恐怖値のカウントを停止する
             bool isStopHorrorCount = false;
-            // 視界ジャック用ゴースト
-            Transform targetGhost = null;
-            _playerViewModel.TargetGhost.Subscribe(x =>
-            {
-                targetGhost = x;
-            })
-                .AddTo(ref _disposableBag);
             Observable.EveryUpdate()
                 .Select(_ => _playerViewModel.InteractionPart)
                 .Where(x => x != null)
@@ -316,9 +303,8 @@ namespace Mains.Views
                     System.IDisposable observableIsFailedDisposable = null;
                     System.IDisposable observableTargetCrossPositionDisposable = null;
                     System.IDisposable volumeLevelReactiveDisposable = null;
-                    System.IDisposable interactionPartDisposable = null;
                     Camera mainCamera = null;
-                    interactionPartDisposable = x.Pairwise()
+                    x.Pairwise()
                         .Subscribe(part =>
                         {
                             // None⇒探索（1. 探索、シャウト用の操作）
@@ -413,7 +399,16 @@ namespace Mains.Views
                                             }
                                         }
                                         // 視点移動入力
-                                        AjustHeadEulerAnglesXY(targetGhost, headTrans, player, ref currentYaw, ref currentPitch, 視点速度補正);
+                                        float aimX = player.GetAxis("AimMoveHorizontal");
+                                        float aimY = player.GetAxis("AimMoveVertical");
+                                        // 視点変更 (角度を直接加算)
+                                        currentYaw += aimX * 視点速度補正 * Time.deltaTime;
+                                        currentPitch -= aimY * 視点速度補正 * Time.deltaTime;
+
+                                        // ピッチ角度を制限 (-90度～90度)
+                                        // TODO: 外的要因（シャウト成功による自動移動等）で取得角度がエッジケースに該当することがある
+                                        //       currentPitchが0⇒359.3694⇒90（※Mathf.Clampの補間）⇒唐突にプレイヤーが土下座する
+                                        currentPitch = Mathf.Clamp(currentPitch, -90f, 90f);
 
                                         // 回転を適用
                                         headTrans.rotation = Quaternion.Euler(currentPitch, currentYaw, 0f);
@@ -525,7 +520,6 @@ namespace Mains.Views
                                     })
                                     .AddTo(ref _disposableBag);
                                 observableUpdateIsFailedDisposable = Observable.EveryUpdate()
-                                    .Where(_ => _playerViewModel.EnemyBattlePart.Equals(EnemyBattlePart.Normal))
                                     .Select(_ => _playerViewModel.IsFailed)
                                     .Where(x => x != null)
                                     .Take(1)
@@ -552,13 +546,6 @@ namespace Mains.Views
                                     switch (part.Current)
                                     {
                                         case InteractionPart.Search:
-                                            // ここだけクリア状態を直接参照しないと修正が困難なため
-                                            if (_playerViewModel.IsMissionClear)
-                                            {
-                                                // クリアなら後続処理は中断
-                                                return;
-                                            }
-
                                             var localPosition = originHeadTransLocalPosition;
                                             headTrans.localPosition = localPosition;
                                             if (followPlayerCameraView != null)
@@ -572,11 +559,7 @@ namespace Mains.Views
                                                     StartCoroutine(_fadeImageView.PlayFadeOutDirection(observer, default, false));
                                                     return Disposable.Empty;
                                                 })
-                                                    .Take(1)
-                                                    .Subscribe(_ =>
-                                                    {
-                                                        _playerViewModel.SetIsPostRhythmFaceOff(true);
-                                                    })
+                                                    .Subscribe(_ => { })
                                                     .AddTo(ref _disposableBag);
                                                 player.controllers.maps.SetMapsEnabled(true, "Default");
                                             }
@@ -591,11 +574,7 @@ namespace Mains.Views
                                                             StartCoroutine(_fadeImageView.PlayFadeOutDirection(observer, default, false));
                                                             return Disposable.Empty;
                                                         })
-                                                            .Take(1)
-                                                            .Subscribe(_ =>
-                                                            {
-                                                                _playerViewModel.SetIsPostRhythmFaceOff(true);
-                                                            })
+                                                            .Subscribe(_ => { })
                                                             .AddTo(ref _disposableBag);
                                                         player.controllers.maps.SetMapsEnabled(true, "Default");
                                                     })
@@ -621,16 +600,8 @@ namespace Mains.Views
                                     break;
                             }
                         })
-                        .AddTo(ref _disposableBag);
-                    // クリア時には購読停止
-                    _playerViewModel.IsMissionClearReactive.Where(x => x)
-                        .Take(1)
-                        .Subscribe(_ =>
-                        {
-                            interactionPartDisposable?.Dispose();
-                            observablePlayerControllerDisposable?.Dispose();
-                        })
-                        .AddTo(ref _disposableBag);
+                    .AddTo(ref _disposableBag);
+
                     // 自力でExecute
                     x.Value = InteractionPart.None;
                     x.Value = InteractionPart.Search;
@@ -709,14 +680,10 @@ namespace Mains.Views
                                             if (hit.collider != null && hit.collider.name.StartsWith("ShoutChanceRange"))
                                             {
                                                 Transform t = hit.collider.transform;
-                                                if (!shoutChanceRanges.Contains(t))
+                                                if (!shoutChanceRanges.Contains(t) &&
+                                                    t.GetComponentInChildren<PoltergeistView>().GhostInStaticObjectStruct.useStatus.Equals(UseStatus.Using))
                                                 {
-                                                    // シャウトチャンスの範囲の親オブジェクトである静的コライダー群から家具が持つコンポーネントを取得
-                                                    var shoutChanceRangeView = t.GetComponent<ShoutChanceRangeView>();
-                                                    if (shoutChanceRangeView.UseStatus.Equals(UseStatus.Using))
-                                                    {
-                                                        shoutChanceRanges.Add(t);
-                                                    }
+                                                    shoutChanceRanges.Add(t);
                                                 }
                                             }
                                         }
@@ -737,7 +704,7 @@ namespace Mains.Views
                                         // [シャウト成功インタラクション] 1. シャウトチャンスレンジの中でオバケが潜んでいる家具かつ、一番近いコライダーからポルターガイストビューを取得
                                         poltergeistView = shoutChanceRanges
                                             .OrderBy(t => Vector3.SqrMagnitude(t.position - headTrans.position))
-                                            .Select(q => q.GetComponent<ShoutChanceRangeView>().PoltergeistView)
+                                            .Select(q => q.GetComponentInChildren<PoltergeistView>())
                                             .FirstOrDefault();
                                         // [シャウト成功インタラクション] 2. オバケが飛び出すエフェクト生成
                                         poltergeistView.AsyncDoBurstGhosts();
@@ -769,19 +736,77 @@ namespace Mains.Views
                 })
                 .AddTo(ref _disposableBag);
 
+            // 吸気入力監視用
+            bool isInhaling = false;
+            bool isDualInhaling = false;
+
             Observable.EveryUpdate()
                 .Where(_ => characterController.enabled)
                 .Subscribe(_ =>
                 {
-                    InputMic(player, dbLevel);
-                })
-                .AddTo(ref _disposableBag);
-            ReactiveProperty<float> dbLevelShoutNote = new ReactiveProperty<float>();
-            Observable.EveryUpdate()
-                .Where(_ => _playerViewModel.ShoutNoteActive)
-                .Subscribe(_ =>
-                {
-                    InputMicButtonOnly(player, dbLevelShoutNote);
+                    bool inhaleHeld = player.GetButtonDown("Inhale");
+                    bool inhaleHeldCon = (player.GetButtonDown("InhaleHalfLeft") && player.GetButton("InhaleHalfRight")) ||
+                        (player.GetButton("InhaleHalfLeft") && player.GetButtonDown("InhaleHalfRight"));
+                    bool isMicInput = _script_XyloApi.IsMicInput();
+
+                    // Inhale 単体の入力
+                    if (inhaleHeld &&
+                        !inhaleHeldCon &&
+                        !isMicInput)
+                    {
+                        if (!isInhaling)
+                        {
+                            isInhaling = true;
+                            // キー／トリガー入力のためそれっぽいMAX値をセット
+                            dbLevel.Value = シャウトチャンスパートの共通パラメータ管理用テーブル.シャウトゲージスライダー最大値;
+                        }
+                    }
+                    else
+                    {
+                        if (isInhaling)
+                        {
+                            isInhaling = false;
+                        }
+                    }
+
+                    // 両方のHalfInhaleを長押し
+                    if (inhaleHeldCon &&
+                        !inhaleHeld &&
+                        !isMicInput)
+                    {
+                        if (!isDualInhaling)
+                        {
+                            isDualInhaling = true;
+                            // キー／トリガー入力のためそれっぽいMAX値をセット
+                            dbLevel.Value = シャウトチャンスパートの共通パラメータ管理用テーブル.シャウトゲージスライダー最大値;
+                        }
+                    }
+                    else
+                    {
+                        if (isDualInhaling)
+                        {
+                            isDualInhaling = false;
+                        }
+                    }
+
+                    // マイク入力の取得
+                    if (!inhaleHeld &&
+                        !inhaleHeldCon &&
+                        isMicInput)
+                    {
+                        dbLevel.Value = _script_XyloApi.GetDBLevel();
+                    }
+
+                    _playerViewModel.SetDbLevel(dbLevel.Value);
+                    // どちらも押されていない場合も毎フレーム 0 に戻す（押し直しに備える）
+                    if (!inhaleHeld && !inhaleHeldCon &&
+                        !isMicInput)
+                    {
+                        if (!isInhaling && !isDualInhaling)
+                        {
+                            dbLevel.Value = 0f;
+                        }
+                    }
                 })
                 .AddTo(ref _disposableBag);
             // ライトは一旦、消す
@@ -830,127 +855,17 @@ namespace Mains.Views
             _didStartAsObservable.OnCompleted();
         }
 
-        /// <summary>
-        /// マイク入力を反映
-        /// </summary>
-        /// <param name="player">Rewired</param>
-        /// <param name="dbLevel">デシベルレベル</param>
-        private void InputMic(Player player, ReactiveProperty<float> dbLevel)
+        private void OnGUI()
         {
-            bool inhaleHeld = player.GetButtonDown("Inhale");
-            bool inhaleHeldCon = (player.GetButtonDown("InhaleHalfLeft") && player.GetButton("InhaleHalfRight")) ||
-                (player.GetButton("InhaleHalfLeft") && player.GetButtonDown("InhaleHalfRight"));
-            bool isMicInput = _script_XyloApi.IsMicInput();
-
-            // Inhale 単体の入力
-            if (inhaleHeld &&
-                !inhaleHeldCon &&
-                !isMicInput)
+#if UNITY_EDITOR
+            // ボタンの位置とサイズ (x, y, width, height)
+            Rect buttonRect = new Rect(10, 10, 150, 50);
+            if (GUI.Button(buttonRect, "InteractionPart を初期化"))
             {
-                if (!_isInhaling)
-                {
-                    _isInhaling = true;
-                    // キー／トリガー入力のためそれっぽいMAX値をセット
-                    dbLevel.Value = シャウトチャンスパートの共通パラメータ管理用テーブル.シャウトゲージスライダー最大値;
-                }
+                _playerViewModel.SetInteractionPart(InteractionPart.None);
+                _playerViewModel.SetInteractionPart(InteractionPart.Search);
             }
-            else
-            {
-                if (_isInhaling)
-                {
-                    _isInhaling = false;
-                }
-            }
-
-            // 両方のHalfInhaleを長押し
-            if (inhaleHeldCon &&
-                !inhaleHeld &&
-                !isMicInput)
-            {
-                if (!_isDualInhaling)
-                {
-                    _isDualInhaling = true;
-                    // キー／トリガー入力のためそれっぽいMAX値をセット
-                    dbLevel.Value = シャウトチャンスパートの共通パラメータ管理用テーブル.シャウトゲージスライダー最大値;
-                }
-            }
-            else
-            {
-                if (_isDualInhaling)
-                {
-                    _isDualInhaling = false;
-                }
-            }
-
-            // マイク入力の取得
-            if (!inhaleHeld &&
-                !inhaleHeldCon &&
-                isMicInput)
-            {
-                dbLevel.Value = _script_XyloApi.GetDBLevel();
-            }
-
-            _playerViewModel.SetDbLevel(dbLevel.Value);
-            // どちらも押されていない場合も毎フレーム 0 に戻す（押し直しに備える）
-            if (!inhaleHeld && !inhaleHeldCon &&
-                !isMicInput)
-            {
-                if (!_isInhaling && !_isDualInhaling)
-                {
-                    dbLevel.Value = 0f;
-                }
-            }
-        }
-
-        /// <summary>
-        /// マイク入力を反映
-        /// </summary>
-        /// <param name="player">Rewired</param>
-        /// <param name="dbLevelShoutNote">デシベルレベル（シャウトノーツ用）</param>
-        /// <remarks>ボタン入力のみ</remarks>
-        private void InputMicButtonOnly(Player player, ReactiveProperty<float> dbLevelShoutNote)
-        {
-            float releaseTimeSec = シャウトチャンスパートの共通パラメータ管理用テーブル.マイク手動入力解放時間;
-
-            bool inhaleHeld = player.GetButtonDown("Inhale");
-            bool inhaleHeldCon = (player.GetButtonDown("InhaleHalfLeft") && player.GetButton("InhaleHalfRight")) ||
-                (player.GetButton("InhaleHalfLeft") && player.GetButtonDown("InhaleHalfRight"));
-            bool isMicInput = _script_XyloApi.IsMicInput();
-
-            // Inhale 単体の入力 (長押しには対応させないのでGetButtonDownの時のみ判定)
-            if (inhaleHeld &&
-                !inhaleHeldCon &&
-                !isMicInput)
-            {
-                // タイマーの延長（セット）
-                _shoutNoteMicTimer = releaseTimeSec;
-            }
-
-            // 両方のHalfInhaleの入力 (長押しには対応させない)
-            if (inhaleHeldCon &&
-                !inhaleHeld &&
-                !isMicInput)
-            {
-                // タイマーの延長（セット）
-                _shoutNoteMicTimer = releaseTimeSec;
-            }
-
-            // タイマーが有効な場合は入力値として渡す
-            if (_shoutNoteMicTimer > 0f)
-            {
-                _shoutNoteMicTimer -= Time.deltaTime;
-                dbLevelShoutNote.Value = シャウトチャンスパートの共通パラメータ管理用テーブル.マイク手動入力値;
-
-                if (_shoutNoteMicTimer <= 0f)
-                {
-                    dbLevelShoutNote.Value = 0f;
-                }
-            }
-
-            if (0f < dbLevelShoutNote.Value)
-            {
-                _script_XyloApi.SetMicButtonInput(dbLevelShoutNote.Value);
-            }
+#endif
         }
 
         private void OnDestroy()
@@ -998,42 +913,6 @@ namespace Mains.Views
             observer.OnCompleted();
 
             yield return null;
-        }
-
-        /// <summary>
-        /// 頭の角度XYを調整
-        /// </summary>
-        /// <param name="targetGhost">視界ジャック用ゴースト</param>
-        /// <param name="headTrans">カメラ視線用のトランスフォーム</param>
-        /// <param name="player">Rewiredのプレイヤー</param>
-        /// <param name="currentYaw">視点</param>
-        /// <param name="currentPitch">ピッチ</param>
-        /// <param name="aimSensitivity">視点速度補正</param>
-        private void AjustHeadEulerAnglesXY(Transform targetGhost, Transform headTrans, Player player, ref float currentYaw, ref float currentPitch, float aimSensitivity)
-        {
-            if (targetGhost != null)
-            {
-                Vector3 lookDir = targetGhost.position - headTrans.position;
-                if (lookDir.sqrMagnitude > 0.001f)
-                {
-                    Quaternion lookRotation = Quaternion.LookRotation(lookDir.normalized, Vector3.up);
-                    var euler = lookRotation.eulerAngles;
-                    currentPitch = euler.x;
-                    currentYaw = euler.y;
-                }
-            }
-            else
-            {
-                float aimX = player.GetAxis("AimMoveHorizontal");
-                float aimY = player.GetAxis("AimMoveVertical");
-                // 視点変更 (角度を直接加算)
-                currentYaw += aimX * aimSensitivity * Time.deltaTime;
-                currentPitch -= aimY * aimSensitivity * Time.deltaTime;
-
-                // ピッチ角度を制限 (-90度～90度)
-                currentPitch = Mathf.DeltaAngle(0, currentPitch); // 340度なら-20度に変換される
-                currentPitch = Mathf.Clamp(currentPitch, -90f, 90f);
-            }
         }
 
         /// <summary>

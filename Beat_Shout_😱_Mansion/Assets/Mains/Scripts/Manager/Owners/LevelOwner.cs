@@ -20,8 +20,7 @@ namespace Mains.Manager.Owners
         private Transform _instancedLevel;
         /// <summary>インスタンス済みレベル</summary>
         public Transform InstancedLevel => _instancedLevel;
-        /// <summary>レベル構造体管理テーブル</summary>
-        [SerializeField] private LevelTable levelTable;
+        [SerializeField] private LevelStruct[] レベル構造体リスト;
         [SerializeField] private bool ステージを動的に生成する;
         [SerializeField] private OverridesDirectionalLightStruct DirectionalLightを継承して再設定;
         [SerializeField] private OverridesMainCameraStruct MainCameraを継承して再設定;
@@ -46,23 +45,22 @@ namespace Mains.Manager.Owners
             mainCamera.enabled = false;
             var temp = new ResourcesUtility();
             var userBean = temp.LoadSaveDatasJsonOfUserBean(ConstResorcesNames.USER_DATA);
-            var levelStructs = levelTable.レベル構造体リスト;
             if (ステージを動的に生成する)
             {
                 _level = GameObject.Find("Level").transform;
-                var stage = levelStructs.FirstOrDefault(q => q.階層 == userBean.sceneIdx).Stage_xと書かれたプレハブ;
+                var stage = レベル構造体リスト.FirstOrDefault(q => q.階層 == userBean.sceneIdx).Stage_xと書かれたプレハブ;
                 if (stage == null)
                     throw new System.ArgumentNullException($"条件に一致するステージインデックス [{userBean.sceneIdx}] が見つかりませんでした。");
 
                 _instancedLevel = Instantiate(stage.transform, Vector3.zero, Quaternion.identity, _level).transform;
             }
             var sceneIdx = userBean.sceneIdx;
-            var levelStruct = levelStructs.FirstOrDefault(q => q.階層 == sceneIdx);
+            var levelStruct = レベル構造体リスト.FirstOrDefault(q => q.階層 == sceneIdx);
             if (levelStruct.Stage_xと書かれたプレハブ == null)
             {
                 Debug.LogError($"条件に一致するステージインデックス [{sceneIdx}] が見つかりませんでした。");
                 sceneIdx = 0;
-                levelStruct = levelStructs.FirstOrDefault(q => q.階層 == sceneIdx);
+                levelStruct = レベル構造体リスト.FirstOrDefault(q => q.階層 == sceneIdx);
             }
             _playerHealthPointMax = levelStruct.開始時のプレイヤーの最大体力;
             _horrorCountMax = levelStruct.恐怖値最大;

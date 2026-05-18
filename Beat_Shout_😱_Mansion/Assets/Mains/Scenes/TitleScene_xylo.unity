@@ -378,7 +378,6 @@ MonoBehaviour:
   AcbFilePath: SE_Long.acb
   maxPlayers: 5
   IntroStage01: search-part_Aintro
-  isNotStage: 0
 --- !u!1 &154078062
 GameObject:
   m_ObjectHideFlags: 0
@@ -1404,6 +1403,7 @@ MonoBehaviour:
   CueSheetName: SE_System
   AcbFilePath: SE_System.acb
   maxPlayers: 10
+  FootStep: footstep
 --- !u!1 &635365403
 GameObject:
   m_ObjectHideFlags: 0
@@ -2292,6 +2292,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   AisacControl_00: Aisac_0
   AisacControl_01: Aisac_1
+  AisacControl_02: Aisac_2
+  AisacControl_03: Aisac_3
   OnNoBgm: 0
   transitionDuration: 3
   transitionDuration2: 0.05
@@ -2311,7 +2313,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ThisStageNumber: 0
-  introDelayTime: 0.5
   atomSourceA: {fileID: 951453400}
   atomSourceB: {fileID: 951453399}
   atomSourceC: {fileID: 951453399}
@@ -2321,7 +2322,6 @@ MonoBehaviour:
   BeatOffSet: -0.07
   BasicBeat: 0
   frameRate: 0
-  IntroMovieScene: {fileID: 0}
   BGM_A_Sw: 0
   BGM_B_Sw: 0
   BGM_C_Sw: 0
@@ -3158,15 +3158,15 @@ MonoBehaviour:
   acfFile: BSM_xylo.acf
   cueSheets:
   - name: SE_System
-    acbFile: SE_System.acb
+    acbFile: BSM_xylo_250215/SE_System.acb
     awbFile: 
     loaderStatus: 0
   - name: BGM
-    acbFile: BGM.acb
-    awbFile: BGM.awb
+    acbFile: BSM_xylo_250215/BGM.acb
+    awbFile: 
     loaderStatus: 0
   - name: SE_Long
-    acbFile: SE_Long.acb
+    acbFile: BSM_xylo_250215/SE_Long.acb
     awbFile: 
     loaderStatus: 0
   dspBusSetting: 
@@ -3926,7 +3926,6 @@ MonoBehaviour:
   gameSceneName: GameScene
   FadeImage: {fileID: 188196180}
   fadeDuration: 1.5
-  enableDebugMode: 1
 --- !u!4 &1752158013
 Transform:
   m_ObjectHideFlags: 0

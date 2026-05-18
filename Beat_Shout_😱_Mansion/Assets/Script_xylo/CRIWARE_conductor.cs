@@ -12,7 +12,7 @@ using static CriWare.CriAtomExBeatSync;
 public class CRIWARE_conductor : MonoBehaviour
 {
     public int ThisStageNumber = 0;
-    public float introDelayTime = 0.5f;
+    public bool NoIntroScene = false;
 
     [HideInInspector] public static CRIWARE_conductor Instance { get; private set; } // シングルトンを設定
 
@@ -132,7 +132,8 @@ public class CRIWARE_conductor : MonoBehaviour
         Debug.Log("CRIWARE_conductor: 初期化完了");
 
         // BGM再生開始の待機時間（Time.timeScaleの影響を受けない）
-        yield return new WaitForSecondsRealtime(introDelayTime);
+        float delayTime = NoIntroScene ? 0.5f : 10.5f;
+        yield return new WaitForSecondsRealtime(delayTime);
 
         DelayBGMLoopStart();
         Debug.Log("CRIWARE_conductor: BGM再生開始");
@@ -191,7 +192,6 @@ public class CRIWARE_conductor : MonoBehaviour
 
     void DelayBGMLoopStart()
     {
-      //  CRIWARE_AisacChange.Instance.BGM7(); // ← これを追加
         CRIWARE_AisacChange.Instance.PlayStart(); // スタートのAisacを再生
     }
 
