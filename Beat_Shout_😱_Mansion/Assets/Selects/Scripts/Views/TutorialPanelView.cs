@@ -334,11 +334,14 @@ namespace Selects.Views
             Debug.DrawRay(origin, direction * aimDistance, Color.red);
 
             Physics.RaycastNonAlloc(origin, direction, _hitsPlayerAimToAny, aimDistance, layerMaskSearchRange);
-            foreach (RaycastHit hit in _hitsPlayerAimToAny)
+            if (_hitsPlayerAimToAny != null)
             {
-                if (hit.collider != null && hit.collider.Equals(target))
+                foreach (RaycastHit hit in _hitsPlayerAimToAny)
                 {
-                    return true;
+                    if (hit.collider != null && hit.collider.Equals(target))
+                    {
+                        return true;
+                    }
                 }
             }
 
