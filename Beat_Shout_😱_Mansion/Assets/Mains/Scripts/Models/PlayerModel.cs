@@ -5,6 +5,7 @@ using ObservableCollections;
 using System.Collections.Generic;
 using System.Linq;
 using Mains.Manager;
+using Selects.Commons;
 
 namespace Mains.Models
 {
@@ -13,7 +14,8 @@ namespace Mains.Models
     /// </summary>
     public class PlayerModel : MonoBehaviour, IPlayerModel, IPoltergeistModel, IRhythmPartPanelModel, IHomingObjectCustomizeModel,
         IMissGhostAttackCustomizeModel, IMissileDirectAnimManagerBCustomizeModel, ICommonPanelModel, IFadeImageModel,
-        IPlayerRespawnPositionModel, IHPDownDirectionModel, ICommonPanelModel1, IStageClearDirectionModel, IGhostBulletBookModel
+        IPlayerRespawnPositionModel, IHPDownDirectionModel, ICommonPanelModel1, IStageClearDirectionModel, IGhostBulletBookModel,
+        ITutorialPanelModel
     {
         /// <summary>【探索／シャウトチャンス／リズム】パート情報管理テーブル</summary>
         public InteractionPartTable InteractionPartTable { get; set; }
@@ -42,6 +44,14 @@ namespace Mains.Models
         };
         /// <summary>プレイヤープロパティの構造体</summary>
         public PlayerPropertiesStruct PlayerPropertiesStruct => _playerPropertiesStruct;
+        /// <summary>プレイヤーの懐中電灯</summary>
+        private Transform _playerFlashLight;
+        /// <summary>プレイヤーの懐中電灯</summary>
+        public Transform PlayerFlashLight => _playerFlashLight;
+        /// <summary>プレイヤーの頭</summary>
+        private Transform _playerHead;
+        /// <summary>プレイヤーの頭</summary>
+        public Transform PlayerHead => _playerHead;
         /// <summary>ターゲットクロス位置</summary>
         private readonly ReactiveCommand<Vector3> _targetCrossPosition = new();
         /// <summary>ターゲットクロス位置</summary>
@@ -155,6 +165,14 @@ namespace Mains.Models
         private float _midBosskillsRate;
         /// <summary>中ボスオバケ退治率</summary>
         public float MidBosskillsRate => _midBosskillsRate;
+        /// <summary>共通UIのヘッダパネルのトランスフォーム</summary>
+        private RectTransform _commonHeaderPanelRectTrans;
+        /// <summary>共通UIのヘッダパネルのトランスフォーム</summary>
+        public RectTransform CommonHeaderPanelRectTrans => _commonHeaderPanelRectTrans;
+        /// <summary>実行イベントの監視</summary>
+        private ReactiveCommand<EnumEventCommand> _eventStateReactive = new ReactiveCommand<EnumEventCommand>();
+        /// <summary>実行イベントの監視</summary>
+        public ReactiveCommand<EnumEventCommand> EventStateReactive => _eventStateReactive;
 
         private void Start()
         {
@@ -552,6 +570,26 @@ namespace Mains.Models
             _midBosskillsRate = midBosskillsRate;
             _midBosskillsRateReactive.Execute(_midBosskillsRate);
         }
+
+        public void SetPlayerFlashLight(Transform playerFlashLight)
+        {
+            _playerFlashLight = playerFlashLight;
+        }
+
+        public void SetCommonHeaderPanelRectTrans(RectTransform commonHeaderPanelRectTrans)
+        {
+            _commonHeaderPanelRectTrans = commonHeaderPanelRectTrans;
+        }
+
+        public void SetEventState(EnumEventCommand eventState)
+        {
+            _eventStateReactive.Execute(eventState);
+        }
+
+        public void SetPlayerHead(Transform playerHead)
+        {
+            _playerHead = playerHead;
+        }
     }
 
     /// <summary>
@@ -619,6 +657,16 @@ namespace Mains.Models
         /// </summary>
         /// <param name="isPostRhythmFaceOff">家具とプレイヤーがお互い向き合っている状態フラグ</param>
         public void SetIsPostRhythmFaceOff(bool isPostRhythmFaceOff);
+        /// <summary>
+        /// プレイヤーの懐中電灯をセット
+        /// </summary>
+        /// <param name="playerFlashLight">プレイヤーの懐中電灯</param>
+        public void SetPlayerFlashLight(Transform playerFlashLight);
+        /// <summary>
+        /// プレイヤーの頭をセット
+        /// </summary>
+        /// <param name="playerHead">プレイヤーの頭</param>
+        public void SetPlayerHead(Transform playerHead);
     }
 
     /// <summary>
@@ -799,6 +847,11 @@ namespace Mains.Models
         /// </summary>
         /// <param name="isOnTriggerEnterSearchRangeIndex">部屋の扉の前で調べる当たり判定に触れた階層</param>
         public void SetIsOnTriggerEnterSearchRangeIndex(int isOnTriggerEnterSearchRangeIndex);
+        /// <summary>
+        /// 共通UIのヘッダパネルのトランスフォームをセット
+        /// </summary>
+        /// <param name="commonHeaderPanelRectTrans">共通UIのヘッダパネルのトランスフォーム</param>
+        public void SetCommonHeaderPanelRectTrans(RectTransform commonHeaderPanelRectTrans);
     }
 
     /// <summary>
@@ -876,5 +929,17 @@ namespace Mains.Models
         /// </summary>
         /// <param name="isHitGhostAttack">オバケ攻撃のヒットフラグ</param>
         public void SetIsHitGhostAttack(bool isHitGhostAttack);
+    }
+
+    /// <summary>
+    /// チュートリアルパネルのモデルインターフェース
+    /// </summary>
+    public interface ITutorialPanelModel
+    {
+        /// <summary>
+        /// 敵戦パートをセット
+        /// </summary>
+        /// <param name="enemyBattlePart">敵戦パート</param>
+        public void SetEnemyBattlePart(EnemyBattlePart enemyBattlePart);
     }
 }

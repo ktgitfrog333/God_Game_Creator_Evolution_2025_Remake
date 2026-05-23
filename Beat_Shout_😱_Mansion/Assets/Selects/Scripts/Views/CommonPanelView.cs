@@ -21,6 +21,8 @@ namespace Selects.Views
     /// </summary>
     public class CommonPanelView : MonoBehaviour
     {
+        [Tooltip("CommonPanel > HeaderPanel をセット")]
+        [SerializeField] private RectTransform commonHeaderPanelRectTrans;
         [Tooltip("CommonPanel > HeaderPanel > ControlGuidePanelPC をセット")]
         [SerializeField] private RectTransform controlGuidePanelPC;
         [Tooltip("CommonPanel > HeaderPanel > ControlGuidePanelXbox360Con をセット")]
@@ -68,6 +70,11 @@ namespace Selects.Views
                 cursorIconImage = transform.GetChild(1).GetChild(2).GetChild(2) as RectTransform;
             foreach (Transform child in transform)
             {
+                if (child.name.Equals("HeaderPanel"))
+                {
+                    if (commonHeaderPanelRectTrans == null)
+                        commonHeaderPanelRectTrans = child as RectTransform;
+                }
                 if (child.name.Equals("CenterPanel"))
                 {
                     foreach (Transform item in child)
@@ -265,6 +272,7 @@ namespace Selects.Views
                 })
                 .AddTo(ref _disposableBag);
             _viewModel.IsOnTriggerEnterSearchRangeIndex.Execute(-1);
+            _viewModel.SetCommonHeaderPanelRectTrans(commonHeaderPanelRectTrans);
         }
 
         private void OnDestroy()

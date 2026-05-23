@@ -38,5 +38,10 @@ namespace Selects.ViewModels
             if (_playerModel != null)
                 _playerModel.SetIsOnTriggerEnterSearchRangeIndex(isOnTriggerEnterSearchRangeIndex);
         }
+
+        public void SetCommonHeaderPanelRectTrans(RectTransform commonHeaderPanelRectTrans)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

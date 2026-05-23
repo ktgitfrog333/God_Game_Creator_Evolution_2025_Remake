@@ -1909,6 +1909,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa2f8d25e9c8cc34ab695583f27c3d06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  commonHeaderPanelRectTrans: {fileID: 7818594881819608652}
   controlGuidePanelPC: {fileID: 3676468153977668112}
   controlGuidePanelXbox360Con: {fileID: 5754713253752885742}
   enterRoomPanel: {fileID: 2880913144677308491}

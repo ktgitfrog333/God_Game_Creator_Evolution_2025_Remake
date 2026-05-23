@@ -776,6 +776,10 @@ namespace Mains.Views
                     _script_XyloApi.ChangeBgmC();
 
                     break;
+                case EnemyBattlePart.Tutorial:
+                    _script_XyloApi.ChangeBgmB();
+
+                    break;
             }
             var subSettings = poltergeistTable.subSettings;
             List<System.IDisposable> disposables = new List<System.IDisposable>();
@@ -896,6 +900,22 @@ namespace Mains.Views
                                     // 条件を満たさない場合は即座に完了するObservableを追加（デッドロジック）
                                     completionObservables.Add(Observable.Return(true));
                                 }
+
+                                break;
+                            case EnemyBattlePart.Tutorial:
+                                // チュートリアルパートでは人数・HPに関わらず常にフェードアウト→浮遊停止→リセットを実行
+                                completionObservables.Add(
+                                    Observable.Create<bool>(observer =>
+                                    {
+                                        StartCoroutine(_fadeImageView.PlayFadeInDirection(observer));
+                                        return Disposable.Empty;
+                                    })
+                                    .Do(_ =>
+                                    {
+                                        _motorView?.DoStopFloaterAnimation();
+                                        ResetMovePosition(_initialPosition, _initialEulerAngles, _noTriggerColliders, _rigidbody, poltergeistAnimationSO);
+                                    })
+                                );
 
                                 break;
                         }
@@ -1059,6 +1079,11 @@ namespace Mains.Views
                     {
                         ShuffleNewStaticObject();
                     }
+
+                    break;
+                case EnemyBattlePart.Tutorial:
+                    // チュートリアルパートでは強制的に空室化する
+                    ExitGhost();
 
                     break;
             }

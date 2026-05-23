@@ -247,6 +247,18 @@ namespace Mains.ViewModels
                 _playerModel.SetIsPostRhythmFaceOff(isPostRhythmFaceOff);
         }
 
+        public void SetPlayerFlashLight(Transform playerFlashLight)
+        {
+            if (_playerModel != null)
+                _playerModel.SetPlayerFlashLight(playerFlashLight);
+        }
+
+        public void SetPlayerHead(Transform playerHead)
+        {
+            if (_playerModel != null)
+                _playerModel.SetPlayerHead(playerHead);
+        }
+
         public void Dispose()
         {
             _disposableBag.Dispose();

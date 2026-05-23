@@ -58,5 +58,19 @@ namespace Mains.Views
             observer.OnNext(true);
             observer.OnCompleted();
         }
+
+        /// <summary>
+        /// MissGhostAttackコンポーネントのオブジェクトを無効にする処理を呼び出す
+        /// </summary>
+        /// <returns>オブザーバー</returns>
+        public Observable<bool> DoAllDisabled()
+        {
+            return Observable.Create<bool>(observer =>
+            {
+                StartCoroutine(AllDisabled(observer));
+
+                return Disposable.Empty;
+            });
+        }
     }
 }

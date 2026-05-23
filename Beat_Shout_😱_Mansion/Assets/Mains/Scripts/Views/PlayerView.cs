@@ -79,6 +79,27 @@ namespace Mains.Views
                 {
                     if (headTrans == null)
                         headTrans = child;
+                    foreach (Transform item in child)
+                    {
+                        if (item.name.Equals("Elbow"))
+                        {
+                            foreach (Transform item1 in item)
+                            {
+                                if (item1.name.Equals("Arm"))
+                                {
+                                    foreach (Transform item2 in item1)
+                                    {
+                                        if (item2.name.Equals("FlashLight"))
+                                        {
+                                            var set = settings;
+                                            if (set.FlashLight == null)
+                                                set.FlashLight = item2;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -825,7 +846,9 @@ namespace Mains.Views
                         MoveToPoint(startTrans, _playerViewModel.IsCompletedStartDirection, trans, characterController, ref currentYaw);
                     })
                     .AddTo(ref _disposableBag);
+                _playerViewModel.SetPlayerFlashLight(settings.FlashLight);
             }
+            _playerViewModel.SetPlayerHead(headTrans);
             _didStartAsObservable.OnNext(Unit.Default);
             _didStartAsObservable.OnCompleted();
         }
@@ -1166,5 +1189,7 @@ namespace Mains.Views
         /// <summary>対象シーン名</summary>
         /// <remarks>セレクトシーンを指定する</remarks>
         public string targetSceneName;
+        /// <summary>懐中電灯</summary>
+        public Transform FlashLight;
     }
 }

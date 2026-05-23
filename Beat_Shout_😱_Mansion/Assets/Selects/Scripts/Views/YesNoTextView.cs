@@ -1,5 +1,6 @@
 using R3;
 using Selects.Commons;
+using Selects.ViewModels;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -38,6 +39,8 @@ namespace Selects.Views
         private int _index;
         /// <summary>イベントシステム</summary>
         private EventSystem _eventSystem;
+        /// <summary>YesNoテキストのビューモデル</summary>
+        private YesNoTextViewModel _viewModel;
 
         private void Reset()
         {
@@ -49,6 +52,7 @@ namespace Selects.Views
         {
             _index = transform.GetSiblingIndex();
             _eventSystem = FindAnyObjectByType<EventSystem>();
+            _viewModel = new YesNoTextViewModel();
         }
 
         private async void OnEnable()
@@ -59,10 +63,12 @@ namespace Selects.Views
                 await Task.Delay(100);
                 _eventSystem.SetSelectedGameObject(gameObject);
                 _eventState.Execute(EnumEventCommand.Selected);
+                _viewModel.SetEventState(EnumEventCommand.Selected);
             }
             else
             {
                 _eventState.Execute(EnumEventCommand.Default);
+                _viewModel.SetEventState(EnumEventCommand.Default);
             }
         }
 
@@ -72,6 +78,7 @@ namespace Selects.Views
         public void Selected()
         {
             _eventState.Execute(EnumEventCommand.Selected);
+            _viewModel.SetEventState(EnumEventCommand.Selected);
         }
 
         /// <summary>
@@ -80,6 +87,7 @@ namespace Selects.Views
         public void DeSelected()
         {
             _eventState.Execute(EnumEventCommand.DeSelected);
+            _viewModel.SetEventState(EnumEventCommand.DeSelected);
         }
 
         /// <summary>
@@ -88,6 +96,7 @@ namespace Selects.Views
         public virtual void Submited()
         {
             _eventState.Execute(EnumEventCommand.Submited);
+            _viewModel.SetEventState(EnumEventCommand.Submited);
         }
 
         /// <summary>
@@ -96,6 +105,7 @@ namespace Selects.Views
         public void Canceled()
         {
             _eventState.Execute(EnumEventCommand.Canceled);
+            _viewModel.SetEventState(EnumEventCommand.Canceled);
         }
 
         /// <summary>

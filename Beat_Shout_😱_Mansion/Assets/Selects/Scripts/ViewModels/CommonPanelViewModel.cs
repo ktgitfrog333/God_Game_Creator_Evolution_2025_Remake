@@ -59,14 +59,20 @@ namespace Selects.ViewModels
                 _playerModel.SetSelectedStageIndex(selectedStageIndex);
         }
 
-        public void Dispose()
-        {
-            _disposableBag.Dispose();
-        }
-
         public void SetIsOnTriggerEnterSearchRangeIndex(int isOnTriggerEnterSearchRangeIndex)
         {
             throw new System.NotImplementedException();
+        }
+
+        public void SetCommonHeaderPanelRectTrans(RectTransform commonHeaderPanelRectTrans)
+        {
+            if (_playerModel != null)
+                _playerModel.SetCommonHeaderPanelRectTrans(commonHeaderPanelRectTrans);
+        }
+
+        public void Dispose()
+        {
+            _disposableBag.Dispose();
         }
     }
 }

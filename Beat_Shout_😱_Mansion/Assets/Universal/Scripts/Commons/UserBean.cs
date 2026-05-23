@@ -34,13 +34,15 @@ namespace Universal.Commons
         /// <remarks>0:振動オフ<br/>
         /// 1:振動オン</remarks>
         public int vibrationEnableIndex = 1;
+        /// <summary>イベント進捗配列</summary>
+        public System.Collections.Generic.List<EventProgress> eventProgressList = new System.Collections.Generic.List<EventProgress>();
 
         /// <summary>
         /// ユーザー情報を保持するクラス
         /// </summary>
         public UserBean()
         {
-
+            InitializeEventProgressList();
         }
 
         /// <summary>
@@ -53,6 +55,14 @@ namespace Universal.Commons
             bgmVolumeIndex = userBean.bgmVolumeIndex;
             seVolumeIndex = userBean.seVolumeIndex;
             vibrationEnableIndex = userBean.vibrationEnableIndex;
+            eventProgressList = new System.Collections.Generic.List<EventProgress>();
+            if (userBean.eventProgressList != null)
+            {
+                foreach (var progress in userBean.eventProgressList)
+                {
+                    eventProgressList.Add(new EventProgress(progress));
+                }
+            }
         }
 
         /// <summary>
@@ -73,6 +83,7 @@ namespace Universal.Commons
                         0,
                         0,
                     };
+                    InitializeEventProgressList();
 
                     break;
                 case EnumLoadMode.Default1:
@@ -91,8 +102,24 @@ namespace Universal.Commons
                         2,
                         2,
                     };
+                    InitializeEventProgressList();
 
                     break;
+            }
+        }
+
+        /// <summary>
+        /// イベント進捗配列の初期化
+        /// </summary>
+        private void InitializeEventProgressList()
+        {
+            eventProgressList = new System.Collections.Generic.List<EventProgress>();
+            foreach (TutorialEventId eventId in System.Enum.GetValues(typeof(TutorialEventId)))
+            {
+                if (eventId != TutorialEventId.None)
+                {
+                    eventProgressList.Add(new EventProgress((int)eventId, 0));
+                }
             }
         }
     }

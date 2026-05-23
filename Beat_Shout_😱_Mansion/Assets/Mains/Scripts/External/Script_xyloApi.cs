@@ -1,4 +1,5 @@
 using CriWare;
+using Mains.Views;
 using R3;
 using System.Collections;
 using System.Collections.Generic;
@@ -33,6 +34,13 @@ namespace Mains.External
         public ReactiveCommand<bool> IsSuccessfulReactive => _isSuccessful;
         private readonly ReactiveCommand<bool> _isFailed = new ReactiveCommand<bool>();
         public ReactiveCommand<bool> IsFailedReactive => _isFailed;
+
+        private readonly Subject<Unit> _onHpDecreased = new Subject<Unit>();
+        public Observable<Unit> OnHpDecreased => _onHpDecreased;
+
+        private readonly Subject<Unit> _onBatteryPicked = new Subject<Unit>();
+        public Observable<Unit> OnBatteryPicked => _onBatteryPicked;
+
         public Transform NoteTransform
         {
             get
@@ -748,6 +756,7 @@ namespace Mains.External
 
         public void PlayBatteryGet3()
         {
+            _onBatteryPicked.OnNext(Unit.Default);
             var sePicker = SE_Picker.Instance;
             if (sePicker == null)
             {
@@ -764,18 +773,29 @@ namespace Mains.External
 
         public void PlayDamage1()
         {
+            _onHpDecreased.OnNext(Unit.Default);
             var sePicker = SE_Picker.Instance;
             if (sePicker == null)
             {
                 return;
             }
-            var manager = Manager.GameManager.Instance;
-            if (manager == null)
+            var mainsManager = Manager.GameManager.Instance;
+            var selectsManager = Selects.Manager.GameManager.Instance;
+            if (mainsManager != null ||
+                selectsManager != null)
             {
-                return;
+                if (mainsManager != null &&
+                    selectsManager == null)
+                {
+                    var seVolumeIndex = mainsManager.AudioOwner.GetSeVolumeIndex();
+                    sePicker.PlayDamage1(seVolumeIndex);
+                }
+                else
+                {
+                    var seVolumeIndex = selectsManager.AudioOwner.GetSeVolumeIndex();
+                    sePicker.PlayDamage1(seVolumeIndex);
+                }
             }
-            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
-            sePicker.PlayDamage1(seVolumeIndex);
         }
 
         public void PlayGhostLaugh3()
@@ -890,6 +910,91 @@ namespace Mains.External
         }
 
         private MissileTempoSpawner _missileTempoSpawner;
+
+        /// <summary>最初のHomingObjectスポーン通知</summary>
+        private readonly ReactiveCommand<Unit> _onFirstHomingObjectSpawned = new ReactiveCommand<Unit>();
+        public ReactiveCommand<Unit> OnFirstHomingObjectSpawned => _onFirstHomingObjectSpawned;
+
+        /// <summary>currentBeatIndex監視のDisposable</summary>
+        private System.IDisposable _firstSpawnWatcherDisposable;
+
+        /// <summary>
+        /// リズムパート開始時に呼ぶ。
+        /// MissileTempoSpawnerのcurrentBeatIndexをリフレクションで監視し、
+        /// 最初のHomingObjectが飛び出したタイミングを検知する。
+        /// </summary>
+        public void WatchFirstHomingObjectSpawn()
+        {
+            _firstSpawnWatcherDisposable?.Dispose();
+
+            if (_missileTempoSpawner == null)
+            {
+                Debug.LogWarning("MissileTempoSpawnerがセットされていません。");
+                return;
+            }
+
+            var spawnerType = _missileTempoSpawner.GetType();
+
+            var beatIndexField = spawnerType.GetField(
+                "currentBeatIndex", BindingFlags.NonPublic | BindingFlags.Instance);
+            var activeField = spawnerType.GetField(
+                "Active", BindingFlags.Public | BindingFlags.Instance);
+            if (activeField == null)
+            {
+                activeField = spawnerType.GetField("Active", BindingFlags.NonPublic | BindingFlags.Instance);
+            }
+            var patternListField = spawnerType.GetField(
+                "patternList", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            if (beatIndexField == null || activeField == null || patternListField == null)
+            {
+                Debug.LogWarning("MissileTempoSpawner のフィールドが見つかりませんでした。");
+                return;
+            }
+
+            _firstSpawnWatcherDisposable = Observable.EveryUpdate()
+                .Select(_ =>
+                {
+                    var active = activeField.GetValue(_missileTempoSpawner);
+                    var beatIndex = beatIndexField.GetValue(_missileTempoSpawner);
+                    return active is true && beatIndex is int idx && idx > 0;
+                })
+                .DistinctUntilChanged()
+                .Where(x => x)   // false→true の瞬間だけ
+                .Take(1)
+                .Subscribe(_ =>
+                {
+                    _onFirstHomingObjectSpawned.Execute(Unit.Default);
+                })
+                .AddTo(ref _disposableBag);
+        }
+
+        /// <summary>
+        /// 1体目のオバケ(HomingObject)のFlightPhaseがHoming状態になったことを監視するストリームを提供します。
+        /// </summary>
+        public Observable<Unit> OnGhostHomingStarted()
+        {
+            if (_homingObject == null) return Observable.Empty<Unit>();
+
+            FieldInfo currentPhaseField = typeof(HomingObject).GetField("currentPhase", BindingFlags.NonPublic | BindingFlags.Instance);
+            
+            if (currentPhaseField == null)
+            {
+                Debug.LogError("[Script_xyloApi] HomingObject 内に 'currentPhase' フィールドが見つかりませんでした。");
+                return Observable.Empty<Unit>();
+            }
+
+            return Observable.EveryUpdate()
+                .TakeWhile(_ => _homingObject != null && _homingObject.gameObject != null)
+                .Select(_ =>
+                {
+                    var phaseValue = currentPhaseField.GetValue(_homingObject);
+                    return phaseValue?.ToString();
+                })
+                .Where(phaseName => phaseName == "Homing")
+                .Take(1)
+                .AsUnitObservable();
+        }
 
         public void SetMissileTempoSpawner(Transform transform)
         {
@@ -1680,6 +1785,98 @@ namespace Mains.External
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// 判定可能状態のノーツに対して強制的にGOOD判定（クリック）を行う
+        /// </summary>
+        public void ForceClickAnyClickableNote()
+        {
+            var managers = GameObject.FindObjectsByType<MissileDirectAnimManagerB>(FindObjectsSortMode.None);
+            if (managers == null || managers.Length == 0) return;
+
+            var managerType = typeof(MissileDirectAnimManagerB);
+            var clickGracePeriodField = managerType.GetField("clickGracePeriod", BindingFlags.NonPublic | BindingFlags.Instance);
+            var oneBeatField = managerType.GetField("oneBeat", BindingFlags.NonPublic | BindingFlags.Instance);
+            var objectCreationTimeField = managerType.GetField("objectCreationTime", BindingFlags.NonPublic | BindingFlags.Instance);
+            var enableClickDetectionField = managerType.GetField("enableClickDetection", BindingFlags.NonPublic | BindingFlags.Instance);
+            var isFailedField = managerType.GetField("isFailed", BindingFlags.NonPublic | BindingFlags.Instance);
+            var isSuccessfulField = managerType.GetField("isSuccessful", BindingFlags.NonPublic | BindingFlags.Instance);
+            var isReturningToPoolField = managerType.GetField("isReturningToPool", BindingFlags.NonPublic | BindingFlags.Instance);
+            var isForceReturningField = managerType.GetField("isForceReturning", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            if (clickGracePeriodField == null || oneBeatField == null || objectCreationTimeField == null) return;
+
+            foreach (var manager in managers)
+            {
+                if (manager == null || !manager.gameObject.activeInHierarchy) continue;
+
+                if (isFailedField != null && (bool)isFailedField.GetValue(manager)) continue;
+                if (isSuccessfulField != null && (bool)isSuccessfulField.GetValue(manager)) continue;
+                if (enableClickDetectionField != null && !(bool)enableClickDetectionField.GetValue(manager)) continue;
+                if (isReturningToPoolField != null && (bool)isReturningToPoolField.GetValue(manager)) continue;
+                if (isForceReturningField != null && (bool)isForceReturningField.GetValue(manager)) continue;
+
+                float clickGracePeriod = (float)clickGracePeriodField.GetValue(manager);
+                float oneBeat = (float)oneBeatField.GetValue(manager);
+                float objectCreationTime = (float)objectCreationTimeField.GetValue(manager);
+
+                float elapsedTime = Time.time - objectCreationTime;
+                float absoluteClickTargetTime = oneBeat * 4;
+                float timingDifference = elapsedTime - absoluteClickTargetTime;
+
+                bool inClickWindow = Mathf.Abs(timingDifference) <= clickGracePeriod;
+
+                if (inClickWindow)
+                {
+                    MethodInfo methodInfo = managerType.GetMethod("ProcessClick", BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (methodInfo != null)
+                    {
+                        methodInfo.Invoke(manager, new object[] { elapsedTime });
+                        return; // 1つ処理したら終了
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 攻撃に向かってきているオバケをすべて消去する
+        /// </summary>
+        public void ClearAllAttackingGhosts()
+        {
+            if (_objectPoolerXyloOther != null)
+            {
+                var view = _objectPoolerXyloOther.GetComponent<Mains.Views.ObjectPoolerXyloOtherCustomizeView>();
+                if (view != null)
+                {
+                    view.DoAllDisabled();
+                }
+            }
+        }
+
+        /// <summary>
+        /// ターゲットクロスと直近ノーツのスクリーン距離を取得する
+        /// </summary>
+        public float GetNoteToCrosshairScreenDistance()
+        {
+            if (NoteTransform == null) return float.MaxValue;
+            
+            Camera cam = Camera.main;
+            if (cam == null) return float.MaxValue;
+
+            // ターゲットクロスは画面中央と仮定
+            Vector2 screenCenter = new Vector2(Screen.width / 2f, Screen.height / 2f);
+            
+            // NoteTransformがRectTransformである前提でスクリーン座標を取得
+            Vector2 noteScreenPos = RectTransformUtility.WorldToScreenPoint(null, NoteTransform.position); // Overlay Canvasならcamはnull
+            
+            // Camera.mainを用いてWorldToScreenPointを試行するフォールバック
+            if (noteScreenPos == Vector2.zero && NoteTransform.position != Vector3.zero)
+            {
+                noteScreenPos = RectTransformUtility.WorldToScreenPoint(cam, NoteTransform.position);
+            }
+
+            return Vector2.Distance(screenCenter, noteScreenPos);
         }
 
         public void Dispose()

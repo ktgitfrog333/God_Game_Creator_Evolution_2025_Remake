@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55d567c3459bb5a46b03be7d104811fe, type: 3}
+  m_Name: MessageTable
+  m_EditorClassIdentifier: 
+  list:
+  - messageId: MSG0001
+    mainMessage: "\u5F8C\u9000\uFF1A <sprite name=\"beatshout_select_tutorial_icons_key_s\">"
+    subMessage: 
+    progressText: 
+    hasInteract: 0
+    batteryDropType: 0
+  - messageId: MSG0002
+    mainMessage: "\u5DE6\u79FB\u52D5\uFF1A <sprite name=\"beatshout_select_tutorial_icons_key_a\">"
+    subMessage: "\u62FE\u3046\uFF1A <sprite name=\"beatshout_select_tutorial_icons_key_space\">"
+    progressText: ${ghostExitMembersCount} / ${ghostAllMembersCount}
+    hasInteract: 1
+    batteryDropType: 0

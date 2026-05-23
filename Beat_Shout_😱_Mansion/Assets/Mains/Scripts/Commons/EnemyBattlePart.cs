@@ -11,5 +11,7 @@ namespace Mains.Commons
         Normal,
         /// <summary>中ボスパート</summary>
         MidBoss,
+        /// <summary>チュートリアルパート</summary>
+        Tutorial,
     }
 }

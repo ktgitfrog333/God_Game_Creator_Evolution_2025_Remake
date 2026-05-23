@@ -289,6 +289,7 @@ namespace Mains.ViewModels
 
             var part = EnemyBattlePart;
             var checkClearStruct = table.subSettings.checkClearStruct;
+            
             var result = checkClearStruct.enemyBattlePart.Equals(part);
             if (!result)
             {
