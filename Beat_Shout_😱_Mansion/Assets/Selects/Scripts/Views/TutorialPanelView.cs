@@ -28,7 +28,7 @@ namespace Selects.Views
         /// <summary>シロさんのコンポーネントへアクセスするAPI</summary>
         private Script_xyloApi _script_XyloApi;
         /// <summary>プレイヤーの視線ヒット対象</summary>
-        private RaycastHit[] _hitsPlayerAimToAny;
+        private RaycastHit[] _hitsPlayerAimToAny = new RaycastHit[10]; // 適当なバッファサイズ;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -261,8 +261,9 @@ namespace Selects.Views
 
             // プレイヤーの頭
             Transform headTrans = null;
-            var missGhostEscapeNormalTrigger = levelObjects.missGhostEscapeNormalTrigger;
-            var vaseAndDeskGroupTrigger = levelObjects.vaseAndDeskGroupTrigger;
+            var batteryItemAimRangeTrigger = levelObjects.batteryItemAimRangeTrigger;
+            var missGhostEscapeNormalAimRangeTrigger = levelObjects.missGhostEscapeNormalAimRangeTrigger;
+            var vaseAndDeskGroupAimRangeTrigger = levelObjects.vaseAndDeskGroupAimRangeTrigger;
             var aimDistance = details.aimDistance;
             Observable.EveryUpdate()
                 .Subscribe(_ =>
@@ -271,21 +272,21 @@ namespace Selects.Views
                     if (headTrans != null)
                     {
                         // プレイヤーの視線が電池を捉える
-                        if (batteryTrigger != null)
+                        if (batteryItemAimRangeTrigger != null)
                         {
-                            var isHit = IsHitPlayerAimToAny(headTrans, batteryTrigger.transform, aimDistance);
+                            var isHit = IsHitPlayerAimToAny(headTrans, batteryItemAimRangeTrigger.transform, aimDistance);
                             viewModel.SetBatteryHitPlayerAim(isHit);
                         }
                         // プレイヤーの視線が移動オバケ（ノーマル）を捉える
-                        if (missGhostEscapeNormalTrigger != null)
+                        if (missGhostEscapeNormalAimRangeTrigger != null)
                         {
-                            var isHit = IsHitPlayerAimToAny(headTrans, missGhostEscapeNormalTrigger.transform, aimDistance);
+                            var isHit = IsHitPlayerAimToAny(headTrans, missGhostEscapeNormalAimRangeTrigger.transform, aimDistance);
                             viewModel.SetMissGhostEscapeNormalHitPlayerAim(isHit);
                         }
                         // プレイヤーの視線が花瓶と机を捉える
-                        if (vaseAndDeskGroupTrigger != null)
+                        if (vaseAndDeskGroupAimRangeTrigger != null)
                         {
-                            var isHit = IsHitPlayerAimToAny(headTrans, vaseAndDeskGroupTrigger.transform, aimDistance);
+                            var isHit = IsHitPlayerAimToAny(headTrans, vaseAndDeskGroupAimRangeTrigger.transform, aimDistance);
                             viewModel.SetVaseAndDeskGroupHitPlayerAim(isHit);
                         }
                     }
@@ -328,17 +329,18 @@ namespace Selects.Views
         {
             Vector3 origin = headTrans.position; // 目線の高さ
             Vector3 direction = headTrans.forward;
-            int layerMaskSearchRange = 1 << LayerMask.NameToLayer("SearchRange");
+            int layerMaskAimRange = 1 << LayerMask.NameToLayer("AimRange");
 
             // デバッグ：Sceneビューに赤線を描画
             Debug.DrawRay(origin, direction * aimDistance, Color.red);
 
-            Physics.RaycastNonAlloc(origin, direction, _hitsPlayerAimToAny, aimDistance, layerMaskSearchRange);
-            if (_hitsPlayerAimToAny != null)
+            int hitCount = Physics.RaycastNonAlloc(origin, direction, _hitsPlayerAimToAny, aimDistance, layerMaskAimRange);
+            if (0 < hitCount)
             {
-                foreach (RaycastHit hit in _hitsPlayerAimToAny)
+                for (int i = 0; i < hitCount; i++)
                 {
-                    if (hit.collider != null && hit.collider.Equals(target))
+                    var hit = _hitsPlayerAimToAny[i];
+                    if (hit.collider != null && hit.collider.transform.Equals(target))
                     {
                         return true;
                     }
@@ -493,18 +495,20 @@ namespace Selects.Views
             public GameObject batteryItem;
             /// <summary>落ちている電池トリガー</summary>
             public Collider batteryItemTrigger;
+            /// <summary>落ちている電池トリガー（視線補足用）</summary>
+            public Collider batteryItemAimRangeTrigger;
             /// <summary>移動完了ポイント</summary>
             public Transform moveCompletePoint;
             /// <summary>移動完了ポイント</summary>
             public Transform aimMoveCompletePoint;
             /// <summary>移動オバケ（ノーマル）</summary>
             public GameObject missGhostEscapeNormal;
-            /// <summary>移動オバケ（ノーマル）トリガー</summary>
-            public Collider missGhostEscapeNormalTrigger;
+            /// <summary>移動オバケ（ノーマル）トリガー（視線補足用）</summary>
+            public Collider missGhostEscapeNormalAimRangeTrigger;
             /// <summary>花瓶と机</summary>
             public GameObject vaseAndDeskGroup;
-            /// <summary>花瓶と机トリガー</summary>
-            public Collider vaseAndDeskGroupTrigger;
+            /// <summary>花瓶と机トリガー（視線補足用）</summary>
+            public Collider vaseAndDeskGroupAimRangeTrigger;
             /// <summary>1階の右階段トリガー</summary>
             public Collider rightStairsTrigger1F;
             /// <summary>2階の左階段トリガー</summary>

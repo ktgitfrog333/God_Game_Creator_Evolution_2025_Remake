@@ -1845,6 +1845,59 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8135715814022439695, guid: 73830597a6e97b14dabd128f7ac2bea3, type: 3}
   m_PrefabInstance: {fileID: 2078440778}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &499584730
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 499584731}
+  - component: {fileID: 499584732}
+  m_Layer: 16
+  m_Name: BatteryItemAimRangeTrigger
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &499584731
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 499584730}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1690868116}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &499584732
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 499584730}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2.2291102, y: 5.3280673, z: 11.046713}
+  m_Center: {x: 0.4145553, y: 0.53762937, z: 1.1771917}
 --- !u!1 &501287187
 GameObject:
   m_ObjectHideFlags: 0
@@ -2509,10 +2562,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 698413889}
-  - component: {fileID: 698413891}
   - component: {fileID: 698413890}
-  m_Layer: 15
-  m_Name: MissGhostEscapeNormalTrigger
+  m_Layer: 16
+  m_Name: MissGhostEscapeNormalAimRangeTrigger
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2526,42 +2578,15 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 698413888}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: 0.37997395, z: -0, w: 0.9249972}
-  m_LocalPosition: {x: -0.26153636, y: -2.44, z: 6.014634}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1216151316}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!54 &698413890
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 698413888}
-  serializedVersion: 4
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 0
-  m_IsKinematic: 1
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
---- !u!135 &698413891
-SphereCollider:
+--- !u!65 &698413890
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -2579,7 +2604,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.15
+  m_Size: {x: 7, y: 4, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &710588520
 GameObject:
@@ -2596,7 +2621,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &710588521
 Transform:
   m_ObjectHideFlags: 0
@@ -3640,7 +3665,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1010390401
 Transform:
   m_ObjectHideFlags: 0
@@ -4171,6 +4196,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 1390323092}
     m_Modifications:
     - target: {fileID: 354029062245562080, guid: f57dd99553cf3954582c4d66680a9f05, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 354029062245562080, guid: f57dd99553cf3954582c4d66680a9f05, type: 3}
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 22100000, guid: 8c65a43dea48dfe419d7ca614cc86e57, type: 2}
@@ -4220,7 +4249,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6288087624243936685, guid: f57dd99553cf3954582c4d66680a9f05, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -4630,12 +4659,13 @@ MonoBehaviour:
       flashLightItemTrigger: {fileID: 8686986434356103331}
       batteryItem: {fileID: 1690868115}
       batteryItemTrigger: {fileID: 1904047196}
+      batteryItemAimRangeTrigger: {fileID: 499584732}
       moveCompletePoint: {fileID: 2017475249}
       aimMoveCompletePoint: {fileID: 1868826792}
       missGhostEscapeNormal: {fileID: 1901545670}
-      missGhostEscapeNormalTrigger: {fileID: 698413891}
+      missGhostEscapeNormalAimRangeTrigger: {fileID: 698413890}
       vaseAndDeskGroup: {fileID: 1010390400}
-      vaseAndDeskGroupTrigger: {fileID: 2100661199}
+      vaseAndDeskGroupAimRangeTrigger: {fileID: 2100661198}
       rightStairsTrigger1F: {fileID: 4390819342895908334}
       leftStairsTrigger2F: {fileID: 2109055538}
     tables:
@@ -6234,6 +6264,7 @@ Transform:
   m_Children:
   - {fileID: 1131113405}
   - {fileID: 1904047194}
+  - {fileID: 499584731}
   m_Father: {fileID: 1390323092}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1694382070
@@ -6412,7 +6443,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1747656356
 Transform:
   m_ObjectHideFlags: 0
@@ -7748,10 +7779,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2100661197}
-  - component: {fileID: 2100661199}
   - component: {fileID: 2100661198}
-  m_Layer: 15
-  m_Name: VaseAndDeskGroupTrigger
+  m_Layer: 16
+  m_Name: VaseAndDeskGroupAimRangeTrigger
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7772,35 +7802,8 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1010390401}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!54 &2100661198
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2100661196}
-  serializedVersion: 4
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 0
-  m_IsKinematic: 1
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
---- !u!136 &2100661199
-CapsuleCollider:
+--- !u!65 &2100661198
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -7817,10 +7820,8 @@ CapsuleCollider:
   m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.2
-  m_Height: 1.36
-  m_Direction: 1
+  serializedVersion: 3
+  m_Size: {x: 0.65, y: 0.82, z: 0.5}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &2109055535
 GameObject:
@@ -7839,7 +7840,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2109055536
 Transform:
   m_ObjectHideFlags: 0
@@ -8602,7 +8603,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!222 &2052738915135821552
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -10065,7 +10066,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.25
+  m_Radius: 0.38
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!222 &8836034639252636992
 CanvasRenderer:
