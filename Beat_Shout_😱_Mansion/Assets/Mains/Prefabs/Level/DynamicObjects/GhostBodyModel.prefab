@@ -214,11 +214,11 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: d5e9eec4e7c14e741bce8b5ded52bb54, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: b5bf1275ce2cf364380b3eb1c4e25092, type: 2}
+      objectReference: {fileID: 2100000, guid: e2b0833c3cdbb88469728f1afb8125c0, type: 2}
     - target: {fileID: -7511558181221131132, guid: d5e9eec4e7c14e741bce8b5ded52bb54, type: 3}
       propertyPath: 'm_Materials.Array.data[1]'
       value: 
-      objectReference: {fileID: 2100000, guid: d5dc5aa4d3763da4b9971bbeae3b2696, type: 2}
+      objectReference: {fileID: 2100000, guid: ecccfc36332f2df469ab59e835c470aa, type: 2}
     - target: {fileID: 919132149155446097, guid: d5e9eec4e7c14e741bce8b5ded52bb54, type: 3}
       propertyPath: m_Name
       value: ghost_model_attack_type
@@ -316,11 +316,11 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: d5e9eec4e7c14e741bce8b5ded52bb54, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 8247ae57c47dce443b765f5fb1bd254e, type: 2}
+      objectReference: {fileID: 2100000, guid: 0b01573fa4b63f34b99a2cd8a94b2888, type: 2}
     - target: {fileID: -7511558181221131132, guid: d5e9eec4e7c14e741bce8b5ded52bb54, type: 3}
       propertyPath: 'm_Materials.Array.data[1]'
       value: 
-      objectReference: {fileID: 2100000, guid: d5dc5aa4d3763da4b9971bbeae3b2696, type: 2}
+      objectReference: {fileID: 2100000, guid: 5ff9240088d04574184325b0a328ad29, type: 2}
     - target: {fileID: 919132149155446097, guid: d5e9eec4e7c14e741bce8b5ded52bb54, type: 3}
       propertyPath: m_Name
       value: ghost_model_excited_type
@@ -353,7 +353,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: d5e9eec4e7c14e741bce8b5ded52bb54, type: 3}
       propertyPath: m_LocalScale.x
-      value: 27.1
+      value: 22.575
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: d5e9eec4e7c14e741bce8b5ded52bb54, type: 3}
       propertyPath: m_LocalScale.y
@@ -405,7 +405,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: d5e9eec4e7c14e741bce8b5ded52bb54, type: 3}
       propertyPath: m_ConstrainProportionsScale
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: d5e9eec4e7c14e741bce8b5ded52bb54, type: 3}
       propertyPath: m_CastShadows
@@ -418,11 +418,11 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: d5e9eec4e7c14e741bce8b5ded52bb54, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 5f57c014d9c03cf408454104e9485a03, type: 2}
+      objectReference: {fileID: 2100000, guid: 064050f1371500b43bc7a9ce1e71c6ff, type: 2}
     - target: {fileID: -7511558181221131132, guid: d5e9eec4e7c14e741bce8b5ded52bb54, type: 3}
       propertyPath: 'm_Materials.Array.data[1]'
       value: 
-      objectReference: {fileID: 2100000, guid: d5dc5aa4d3763da4b9971bbeae3b2696, type: 2}
+      objectReference: {fileID: 2100000, guid: c85b618bc181e4a4885fe305b917c940, type: 2}
     - target: {fileID: 919132149155446097, guid: d5e9eec4e7c14e741bce8b5ded52bb54, type: 3}
       propertyPath: m_Name
       value: ghost_model_speed_type
@@ -520,11 +520,11 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: d5e9eec4e7c14e741bce8b5ded52bb54, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: be912dc19623414479f6f0119220f6c9, type: 2}
+      objectReference: {fileID: 2100000, guid: ccedb258e82f4504cb13010f60819132, type: 2}
     - target: {fileID: -7511558181221131132, guid: d5e9eec4e7c14e741bce8b5ded52bb54, type: 3}
       propertyPath: 'm_Materials.Array.data[1]'
       value: 
-      objectReference: {fileID: 2100000, guid: d5dc5aa4d3763da4b9971bbeae3b2696, type: 2}
+      objectReference: {fileID: 2100000, guid: d3981a46497a12c469f089e017418894, type: 2}
     - target: {fileID: 919132149155446097, guid: d5e9eec4e7c14e741bce8b5ded52bb54, type: 3}
       propertyPath: m_Name
       value: ghost_model_chatter_type
@@ -557,7 +557,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: d5e9eec4e7c14e741bce8b5ded52bb54, type: 3}
       propertyPath: m_LocalScale.x
-      value: 27.1
+      value: 31.605
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: d5e9eec4e7c14e741bce8b5ded52bb54, type: 3}
       propertyPath: m_LocalScale.y
@@ -565,7 +565,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: d5e9eec4e7c14e741bce8b5ded52bb54, type: 3}
       propertyPath: m_LocalScale.z
-      value: 27.1
+      value: 22.575
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: d5e9eec4e7c14e741bce8b5ded52bb54, type: 3}
       propertyPath: m_LocalPosition.x
@@ -609,7 +609,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: d5e9eec4e7c14e741bce8b5ded52bb54, type: 3}
       propertyPath: m_ConstrainProportionsScale
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: d5e9eec4e7c14e741bce8b5ded52bb54, type: 3}
       propertyPath: m_CastShadows
@@ -622,11 +622,11 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: d5e9eec4e7c14e741bce8b5ded52bb54, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 7bc6890d853abf949a9618962db06343, type: 2}
+      objectReference: {fileID: 2100000, guid: 7ef30b309a57fbd44b040833326a9035, type: 2}
     - target: {fileID: -7511558181221131132, guid: d5e9eec4e7c14e741bce8b5ded52bb54, type: 3}
       propertyPath: 'm_Materials.Array.data[1]'
       value: 
-      objectReference: {fileID: 2100000, guid: d5dc5aa4d3763da4b9971bbeae3b2696, type: 2}
+      objectReference: {fileID: 2100000, guid: aa0ca046db10a174babaddd9fb094569, type: 2}
     - target: {fileID: 919132149155446097, guid: d5e9eec4e7c14e741bce8b5ded52bb54, type: 3}
       propertyPath: m_Name
       value: ghost_model_fat_type

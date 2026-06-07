@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: ghost_white
-  m_Shader: {fileID: -6465566751694194690, guid: 6e14a84267dc0db49bf7192cae08ac01, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: cf220136794175343aa779b28d118d06, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
@@ -90,6 +90,7 @@ Material:
     - _AddPrecomputedVelocity: 0
     - _AlphaClip: 1
     - _AlphaToMask: 0
+    - _Base_Color_Intensity: 0.2
     - _Blend: 2
     - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
@@ -128,8 +129,10 @@ Material:
     - _ZWriteControl: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 0.50980395}
+    - _Base_Color: {r: 0.5, g: 0.5, b: 0.5, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 0.50980395}
     - _EmissionColor: {r: 0.058314566, g: 0.058314566, b: 0.058314566, a: 1}
+    - _Ghost_Color: {r: 0, g: 0, b: 0, a: 0}
     - _RimLight_Color: {r: 1, g: 1, b: 1, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []

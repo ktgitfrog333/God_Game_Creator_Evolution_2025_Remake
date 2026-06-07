@@ -80,6 +80,17 @@ public class SE_Picker : MonoBehaviour
     private string GhostLaughV2Fat;
     private string GhostLaughV2Chatter;
     // [2026/05/08] Amagata Support for Obake FBX variations and Obake voice variations end
+    // [2026/06/07] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" start
+    private string BUB_Submit1;
+    private string BUB_Submit2;
+    private string BUB_Submit3;
+    private string BUB_Cancel1;
+    private string BUB_Cancel2;
+    private string BUB_Cancel3;
+    private string BUB_Move1;
+    private string BUB_Move2;
+    private string BUB_Move3;
+    // [2026/06/07] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" end
 
 
     private void OnEnable()
@@ -171,6 +182,17 @@ Move4 = "Move4";
         GhostLaughV2Fat = "GhostLaughV2Fat";
         GhostLaughV2Chatter = "GhostLaughV2Chatter";
         // [2026/05/08] Amagata Support for Obake FBX variations and Obake voice variations end
+        // [2026/06/07] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" start
+        BUB_Submit1 = "BUB_Submit1";
+        BUB_Submit2 = "BUB_Submit2";
+        BUB_Submit3 = "BUB_Submit3";
+        BUB_Cancel1 = "BUB_Cancel1";
+        BUB_Cancel2 = "BUB_Cancel2";
+        BUB_Cancel3 = "BUB_Cancel3";
+        BUB_Move1 = "BUB_Move1";
+        BUB_Move2 = "BUB_Move2";
+        BUB_Move3 = "BUB_Move3";
+        // [2026/06/07] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" end
 
 
         // ï€ë∂Ç≥ÇÍÇƒÇ¢ÇÈSEâπó Çì«Ç›çûÇﬁ
@@ -479,4 +501,50 @@ Move4 = "Move4";
         PlaySound(GhostLaughV2Chatter, volume);
     }
     // [2026/05/08] Amagata Support for Obake FBX variations and Obake voice variations end
+    // [2026/06/07] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" start
+    public void PlayBUB_Submit1(float volume)
+    {
+        PlaySound(BUB_Submit1, volume);
+    }
+
+    public void PlayBUB_Submit2(float volume)
+    {
+        PlaySound(BUB_Submit2, volume);
+    }
+
+    public void PlayBUB_Submit3(float volume)
+    {
+        PlaySound(BUB_Submit3, volume);
+    }
+
+    public void PlayBUB_Cancel1(float volume)
+    {
+        PlaySound(BUB_Cancel1, volume);
+    }
+
+    public void PlayBUB_Cancel2(float volume)
+    {
+        PlaySound(BUB_Cancel2, volume);
+    }
+
+    public void PlayBUB_Cancel3(float volume)
+    {
+        PlaySound(BUB_Cancel3, volume);
+    }
+
+    public void PlayBUB_Move1(float volume)
+    {
+        PlaySound(BUB_Move1, volume);
+    }
+
+    public void PlayBUB_Move2(float volume)
+    {
+        PlaySound(BUB_Move2, volume);
+    }
+
+    public void PlayBUB_Move3(float volume)
+    {
+        PlaySound(BUB_Move3, volume);
+    }
+    // [2026/06/07] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" end
 }

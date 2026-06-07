@@ -634,6 +634,54 @@ namespace Mains.External
             sePicker.PlayMove5(seVolumeIndex);
         }
 
+        public void PlayBUB_Move1()
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            var manager = Selects.Manager.GameManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
+            sePicker.PlayBUB_Move1(seVolumeIndex);
+        }
+
+        public void PlayBUB_Move2()
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            var manager = Selects.Manager.GameManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
+            sePicker.PlayBUB_Move2(seVolumeIndex);
+        }
+
+        public void PlayBUB_Move3()
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            var manager = Selects.Manager.GameManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
+            sePicker.PlayBUB_Move3(seVolumeIndex);
+        }
+
         public void PlaySubmit2()
         {
             var sePicker = SE_Picker.Instance;
@@ -650,6 +698,54 @@ namespace Mains.External
             sePicker.PlaySubmit2(seVolumeIndex);
         }
 
+        public void PlayBUB_Submit1()
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            var manager = Selects.Manager.GameManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
+            sePicker.PlayBUB_Submit1(seVolumeIndex);
+        }
+
+        public void PlayBUB_Submit2()
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            var manager = Selects.Manager.GameManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
+            sePicker.PlayBUB_Submit2(seVolumeIndex);
+        }
+
+        public void PlayBUB_Submit3()
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            var manager = Selects.Manager.GameManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
+            sePicker.PlayBUB_Submit3(seVolumeIndex);
+        }
+
         public void PlayCancel4()
         {
             var sePicker = SE_Picker.Instance;
@@ -664,6 +760,54 @@ namespace Mains.External
             }
             var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
             sePicker.PlayCancel4(seVolumeIndex);
+        }
+
+        public void PlayBUB_Cancel1()
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            var manager = Selects.Manager.GameManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
+            sePicker.PlayBUB_Cancel1(seVolumeIndex);
+        }
+
+        public void PlayBUB_Cancel2()
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            var manager = Selects.Manager.GameManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
+            sePicker.PlayBUB_Cancel2(seVolumeIndex);
+        }
+
+        public void PlayBUB_Cancel3()
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            var manager = Selects.Manager.GameManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
+            sePicker.PlayBUB_Cancel3(seVolumeIndex);
         }
 
         public void PlayHeartbeatFast()
