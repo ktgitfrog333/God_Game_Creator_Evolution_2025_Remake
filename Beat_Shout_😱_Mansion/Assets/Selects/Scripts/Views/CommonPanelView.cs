@@ -233,7 +233,7 @@ namespace Selects.Views
                         case EnumEventCommand.Selected:
                             cursorIconImage.DOMove(yesNoTextViews[yesNoTextView.Index].transform.position + Vector3.left * cursorIconImageのマージン, .35f)
                                 .SetUpdate(true);
-                            _script_XyloApi.PlayMove5();
+                            _script_XyloApi.PlayBUB_Move1();
 
                             break;
                         case EnumEventCommand.Submited:
@@ -243,7 +243,7 @@ namespace Selects.Views
                             break;
                         case EnumEventCommand.Canceled:
                             ResetSelectedStageIndex(_viewModel);
-                            _script_XyloApi.PlayCancel4();
+                            _script_XyloApi.PlayBUB_Cancel1();
 
                             break;
                     }
@@ -384,13 +384,13 @@ namespace Selects.Views
                     UserBean userBean = utility.LoadSaveDatasJsonOfUserBean(ConstResorcesNames.USER_DATA);
                     userBean.sceneIdx = targetStageIndex;
                     utility.SaveDatasJsonOfUserBean(ConstResorcesNames.USER_DATA, userBean);
-                    script_XyloApi.PlaySubmit2();
+                    script_XyloApi.PlayBUB_Submit3();
                     startLoadCnt.Value++;
 
                     break;
                 case 1:
                     ResetSelectedStageIndex(viewModel);
-                    script_XyloApi.PlayCancel4();
+                    script_XyloApi.PlayBUB_Cancel1();
 
                     break;
             }
