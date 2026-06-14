@@ -1144,7 +1144,10 @@ public class TitleScreenController : MonoBehaviour
         // 方向キー音を再生
         if (SE_Picker.Instance != null)
         {
-            SE_Picker.Instance.PlaySubmitS(1f);
+            // [2026/06/14] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" start
+            //SE_Picker.Instance.PlaySubmitS(1f);
+            SE_Picker.Instance.PlayBUB_Move3(1f);
+            // [2026/06/14] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" end
         }
 
         if (enableDebugMode)
@@ -1181,7 +1184,10 @@ public class TitleScreenController : MonoBehaviour
         // 方向キー音を再生
         if (SE_Picker.Instance != null)
         {
-            SE_Picker.Instance.PlaySubmitS(1f);
+            // [2026/06/14] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" start
+            //SE_Picker.Instance.PlaySubmitS(1f);
+            SE_Picker.Instance.PlayBUB_Move3(1f);
+            // [2026/06/14] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" end
         }
 
         if (enableDebugMode)
@@ -1218,7 +1224,10 @@ public class TitleScreenController : MonoBehaviour
         // 方向キー音を再生
         if (SE_Picker.Instance != null)
         {
-            SE_Picker.Instance.PlaySubmitS(1f);
+            // [2026/06/14] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" start
+            //SE_Picker.Instance.PlaySubmitS(1f);
+            SE_Picker.Instance.PlayBUB_Move3(1f);
+            // [2026/06/14] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" end
         }
 
         if (enableDebugMode)
@@ -1242,7 +1251,10 @@ public class TitleScreenController : MonoBehaviour
         // 方向キー音を再生
         if (SE_Picker.Instance != null)
         {
-            SE_Picker.Instance.PlaySubmitS(1f);
+            // [2026/06/14] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" start
+            //SE_Picker.Instance.PlaySubmitS(1f);
+            SE_Picker.Instance.PlayBUB_Move3(1f);
+            // [2026/06/14] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" end
         }
 
         if (enableDebugMode)
@@ -1278,7 +1290,10 @@ public class TitleScreenController : MonoBehaviour
                 // 方向キー音を再生
                 if (SE_Picker.Instance != null)
                 {
-                    SE_Picker.Instance.PlaySubmitS(1f);
+                    // [2026/06/14] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" start
+                    //SE_Picker.Instance.PlaySubmitS(1f);
+                    SE_Picker.Instance.PlayBUB_Move3(1f);
+                    // [2026/06/14] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" end
                 }
 
                 if (enableDebugMode)
@@ -1354,7 +1369,10 @@ public class TitleScreenController : MonoBehaviour
         // 決定音を再生
         if (SE_Picker.Instance != null)
         {
-            SE_Picker.Instance.PlaySubmitL(1f);
+            // [2026/06/14] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" start
+            //SE_Picker.Instance.PlaySubmitL(1f);
+            SE_Picker.Instance.PlayBUB_Submit3(1f);
+            // [2026/06/14] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" end
         }
 
         if (enableDebugMode)
