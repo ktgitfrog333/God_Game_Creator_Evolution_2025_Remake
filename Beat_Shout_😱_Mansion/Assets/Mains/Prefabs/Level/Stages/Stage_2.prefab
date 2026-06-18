@@ -249,8 +249,8 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 7ed27a792c708e643a4f26120188e01c, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 0
-    membersCount: 0
+    useStatus: 1
+    membersCount: 16
     attackType: 0
     moveType: 0
     customShoutRadius: 0
