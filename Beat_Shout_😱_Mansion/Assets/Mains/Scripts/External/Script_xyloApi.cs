@@ -139,7 +139,42 @@ namespace Mains.External
         /// <summary>BGMの更新</summary>
         System.IDisposable _currentSourceStatusDisposable;
         private ObjectPoolerXyloOther _objectPoolerXyloOther;
-        public Dictionary<string, Queue<GameObject>> PoolDictionary => _objectPoolerXyloOther.poolDictionary;
+        public Dictionary<string, Queue<GameObject>> PoolDictionary
+        {
+            get
+            {
+                var poolOther = _objectPoolerXyloOther;
+                if (poolOther == null)
+                {
+                    poolOther = GameObject.FindAnyObjectByType<ObjectPoolerXyloOther>();
+                    if (poolOther == null)
+                        return null;
+
+                    _objectPoolerXyloOther = poolOther;
+                }
+
+                return poolOther.poolDictionary;
+            }
+        }
+        private MissGhostAttack _missGhostAttack;
+        private ReactiveCommand<bool> _isHitPlayer = new ReactiveCommand<bool>();
+        public ReactiveCommand<bool> IsHitPlayer => _isHitPlayer;
+        public void SetMissGhostAttack(Transform transform)
+        {
+            _missGhostAttack = transform.GetComponent<MissGhostAttack>();
+            Observable.EveryUpdate()
+                .Select(_ => _missGhostAttack.IsHitPlayer)
+                .DistinctUntilChanged()
+                .Subscribe(isHit =>
+                {
+                    _isHitPlayer.Execute(isHit);
+                })
+                .AddTo(ref _disposableBag);
+        }
+        public void ForceReturnToPool()
+        {
+            _missGhostAttack.ForceReturnToPool();
+        }
         public bool IsReturningToPool
         {
             get
@@ -1117,8 +1152,8 @@ namespace Mains.External
             if (_micInput_Criware == null)
                 return 0f;
 
-            var volumeSlider = _micInput_Criware.volumeSlider;
-            return volumeSlider.value;
+            var volumeSliderValue = _micInput_Criware.volumeSliderValue;
+            return volumeSliderValue;
         }
 
         private ReactiveCommand<float> _volumeLevelReactive = new ReactiveCommand<float>();

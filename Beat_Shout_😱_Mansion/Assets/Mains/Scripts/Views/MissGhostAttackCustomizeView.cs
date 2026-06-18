@@ -75,6 +75,12 @@ namespace Mains.Views
                                     .AddTo(ref _disposableBag);
                                 
                                 break;
+                            case InteractionPart.Rhythm:
+                                // リズムパート以外では非表示にする対応の考慮漏れ
+                                // 再びリズムパートに移行した際に常に無効にする処理は破棄させるための対応
+                                disposable?.Dispose();
+
+                                break;
                         }
                     })
                         .AddTo(ref _disposableBag);
@@ -82,6 +88,7 @@ namespace Mains.Views
                 .AddTo(ref _disposableBag);
             // boxColliderのOnTriggerStayでプレイヤーのHPを減らす
             _script_XyloApi = new Script_xyloApi();
+            var api = _script_XyloApi;
             if (boxCollider != null)
             {
                 bool isOnTriggerEnter = false;
@@ -89,6 +96,15 @@ namespace Mains.Views
                     .Where(x => x.CompareTag("Player") &&
                         !isOnTriggerEnter)
                     .DistinctUntilChanged()
+                    .Subscribe(_ =>
+                    {
+                        isOnTriggerEnter = true;
+                        SubtractionPlayerHealth(viewModel);
+                    })
+                    .AddTo(ref _disposableBag);
+                // コライダーがヒットしなかった場合の保険処理（時間経過判定）
+                api.IsHitPlayer.Where(x => x &&
+                    !isOnTriggerEnter)
                     .Subscribe(_ =>
                     {
                         isOnTriggerEnter = true;
@@ -103,6 +119,7 @@ namespace Mains.Views
                     })
                     .AddTo(ref _disposableBag);
             }
+            _script_XyloApi.SetMissGhostAttack(trans);
         }
 
         private void OnDestroy()
@@ -110,6 +127,11 @@ namespace Mains.Views
             _disposableBag.Dispose();
             _script_XyloApi?.Dispose();
             _viewModel?.Dispose();
+        }
+
+        public void ForceReturnToPool()
+        {
+            _script_XyloApi.ForceReturnToPool();
         }
 
         /// <summary>
