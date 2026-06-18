@@ -233,7 +233,7 @@ namespace Selects.Views
                         case EnumEventCommand.Selected:
                             cursorIconImage.DOMove(yesNoTextViews[yesNoTextView.Index].transform.position + Vector3.left * cursorIconImageのマージン, .35f)
                                 .SetUpdate(true);
-                            _script_XyloApi.PlayBUB_Move1();
+                            _script_XyloApi.PlayBUB_Move3();
 
                             break;
                         case EnumEventCommand.Submited:
@@ -243,7 +243,7 @@ namespace Selects.Views
                             break;
                         case EnumEventCommand.Canceled:
                             ResetSelectedStageIndex(_viewModel);
-                            _script_XyloApi.PlayBUB_Cancel1();
+                            _script_XyloApi.PlayBUB_Move1();
 
                             break;
                     }
@@ -390,7 +390,7 @@ namespace Selects.Views
                     break;
                 case 1:
                     ResetSelectedStageIndex(viewModel);
-                    script_XyloApi.PlayBUB_Cancel1();
+                    script_XyloApi.PlayBUB_Move1();
 
                     break;
             }

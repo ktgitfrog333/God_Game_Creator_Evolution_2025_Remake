@@ -19,6 +19,10 @@ public class MissGhostAttack : MonoBehaviour
 
     public float jumpHeight = 50f; // 飛び上がる高さ
     public float fallDistance = 120f; // 落下する距離
+    // [2026/06/16] Amagata issue #57 start
+    private bool _isHitPlayer;
+    public bool IsHitPlayer => _isHitPlayer;
+    // [2026/06/16] Amagata issue #57 end
 
     // 動作モード
     private enum MoveMode
@@ -160,8 +164,18 @@ public class MissGhostAttack : MonoBehaviour
         // 指定時間が経過したらプールに返却
         if (fractionOfJourney >= 1.0f)
         {
-           ReturnToPool();
+            // [2026/06/16] Amagata issue #57 start
+            // Treat the end of an animation as a player hit
+            _isHitPlayer = true;
+            // [2026/06/16] Amagata issue #57 end
+            ReturnToPool();
         }
+        // [2026/06/16] Amagata issue #57 start
+        else
+        {
+            _isHitPlayer = false;
+        }
+        // [2026/06/16] Amagata issue #57 end
     }
 
     private void UpdateSuccessMovement()

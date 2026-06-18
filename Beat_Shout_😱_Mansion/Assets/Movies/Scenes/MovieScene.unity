@@ -5887,7 +5887,7 @@ MonoBehaviour:
         m_Calls:
         - m_Target: {fileID: 193537148}
           m_TargetAssemblyTypeName: SE_Picker, Assembly-CSharp
-          m_MethodName: PlayShouchitsu
+          m_MethodName: PlayBUB_Shouchitsu_Chakushin4
           m_Mode: 4
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -5913,7 +5913,7 @@ MonoBehaviour:
         m_Calls:
         - m_Target: {fileID: 193537148}
           m_TargetAssemblyTypeName: SE_Picker, Assembly-CSharp
-          m_MethodName: PlayDoorOpen3
+          m_MethodName: PlayBUB_DoorOpen
           m_Mode: 4
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -5939,7 +5939,7 @@ MonoBehaviour:
         m_Calls:
         - m_Target: {fileID: 193537148}
           m_TargetAssemblyTypeName: SE_Picker, Assembly-CSharp
-          m_MethodName: Playgarakuta
+          m_MethodName: PlayBUB_garakuta
           m_Mode: 4
           m_Arguments:
             m_ObjectArgument: {fileID: 0}

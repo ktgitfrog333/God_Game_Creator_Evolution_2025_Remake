@@ -91,6 +91,14 @@ public class SE_Picker : MonoBehaviour
     private string BUB_Move2;
     private string BUB_Move3;
     // [2026/06/07] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" end
+    // [2026/06/14] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" start
+    private string BUB_DoorOpen;
+    private string BUB_garakuta;
+    private string BUB_Shouchitsu_Chakushin;
+    private string BUB_Shouchitsu_Chakushin2;
+    private string BUB_Shouchitsu_Chakushin3;
+    private string BUB_Shouchitsu_Chakushin4;
+    // [2026/06/14] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" end
 
 
     private void OnEnable()
@@ -193,6 +201,14 @@ Move4 = "Move4";
         BUB_Move2 = "BUB_Move2";
         BUB_Move3 = "BUB_Move3";
         // [2026/06/07] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" end
+        // [2026/06/14] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" start
+        BUB_DoorOpen = "BUB_DoorOpen";
+        BUB_garakuta = "BUB_garakuta";
+        BUB_Shouchitsu_Chakushin = "BUB_Shouchitsu_Chakushin";
+        BUB_Shouchitsu_Chakushin2 = "BUB_Shouchitsu_Chakushin2";
+        BUB_Shouchitsu_Chakushin3 = "BUB_Shouchitsu_Chakushin3";
+        BUB_Shouchitsu_Chakushin4 = "BUB_Shouchitsu_Chakushin4";
+        // [2026/06/14] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" end
 
 
         // ï€ë∂Ç≥ÇÍÇƒÇ¢ÇÈSEâπó Çì«Ç›çûÇﬁ
@@ -547,4 +563,35 @@ Move4 = "Move4";
         PlaySound(BUB_Move3, volume);
     }
     // [2026/06/07] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" end
+    // [2026/06/14] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" start
+    public void PlayBUB_DoorOpen(float volume)
+    {
+        PlaySound(BUB_DoorOpen, volume);
+    }
+
+    public void PlayBUB_garakuta(float volume)
+    {
+        PlaySound(BUB_garakuta, volume);
+    }
+
+    public void PlayBUB_Shouchitsu_Chakushin(float volume)
+    {
+        PlaySound(BUB_Shouchitsu_Chakushin, volume);
+    }
+
+    public void PlayBUB_Shouchitsu_Chakushin2(float volume)
+    {
+        PlaySound(BUB_Shouchitsu_Chakushin2, volume);
+    }
+
+    public void PlayBUB_Shouchitsu_Chakushin3(float volume)
+    {
+        PlaySound(BUB_Shouchitsu_Chakushin3, volume);
+    }
+
+    public void PlayBUB_Shouchitsu_Chakushin4(float volume)
+    {
+        PlaySound(BUB_Shouchitsu_Chakushin4, volume);
+    }
+    // [2026/06/14] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" end
 }

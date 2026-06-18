@@ -471,7 +471,7 @@ MonoBehaviour:
     targetSceneName: SelectScene
   characterController: {fileID: 8536045231518824716}
   "\u30C8\u30C3\u30D7_\u79FB\u52D5\u901F\u5EA6": 4
-  "\u8996\u70B9\u901F\u5EA6\u88DC\u6B63": 40
+  "\u8996\u70B9\u901F\u5EA6\u88DC\u6B63": 10
   "\u91CD\u529B": 9.81
   "\u30ED\u30FC_\u5207\u308A\u66FF\u3048\u6642\u9593_\u79D2": 0.35
   "\u30ED\u30FC_\u6B69\u5E45": 0.05
