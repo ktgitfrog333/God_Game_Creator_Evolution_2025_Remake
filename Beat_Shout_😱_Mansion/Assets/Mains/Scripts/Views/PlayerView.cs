@@ -293,7 +293,6 @@ namespace Mains.Views
             Vector3? successShoutPosition = null;
             // シャウトが成功したオイラー角度
             Vector3? successShoutEulerAngles = null;
-            _script_XyloApi.InitVolumeLevelReactive();
             // 恐怖値のカウントを停止する
             bool isStopHorrorCount = false;
             // 視界ジャック用ゴースト
