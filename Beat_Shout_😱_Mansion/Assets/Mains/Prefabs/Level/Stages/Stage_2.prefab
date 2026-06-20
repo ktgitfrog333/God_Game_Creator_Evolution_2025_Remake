@@ -256,6 +256,8 @@ MonoBehaviour:
     customShoutRadius: 0
     soundOutputType: 0
     role: 0
+    ghostModelType: 0
+    ghostVoiceType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -269,6 +271,8 @@ MonoBehaviour:
       customShoutRadius: 0
       soundOutputType: 0
       role: 0
+      ghostModelType: 0
+      ghostVoiceType: 0
 --- !u!65 &588632965742643510
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -460,6 +464,8 @@ MonoBehaviour:
     customShoutRadius: 0
     soundOutputType: 0
     role: 0
+    ghostModelType: 0
+    ghostVoiceType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -473,6 +479,8 @@ MonoBehaviour:
       customShoutRadius: 0
       soundOutputType: 0
       role: 0
+      ghostModelType: 0
+      ghostVoiceType: 0
 --- !u!65 &6628495772089800774
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -631,6 +639,8 @@ MonoBehaviour:
     customShoutRadius: 0
     soundOutputType: 0
     role: 0
+    ghostModelType: 0
+    ghostVoiceType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -644,6 +654,8 @@ MonoBehaviour:
       customShoutRadius: 0
       soundOutputType: 0
       role: 0
+      ghostModelType: 0
+      ghostVoiceType: 0
 --- !u!65 &2148223387525611153
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -895,6 +907,8 @@ MonoBehaviour:
     customShoutRadius: 0
     soundOutputType: 0
     role: 0
+    ghostModelType: 0
+    ghostVoiceType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -908,6 +922,8 @@ MonoBehaviour:
       customShoutRadius: 0
       soundOutputType: 0
       role: 0
+      ghostModelType: 0
+      ghostVoiceType: 0
 --- !u!65 &4942742522863159276
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1210,6 +1226,8 @@ MonoBehaviour:
     customShoutRadius: 0
     soundOutputType: 0
     role: 0
+    ghostModelType: 0
+    ghostVoiceType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -1223,6 +1241,8 @@ MonoBehaviour:
       customShoutRadius: 0
       soundOutputType: 0
       role: 0
+      ghostModelType: 0
+      ghostVoiceType: 0
 --- !u!65 &6058639067587776822
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2051,6 +2071,8 @@ MonoBehaviour:
     customShoutRadius: 0
     soundOutputType: 0
     role: 0
+    ghostModelType: 0
+    ghostVoiceType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -2064,6 +2086,8 @@ MonoBehaviour:
       customShoutRadius: 0
       soundOutputType: 0
       role: 0
+      ghostModelType: 0
+      ghostVoiceType: 0
 --- !u!65 &4073243182640853075
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2147,6 +2171,8 @@ MonoBehaviour:
     customShoutRadius: 0
     soundOutputType: 0
     role: 0
+    ghostModelType: 0
+    ghostVoiceType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -2160,6 +2186,8 @@ MonoBehaviour:
       customShoutRadius: 0
       soundOutputType: 0
       role: 0
+      ghostModelType: 0
+      ghostVoiceType: 0
 --- !u!65 &7747579518179849065
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2349,6 +2377,8 @@ MonoBehaviour:
     customShoutRadius: 0
     soundOutputType: 0
     role: 0
+    ghostModelType: 0
+    ghostVoiceType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -2362,6 +2392,8 @@ MonoBehaviour:
       customShoutRadius: 0
       soundOutputType: 0
       role: 0
+      ghostModelType: 0
+      ghostVoiceType: 0
 --- !u!65 &3614679900399710313
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2737,6 +2769,8 @@ MonoBehaviour:
     customShoutRadius: 0
     soundOutputType: 0
     role: 0
+    ghostModelType: 0
+    ghostVoiceType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -2750,6 +2784,8 @@ MonoBehaviour:
       customShoutRadius: 0
       soundOutputType: 0
       role: 0
+      ghostModelType: 0
+      ghostVoiceType: 0
 --- !u!65 &8420131354783766232
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3467,6 +3503,8 @@ MonoBehaviour:
     customShoutRadius: 0
     soundOutputType: 0
     role: 0
+    ghostModelType: 0
+    ghostVoiceType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -3480,6 +3518,8 @@ MonoBehaviour:
       customShoutRadius: 0
       soundOutputType: 0
       role: 0
+      ghostModelType: 0
+      ghostVoiceType: 0
 --- !u!65 &544060483153107438
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3700,6 +3740,8 @@ MonoBehaviour:
     customShoutRadius: 0
     soundOutputType: 0
     role: 0
+    ghostModelType: 0
+    ghostVoiceType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -3713,6 +3755,8 @@ MonoBehaviour:
       customShoutRadius: 0
       soundOutputType: 0
       role: 0
+      ghostModelType: 0
+      ghostVoiceType: 0
 --- !u!65 &8289956596331338850
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3951,6 +3995,8 @@ MonoBehaviour:
     customShoutRadius: 0
     soundOutputType: 0
     role: 0
+    ghostModelType: 0
+    ghostVoiceType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -3964,6 +4010,8 @@ MonoBehaviour:
       customShoutRadius: 0
       soundOutputType: 0
       role: 0
+      ghostModelType: 0
+      ghostVoiceType: 0
 --- !u!65 &3999192718606984302
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4166,6 +4214,8 @@ MonoBehaviour:
     customShoutRadius: 0
     soundOutputType: 0
     role: 0
+    ghostModelType: 0
+    ghostVoiceType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -4179,6 +4229,8 @@ MonoBehaviour:
       customShoutRadius: 0
       soundOutputType: 0
       role: 0
+      ghostModelType: 0
+      ghostVoiceType: 0
 --- !u!65 &154952826466256710
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4962,6 +5014,8 @@ MonoBehaviour:
     customShoutRadius: 0
     soundOutputType: 0
     role: 0
+    ghostModelType: 0
+    ghostVoiceType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -4975,6 +5029,8 @@ MonoBehaviour:
       customShoutRadius: 0
       soundOutputType: 0
       role: 0
+      ghostModelType: 0
+      ghostVoiceType: 0
 --- !u!65 &2782495473820817998
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5530,6 +5586,8 @@ MonoBehaviour:
     customShoutRadius: 0
     soundOutputType: 0
     role: 0
+    ghostModelType: 0
+    ghostVoiceType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -5543,6 +5601,8 @@ MonoBehaviour:
       customShoutRadius: 0
       soundOutputType: 0
       role: 0
+      ghostModelType: 0
+      ghostVoiceType: 0
 --- !u!65 &7032716239292055653
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5767,6 +5827,8 @@ MonoBehaviour:
     customShoutRadius: 0
     soundOutputType: 0
     role: 0
+    ghostModelType: 0
+    ghostVoiceType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -5780,6 +5842,8 @@ MonoBehaviour:
       customShoutRadius: 0
       soundOutputType: 0
       role: 0
+      ghostModelType: 0
+      ghostVoiceType: 0
 --- !u!65 &8104239494081666842
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6108,6 +6172,8 @@ MonoBehaviour:
     customShoutRadius: 0
     soundOutputType: 0
     role: 0
+    ghostModelType: 0
+    ghostVoiceType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -6115,12 +6181,14 @@ MonoBehaviour:
     midBossGhostInStaticObjectStruct:
       poltergeistViewID: 0
       useStatus: 1
-      membersCount: 90
+      membersCount: 88
       attackType: 0
       moveType: 0
       customShoutRadius: 0
       soundOutputType: 0
       role: 1
+      ghostModelType: 0
+      ghostVoiceType: 0
 --- !u!65 &6891268625920832027
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6411,6 +6479,8 @@ MonoBehaviour:
     customShoutRadius: 0
     soundOutputType: 0
     role: 0
+    ghostModelType: 0
+    ghostVoiceType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -6424,6 +6494,8 @@ MonoBehaviour:
       customShoutRadius: 0
       soundOutputType: 0
       role: 0
+      ghostModelType: 0
+      ghostVoiceType: 0
 --- !u!65 &3493342589309471623
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -7633,6 +7705,8 @@ MonoBehaviour:
     customShoutRadius: 0
     soundOutputType: 0
     role: 0
+    ghostModelType: 0
+    ghostVoiceType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -7646,6 +7720,8 @@ MonoBehaviour:
       customShoutRadius: 0
       soundOutputType: 0
       role: 0
+      ghostModelType: 0
+      ghostVoiceType: 0
 --- !u!65 &5611559423849172912
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -7988,6 +8064,8 @@ MonoBehaviour:
     customShoutRadius: 0
     soundOutputType: 0
     role: 0
+    ghostModelType: 0
+    ghostVoiceType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -8001,6 +8079,8 @@ MonoBehaviour:
       customShoutRadius: 0
       soundOutputType: 0
       role: 0
+      ghostModelType: 0
+      ghostVoiceType: 0
 --- !u!65 &7161478731814884707
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -8208,6 +8288,8 @@ MonoBehaviour:
     customShoutRadius: 0
     soundOutputType: 0
     role: 0
+    ghostModelType: 0
+    ghostVoiceType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -8221,6 +8303,8 @@ MonoBehaviour:
       customShoutRadius: 0
       soundOutputType: 0
       role: 0
+      ghostModelType: 0
+      ghostVoiceType: 0
 --- !u!65 &726689780633518613
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -8890,6 +8974,8 @@ MonoBehaviour:
     customShoutRadius: 0
     soundOutputType: 0
     role: 0
+    ghostModelType: 0
+    ghostVoiceType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -8903,6 +8989,8 @@ MonoBehaviour:
       customShoutRadius: 0
       soundOutputType: 0
       role: 0
+      ghostModelType: 0
+      ghostVoiceType: 0
 --- !u!65 &3386232761600743916
 BoxCollider:
   m_ObjectHideFlags: 0
