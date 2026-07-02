@@ -18,6 +18,8 @@ namespace Mains.Views
         private Script_xyloApi _script_XyloApi;
         /// <summary>MissGhostAttackのカスタマイズビューモデル</summary>
         private MissGhostAttackCustomizeViewModel _viewModel;
+        /// <summary>MissGhostAttackのカスタマイズテーブル</summary>
+        [SerializeField] private MissGhostAttackCustomizeTable missGhostAttackCustomizeTable;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -44,6 +46,7 @@ namespace Mains.Views
         {
             Transform trans = transform;
             var camera = Camera.main.transform;
+            var table = missGhostAttackCustomizeTable;
             Observable.EveryUpdate()
                 .Subscribe(_ =>
                 {
@@ -120,6 +123,8 @@ namespace Mains.Views
                     .AddTo(ref _disposableBag);
             }
             _script_XyloApi.SetMissGhostAttack(trans);
+            var isNoHitPlayerForceMode = table.IsNoHitPlayerForceMode;
+            api.SetIsNoHitPlayerForceMode(isNoHitPlayerForceMode);
         }
 
         private void OnDestroy()

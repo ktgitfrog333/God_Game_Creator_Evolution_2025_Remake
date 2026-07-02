@@ -85,6 +85,7 @@ namespace Mains.Views
 
         private void Start()
         {
+            var set = settings;
             _script_XyloApi = new Script_xyloApi();
             // 着地した瞬間も足音を鳴らす
             ReactiveProperty<bool> isGrounded = new();
@@ -530,11 +531,13 @@ namespace Mains.Views
                                     .Take(1)
                                     .Subscribe(x =>
                                     {
+                                        var customizeTable = set.playerCustomizeTable;
                                         observableIsFailedDisposable = x.Where(x => x)
                                             .Subscribe(_ =>
                                             {
                                                 // [Miss]失敗を購読した場合は電池を落とす
-                                                if (_playerViewModel.BatteryTransform == null)
+                                                var isNoHitPlayerForceMode = customizeTable.IsNoHitPlayerForceMode;
+                                                if (!isNoHitPlayerForceMode && _playerViewModel.BatteryTransform == null)
                                                 {
                                                     Transform battery = DropBattery(headTrans, リズムパートで使用するプレイヤープロパティ.spotLightLightTrans);
                                                     _playerViewModel.SetBatteryTransform(battery);
@@ -1165,5 +1168,7 @@ namespace Mains.Views
         /// <summary>対象シーン名</summary>
         /// <remarks>セレクトシーンを指定する</remarks>
         public string targetSceneName;
+        /// <summary>プレイヤーのカスタマイズテーブル</summary>
+        public PlayerCustomizeTable playerCustomizeTable;
     }
 }

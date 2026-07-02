@@ -2033,7 +2033,7 @@ MonoBehaviour:
     midBossGhostInStaticObjectStruct:
       poltergeistViewID: 0
       useStatus: 1
-      membersCount: 45
+      membersCount: 63
       attackType: 0
       moveType: 0
       customShoutRadius: 0

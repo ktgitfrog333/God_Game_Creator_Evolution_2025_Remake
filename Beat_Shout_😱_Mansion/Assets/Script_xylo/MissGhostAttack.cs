@@ -23,6 +23,9 @@ public class MissGhostAttack : MonoBehaviour
     private bool _isHitPlayer;
     public bool IsHitPlayer => _isHitPlayer;
     // [2026/06/16] Amagata issue #57 end
+    // [2026/06/26] Amagata issue #80 start
+    public bool IsNoHitPlayerForceMode { get; set; }
+    // [2026/06/26] Amagata issue #80 end
 
     // ìÆçÏÉÇÅ[Éh
     private enum MoveMode
@@ -114,6 +117,16 @@ public class MissGhostAttack : MonoBehaviour
         if (currentMode == MoveMode.Failed)
         {
             UpdateFailedMovement();
+            // [2026/06/26] Amagata issue #80 start
+            if (IsNoHitPlayerForceMode)
+            {
+                var collider = GetComponent<BoxCollider>();
+                if (collider != null)
+                {
+                    collider.enabled = false;
+                }
+            }
+            // [2026/06/26] Amagata issue #80 end
         }
         else
         {
@@ -166,7 +179,14 @@ public class MissGhostAttack : MonoBehaviour
         {
             // [2026/06/16] Amagata issue #57 start
             // Treat the end of an animation as a player hit
-            _isHitPlayer = true;
+            // [2026/06/26] Amagata issue #80 start
+            if (!IsNoHitPlayerForceMode)
+            {
+                // [2026/06/26] Amagata issue #80 end
+                _isHitPlayer = true;
+                // [2026/06/26] Amagata issue #80 start
+            }
+            // [2026/06/26] Amagata issue #80 end
             // [2026/06/16] Amagata issue #57 end
             ReturnToPool();
         }

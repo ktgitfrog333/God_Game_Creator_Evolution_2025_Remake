@@ -32,7 +32,7 @@ MonoBehaviour:
     moveIntervalSeconds: 30
     targetkillsRate: 0.8
     checkClearStruct:
-      enemyBattlePart: 0
+      enemyBattlePart: 1
     ghostModelTypePrefabSettings:
       missGhostEscapePrefabMappings:
       - ghostModelType: 0

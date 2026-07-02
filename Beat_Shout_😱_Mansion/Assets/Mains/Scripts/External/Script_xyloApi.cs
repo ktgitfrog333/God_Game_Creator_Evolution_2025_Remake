@@ -171,6 +171,16 @@ namespace Mains.External
                 })
                 .AddTo(ref _disposableBag);
         }
+        public void SetIsNoHitPlayerForceMode(bool isNoHitPlayerForceMode)
+        {
+            if (_missGhostAttack == null)
+            {
+                Debug.LogWarning($"MissGhostAttackが未取得");
+                return;
+            }
+
+            _missGhostAttack.IsNoHitPlayerForceMode = isNoHitPlayerForceMode;
+        }
         public void ForceReturnToPool()
         {
             _missGhostAttack.ForceReturnToPool();
@@ -1097,6 +1107,17 @@ namespace Mains.External
             }
 
             _missileTempoSpawner.SetMissilePattern(newPattern);
+        }
+
+        public void SetOneShot(bool oneShot)
+        {
+            if (_missileTempoSpawner == null)
+            {
+                Debug.LogWarning("MissileTempoSpawnerがセットされていません。");
+                return;
+            }
+
+            _missileTempoSpawner.SetOneShot(oneShot);
         }
 
         /// <summary>
