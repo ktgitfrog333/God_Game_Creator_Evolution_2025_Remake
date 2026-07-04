@@ -13,3 +13,6 @@ MonoBehaviour:
   m_Name: PlayerCustomizeTable
   m_EditorClassIdentifier: 
   rhythmPartTable: {fileID: 11400000, guid: 3e2fd0c28a00a724daf680c7cdf9c90a, type: 2}
+  groundTagDatas:
+  - type: 1
+    tag: FloorWood

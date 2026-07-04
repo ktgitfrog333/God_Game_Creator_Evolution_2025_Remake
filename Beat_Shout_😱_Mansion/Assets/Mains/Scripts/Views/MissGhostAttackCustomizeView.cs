@@ -123,8 +123,12 @@ namespace Mains.Views
                     .AddTo(ref _disposableBag);
             }
             _script_XyloApi.SetMissGhostAttack(trans);
-            var isNoHitPlayerForceMode = table.IsNoHitPlayerForceMode;
-            api.SetIsNoHitPlayerForceMode(isNoHitPlayerForceMode);
+            // ミスした際に突進してくるオバケのみ対象
+            if (table != null)
+            {
+                var isNoHitPlayerForceMode = table.IsNoHitPlayerForceMode;
+                api.SetIsNoHitPlayerForceMode(isNoHitPlayerForceMode);
+            }
         }
 
         private void OnDestroy()

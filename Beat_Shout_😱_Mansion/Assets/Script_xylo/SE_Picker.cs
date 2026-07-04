@@ -99,6 +99,15 @@ public class SE_Picker : MonoBehaviour
     private string BUB_Shouchitsu_Chakushin3;
     private string BUB_Shouchitsu_Chakushin4;
     // [2026/06/14] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" end
+    // [2026/07/03] Amagata Support for Implementing Custom Sound Effects start
+    private string BUB_footstep;
+    private string BUB_footstep_wood;
+    private string BUB_HeartbeatSlow;
+    private string BUB_HitMiss4;
+    private string BUB_HitSuccess_Long;
+    private string BUB_HitSuccess_Short;
+    private string BUB_HeartbeatFast;
+    // [2026/07/03] Amagata Support for Implementing Custom Sound Effects end
 
 
     private void OnEnable()
@@ -209,6 +218,15 @@ Move4 = "Move4";
         BUB_Shouchitsu_Chakushin3 = "BUB_Shouchitsu_Chakushin3";
         BUB_Shouchitsu_Chakushin4 = "BUB_Shouchitsu_Chakushin4";
         // [2026/06/14] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" end
+        // [2026/07/03] Amagata Support for Implementing Custom Sound Effects start
+        BUB_footstep = "BUB_footstep";
+        BUB_footstep_wood = "BUB_footstep_wood";
+        BUB_HeartbeatSlow = "BUB_HeartbeatSlow";
+        BUB_HitMiss4 = "BUB_HitMiss4";
+        BUB_HitSuccess_Long = "BUB_HitSuccess_Long";
+        BUB_HitSuccess_Short = "BUB_HitSuccess_Short";
+        BUB_HeartbeatFast = "BUB_HeartbeatFast";
+        // [2026/07/03] Amagata Support for Implementing Custom Sound Effects end
 
 
         // ï€ë∂Ç≥ÇÍÇƒÇ¢ÇÈSEâπó Çì«Ç›çûÇﬁ
@@ -594,4 +612,40 @@ Move4 = "Move4";
         PlaySound(BUB_Shouchitsu_Chakushin4, volume);
     }
     // [2026/06/14] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" end
+    // [2026/07/03] Amagata Support for Implementing Custom Sound Effects start
+    public void PlayBUB_footstep(float volume)
+    {
+        PlaySound(BUB_footstep, volume);
+    }
+
+    public void PlayBUB_footstep_wood(float volume)
+    {
+        PlaySound(BUB_footstep_wood, volume);
+    }
+
+    public void PlayBUB_HeartbeatSlow(float volume)
+    {
+        PlaySound(BUB_HeartbeatSlow, volume);
+    }
+
+    public void PlayBUB_HitMiss4(float volume)
+    {
+        PlaySound(BUB_HitMiss4, volume);
+    }
+
+    public void PlayBUB_HitSuccess_Long(float volume)
+    {
+        PlaySound(BUB_HitSuccess_Long, volume);
+    }
+
+    public void PlayBUB_HitSuccess_Short(float volume)
+    {
+        PlaySound(BUB_HitSuccess_Short, volume);
+    }
+
+    public void PlayBUB_HeartbeatFast(float volume)
+    {
+        PlaySound(BUB_HeartbeatFast, volume);
+    }
+    // [2026/07/03] Amagata Support for Implementing Custom Sound Effects end
 }

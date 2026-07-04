@@ -663,6 +663,17 @@ namespace Mains.External
             }
         }
 
+        public void SetFloorType(int floorType)
+        {
+            if (_test_FootStep == null)
+            {
+                Debug.LogWarning("Test_FootStep インスタンスが見つかりません。");
+                return;
+            }
+
+            _test_FootStep.SetFloorType(floorType);
+        }
+
         public void PlayMove5()
         {
             var sePicker = SE_Picker.Instance;
@@ -868,7 +879,7 @@ namespace Mains.External
                 return;
             }
             var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
-            sePicker.PlayHeartbeatFast(seVolumeIndex);
+            sePicker.PlayBUB_HeartbeatFast(seVolumeIndex);
         }
 
         public void PlayHeartbeatSlow()
@@ -884,10 +895,10 @@ namespace Mains.External
                 return;
             }
             var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
-            sePicker.PlayHeartbeatSlow(seVolumeIndex);
+            sePicker.PlayBUB_HeartbeatSlow(seVolumeIndex);
         }
 
-        public void PlayHitSuccess3()
+        public void PlayHitSuccess3(int notesType)
         {
             var sePicker = SE_Picker.Instance;
             if (sePicker == null)
@@ -900,7 +911,17 @@ namespace Mains.External
                 return;
             }
             var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
-            sePicker.PlayHitSuccess3(seVolumeIndex);
+            switch (notesType)
+            {
+                case 1:
+                    sePicker.PlayBUB_HitSuccess_Long(seVolumeIndex);
+
+                    break;
+                default:
+                    sePicker.PlayBUB_HitSuccess_Short(seVolumeIndex);
+
+                    break;
+            }
         }
 
         public void PlayHitMiss3()
@@ -916,7 +937,7 @@ namespace Mains.External
                 return;
             }
             var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
-            sePicker.PlayHitMiss3(seVolumeIndex);
+            sePicker.PlayBUB_HitMiss4(seVolumeIndex);
         }
 
         public void PlayBatteryLost1()

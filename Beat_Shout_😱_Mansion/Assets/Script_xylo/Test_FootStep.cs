@@ -9,6 +9,12 @@ public class Test_FootStep : MonoBehaviour
 
     private Coroutine footstepCoroutine;
     private bool isPlaying = false;
+    // [2026/07/03] Amagata Support for Implementing Custom Sound Effects start
+    /// <summary>
+    /// 0: Default, 1: Wood
+    /// </summary>
+    private int _floorType = 0;
+    // [2026/07/03] Amagata Support for Implementing Custom Sound Effects end
 
     void Update()
     {
@@ -67,6 +73,26 @@ public class Test_FootStep : MonoBehaviour
 
     void PlayFootStep()
     {
-        SE_Picker.Instance.PlayFootStep(1);
+        // [2026/07/03] Amagata Support for Implementing Custom Sound Effects start
+        //SE_Picker.Instance.PlayFootStep(1);
+        var type = _floorType;
+        switch (type)
+        {
+            case 1:
+                SE_Picker.Instance.PlayBUB_footstep_wood(1);
+
+                break;
+            default:
+                SE_Picker.Instance.PlayBUB_footstep(1);
+
+                break;
+        }
+        // [2026/07/03] Amagata Support for Implementing Custom Sound Effects end
     }
+    // [2026/07/03] Amagata Support for Implementing Custom Sound Effects start
+    public void SetFloorType(int floorType)
+    {
+        _floorType = floorType;
+    }
+    // [2026/07/03] Amagata Support for Implementing Custom Sound Effects end
 }

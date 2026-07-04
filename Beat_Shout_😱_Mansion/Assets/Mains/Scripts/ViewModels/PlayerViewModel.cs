@@ -1,8 +1,10 @@
-using UnityEngine;
 using Mains.Commons;
+using Mains.External;
 using Mains.Models;
 using ObservableCollections;
 using R3;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace Mains.ViewModels
 {
@@ -194,16 +196,11 @@ namespace Mains.ViewModels
         /// <param name="characterController">キャラクター移動制御</param>
         /// <param name="distanceToGround">地面との距離</param>
         /// <param name="groundLayerMask">接地判定の対象レイヤー</param>
+        /// <param name="groundTagDictionary">接地判定の対象タグデータ</param>
+        /// <param name="script_XyloApi">シロさんのコンポーネントへアクセスするAPI</param>
         /// <returns>地面に接触しているか</returns>
-        public bool IsGrounded(CharacterController characterController, float distanceToGround, LayerMask groundLayerMask)
+        public bool IsGrounded(CharacterController characterController, float distanceToGround, LayerMask groundLayerMask, Dictionary<int, string> groundTagDictionary, Script_xyloApi script_XyloApi)
         {
-            // CharacterControllerのisGroundedプロパティを優先的に使用
-            // Move()の後に自動的に更新されるため、より正確
-            if (characterController.isGrounded)
-            {
-                return true;
-            }
-
             // CharacterControllerが無効な場合や、より詳細な判定が必要な場合のフォールバック
             float radius = characterController.radius;
             float skinWidth = characterController.skinWidth;
@@ -215,6 +212,26 @@ namespace Mains.ViewModels
             int hitCount = Physics.SphereCastNonAlloc(rayOrigin, radius, Vector3.down, _sphereCastHits, raycastDistance, groundLayerMask);
             // デバッグ：SceneビューにSphereCastのレイを描画
             Debug.DrawRay(rayOrigin, Vector3.down * raycastDistance, Color.yellow);
+            // 地面タイプ
+            int type = 0;
+            foreach (var hit in _sphereCastHits)
+            {
+                var dic = groundTagDictionary;
+                if (dic.ContainsValue(hit.collider.tag))
+                {
+                    foreach (var kvp in dic)
+                    {
+                        if (kvp.Value == hit.collider.tag)
+                        {
+                            type = kvp.Key;
+
+                            break;
+                        }
+                    }
+
+                    break;
+                }
+            }
 
             // より確実な判定のため、追加でRaycastも実行
             if (hitCount == 0)
@@ -222,7 +239,31 @@ namespace Mains.ViewModels
                 float rayDistance = characterController.height / 2f + distanceToGround;
                 // デバッグ：SceneビューにRaycastのレイを描画
                 Debug.DrawRay(rayOrigin, Vector3.down * rayDistance, Color.cyan);
-                return Physics.Raycast(rayOrigin, Vector3.down, rayDistance, groundLayerMask);
+                RaycastHit raycastHit = new RaycastHit();
+                bool isHit = Physics.Raycast(rayOrigin, Vector3.down, out raycastHit, rayDistance, groundLayerMask);
+                if (isHit)
+                {
+                    var dic = groundTagDictionary;
+                    if (dic.ContainsValue(raycastHit.collider.tag))
+                    {
+                        foreach (var kvp in dic)
+                        {
+                            if (kvp.Value == raycastHit.collider.tag)
+                            {
+                                type = kvp.Key;
+
+                                break;
+                            }
+                        }
+                    }
+                }
+                script_XyloApi.SetFloorType(type);
+
+                return isHit;
+            }
+            else
+            {
+                script_XyloApi.SetFloorType(type);
             }
 
             return hitCount > 0;

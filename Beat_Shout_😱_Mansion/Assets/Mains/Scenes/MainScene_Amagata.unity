@@ -864,7 +864,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7134437694976276645, guid: 8524c6731d2e5a24ea1b62e2d1968daf, type: 3}
       propertyPath: missileTypes.Array.size
-      value: 4
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 7134437694976276645, guid: 8524c6731d2e5a24ea1b62e2d1968daf, type: 3}
       propertyPath: missileTypes.Array.data[0].prefab
@@ -885,7 +885,7 @@ PrefabInstance:
     - target: {fileID: 7134437694976276645, guid: 8524c6731d2e5a24ea1b62e2d1968daf, type: 3}
       propertyPath: missileTypes.Array.data[4].prefab
       value: 
-      objectReference: {fileID: 1947344915237714615, guid: 531ae0e13d3834c42a6540b2581d9a19, type: 3}
+      objectReference: {fileID: 1488243710127606474, guid: a268253b3a1426d42bfdb4745cec723e, type: 3}
     - target: {fileID: 7134437694976276645, guid: 8524c6731d2e5a24ea1b62e2d1968daf, type: 3}
       propertyPath: missileTypes.Array.data[0].poolSize
       value: 4
@@ -1256,10 +1256,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 421983037}
     m_Modifications:
+    - target: {fileID: 363195059803214664, guid: 81f59d4cdbdd59f46a224abdfddc4e86, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 916647838461563245, guid: 81f59d4cdbdd59f46a224abdfddc4e86, type: 3}
       propertyPath: m_Material
       value: 
       objectReference: {fileID: 2141077481}
+    - target: {fileID: 1245316381623614995, guid: 81f59d4cdbdd59f46a224abdfddc4e86, type: 3}
+      propertyPath: m_TagString
+      value: FloorWood
+      objectReference: {fileID: 0}
     - target: {fileID: 1348431720815234926, guid: 81f59d4cdbdd59f46a224abdfddc4e86, type: 3}
       propertyPath: m_Name
       value: Stage_0
