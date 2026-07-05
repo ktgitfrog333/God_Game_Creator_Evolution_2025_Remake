@@ -2434,7 +2434,7 @@ MonoBehaviour:
     - 0
     - 0
     - 0
-  _cueName: Stage4_rhythm_BPM155_v2
+  _cueName: Stage4_rhythm_BPM155_v2_loop
   _cueSheet: BGM
 --- !u!114 &1617177614
 MonoBehaviour:

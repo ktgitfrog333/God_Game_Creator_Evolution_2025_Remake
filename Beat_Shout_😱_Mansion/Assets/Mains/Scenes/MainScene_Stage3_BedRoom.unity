@@ -2810,7 +2810,7 @@ MonoBehaviour:
     - 0
     - 0
     - 0
-  _cueName: Stage3_rhythm_BPM160_v2
+  _cueName: Stage3_rhythm_BPM160_v2_loop
   _cueSheet: BGM
 --- !u!114 &1730013432
 MonoBehaviour:
