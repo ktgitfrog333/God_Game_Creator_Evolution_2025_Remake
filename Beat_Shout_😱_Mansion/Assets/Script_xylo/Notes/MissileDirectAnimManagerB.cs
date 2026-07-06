@@ -32,7 +32,10 @@ public class MissileDirectAnimManagerB : MonoBehaviour
 
     [Header("インタラクション設定")]
     private bool enableClickDetection = true;
-    [Range(0.01f, 0.5f)] private float clickGracePeriod = 0.1f;
+    // [2026/07/06] Amagata issue #80 start
+    //[Range(0.01f, 0.5f)] private float clickGracePeriod = 0.1f;
+    [SerializeField, Range(0.01f, 0.5f)] public float clickGracePeriod = 0.1f;
+    // [2026/07/06] Amagata issue #80 end
 
     [Header("色設定")]
     public Color normalColor = Color.white;

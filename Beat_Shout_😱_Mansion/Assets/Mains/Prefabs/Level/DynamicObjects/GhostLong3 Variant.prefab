@@ -164,6 +164,10 @@ PrefabInstance:
       propertyPath: holdingColor.r
       value: 0.740566
       objectReference: {fileID: 0}
+    - target: {fileID: 953840192343252355, guid: c4bf94faa0d1eb84a89a7182c76ad75e, type: 3}
+      propertyPath: clickGracePeriod
+      value: 0.25
+      objectReference: {fileID: 0}
     - target: {fileID: 1947344915237714615, guid: c4bf94faa0d1eb84a89a7182c76ad75e, type: 3}
       propertyPath: m_Name
       value: GhostLong3 Variant

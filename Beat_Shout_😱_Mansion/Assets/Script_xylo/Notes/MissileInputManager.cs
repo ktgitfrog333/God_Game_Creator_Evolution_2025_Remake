@@ -263,10 +263,12 @@ public class MissileInputManager
         float pressTimingDifference = elapsedTime - absolutePressTargetTime;
         bool inPressWindow = Mathf.Abs(pressTimingDifference) <= clickGracePeriod;
 
-        // 離すタイミング判定 
-        float releaseGracePeriod = clickGracePeriod;
-        float releaseTimingDifference = elapsedTime - absoluteReleaseTargetTime;
-        bool inReleaseWindow = Mathf.Abs(releaseTimingDifference) <= releaseGracePeriod;
+        // [2026/07/06] Amagata issue #80 start
+        //// 離すタイミング判定 
+        //float releaseGracePeriod = clickGracePeriod;
+        //float releaseTimingDifference = elapsedTime - absoluteReleaseTargetTime;
+        //bool inReleaseWindow = Mathf.Abs(releaseTimingDifference) <= releaseGracePeriod;
+        // [2026/07/06] Amagata issue #80 end
 
         // 押し始めの処理
         if (!waitingForRelease)

@@ -231,6 +231,10 @@ PrefabInstance:
       propertyPath: holdingColor.r
       value: 0.740566
       objectReference: {fileID: 0}
+    - target: {fileID: 953840192343252355, guid: 204a83711996f8a479c72086a4b95374, type: 3}
+      propertyPath: clickGracePeriod
+      value: 0.25
+      objectReference: {fileID: 0}
     - target: {fileID: 1947344915237714615, guid: 204a83711996f8a479c72086a4b95374, type: 3}
       propertyPath: m_Name
       value: GhostShort Variant
@@ -384,6 +388,7 @@ MonoBehaviour:
   modelRenderer: {fileID: 1523247472436742953}
   settins:
     homingObjectCustomizeTable: {fileID: 0}
+    notesType: 0
 --- !u!114 &1610384640426063018
 MonoBehaviour:
   m_ObjectHideFlags: 0
