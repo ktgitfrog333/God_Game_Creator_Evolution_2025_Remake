@@ -1,0 +1,12 @@
+fileFormatVersion: 2
+guid: 658b98ae2c8f7784da0ba84af7787e0e
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - missileUIAnimationLayerCustomizeTable: {fileID: 11400000, guid: fe297f741c251a443a30062e82c35813, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

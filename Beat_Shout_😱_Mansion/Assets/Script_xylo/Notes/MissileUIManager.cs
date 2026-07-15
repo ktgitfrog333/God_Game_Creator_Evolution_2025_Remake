@@ -66,6 +66,9 @@ public class MissileUIManager
         uiRectTransform.anchorMin = new Vector2(0.5f, 0.5f);
         uiRectTransform.anchorMax = new Vector2(0.5f, 0.5f);
         uiRectTransform.sizeDelta = imageSize;
+        // [2026/07/07] Amagata issue #80 start
+        uiRectTransform.eulerAngles = Vector3.zero;
+        // [2026/07/07] Amagata issue #80 end
 
         Debug.Log($"UIÉRÉìÉeÉiçÏê¨: Name={uiContainer.name}, Size={imageSize}, Active={uiContainer.activeInHierarchy}");
 
@@ -220,6 +223,17 @@ public class MissileUIManager
         aimCircleObj.transform.SetAsLastSibling();
 
         Debug.Log($"AimCircleÇèâä˙âª: Size={aimCircleRect.sizeDelta}, Position={aimCircleRect.anchoredPosition}");
+        // [2026/07/07] Amagata issue #80 start
+        // Never display immediately after creation (deactivate)
+        if (aimCircleObj != null)
+        {
+            aimCircleObj.SetActive(false);
+            if (aimCircleImage != null)
+            {
+                aimCircleImage.enabled = false;
+            }
+        }
+        // [2026/07/07] Amagata issue #80 end
     }
 
     public void UpdateAimCircleSize(float scale)

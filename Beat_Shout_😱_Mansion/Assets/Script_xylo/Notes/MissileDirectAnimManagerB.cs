@@ -82,6 +82,9 @@ public class MissileDirectAnimManagerB : MonoBehaviour
     public Sprite aimCircleSprite;
     [Range(0f, 1f)] public float aimCircleAlpha = 0.5f;
     [Range(0.1f, 2.0f)] public float aimCircleScale = 1.0f;
+    // [2026/07/07] Amagata issue #80 start
+    public Sprite aimCircleSprite_1;
+    // [2026/07/07] Amagata issue #80 end
 
     #endregion
 
@@ -90,6 +93,9 @@ public class MissileDirectAnimManagerB : MonoBehaviour
     private MissileUIManager uiManager;
     private MissileInputManager inputManager;
     private MissileAnimationManager animManager;
+    // [2026/07/07] Amagata issue #80 start
+    private MissileAnimationManagerCustomize animManagerCustomize;
+    // [2026/07/07] Amagata issue #80 end
     private MissileMicInputManager micInputManager;
     private Camera mainCamera;
     private Renderer missileRenderer;
@@ -106,12 +112,21 @@ public class MissileDirectAnimManagerB : MonoBehaviour
     private GameObject[] uiElements = null;
     private bool isFirstInit = true;
     private List<Coroutine> activeCoroutines = new List<Coroutine>();
+    // [2026/07/07] Amagata issue #80 start
+    /// <summary>StrategyID</summary>
+    /// <remarks>Minimizing the Impact on Existing Source Code</remarks>
+    [SerializeField] private int strategyId = 0;
+    [SerializeField] private MissileUIAnimationLayerCustomizeTable missileUIAnimationLayerCustomizeTable;
+    // [2026/07/07] Amagata issue #80 end
 
     #endregion
 
     #region Unity ライフサイクル
 
-    public Sprite GetAimCircleSprite() => aimCircleSprite;
+    // [2026/07/07] Amagata issue #80 start
+    //public Sprite GetAimCircleSprite() => aimCircleSprite;
+    public Sprite GetAimCircleSprite() => strategyId == 1 ? aimCircleSprite_1 : aimCircleSprite;
+    // [2026/07/07] Amagata issue #80 end
     public float GetAimCircleAlpha() => aimCircleAlpha;
     public GameObject GetSpectrumCirclePrefab() => spectrumCirclePrefab;
     public float GetSpectrumCircleScale() => spectrumCircleScale;
@@ -146,10 +161,27 @@ public class MissileDirectAnimManagerB : MonoBehaviour
 
     private void Start()
     {
-        if (animManager != null)
+        // [2026/07/07] Amagata issue #80 start
+        switch (strategyId)
         {
-            animManager.SetAllLayersInvisible();
+            case 1:
+                if (animManagerCustomize != null)
+                {
+                    animManagerCustomize.SetAllLayersInvisible();
+                }
+                break;
+
+            default:
+                // [2026/07/07] Amagata issue #80 end
+                if (animManager != null)
+                {
+                    animManager.SetAllLayersInvisible();
+                }
+                // [2026/07/07] Amagata issue #80 start
+
+                break;
         }
+        // [2026/07/07] Amagata issue #80 end
 
         UpdateTempoInfo();
     }
@@ -190,14 +222,35 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         }
 
         // Long2Beat_Micの場合はアニメーションに色を設定
-        if (noteType == MissileNoteType.Long2Beat_Mic && animManager != null)
+        // [2026/07/07] Amagata issue #80 start
+        switch (strategyId)
         {
-            animManager.SetLayerTintColor(micNoteTintColor);
+            case 1:
+                if (noteType == MissileNoteType.Long2Beat_Mic && animManagerCustomize != null)
+                {
+                    animManagerCustomize.SetLayerTintColor(micNoteTintColor);
+                }
+                else if (animManagerCustomize != null)
+                {
+                    animManagerCustomize.SetLayerTintColor(Color.white);
+                }
+
+                break;
+            default:
+                // [2026/07/07] Amagata issue #80 end
+                if (noteType == MissileNoteType.Long2Beat_Mic && animManager != null)
+                {
+                    animManager.SetLayerTintColor(micNoteTintColor);
+                }
+                else if (animManager != null)
+                {
+                    animManager.SetLayerTintColor(Color.white);
+                }
+                // [2026/07/07] Amagata issue #80 start
+
+                break;
         }
-        else if (animManager != null)
-        {
-            animManager.SetLayerTintColor(Color.white);
-        }
+        // [2026/07/07] Amagata issue #80 end
 
         SetTimeYet = true;
 
@@ -210,10 +263,27 @@ public class MissileDirectAnimManagerB : MonoBehaviour
     {
         UnregisterEventListeners();
 
-        if (animManager != null)
+        // [2026/07/07] Amagata issue #80 start
+        switch (strategyId)
         {
-            animManager.StopAllAnimations();
+            case 1:
+                if (animManagerCustomize != null)
+                {
+                    animManagerCustomize.StopAllAnimations();
+                }
+
+                break;
+            default:
+                // [2026/07/07] Amagata issue #80 end
+                if (animManager != null)
+                {
+                    animManager.StopAllAnimations();
+                }
+                // [2026/07/07] Amagata issue #80 start
+
+                break;
         }
+        // [2026/07/07] Amagata issue #80 end
 
         if (uiManager != null)
         {
@@ -306,14 +376,35 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         }
 
         // アニメーション完了チェック
-        if (animManager != null && animManager.IsAnimationCompleted() && returnToPoolWhenDone
-            && !isReturningToPool && !isForceReturning)
+        // [2026/07/07] Amagata issue #80 start
+        switch (strategyId)
         {
-            if (!isSuccessful && !isFailed)
-            {
-                StartManagedCoroutine(ReturnToPoolWithDelay(0.2f));
-            }
+            case 1:
+                if (animManagerCustomize != null && animManagerCustomize.IsAnimationCompleted() && returnToPoolWhenDone
+                    && !isReturningToPool && !isForceReturning)
+                {
+                    if (!isSuccessful && !isFailed)
+                    {
+                        StartManagedCoroutine(ReturnToPoolWithDelay(0.2f));
+                    }
+                }
+
+                break;
+            default:
+                // [2026/07/07] Amagata issue #80 end
+                if (animManager != null && animManager.IsAnimationCompleted() && returnToPoolWhenDone
+                    && !isReturningToPool && !isForceReturning)
+                {
+                    if (!isSuccessful && !isFailed)
+                    {
+                        StartManagedCoroutine(ReturnToPoolWithDelay(0.2f));
+                    }
+                }
+                // [2026/07/07] Amagata issue #80 start
+
+                break;
         }
+        // [2026/07/07] Amagata issue #80 end
 
         // 入力期限切れチェック（Long2Beat_Micは対象外）
         if (!isSuccessful && !isFailed && !isReturningToPool && !isForceReturning && enableClickDetection)
@@ -477,7 +568,21 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         }
 
         uiManager = new MissileUIManager(this, targetCanvas, imageSize, layer1Alpha, layer2Alpha);
-        animManager = new MissileAnimationManager(this, uiManager);
+        // [2026/07/07] Amagata issue #80 start
+        switch (strategyId)
+        {
+            case 1:
+                animManagerCustomize = new MissileAnimationManagerCustomize(this, uiManager, missileUIAnimationLayerCustomizeTable);
+
+                break;
+            default:
+                // [2026/07/07] Amagata issue #80 end
+                animManager = new MissileAnimationManager(this, uiManager);
+                // [2026/07/07] Amagata issue #80 start
+
+                break;
+        }
+        // [2026/07/07] Amagata issue #80 end
         inputManager = new MissileInputManager(this, clickGracePeriod, oneBeat);
 
         float tA = 0.3f, tB = 0.6f, tC = 1.0f;
@@ -539,10 +644,27 @@ public class MissileDirectAnimManagerB : MonoBehaviour
             frameDelay = oneBeat / 8;
             isInitialized = true;
 
-            if (animManager != null)
+            // [2026/07/07] Amagata issue #80 start
+            switch (strategyId)
             {
-                animManager.UpdateFrameDelays(frameDelay);
+                case 1:
+                    if (animManagerCustomize != null)
+                    {
+                        animManagerCustomize.UpdateFrameDelays(frameDelay);
+                    }
+
+                    break;
+                default:
+                    // [2026/07/07] Amagata issue #80 end
+                    if (animManager != null)
+                    {
+                        animManager.UpdateFrameDelays(frameDelay);
+                    }
+                    // [2026/07/07] Amagata issue #80 start
+
+                    break;
             }
+            // [2026/07/07] Amagata issue #80 end
 
             if (inputManager != null)
             {
@@ -599,10 +721,27 @@ public class MissileDirectAnimManagerB : MonoBehaviour
 
     public void ResetAnimation()
     {
-        if (animManager != null)
+        // [2026/07/07] Amagata issue #80 start
+        switch (strategyId)
         {
-            animManager.ResetAllAnimations();
+            case 1:
+                if (animManagerCustomize != null)
+                {
+                    animManagerCustomize.ResetAllAnimations();
+                }
+
+                break;
+            default:
+                // [2026/07/07] Amagata issue #80 end
+                if (animManager != null)
+                {
+                    animManager.ResetAllAnimations();
+                }
+                // [2026/07/07] Amagata issue #80 start
+
+                break;
         }
+        // [2026/07/07] Amagata issue #80 end
 
         isSuccessful = false;
         isFailed = false;
@@ -743,16 +882,49 @@ public class MissileDirectAnimManagerB : MonoBehaviour
             if (!isInitialized) return;
         }
 
-        if (animManager == null) return;
+        // [2026/07/07] Amagata issue #80 start
+        switch (strategyId)
+        {
+            case 1:
+                if (animManagerCustomize == null) return;
+
+                break;
+            default:
+                // [2026/07/07] Amagata issue #80 start
+                if (animManager == null) return;
+                // [2026/07/07] Amagata issue #80 end
+
+                break;
+        }
+        // [2026/07/07] Amagata issue #80 end
         if (uiManager == null || !uiManager.IsUIActive()) return;
 
-        animManager.HandleTempoTick(noteType);
-
-        if (animManager.IsAnimationCompleted() && !isSuccessful && !isFailed
-            && returnToPoolWhenDone && !isReturningToPool && !isForceReturning)
+        // [2026/07/07] Amagata issue #80 start
+        switch (strategyId)
         {
-            StartManagedCoroutine(ReturnToPoolWithDelay(0f));
+            case 1:
+                animManagerCustomize.HandleTempoTick(noteType);
+                if (animManagerCustomize.IsAnimationCompleted() && !isSuccessful && !isFailed
+                    && returnToPoolWhenDone && !isReturningToPool && !isForceReturning)
+                {
+                    StartManagedCoroutine(ReturnToPoolWithDelay(0f));
+                }
+
+                break;
+            default:
+                // [2026/07/07] Amagata issue #80 end
+                animManager.HandleTempoTick(noteType);
+
+                if (animManager.IsAnimationCompleted() && !isSuccessful && !isFailed
+                    && returnToPoolWhenDone && !isReturningToPool && !isForceReturning)
+                {
+                    StartManagedCoroutine(ReturnToPoolWithDelay(0f));
+                }
+                // [2026/07/07] Amagata issue #80 start
+
+                break;
         }
+        // [2026/07/07] Amagata issue #80 end
     }
 
     public IEnumerator ReturnToPoolWithDelay(float delay)
@@ -779,11 +951,29 @@ public class MissileDirectAnimManagerB : MonoBehaviour
 
     private void CleanupBeforePoolReturn()
     {
-        if (animManager != null)
+        // [2026/07/07] Amagata issue #80 start
+        switch (strategyId)
         {
-            animManager.SetAllLayersInvisible();
-            animManager.StopAllAnimations();
+            case 1:
+                if (animManagerCustomize != null)
+                {
+                    animManagerCustomize.SetAllLayersInvisible();
+                    animManagerCustomize.StopAllAnimations();
+                }
+
+                break;
+            default:
+                // [2026/07/07] Amagata issue #80 end
+                if (animManager != null)
+                {
+                    animManager.SetAllLayersInvisible();
+                    animManager.StopAllAnimations();
+                }
+                // [2026/07/07] Amagata issue #80 start
+
+                break;
         }
+        // [2026/07/07] Amagata issue #80 end
 
         if (missileRenderer != null)
         {

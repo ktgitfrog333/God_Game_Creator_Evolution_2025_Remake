@@ -1,0 +1,138 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fcff485c6bd74474faaf8aefe25d5499, type: 3}
+  m_Name: MissileUIAnimationLayerCustomizeTable
+  m_EditorClassIdentifier: 
+  missileUIAnimationLayerCustomizeShortSettings:
+  - missileAnimationType: 5
+    ringRadiusShortRange:
+      ringRadiusMax: 0.495
+      ringRadiusMin: 0.4173913
+  - missileAnimationType: 6
+    ringRadiusShortRange:
+      ringRadiusMax: 0.4063044
+      ringRadiusMin: 0.3286957
+  - missileAnimationType: 7
+    ringRadiusShortRange:
+      ringRadiusMax: 0.3176087
+      ringRadiusMin: 0.24
+  missileUIAnimationLayerCustomizeLongSettings:
+  - missileAnimationType: 1
+    ringRadiusLongRange:
+      ringRadiusMax: 0.495
+      ringRadiusMin: 0.345
+      fillRadiusMax: 0.495
+      fillRadiusMin: 0.495
+      fillMaskRadiusMax: 0.495
+      fillMaskRadiusMin: 0.345
+      ring_1RadiusMax: 0.495
+      ring_1RadiusMin: 0.495
+      fillAmountMax: 1
+      fillAmountMin: 1
+  - missileAnimationType: 2
+    ringRadiusLongRange:
+      ringRadiusMax: 0.3384375
+      ringRadiusMin: 0.2925
+      fillRadiusMax: 0.483913
+      fillRadiusMin: 0.4187826
+      fillMaskRadiusMax: 0.3384375
+      fillMaskRadiusMin: 0.2925
+      ring_1RadiusMax: 0.483913
+      ring_1RadiusMin: 0.4187826
+      fillAmountMax: 1
+      fillAmountMin: 1
+  - missileAnimationType: 3
+    ringRadiusLongRange:
+      ringRadiusMax: 0.2859375
+      ringRadiusMin: 0.24
+      fillRadiusMax: 0.4094782
+      fillRadiusMin: 0.3443478
+      fillMaskRadiusMax: 0.2859375
+      fillMaskRadiusMin: 0.24
+      ring_1RadiusMax: 0.40947822
+      ring_1RadiusMin: 0.3443478
+      fillAmountMax: 1
+      fillAmountMin: 1
+  - missileAnimationType: 4
+    ringRadiusLongRange:
+      ringRadiusMax: 0.24
+      ringRadiusMin: 0.24
+      fillRadiusMax: 0.3443478
+      fillRadiusMin: 0.3443478
+      fillMaskRadiusMax: 0.24
+      fillMaskRadiusMin: 0.24
+      ring_1RadiusMax: 0.3443478
+      ring_1RadiusMin: 0.3443478
+      fillAmountMax: 0.875
+      fillAmountMin: 0
+  - missileAnimationType: 8
+    ringRadiusLongRange:
+      ringRadiusMax: 0.24
+      ringRadiusMin: 0.24
+      fillRadiusMax: 0.3443478
+      fillRadiusMin: 0.3443478
+      fillMaskRadiusMax: 0.24
+      fillMaskRadiusMin: 0.24
+      ring_1RadiusMax: 0.3443478
+      ring_1RadiusMin: 0.3443478
+      fillAmountMax: 0.9375
+      fillAmountMin: 0.5
+  - missileAnimationType: 9
+    ringRadiusLongRange:
+      ringRadiusMax: 0.24
+      ringRadiusMin: 0.24
+      fillRadiusMax: 0.3443478
+      fillRadiusMin: 0.3443478
+      fillMaskRadiusMax: 0.24
+      fillMaskRadiusMin: 0.24
+      ring_1RadiusMax: 0.3443478
+      ring_1RadiusMin: 0.3443478
+      fillAmountMax: 0.4375
+      fillAmountMin: 0
+  - missileAnimationType: 10
+    ringRadiusLongRange:
+      ringRadiusMax: 0.24
+      ringRadiusMin: 0.24
+      fillRadiusMax: 0.3443478
+      fillRadiusMin: 0.3443478
+      fillMaskRadiusMax: 0.24
+      fillMaskRadiusMin: 0.24
+      ring_1RadiusMax: 0.3443478
+      ring_1RadiusMin: 0.3443478
+      fillAmountMax: 0.9583333
+      fillAmountMin: 0.6666667
+  - missileAnimationType: 11
+    ringRadiusLongRange:
+      ringRadiusMax: 0.24
+      ringRadiusMin: 0.24
+      fillRadiusMax: 0.3443478
+      fillRadiusMin: 0.3443478
+      fillMaskRadiusMax: 0.24
+      fillMaskRadiusMin: 0.24
+      ring_1RadiusMax: 0.3443478
+      ring_1RadiusMin: 0.3443478
+      fillAmountMax: 0.625
+      fillAmountMin: 0.33333334
+  - missileAnimationType: 12
+    ringRadiusLongRange:
+      ringRadiusMax: 0.24
+      ringRadiusMin: 0.24
+      fillRadiusMax: 0.3443478
+      fillRadiusMin: 0.3443478
+      fillMaskRadiusMax: 0.24
+      fillMaskRadiusMin: 0.24
+      ring_1RadiusMax: 0.3443478
+      ring_1RadiusMin: 0.3443478
+      fillAmountMax: 0.29166666
+      fillAmountMin: 0
+  ringMaterialShort: {fileID: 2100000, guid: 7f994643e0a1bdd4487ba4e0a95a3a0b, type: 2}
+  ringMaterialLong: {fileID: 2100000, guid: 6b99ba025fd2434429b7f7ee8f622833, type: 2}

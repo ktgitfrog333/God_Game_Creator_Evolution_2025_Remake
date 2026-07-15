@@ -145,6 +145,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 953840192343252355, guid: c4bf94faa0d1eb84a89a7182c76ad75e, type: 3}
+      propertyPath: strategyId
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 953840192343252355, guid: c4bf94faa0d1eb84a89a7182c76ad75e, type: 3}
       propertyPath: imageSize.x
       value: 256
       objectReference: {fileID: 0}
@@ -168,6 +172,14 @@ PrefabInstance:
       propertyPath: clickGracePeriod
       value: 0.25
       objectReference: {fileID: 0}
+    - target: {fileID: 953840192343252355, guid: c4bf94faa0d1eb84a89a7182c76ad75e, type: 3}
+      propertyPath: aimCircleSprite_1
+      value: 
+      objectReference: {fileID: 21300000, guid: 5005925c148725d4d97cae70be83e7e4, type: 3}
+    - target: {fileID: 953840192343252355, guid: c4bf94faa0d1eb84a89a7182c76ad75e, type: 3}
+      propertyPath: missileUIAnimationLayerCustomizeTable
+      value: 
+      objectReference: {fileID: 11400000, guid: fe297f741c251a443a30062e82c35813, type: 2}
     - target: {fileID: 1947344915237714615, guid: c4bf94faa0d1eb84a89a7182c76ad75e, type: 3}
       propertyPath: m_Name
       value: GhostLong3 Variant
