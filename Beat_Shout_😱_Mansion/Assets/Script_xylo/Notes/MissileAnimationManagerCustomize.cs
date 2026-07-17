@@ -110,6 +110,7 @@ public class MissileAnimationManagerCustomize
     private void EnsureLayersActive()
     {
         if (animLayer1st != null && animLayer1st.gameObject != null) animLayer1st.gameObject.SetActive(true);
+        if (uiManager != null) uiManager.SetAimCircleVisibility(true);
     }
 
     private void AdvanceAnimationStage(MissileNoteType noteType)

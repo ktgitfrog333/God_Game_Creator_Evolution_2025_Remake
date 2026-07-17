@@ -19,9 +19,14 @@ public class MissileUIAnimationLayerCustomizeTable : ScriptableObject, System.ID
     public Material ringMaterialShort;
     /// <summary>ロングノーツのマテリアル</summary>
     public Material ringMaterialLong;
+    /// <summary>初期化済みフラグ</summary>
+    private bool _isInitializedOnly;
 
     public void Initialize()
     {
+        if (_isInitializedOnly) return;
+        _isInitializedOnly = true;
+
         if (missileUIAnimationLayerCustomizeShortSettings != null &&
             0 < missileUIAnimationLayerCustomizeShortSettings.Length)
         {
@@ -142,6 +147,7 @@ public class MissileUIAnimationLayerCustomizeTable : ScriptableObject, System.ID
     {
         _missileUIAnimationLayerCustomizeShortSettingsDic = null;
         _missileUIAnimationLayerCustomizeLongSettingsDic = null;
+        _isInitializedOnly = false;
     }
 }
 

@@ -325,7 +325,10 @@ public class MissileUIManager
                 aimCircleObj.SetActive(true);
                 if (aimCircleImage != null)
                 {
-                    aimCircleImage.enabled = true;
+                    // [2026/07/15] Amagata issue #80 start
+                    // The aim circle is displayed on a different track (synced with the notes)
+                    //aimCircleImage.enabled = true;
+                    // [2026/07/15] Amagata issue #80 end
                 }
             }
         }
@@ -446,11 +449,28 @@ public class MissileUIManager
 
                 if (child == aimCircleObj && aimCircleImage != null)
                 {
-                    aimCircleImage.enabled = true;
+                    // [2026/07/15] Amagata issue #80 start
+                    // The aim circle is displayed on a different track (synced with the notes)
+                    //aimCircleImage.enabled = true;
+                    // [2026/07/15] Amagata issue #80 end
                 }
             }
 
             Debug.Log("UIコンテナとすべての子オブジェクトをアクティブにしました");
         }
     }
+
+    // [2026/07/15] Amagata issue #80 start
+    public void SetAimCircleVisibility(bool visible)
+    {
+        if (aimCircleObj != null)
+        {
+            aimCircleObj.SetActive(visible);
+            if (aimCircleImage != null)
+            {
+                aimCircleImage.enabled = visible;
+            }
+        }
+    }
+    // [2026/07/15] Amagata issue #80 end
 }

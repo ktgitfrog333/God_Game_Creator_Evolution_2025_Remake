@@ -467,7 +467,9 @@ MonoBehaviour:
   introDelayTime: 12.2
   atomSourceA: {fileID: 246419446}
   atomSourceB: {fileID: 246419447}
+  atomSourceBOfBPM: 155
   atomSourceC: {fileID: 246419447}
+  atomSourceCOfBPM: 160
   currentSource: {fileID: 0}
   lastBeatSyncTime: -1
   BeatFuzzy: 18
