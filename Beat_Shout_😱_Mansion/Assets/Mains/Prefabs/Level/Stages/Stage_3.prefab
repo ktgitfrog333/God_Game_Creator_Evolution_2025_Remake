@@ -1068,14 +1068,14 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 0
-    membersCount: 0
-    attackType: 0
+    useStatus: 1
+    membersCount: 8
+    attackType: 1
     moveType: 0
     customShoutRadius: 0
     soundOutputType: 0
     role: 0
-    ghostModelType: 0
+    ghostModelType: 2
     ghostVoiceType: 0
   settings:
     ghostAttack:
@@ -2017,8 +2017,8 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 1
-    membersCount: 1
+    useStatus: 0
+    membersCount: 0
     attackType: 0
     moveType: 0
     customShoutRadius: 0
@@ -2032,13 +2032,13 @@ MonoBehaviour:
     poltergeistAnimationSO: {fileID: 0}
     midBossGhostInStaticObjectStruct:
       poltergeistViewID: 0
-      useStatus: 1
-      membersCount: 63
+      useStatus: 0
+      membersCount: 0
       attackType: 0
       moveType: 0
       customShoutRadius: 0
       soundOutputType: 0
-      role: 1
+      role: 0
       ghostModelType: 0
       ghostVoiceType: 0
 --- !u!65 &5294461173115112807
@@ -4553,14 +4553,14 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 0
-    membersCount: 0
-    attackType: 0
+    useStatus: 1
+    membersCount: 16
+    attackType: 1
     moveType: 0
     customShoutRadius: 0
     soundOutputType: 0
     role: 0
-    ghostModelType: 0
+    ghostModelType: 2
     ghostVoiceType: 0
   settings:
     ghostAttack:
@@ -4782,8 +4782,8 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 0
-    membersCount: 0
+    useStatus: 1
+    membersCount: 16
     attackType: 0
     moveType: 0
     customShoutRadius: 0
@@ -5379,8 +5379,8 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 0
-    membersCount: 0
+    useStatus: 1
+    membersCount: 10
     attackType: 0
     moveType: 0
     customShoutRadius: 0
@@ -6414,8 +6414,8 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 0
-    membersCount: 0
+    useStatus: 1
+    membersCount: 10
     attackType: 0
     moveType: 0
     customShoutRadius: 0
@@ -6792,13 +6792,13 @@ MonoBehaviour:
     poltergeistAnimationSO: {fileID: 0}
     midBossGhostInStaticObjectStruct:
       poltergeistViewID: 0
-      useStatus: 0
-      membersCount: 0
+      useStatus: 1
+      membersCount: 63
       attackType: 0
       moveType: 0
       customShoutRadius: 0
       soundOutputType: 0
-      role: 0
+      role: 1
       ghostModelType: 0
       ghostVoiceType: 0
 --- !u!65 &549936081476039221
@@ -7820,14 +7820,14 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 2e68de98e63605249b1411040c8ec852, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 0
-    membersCount: 0
-    attackType: 0
+    useStatus: 1
+    membersCount: 10
+    attackType: 1
     moveType: 0
     customShoutRadius: 0
     soundOutputType: 0
     role: 0
-    ghostModelType: 0
+    ghostModelType: 2
     ghostVoiceType: 0
   settings:
     ghostAttack:
