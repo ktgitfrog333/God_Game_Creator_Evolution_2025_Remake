@@ -11,6 +11,12 @@ public class MissileTempoSpawner : MonoBehaviour
     [Header("生成パターン")]
     [Tooltip("角度(A-H)+ミサイルID(1-9)または0(スキップ)で指定（例：A1B20C3）")]
     [SerializeField] private string missilePattern = "A1B2C3D4E5F6G7H8";
+    // [2026/06/26] Amagata issue #80 start
+    [Tooltip("ループ開始位置（int：インデックス）")]
+    [SerializeField] private int loopStartIndex;
+    [Tooltip("ループ終了位置（int：インデックス）")]
+    [SerializeField] private int loopEndIndex;
+    // [2026/06/26] Amagata issue #80 end
 
     [Header("角度設定")]
     [Tooltip("角度A（度）0=右(3時), 90=上(12時), 180=左(9時), 270=下(6時)")]
@@ -55,6 +61,9 @@ public class MissileTempoSpawner : MonoBehaviour
 
     // 角度文字と実際の角度のマッピング用ディクショナリ
     private Dictionary<char, float> angleMap = new Dictionary<char, float>();
+    // [2026/06/26] Amagata issue #80 start
+    private bool _oneShot;
+    // [2026/06/26] Amagata issue #80 end
 
     private void Start()
     {
@@ -230,8 +239,25 @@ public class MissileTempoSpawner : MonoBehaviour
             }
 
 
-            // 次のビートインデックスに進む（循環）
-            currentBeatIndex = (currentBeatIndex + 1) % patternList.Count;
+            // [2026/06/26] Amagata issue #80 start
+            if (_oneShot && patternList.Count - 1 <= currentBeatIndex)
+            {
+                UpdateZeroAllPatternList();
+            }
+            // [2026/06/26] Amagata issue #80 end
+            // [2026/06/26] Amagata issue #80 start
+            if (_oneShot)
+            {
+                // [2026/06/26] Amagata issue #80 end
+                // 次のビートインデックスに進む（循環）
+                currentBeatIndex = (currentBeatIndex + 1) % patternList.Count;
+                // [2026/06/26] Amagata issue #80 start
+            }
+            else
+            {
+                currentBeatIndex = GetNextBeatIndex();
+            }
+            // [2026/06/26] Amagata issue #80 end
 
             // ビジュアルフィードバック（生成時に少し拡大する）
             StartCoroutine(PulseScale());
@@ -241,6 +267,33 @@ public class MissileTempoSpawner : MonoBehaviour
         Active = true;
         }
     }
+
+    // [2026/06/26] Amagata issue #80 start
+    private void UpdateZeroAllPatternList()
+    {
+        var newPatten = "0";
+        SetMissilePattern(newPatten);
+    }
+
+    private int GetNextBeatIndex()
+    {
+        if (loopEndIndex <= loopStartIndex)
+        {
+            Debug.LogWarning($"生成パターンとBGMにずれが発生する可能性があります。ループ開始位置: [{loopStartIndex}] とループ終了位置: [{loopEndIndex}] の設定を見直して下さい。");
+
+            return (currentBeatIndex + 1) % patternList.Count;
+        }
+
+        if (loopEndIndex <= currentBeatIndex)
+        {
+            return loopStartIndex;
+        }
+        else
+        {
+            return currentBeatIndex + 1;
+        }
+    }
+    // [2026/06/26] Amagata issue #80 end
 
     /// <summary>
     /// 指定した角度文字に基づく回転を生成（生成位置とカメラ位置を結ぶ線を中心軸とした角度、0度は常に上方向）
@@ -438,4 +491,11 @@ public class MissileTempoSpawner : MonoBehaviour
     {
         return new Dictionary<char, float>(angleMap);
     }
+    // [2026/06/26] Amagata issue #80 start
+
+    public void SetOneShot(bool oneShot)
+    {
+        _oneShot = oneShot;
+    }
+    // [2026/06/26] Amagata issue #80 end
 }

@@ -59,11 +59,14 @@ namespace Mains.Views
 
         private void Start()
 		{
+            var set = settins;
             Transform trans = transform;
             var canvasTransform = GameObject.Find("OverlayCanvas").transform;
             _script_XyloApi.SetMissileDirectAnimManagerB(trans);
             // goodPanelPrefabとgoodParticleSysPrefabのインスタンス情報
             (GoodPanelView, ParticleSystem) instancesGoodContents = (null, null);
+            // ノーツタイプ管理
+            int notesType = set.notesType;
             _script_XyloApi.IsSuccessfulReactive.Where(x => x)
                 .Subscribe(_ =>
                 {
@@ -71,7 +74,7 @@ namespace Mains.Views
                     instancesGoodContents.Item1 = instances.Item1.GetComponent<GoodPanelView>();
                     instancesGoodContents.Item2 = instances.Item2.GetComponent<ParticleSystem>();
                     DoSubtractionTransactionGhostInStaticObjectStruct(_viewModel);
-                    _script_XyloApi.PlayHitSuccess3();
+                    _script_XyloApi.PlayHitSuccess3(notesType);
                 })
                 .AddTo(ref _disposableBag);
             _script_XyloApi.IsFailedReactive.Where(x => x &&
@@ -281,5 +284,9 @@ namespace Mains.Views
     {
         /// <summary>オブジェクトをホーミングする処理のカスタマイズテーブル</summary>
         public HomingObjectCustomizeTable homingObjectCustomizeTable;
+        /// <summary>ノーツタイプ管理</summary>
+        /// <remarks>0: ショートノーツ<br/>
+        /// 1: ロングノーツ</remarks>
+        public int notesType;
     }
 }

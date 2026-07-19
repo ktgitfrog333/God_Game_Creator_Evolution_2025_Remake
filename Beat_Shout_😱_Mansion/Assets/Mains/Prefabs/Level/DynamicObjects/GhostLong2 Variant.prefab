@@ -212,6 +212,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 953840192343252355, guid: 96b89b0d2448c56429a94d6a4afed1d9, type: 3}
+      propertyPath: strategyId
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 953840192343252355, guid: 96b89b0d2448c56429a94d6a4afed1d9, type: 3}
       propertyPath: imageSize.x
       value: 256
       objectReference: {fileID: 0}
@@ -231,6 +235,18 @@ PrefabInstance:
       propertyPath: holdingColor.r
       value: 0.740566
       objectReference: {fileID: 0}
+    - target: {fileID: 953840192343252355, guid: 96b89b0d2448c56429a94d6a4afed1d9, type: 3}
+      propertyPath: clickGracePeriod
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 953840192343252355, guid: 96b89b0d2448c56429a94d6a4afed1d9, type: 3}
+      propertyPath: aimCircleSprite_1
+      value: 
+      objectReference: {fileID: 21300000, guid: 5005925c148725d4d97cae70be83e7e4, type: 3}
+    - target: {fileID: 953840192343252355, guid: 96b89b0d2448c56429a94d6a4afed1d9, type: 3}
+      propertyPath: missileUIAnimationLayerCustomizeTable
+      value: 
+      objectReference: {fileID: 11400000, guid: fe297f741c251a443a30062e82c35813, type: 2}
     - target: {fileID: 1947344915237714615, guid: 96b89b0d2448c56429a94d6a4afed1d9, type: 3}
       propertyPath: m_Name
       value: GhostLong2 Variant
@@ -387,6 +403,9 @@ MonoBehaviour:
   badPanelPrefab: {fileID: 6422276594484730783, guid: cd28cda1a4be09d4392a6101c263fe71, type: 3}
   badParticleSysPrefab: {fileID: 1394655228571085345, guid: 0a0cdc51eb3927540a6329db734f0458, type: 3}
   modelRenderer: {fileID: 4183510242059367917}
+  settins:
+    homingObjectCustomizeTable: {fileID: 0}
+    notesType: 1
 --- !u!114 &7640449447851752139
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -19,7 +19,13 @@ public class CRIWARE_conductor : MonoBehaviour
     [Header("音源設定")]
     public CriAtomSource atomSourceA; // BGMの音源A
     public CriAtomSource atomSourceB; // BGMの音源B
+    // [2026/07/15] Amagata issue #80 start
+    [SerializeField] private float atomSourceBOfBPM = 160f;
+    // [2026/07/15] Amagata issue #80 end
     public CriAtomSource atomSourceC; // BGMの音源C 同様の形で増やすことが可能
+    // [2026/07/15] Amagata issue #80 start
+    [SerializeField] private float atomSourceCOfBPM = 160f;
+    // [2026/07/15] Amagata issue #80 end
 
     [HideInInspector] public CriAtomSource currentSource;
     private bool isInitializedAfterChange = false; // 楽曲変更後に初期化が必要かどうかのフラグ
@@ -275,7 +281,9 @@ public class CRIWARE_conductor : MonoBehaviour
 
         // 新しいBGMを再生
         currentSource.Play();
-        isInitializedAfterChange = true; // 楽曲変更後に初期化するためのフラグを設定
+        // [2026/07/15] Amagata issue #80 start
+        //isInitializedAfterChange = true; // 楽曲変更後に初期化するためのフラグを設定
+        // [2026/07/15] Amagata issue #80 end
         CRIWARE_AisacChange.Instance.ApplyAisac(currentSource);  // 現在のBGMソースにAISACを適用
         CRIWARE_AisacChange.Instance.BGM0(); // AISACをBGM０にする
 
@@ -285,6 +293,10 @@ public class CRIWARE_conductor : MonoBehaviour
             currentSource.player.OnBeatSyncCallback -= OnBeatSync; // 既存のコールバックを解除
             currentSource.player.OnBeatSyncCallback += OnBeatSync; // 新しいコールバックを登録
         }
+        // [2026/07/15] Amagata issue #80 start
+        // Since the BPM information update lags by one frame when syncing to the beat, perform the BGM switch within that frame.
+        ForceSetTempo(atomSourceBOfBPM);
+        // [2026/07/15] Amagata issue #80 end
     }
 
     /// <summary>
@@ -313,7 +325,9 @@ public class CRIWARE_conductor : MonoBehaviour
 
         // 新しいBGMを再生
         currentSource.Play();
-        isInitializedAfterChange = true; // 楽曲変更後に初期化するためのフラグを設定
+        // [2026/07/15] Amagata issue #80 start
+        //isInitializedAfterChange = true; // 楽曲変更後に初期化するためのフラグを設定
+        // [2026/07/15] Amagata issue #80 end
         CRIWARE_AisacChange.Instance.ApplyAisac(currentSource);  // 現在のBGMソースにAISACを適用
         CRIWARE_AisacChange.Instance.BGM0(); // AISACをBGM０にする
 
@@ -323,7 +337,22 @@ public class CRIWARE_conductor : MonoBehaviour
             currentSource.player.OnBeatSyncCallback -= OnBeatSync; // 既存のコールバックを解除
             currentSource.player.OnBeatSyncCallback += OnBeatSync; // 新しいコールバックを登録
         }
+        // [2026/07/15] Amagata issue #80 start
+        // Since the BPM information update lags by one frame when syncing to the beat, perform the BGM switch within that frame.
+        ForceSetTempo(atomSourceCOfBPM);
+        // [2026/07/15] Amagata issue #80 end
     }
+
+    // [2026/07/15] Amagata issue #80 start
+    private void ForceSetTempo(float bpm)
+    {
+        beatFuzzySet = BeatFuzzy / bpm; // ビートのズレ許容範囲の決定値を計算
+        BasicBeat = 60f / bpm;   // ４分音符の秒数を計算
+        frameRate = bpm; // 再生速度調整の為BPMの情報をそのまま渡す。BPMxx/1BPM120*xx%で速度調整
+        TempoSet?.Invoke(); // 他スクリプトにテンポ情報を送る
+        Debug.Log("テンポ情報を送信");
+    }
+    // [2026/07/15] Amagata issue #80 end
 
     /// <summary>
     /// 指定したティック位置から再生を開始する

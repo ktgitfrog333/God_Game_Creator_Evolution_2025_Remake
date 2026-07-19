@@ -66,6 +66,9 @@ public class MissileUIManager
         uiRectTransform.anchorMin = new Vector2(0.5f, 0.5f);
         uiRectTransform.anchorMax = new Vector2(0.5f, 0.5f);
         uiRectTransform.sizeDelta = imageSize;
+        // [2026/07/07] Amagata issue #80 start
+        uiRectTransform.eulerAngles = Vector3.zero;
+        // [2026/07/07] Amagata issue #80 end
 
         Debug.Log($"UIコンテナ作成: Name={uiContainer.name}, Size={imageSize}, Active={uiContainer.activeInHierarchy}");
 
@@ -220,6 +223,17 @@ public class MissileUIManager
         aimCircleObj.transform.SetAsLastSibling();
 
         Debug.Log($"AimCircleを初期化: Size={aimCircleRect.sizeDelta}, Position={aimCircleRect.anchoredPosition}");
+        // [2026/07/07] Amagata issue #80 start
+        // Never display immediately after creation (deactivate)
+        if (aimCircleObj != null)
+        {
+            aimCircleObj.SetActive(false);
+            if (aimCircleImage != null)
+            {
+                aimCircleImage.enabled = false;
+            }
+        }
+        // [2026/07/07] Amagata issue #80 end
     }
 
     public void UpdateAimCircleSize(float scale)
@@ -311,7 +325,10 @@ public class MissileUIManager
                 aimCircleObj.SetActive(true);
                 if (aimCircleImage != null)
                 {
-                    aimCircleImage.enabled = true;
+                    // [2026/07/15] Amagata issue #80 start
+                    // The aim circle is displayed on a different track (synced with the notes)
+                    //aimCircleImage.enabled = true;
+                    // [2026/07/15] Amagata issue #80 end
                 }
             }
         }
@@ -432,11 +449,28 @@ public class MissileUIManager
 
                 if (child == aimCircleObj && aimCircleImage != null)
                 {
-                    aimCircleImage.enabled = true;
+                    // [2026/07/15] Amagata issue #80 start
+                    // The aim circle is displayed on a different track (synced with the notes)
+                    //aimCircleImage.enabled = true;
+                    // [2026/07/15] Amagata issue #80 end
                 }
             }
 
             Debug.Log("UIコンテナとすべての子オブジェクトをアクティブにしました");
         }
     }
+
+    // [2026/07/15] Amagata issue #80 start
+    public void SetAimCircleVisibility(bool visible)
+    {
+        if (aimCircleObj != null)
+        {
+            aimCircleObj.SetActive(visible);
+            if (aimCircleImage != null)
+            {
+                aimCircleImage.enabled = visible;
+            }
+        }
+    }
+    // [2026/07/15] Amagata issue #80 end
 }

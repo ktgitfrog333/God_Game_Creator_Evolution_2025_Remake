@@ -171,6 +171,16 @@ namespace Mains.External
                 })
                 .AddTo(ref _disposableBag);
         }
+        public void SetIsNoHitPlayerForceMode(bool isNoHitPlayerForceMode)
+        {
+            if (_missGhostAttack == null)
+            {
+                Debug.LogWarning($"MissGhostAttackが未取得");
+                return;
+            }
+
+            _missGhostAttack.IsNoHitPlayerForceMode = isNoHitPlayerForceMode;
+        }
         public void ForceReturnToPool()
         {
             _missGhostAttack.ForceReturnToPool();
@@ -653,6 +663,17 @@ namespace Mains.External
             }
         }
 
+        public void SetFloorType(int floorType)
+        {
+            if (_test_FootStep == null)
+            {
+                Debug.LogWarning("Test_FootStep インスタンスが見つかりません。");
+                return;
+            }
+
+            _test_FootStep.SetFloorType(floorType);
+        }
+
         public void PlayMove5()
         {
             var sePicker = SE_Picker.Instance;
@@ -858,7 +879,7 @@ namespace Mains.External
                 return;
             }
             var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
-            sePicker.PlayHeartbeatFast(seVolumeIndex);
+            sePicker.PlayBUB_HeartbeatFast(seVolumeIndex);
         }
 
         public void PlayHeartbeatSlow()
@@ -874,10 +895,10 @@ namespace Mains.External
                 return;
             }
             var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
-            sePicker.PlayHeartbeatSlow(seVolumeIndex);
+            sePicker.PlayBUB_HeartbeatSlow(seVolumeIndex);
         }
 
-        public void PlayHitSuccess3()
+        public void PlayHitSuccess3(int notesType)
         {
             var sePicker = SE_Picker.Instance;
             if (sePicker == null)
@@ -890,7 +911,17 @@ namespace Mains.External
                 return;
             }
             var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
-            sePicker.PlayHitSuccess3(seVolumeIndex);
+            switch (notesType)
+            {
+                case 1:
+                    sePicker.PlayBUB_HitSuccess_Long(seVolumeIndex);
+
+                    break;
+                default:
+                    sePicker.PlayBUB_HitSuccess_Short(seVolumeIndex);
+
+                    break;
+            }
         }
 
         public void PlayHitMiss3()
@@ -906,7 +937,7 @@ namespace Mains.External
                 return;
             }
             var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
-            sePicker.PlayHitMiss3(seVolumeIndex);
+            sePicker.PlayBUB_HitMiss4(seVolumeIndex);
         }
 
         public void PlayBatteryLost1()
@@ -922,7 +953,7 @@ namespace Mains.External
                 return;
             }
             var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
-            sePicker.PlayBatteryLost1(seVolumeIndex);
+            sePicker.PlayBUB_BatteryLost(seVolumeIndex);
         }
 
         public void PlayBatteryGet3()
@@ -938,7 +969,7 @@ namespace Mains.External
                 return;
             }
             var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
-            sePicker.PlayBatteryGet3(seVolumeIndex);
+            sePicker.PlayBUB_BatteryGet(seVolumeIndex);
         }
 
         public void PlayDamage1()
@@ -1097,6 +1128,17 @@ namespace Mains.External
             }
 
             _missileTempoSpawner.SetMissilePattern(newPattern);
+        }
+
+        public void SetOneShot(bool oneShot)
+        {
+            if (_missileTempoSpawner == null)
+            {
+                Debug.LogWarning("MissileTempoSpawnerがセットされていません。");
+                return;
+            }
+
+            _missileTempoSpawner.SetOneShot(oneShot);
         }
 
         /// <summary>

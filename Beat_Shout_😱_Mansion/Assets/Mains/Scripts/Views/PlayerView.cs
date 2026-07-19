@@ -85,7 +85,9 @@ namespace Mains.Views
 
         private void Start()
         {
+            var set = settings;
             _script_XyloApi = new Script_xyloApi();
+            var api = _script_XyloApi;
             // 着地した瞬間も足音を鳴らす
             ReactiveProperty<bool> isGrounded = new();
             isGrounded.DistinctUntilChanged()
@@ -97,12 +99,15 @@ namespace Mains.Views
                 .AddTo(ref _disposableBag);
             _playerViewModel = new(探索_シャウトチャンス_リズムパート情報管理テーブル);
             float lastFixedTimeForGrounded = 0f;
+            // プレイヤーのカスタマイズテーブル
+            var customizeTable = set.playerCustomizeTable;
+            customizeTable.Initialize();
             Observable.EveryUpdate()
                 .Where(_ => Time.time - lastFixedTimeForGrounded >= Time.fixedDeltaTime) // FixedUpdateと同じタイミング
                 .Subscribe(_ =>
                 {
                     lastFixedTimeForGrounded = Time.time; // 次の実行タイミングを記録
-                    isGrounded.Value = _playerViewModel.IsGrounded(characterController, distanceToGround, groundLayerMask);
+                    isGrounded.Value = _playerViewModel.IsGrounded(characterController, distanceToGround, groundLayerMask, customizeTable.GroundTagDictionary, api);
                 })
                 .AddTo(ref _disposableBag);
             // 正面移動かどうかのステータス管理
@@ -530,11 +535,13 @@ namespace Mains.Views
                                     .Take(1)
                                     .Subscribe(x =>
                                     {
+                                        var customizeTable = set.playerCustomizeTable;
                                         observableIsFailedDisposable = x.Where(x => x)
                                             .Subscribe(_ =>
                                             {
                                                 // [Miss]失敗を購読した場合は電池を落とす
-                                                if (_playerViewModel.BatteryTransform == null)
+                                                var isNoHitPlayerForceMode = customizeTable.IsNoHitPlayerForceMode;
+                                                if (!isNoHitPlayerForceMode && _playerViewModel.BatteryTransform == null)
                                                 {
                                                     Transform battery = DropBattery(headTrans, リズムパートで使用するプレイヤープロパティ.spotLightLightTrans);
                                                     _playerViewModel.SetBatteryTransform(battery);
@@ -954,9 +961,12 @@ namespace Mains.Views
 
         private void OnDestroy()
         {
+            var set = settings;
             _disposableBag.Dispose();
             _script_XyloApi?.Dispose();
             _playerViewModel?.Dispose();
+            var customizeTable = set.playerCustomizeTable;
+            customizeTable.Dispose();
         }
 
         public Observable<Unit> DidStartAsObservable()
@@ -1165,5 +1175,7 @@ namespace Mains.Views
         /// <summary>対象シーン名</summary>
         /// <remarks>セレクトシーンを指定する</remarks>
         public string targetSceneName;
+        /// <summary>プレイヤーのカスタマイズテーブル</summary>
+        public PlayerCustomizeTable playerCustomizeTable;
     }
 }

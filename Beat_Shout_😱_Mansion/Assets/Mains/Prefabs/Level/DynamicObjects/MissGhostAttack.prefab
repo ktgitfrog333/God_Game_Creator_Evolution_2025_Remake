@@ -292,6 +292,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   boxCollider: {fileID: 2178784837028364947}
+  missGhostAttackCustomizeTable: {fileID: 11400000, guid: b9b5758e61ab2d844a0a6c24495ea6da, type: 2}
 --- !u!54 &8463151631225585693
 Rigidbody:
   m_ObjectHideFlags: 0
