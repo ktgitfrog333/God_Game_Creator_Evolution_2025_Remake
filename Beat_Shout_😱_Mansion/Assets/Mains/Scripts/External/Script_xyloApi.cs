@@ -953,7 +953,7 @@ namespace Mains.External
                 return;
             }
             var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
-            sePicker.PlayBatteryLost1(seVolumeIndex);
+            sePicker.PlayBUB_BatteryLost(seVolumeIndex);
         }
 
         public void PlayBatteryGet3()
@@ -969,7 +969,7 @@ namespace Mains.External
                 return;
             }
             var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
-            sePicker.PlayBatteryGet3(seVolumeIndex);
+            sePicker.PlayBUB_BatteryGet(seVolumeIndex);
         }
 
         public void PlayDamage1()

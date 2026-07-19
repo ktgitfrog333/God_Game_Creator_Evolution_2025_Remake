@@ -108,6 +108,13 @@ public class SE_Picker : MonoBehaviour
     private string BUB_HitSuccess_Short;
     private string BUB_HeartbeatFast;
     // [2026/07/03] Amagata Support for Implementing Custom Sound Effects end
+    // [2026/07/19] Amagata Support for Implementing Custom Sound Effects start
+    private string BUB_BatteryGet;
+    private string BUB_BatteryGet2;
+    private string BUB_BatteryGet3;
+    private string BUB_BatteryLost;
+    private string BUB_BatteryLost2;
+    // [2026/07/19] Amagata Support for Implementing Custom Sound Effects end
 
 
     private void OnEnable()
@@ -227,6 +234,13 @@ Move4 = "Move4";
         BUB_HitSuccess_Short = "BUB_HitSuccess_Short";
         BUB_HeartbeatFast = "BUB_HeartbeatFast";
         // [2026/07/03] Amagata Support for Implementing Custom Sound Effects end
+        // [2026/07/19] Amagata Support for Implementing Custom Sound Effects start
+        BUB_BatteryGet = "BUB_BatteryGet";
+        BUB_BatteryGet2 = "BUB_BatteryGet2";
+        BUB_BatteryGet3 = "BUB_BatteryGet3";
+        BUB_BatteryLost = "BUB_BatteryLost";
+        BUB_BatteryLost2 = "BUB_BatteryLost2";
+        // [2026/07/19] Amagata Support for Implementing Custom Sound Effects end
 
 
         // ï€ë∂Ç≥ÇÍÇƒÇ¢ÇÈSEâπó Çì«Ç›çûÇﬁ
@@ -648,4 +662,30 @@ Move4 = "Move4";
         PlaySound(BUB_HeartbeatFast, volume);
     }
     // [2026/07/03] Amagata Support for Implementing Custom Sound Effects end
+    // [2026/07/19] Amagata Support for Implementing Custom Sound Effects start
+    public void PlayBUB_BatteryGet(float volume)
+    {
+        PlaySound(BUB_BatteryGet, volume);
+    }
+
+    public void PlayBUB_BatteryGet2(float volume)
+    {
+        PlaySound(BUB_BatteryGet2, volume);
+    }
+
+    public void PlayBUB_BatteryGet3(float volume)
+    {
+        PlaySound(BUB_BatteryGet3, volume);
+    }
+
+    public void PlayBUB_BatteryLost(float volume)
+    {
+        PlaySound(BUB_BatteryLost, volume);
+    }
+
+    public void PlayBUB_BatteryLost2(float volume)
+    {
+        PlaySound(BUB_BatteryLost2, volume);
+    }
+    // [2026/07/19] Amagata Support for Implementing Custom Sound Effects end
 }
