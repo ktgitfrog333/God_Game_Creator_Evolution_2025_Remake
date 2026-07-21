@@ -18,6 +18,8 @@ namespace Selects.ViewModels
         private PlayerModel _playerModel;
         /// <summary>プレイヤーのトランスフォーム</summary>
         public Transform PlayerTransform => _playerModel?.PlayerPropertiesStruct.transform ?? null;
+        /// <summary>プレイヤーのキャラクターコントローラー</summary>
+        public CharacterController PlayerCharacterController => _playerModel?.PlayerCharacterController;
         /// <summary>プレイヤーの頭</summary>
         public Transform PlayerHead => _playerModel?.PlayerHead ?? null;
         /// <summary>プレイヤーの懐中電灯</summary>
@@ -76,6 +78,14 @@ namespace Selects.ViewModels
         private ReactiveProperty<bool> _leftStairsTrigger2FStay = new ReactiveProperty<bool>(false);
         /// <summary>2階の左階段トリガー接触状態</summary>
         public ReadOnlyReactiveProperty<bool> LeftStairsTrigger2FStay => _leftStairsTrigger2FStay;
+        /// <summary>【探索／シャウトチャンス／リズム】パート</summary>
+        private ReactiveProperty<InteractionPart> _interactionPart = new ReactiveProperty<InteractionPart>();
+        /// <summary>【探索／シャウトチャンス／リズム】パート</summary>
+        public ReadOnlyReactiveProperty<InteractionPart> InteractionPart => _interactionPart;
+        /// <summary>ステージ開始演出が完了したか</summary>
+        private ReactiveProperty<bool> _isCompletedStartDirection = new ReactiveProperty<bool>();
+        /// <summary>ステージ開始演出が完了したか</summary>
+        public ReadOnlyReactiveProperty<bool> IsCompletedStartDirection => _isCompletedStartDirection;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -109,6 +119,24 @@ namespace Selects.ViewModels
                     })
                         .AddTo(ref _disposableBag);
                     _playerModel.SetHealthPointMax(set.開始時のプレイヤーの最大体力);
+                    Observable.EveryUpdate()
+                        .Select(_ => _playerModel.InteractionPartTable)
+                        .Where(x => x != null)
+                        .Take(1)
+                        .Subscribe(table =>
+                        {
+                            table.interactionPart.Subscribe(interactionPart =>
+                            {
+                                _interactionPart.Value = interactionPart;
+                            })
+                            .AddTo(ref _disposableBag);
+                        })
+                        .AddTo(ref _disposableBag);
+                    _playerModel.IsCompletedStartDirection.Subscribe(x =>
+                    {
+                        _isCompletedStartDirection.Value = x;
+                    })
+                        .AddTo(ref _disposableBag);
                 })
                 .AddTo(ref _disposableBag);
         }
@@ -116,7 +144,21 @@ namespace Selects.ViewModels
         public void SetEnemyBattlePart(EnemyBattlePart enemyBattlePart)
         {
             if (_playerModel != null)
+            {
                 _playerModel.SetEnemyBattlePart(enemyBattlePart);
+            }
+            else
+            {
+                Observable.EveryUpdate()
+                    .Select(_ => _playerModel)
+                    .Where(x => x != null)
+                    .Take(1)
+                    .Subscribe(model =>
+                    {
+                        model.SetEnemyBattlePart(enemyBattlePart);
+                    })
+                    .AddTo(ref _disposableBag);
+            }
         }
 
         public void SetIsStartAttack(Transform isStartAttack)

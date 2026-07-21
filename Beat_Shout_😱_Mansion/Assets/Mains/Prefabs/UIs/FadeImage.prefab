@@ -91,6 +91,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   image: {fileID: 2365452411432257831}
   isEnableDirection: 0
+  settings:
+    startDirectionSequencer: {fileID: 11400000, guid: 42e962088eff5af40820dde2e2d011f8, type: 2}
 --- !u!114 &691715340765072161
 MonoBehaviour:
   m_ObjectHideFlags: 0

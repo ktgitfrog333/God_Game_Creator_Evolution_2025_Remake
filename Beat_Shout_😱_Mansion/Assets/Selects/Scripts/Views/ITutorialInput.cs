@@ -26,6 +26,12 @@ namespace Selects.Views
         /// <summary>マイクスイッチが押された瞬間かどうか</summary>
         bool SwitchPartButtonDown { get; }
 
+        /// <summary>シャウトボタンが押された瞬間かどうか</summary>
+        bool InhaleHeldButtonDown { get; }
+
+        /// <summary>シャウトボタン（Xbox360コン）が押された瞬間かどうか</summary>
+        bool InhaleHeldConButtonDown { get; }
+
         /// <summary>タップライトが押された瞬間かどうか</summary>
         bool TapLightButtonDown { get; }
 

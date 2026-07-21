@@ -1,5 +1,8 @@
 using Cysharp.Threading.Tasks;
+using Mains.Views;
+using Rewired;
 using System.Threading;
+using UnityEngine;
 
 namespace Selects.Views
 {
@@ -7,7 +10,7 @@ namespace Selects.Views
     /// TutorialSequencerが外部サービス（BGM・マイク等）に直接依存しないよう、
     /// 副作用操作を抽象化するインターフェース
     /// </summary>
-    public interface ITutorialSideEffect
+    public interface ITutorialSideEffect : System.IDisposable
     {
         /// <summary>マイクの有効／無効を切り替える</summary>
         void SetMicrophoneActive(bool active);
@@ -22,7 +25,13 @@ namespace Selects.Views
         void SetMissilePattern(string pattern);
 
         /// <summary>プレイヤーをテレポートさせる</summary>
-        UniTask TeleportPlayerAsync(UnityEngine.Vector3 position, UnityEngine.Vector3 angles, CancellationToken token);
+        UniTask TeleportPlayerAsync(Vector3 position, Vector3 angles, bool isCompletedStartDirection, CharacterController playerCharacterController, Player player, Transform playerTransform, Transform playerHead, PlayerView playerView, FadeImageView fadeImageView, CancellationToken token);
+
+        /// <summary>オバケ笑い声SEを再生する</summary>
+        void PlayGhostLaughV2Normal();
+
+        /// <summary>オバケ笑い声SEを再生する</summary>
+        R3.Observable<R3.Unit> EnabledAnimator(Animator missGhostEscapeNormalAnimator, MissGhostEscapeView missGhostEscapeView);
 
         /// <summary>最初のHomingObjectスポーン監視を開始する</summary>
         void WatchFirstHomingObjectSpawn();

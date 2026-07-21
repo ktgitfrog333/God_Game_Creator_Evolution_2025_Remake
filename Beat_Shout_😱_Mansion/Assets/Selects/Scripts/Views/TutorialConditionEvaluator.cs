@@ -9,7 +9,7 @@ namespace Selects.Views
     public static class TutorialConditionEvaluator
     {
         /// <summary>
-        /// チュートリアル全体をスキップにすべきか判定すめ
+        /// チュートリアル全体をスキップにすべきか判定する
         /// </summary>
         /// <param name="bean">ユーザー情報を保持するクラス</param>
         /// <returns>実行可否</returns>
@@ -21,7 +21,6 @@ namespace Selects.Views
             if (s[0] == 1 && s[1] == 0 && s[2] == 0 && s[3] == 0 && s[4] == 0)
                 if (IsCompletedUpTo(bean, TutorialEventId.ETB0004)) return true;
 
-            if (s[0] == 2 && s[1] == 0 && s[2] == 0 && s[3] == 0 && s[4] == 0) return true; // Fix? No, keep existing logic unless specified
             if (s[0] == 2 && s[1] == 1 && s[2] == 0 && s[3] == 0 && s[4] == 0) return true;
 
             if (s[0] == 2 && s[1] == 2 && s[2] == 1 && s[3] == 0 && s[4] == 0)

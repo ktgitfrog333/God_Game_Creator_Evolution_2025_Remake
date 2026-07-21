@@ -67,7 +67,21 @@ namespace Selects.ViewModels
         public void SetCommonHeaderPanelRectTrans(RectTransform commonHeaderPanelRectTrans)
         {
             if (_playerModel != null)
+            {
                 _playerModel.SetCommonHeaderPanelRectTrans(commonHeaderPanelRectTrans);
+            }
+            else
+            {
+                Observable.EveryUpdate()
+                    .Select(_ => _playerModel)
+                    .Where(x => x != null)
+                    .Take(1)
+                    .Subscribe(model =>
+                    {
+                        model.SetCommonHeaderPanelRectTrans(commonHeaderPanelRectTrans);
+                    })
+                    .AddTo(ref _disposableBag);
+            }
         }
 
         public void Dispose()

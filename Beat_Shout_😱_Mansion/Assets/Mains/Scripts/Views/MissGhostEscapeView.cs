@@ -70,6 +70,16 @@ namespace Mains.Views
         }
 
         /// <summary>
+        /// 外部からAnimatorのParameters（トリガー）を起動
+        /// </summary>
+        /// <param name="name">Parameters（トリガー）</param>
+        public void SetTriggerAnimator(string  name)
+        {
+            var set = settings;
+            set.animator.SetTrigger(name);
+        }
+
+        /// <summary>
         /// 生成アニメーション再生が完了した
         /// </summary>
         /// <see cref="Assets/Mains/Animations/MissGhostEscapes/Spawn.anim"/>

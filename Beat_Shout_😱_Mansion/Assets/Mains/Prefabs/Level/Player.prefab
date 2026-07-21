@@ -470,6 +470,8 @@ MonoBehaviour:
   settings:
     targetSceneName: SelectScene
     FlashLight: {fileID: 4931786849995882201}
+    startDirectionSequencer: {fileID: 11400000, guid: 42e962088eff5af40820dde2e2d011f8, type: 2}
+    playerTable: {fileID: 11400000, guid: 9f42c74ddb83f9f46a95fe32ed3fbda6, type: 2}
   characterController: {fileID: 8536045231518824716}
   "\u30C8\u30C3\u30D7_\u79FB\u52D5\u901F\u5EA6": 4
   "\u8996\u70B9\u901F\u5EA6\u88DC\u6B63": 40
@@ -490,6 +492,7 @@ MonoBehaviour:
     batteryPrefab: {fileID: 3742273861877483066, guid: 16a2f1013cb7dea479125665d136085e, type: 3}
     hitTrigger: {fileID: 4176574053611664939}
     headHeight: 1
+  rayLengthTutorial: 0.1
 --- !u!143 &8536045231518824716
 CharacterController:
   m_ObjectHideFlags: 0

@@ -20,6 +20,7 @@ namespace Selects.Tests
         [SerializeField] private TutorialPanelViewModel viewModel;
         
         private CancellationTokenSource _cts;
+        private DisposableBag _disposableBag = new DisposableBag();
 
         private void Awake()
         {
@@ -31,43 +32,49 @@ namespace Selects.Tests
                 viewModel.FlashLightTriggerStay.Subscribe(x =>
                 {
                     Debug.Log($"[監視] FlashLightTriggerStay が {x} に更新されました。");
-                }).AddTo(this);
+                }).AddTo(ref _disposableBag);
 
                 // BatteryHitPlayerAimの監視
                 viewModel.BatteryHitPlayerAim.Subscribe(x =>
                 {
                     Debug.Log($"[監視] BatteryHitPlayerAim が {x} に更新されました。");
-                }).AddTo(this);
+                }).AddTo(ref _disposableBag);
+
+                // BatteryTriggerStayの監視
+                viewModel.BatteryTriggerStay.Subscribe(x =>
+                {
+                    Debug.Log($"[監視] BatteryTriggerStay が {x} に更新されました。");
+                }).AddTo(ref _disposableBag);
 
                 // MissGhostEscapeNormalHitPlayerAimの監視
                 viewModel.MissGhostEscapeNormalHitPlayerAim.Subscribe(x =>
                 {
                     Debug.Log($"[監視] MissGhostEscapeNormalHitPlayerAim が {x} に更新されました。");
-                }).AddTo(this);
+                }).AddTo(ref _disposableBag);
 
                 // LightRing2TriggerStayの監視
                 viewModel.LightRing2TriggerStay.Subscribe(x =>
                 {
                     Debug.Log($"[監視] LightRing2TriggerStay が {x} に更新されました。");
-                }).AddTo(this);
+                }).AddTo(ref _disposableBag);
 
                 // VaseAndDeskGroupHitPlayerAimの監視
                 viewModel.VaseAndDeskGroupHitPlayerAim.Subscribe(x =>
                 {
                     Debug.Log($"[監視] VaseAndDeskGroupHitPlayerAim が {x} に更新されました。");
-                }).AddTo(this);
+                }).AddTo(ref _disposableBag);
 
                 // RightStairsTrigger1FStayの監視
                 viewModel.RightStairsTrigger1FStay.Subscribe(x =>
                 {
                     Debug.Log($"[監視] RightStairsTrigger1FStay が {x} に更新されました。");
-                }).AddTo(this);
+                }).AddTo(ref _disposableBag);
 
                 // LeftStairsTrigger2FStayの監視
                 viewModel.LeftStairsTrigger2FStay.Subscribe(x =>
                 {
                     Debug.Log($"[監視] LeftStairsTrigger2FStay が {x} に更新されました。");
-                }).AddTo(this);
+                }).AddTo(ref _disposableBag);
             }
         }
 
@@ -78,6 +85,8 @@ namespace Selects.Tests
                 _cts.Cancel();
                 _cts.Dispose();
             }
+            viewModel.Dispose();
+            _disposableBag.Dispose();
         }
 
         private void OnGUI()

@@ -2,6 +2,7 @@ using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Mains.Commons;
 using Mains.External;
+using Mains.Views;
 using R3;
 using R3.Triggers;
 using Rewired;
@@ -29,6 +30,8 @@ namespace Selects.Views
         private Script_xyloApi _script_XyloApi;
         /// <summary>プレイヤーの視線ヒット対象</summary>
         private RaycastHit[] _hitsPlayerAimToAny = new RaycastHit[10]; // 適当なバッファサイズ;
+        /// <summary>ITutorialSideEffect の Script_xyloApi 実装</summary>
+        private XyloApiTutorialSideEffect _sideEffect;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -159,6 +162,12 @@ namespace Selects.Views
             }
         }
 
+        private void OnValidate()
+        {
+            var set = settings;
+            PreviewMessages(set);
+        }
+
         private void Start()
         {
             InitializeUIState();
@@ -264,11 +273,25 @@ namespace Selects.Views
             var batteryItemAimRangeTrigger = levelObjects.batteryItemAimRangeTrigger;
             var missGhostEscapeNormalAimRangeTrigger = levelObjects.missGhostEscapeNormalAimRangeTrigger;
             var vaseAndDeskGroupAimRangeTrigger = levelObjects.vaseAndDeskGroupAimRangeTrigger;
-            var aimDistance = details.aimDistance;
+            PlayerView playerView = null;
             Observable.EveryUpdate()
                 .Subscribe(_ =>
                 {
+                    // 目線の距離
+                    var aimDistance = 0f;
                     headTrans = viewModel.PlayerHead;
+                    if (playerView == null)
+                    {
+                        var view = viewModel.PlayerTransform?.GetComponent<PlayerView>();
+                        if (view != null)
+                        {
+                            playerView = view;
+                        }
+                    }
+                    else
+                    {
+                        aimDistance = playerView.PlayerTable.aimDistance;
+                    }
                     if (headTrans != null)
                     {
                         // プレイヤーの視線が電池を捉える
@@ -296,13 +319,15 @@ namespace Selects.Views
             // 依存オブジェクトを組み立てて Sequencer に渡す
             var rewiredPlayer = ReInput.players.GetPlayer(0);
             _script_XyloApi = new Script_xyloApi();
+            _sideEffect = new XyloApiTutorialSideEffect(_script_XyloApi, set.tables.playerTeleporterStrategySOsLink.PlayerTeleporterStrategy);
 
             var context = new TutorialSequencerContext(
                 ui:          this,                                  // ITutorialUI = 自分自身
                 input:       new RewiredTutorialInput(rewiredPlayer), // ITutorialInput
-                sideEffect:  new XyloApiTutorialSideEffect(_script_XyloApi, set.viewModel.PlayerTransform?.GetComponent<CharacterController>(), set.viewModel.PlayerTransform),  // ITutorialSideEffect
+                sideEffect: _sideEffect,  // ITutorialSideEffect
                 viewModel:   set.viewModel,
                 levelObjects: set.levelObjects,
+                uiObjects:   set.uIObjects,
                 tables:       set.tables
             );
 
@@ -355,11 +380,41 @@ namespace Selects.Views
             _disposableBag.Dispose();
             settings.viewModel.Dispose();
             _script_XyloApi?.Dispose();
+            _sideEffect?.Dispose();
         }
 
         // ------------------------------------------------------------------
         // UI 内部操作（private）
         // ------------------------------------------------------------------
+
+        /// <summary>
+        /// メッセージのプレビュー
+        /// </summary>
+        /// <param name="set">チュートリアルパネルの設定</param>
+        private void PreviewMessages(TutorialPanelSettings set)
+        {
+            var messageId = set.preview.messageId;
+            // メッセージIDが空なら以降は実行しない
+            if (string.IsNullOrEmpty(messageId))
+                return;
+
+            var msgData = set.tables.messageTable.Get(messageId);
+            if (msgData == null)
+            {
+                Debug.LogWarning($"メッセージIDに該当するメッセージデータを取得できませんでした: [{messageId}]");
+
+                return;
+            }
+            var isProgressText = !string.IsNullOrEmpty(msgData.progressText);
+            if (!isProgressText)
+            {
+                ApplyMessage(messageId);
+            }
+            else
+            {
+                ApplyMessageWithProgress(messageId, "0", "5");
+            }
+        }
 
         /// <summary>
         /// UIの状態を初期化
@@ -440,10 +495,14 @@ namespace Selects.Views
     {
         /// <summary>チュートリアルパネルのビューモデル</summary>
         public TutorialPanelViewModel viewModel;
+        /// <summary>プレビュー用パラメータ</summary>
+        public Preview preview;
         /// <summary>チュートリアルインタラクションガイドUI</summary>
         public TutorialUIPanels tutorialUIPanels;
         /// <summary>レベル内のチュートリアル専用オブジェクト</summary>
         public LevelObjects levelObjects;
+        /// <summary>UIオブジェクト</summary>
+        public UIObjects uIObjects;
         /// <summary>テーブル情報</summary>
         public Tables tables;
         /// <summary>詳細パラメータ</summary>
@@ -505,6 +564,10 @@ namespace Selects.Views
             public GameObject missGhostEscapeNormal;
             /// <summary>移動オバケ（ノーマル）トリガー（視線補足用）</summary>
             public Collider missGhostEscapeNormalAimRangeTrigger;
+            /// <summary>移動オバケ（ノーマル）アニメータ</summary>
+            public Animator missGhostEscapeNormalAnimator;
+            /// <summary>移動オバケ（ノーマル）移動用オバケのビュー</summary>
+            public MissGhostEscapeView missGhostEscapeView;
             /// <summary>花瓶と机</summary>
             public GameObject vaseAndDeskGroup;
             /// <summary>花瓶と机トリガー（視線補足用）</summary>
@@ -513,6 +576,16 @@ namespace Selects.Views
             public Collider rightStairsTrigger1F;
             /// <summary>2階の左階段トリガー</summary>
             public Collider leftStairsTrigger2F;
+        }
+
+        /// <summary>
+        /// UIオブジェクト
+        /// </summary>
+        [System.Serializable]
+        public class UIObjects
+        {
+            /// <summary>フェードイメージのビュー</summary>
+            public FadeImageView fadeImageView;
         }
 
         /// <summary>
@@ -525,6 +598,10 @@ namespace Selects.Views
             public MessageTable messageTable;
             /// <summary>ノーツ生成パターン制御</summary>
             public MissilePatternTable missilePatternTable;
+            /// <summary>プレイヤー移動演出ストラテジーの設定を同期管理させる</summary>
+            public PlayerTeleporterStrategySOsLink playerTeleporterStrategySOsLink;
+            /// <summary>シャウトチャンスパートの共通パラメータ管理用テーブル</summary>
+            public PlayerShoutChanceTable playerShoutChanceTable;
         }
 
         /// <summary>
@@ -535,8 +612,20 @@ namespace Selects.Views
         [System.Serializable]
         public class Details
         {
-            /// <summary>目線の距離</summary>
-            public float aimDistance = 10f;
+            ///// <summary>目線の距離</summary>
+            //public float aimDistance = 10f;
+        }
+
+        /// <summary>
+        /// プレビュー用パラメータ
+        /// </summary>
+        [System.Serializable]
+        public class Preview
+        {
+            /// <summary>メッセージID</summary>
+            /// <remarks>対象IDはseeを参照</remarks>
+            /// <see cref="Assets/Selects/Scripts/Commons/MessageTable.asset"/>
+            public string messageId;
         }
     }
 }

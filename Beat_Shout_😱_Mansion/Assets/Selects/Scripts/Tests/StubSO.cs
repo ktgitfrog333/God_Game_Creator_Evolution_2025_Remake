@@ -9,6 +9,7 @@ namespace Selects.Tests
     public class StubSO : ScriptableObject
     {
         public Commons commons;
+        public Views views;
     }
 
     [System.Serializable]
@@ -17,6 +18,8 @@ namespace Selects.Tests
         public CommonPanelCustomizeOfMainViewTest commonPanelCustomizeOfMainViewTest;
         public RhythmPartPanelCustomizeOfMainViewTest rhythmPartPanelCustomizeOfMainViewTest;
         public TutorialPanelViewTest tutorialPanelViewTest;
+        public TutorialConditionEvaluatorTest tutorialConditionEvaluatorTest;
+        public RewiredControllerMapTest rewiredControllerMapTest;
 
         [System.Serializable]
         public class RhythmPartPanelCustomizeOfMainViewTest
@@ -92,6 +95,151 @@ namespace Selects.Tests
             {
                 public float duration;
             }
+        }
+
+        [System.Serializable]
+        public class TutorialConditionEvaluatorTest
+        {
+            public IsCompletedの確認 _IsCompletedの確認;
+            public IsCompletedUpToの確認 _IsCompletedUpToの確認;
+            public ShouldSkipの確認 _ShouldSkipの確認;
+            public ShouldRunMoveの確認 _ShouldRunMoveの確認;
+            public ShouldRunAimMoveの確認 _ShouldRunAimMoveの確認;
+            public ShouldRunShoutの確認 _ShouldRunShoutの確認;
+            public ShouldRunRhythmの確認 _ShouldRunRhythmの確認;
+            public ShouldRunStage1Guideの確認 _ShouldRunStage1Guideの確認;
+            public ShouldRunShoutNoteGuideの確認 _ShouldRunShoutNoteGuideの確認;
+            public ShouldRunShoutNoteの確認 _ShouldRunShoutNoteの確認;
+            public ShouldRunStage3Guideの確認 _ShouldRunStage3Guideの確認;
+
+            [System.Serializable]
+            public class UserBeanParameter
+            {
+                /// <summary>クリアステータス</summary>
+                public int[] state = new int[] { 1, 0, 0, 0, 0 };
+                /// <summary>イベント進捗配列</summary>
+                public Universal.Commons.EventProgress[] eventProgressList;
+            }
+
+            [System.Serializable]
+            public class IsCompletedの確認
+            {
+                public UserBeanParameter userBeanParameter;
+                public Universal.Commons.TutorialEventId eventId;
+            }
+
+            [System.Serializable]
+            public class IsCompletedUpToの確認
+            {
+                public UserBeanParameter userBeanParameter;
+                public Universal.Commons.TutorialEventId upToEventId;
+            }
+
+            [System.Serializable]
+            public class ShouldSkipの確認
+            {
+                public UserBeanParameter userBeanParameter;
+            }
+
+            [System.Serializable]
+            public class ShouldRunMoveの確認
+            {
+                public UserBeanParameter userBeanParameter;
+            }
+
+            [System.Serializable]
+            public class ShouldRunAimMoveの確認
+            {
+                public UserBeanParameter userBeanParameter;
+            }
+
+            [System.Serializable]
+            public class ShouldRunShoutの確認
+            {
+                public UserBeanParameter userBeanParameter;
+            }
+
+            [System.Serializable]
+            public class ShouldRunRhythmの確認
+            {
+                public UserBeanParameter userBeanParameter;
+            }
+
+            [System.Serializable]
+            public class ShouldRunStage1Guideの確認
+            {
+                public UserBeanParameter userBeanParameter;
+            }
+
+            [System.Serializable]
+            public class ShouldRunShoutNoteGuideの確認
+            {
+                public UserBeanParameter userBeanParameter;
+            }
+
+            [System.Serializable]
+            public class ShouldRunShoutNoteの確認
+            {
+                public UserBeanParameter userBeanParameter;
+            }
+
+            [System.Serializable]
+            public class ShouldRunStage3Guideの確認
+            {
+                public UserBeanParameter userBeanParameter;
+            }
+        }
+
+        [System.Serializable]
+        public class RewiredControllerMapTest
+        {
+            public string categoryName;
+        }
+    }
+
+    [System.Serializable]
+    public class Views
+    {
+        public PlayerTeleporterStrategySOTest playerTeleporterStrategySOTest;
+        public StartDirectionSequencerTest startDirectionSequencerTest;
+
+        [System.Serializable]
+        public class StartDirectionSequencerTest
+        {
+            public Selects.Views.StartDirectionSequencer startDirectionSequencer;
+            public string targetSceneName;
+            public Universal.Commons.UserBean userBean;
+            public Selects.Views.PlayerTeleporterStrategySOsLink playerTeleporterStrategySOsLink;
+            public Selects.Views.PlayerTeleporterStrategySOsLink playerTeleporterStrategySOsLinkTween;
+            public Selects.Views.PlayerTeleporterStrategySOsLink playerTeleporterStrategySOsLinkFadeAndTeleport;
+            public Selects.Views.PlayerTeleporterStrategySOsLink playerTeleporterStrategySOsLinkTeleport;
+            public bool preProcessCharacterControllerEnabled;
+            public int preProcessPlayerEnabled;
+            public float preHideEffectDuration;
+            public Vector3 teleportPosition;
+            public Vector3 teleportAngles;
+            public float postHideEffectDuration;
+            public bool andFromTweenMode;
+            public Vector3 tweenMovePosition;
+            public Vector3 tweenMoveAngles;
+            public float[] tweenMoveDurations;
+            public bool postProcessCharacterControllerEnabled;
+            public int postProcessPlayerEnabled;
+        }
+
+        [System.Serializable]
+        public class PlayerTeleporterStrategySOTest
+        {
+            public Selects.Views.PlayerTeleporterStrategySO playerTeleporterStrategySO;
+            public Selects.Views.PlayerTeleporterStrategySO1 playerTeleporterStrategySO1;
+            public Selects.Views.PlayerTeleporterStrategySO2 playerTeleporterStrategySO2;
+            public Vector3 position;
+            public Vector3 angles;
+            public bool isCompletedStartDirection;
+            public Selects.Views.StartDirectionSequencer startDirectionSequencer;
+            public Selects.Views.PlayerTeleporterStrategySOsLink playerTeleporterStrategySOsLinkTween;
+            public Selects.Views.PlayerTeleporterStrategySOsLink playerTeleporterStrategySOsLinkFadeAndTeleport;
+            public Selects.Views.PlayerTeleporterStrategySOsLink playerTeleporterStrategySOsLinkTeleport;
         }
     }
 }

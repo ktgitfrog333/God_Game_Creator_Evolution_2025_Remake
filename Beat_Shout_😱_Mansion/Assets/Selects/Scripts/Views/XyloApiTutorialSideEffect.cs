@@ -1,8 +1,11 @@
 using Cysharp.Threading.Tasks;
-using DG.Tweening;
+using Mains.Commons;
 using Mains.External;
 using Mains.Views;
+using R3;
+using Rewired;
 using System.Threading;
+using UnityEngine;
 
 namespace Selects.Views
 {
@@ -14,14 +17,14 @@ namespace Selects.Views
     {
         /// <summary>シロさんのコンポーネントへアクセスするAPI</summary>
         private readonly Script_xyloApi _api;
-        private readonly UnityEngine.CharacterController _playerController;
-        private readonly UnityEngine.Transform _playerTransform;
+        /// <summary>プレイヤー移動演出ストラテジー</summary>
+        private readonly IPlayerTeleporterStrategySO _teleporterStrategy;
+        private DisposableBag _disposableBag = new DisposableBag();
 
-        public XyloApiTutorialSideEffect(Script_xyloApi api, UnityEngine.CharacterController playerController, UnityEngine.Transform playerTransform)
+        public XyloApiTutorialSideEffect(Script_xyloApi api, IPlayerTeleporterStrategySO teleporterStrategy)
         {
             _api = api;
-            _playerController = playerController;
-            _playerTransform = playerTransform;
+            _teleporterStrategy = teleporterStrategy;
         }
 
         /// <summary>
@@ -48,37 +51,66 @@ namespace Selects.Views
         /// <param name="pattern">ノーツ生成パターン</param>
         public void SetMissilePattern(string pattern) => _api.SetMissilePattern(pattern);
 
-        public async UniTask TeleportPlayerAsync(UnityEngine.Vector3 position, UnityEngine.Vector3 angles, CancellationToken token)
+        public UniTask TeleportPlayerAsync(Vector3 position, Vector3 angles, bool isCompletedStartDirection, CharacterController playerCharacterController, Player player, Transform playerTransform, Transform playerHead, PlayerView playerView, FadeImageView fadeImageView, CancellationToken token)
         {
-            var seq = DOTween.Sequence();
-            if (_playerController != null) _playerController.enabled = false;
-            if (_playerTransform != null)
-            {
-                //_playerTransform.SetPositionAndRotation(position, rotation);
-                _ = seq.Append(_playerTransform.DOMove(position, 1f))
-                    .Join(_playerTransform.DORotate(angles, 1f))
-                    .AppendCallback(() =>
-                    {
-                        if (_playerController != null) _playerController.enabled = true;
-                    });
-            }
+            return _teleporterStrategy.TeleportPlayer(position, angles, isCompletedStartDirection, playerCharacterController, player, playerTransform, playerHead, playerView, fadeImageView, token);
+        }
 
-            await seq.ToUniTask(cancellationToken: token);
+        public void PlayGhostLaughV2Normal()
+        {
+            if (_api.IsInstanceSE_Picker())
+            {
+                _api.PlayGhostLaughByVoiceType(GhostVoiceType.ghost_voice_normal_type);
+            }
+            else
+            {
+                Observable.EveryUpdate()
+                    .Where(_ => _api.IsInstanceSE_Picker())
+                    .Take(1)
+                    .Subscribe(_ =>
+                    {
+                        _api.PlayGhostLaughByVoiceType(GhostVoiceType.ghost_voice_normal_type);
+                    })
+                    .AddTo(ref _disposableBag);
+            }
+        }
+
+        public Observable<Unit> EnabledAnimator(Animator missGhostEscapeNormalAnimator, MissGhostEscapeView missGhostEscapeView)
+        {
+            return Observable.Create<Unit>(observer =>
+            {
+                missGhostEscapeView.IsEscapeCompleted.Where(x => x)
+                    .Take(1)
+                    .Subscribe(_ =>
+                    {
+                        observer.OnNext(Unit.Default);
+                        observer.OnCompleted();
+                    })
+                    .AddTo(ref _disposableBag);
+                missGhostEscapeView.SetTriggerAnimator("Escape");
+
+                return Disposable.Empty;
+            });
         }
 
         public void WatchFirstHomingObjectSpawn() => _api.WatchFirstHomingObjectSpawn();
-        public R3.Observable<R3.Unit> OnFirstHomingObjectSpawned => _api.OnFirstHomingObjectSpawned;
-        public R3.Observable<R3.Unit> OnGhostHomingStarted() => _api.OnGhostHomingStarted();
+        public Observable<Unit> OnFirstHomingObjectSpawned => _api.OnFirstHomingObjectSpawned;
+        public Observable<Unit> OnGhostHomingStarted() => _api.OnGhostHomingStarted();
         public bool IsAnyShortNoteClickable() => _api.IsAnyShortNoteClickable();
         public bool IsAnyLongNoteClickable() => _api.IsAnyLongNoteClickable();
 
-        public R3.Observable<bool> OnNoteSuccessful => _api.IsSuccessfulReactive;
-        public R3.Observable<bool> OnNoteFailed => _api.IsFailedReactive;
-        public R3.Observable<R3.Unit> OnHpDecreased => _api.OnHpDecreased;
-        public R3.Observable<R3.Unit> OnBatteryPicked => _api.OnBatteryPicked;
+        public Observable<bool> OnNoteSuccessful => _api.IsSuccessfulReactive;
+        public Observable<bool> OnNoteFailed => _api.IsFailedReactive;
+        public Observable<Unit> OnHpDecreased => _api.OnHpDecreased;
+        public Observable<Unit> OnBatteryPicked => _api.OnBatteryPicked;
 
         public void ForceClickAnyClickableNote() => _api.ForceClickAnyClickableNote();
         public void ClearAllAttackingGhosts() => _api.ClearAllAttackingGhosts();
         public float GetNoteToCrosshairScreenDistance() => _api.GetNoteToCrosshairScreenDistance();
+
+        public void Dispose()
+        {
+            _disposableBag.Dispose();
+        }
     }
 }

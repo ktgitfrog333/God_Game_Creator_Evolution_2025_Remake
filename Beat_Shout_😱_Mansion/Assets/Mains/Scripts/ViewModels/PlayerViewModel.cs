@@ -57,12 +57,6 @@ namespace Mains.ViewModels
         public ReactiveCommand<bool> IsFailed => _playerModel?.IsFailed ?? null;
         /// <summary>選択されたMissGhostAttack</summary>
         public Transform SelectedMissGhostAttackTransform => _playerModel?.SelectedMissGhostAttackTransform ?? null;
-        /// <summary>ステージ開始演出が完了したか</summary>
-        public bool _isCompletedStartDirection;
-        /// <summary>ステージ開始演出が完了したか</summary>
-        public bool IsCompletedStartDirection => _isCompletedStartDirection;
-        /// <summary>ステージ開始演出が完了したか</summary>
-        public ReactiveCommand<bool> IsCompletedStartDirectionReactive => _playerModel?.IsCompletedStartDirection ?? null;
         /// <summary>ステージ開始位置トランスフォーム</summary>
         private ReactiveCommand<Transform> _startPointTrans = new ReactiveCommand<Transform>();
         /// <summary>ステージ開始位置トランスフォーム</summary>
@@ -103,11 +97,6 @@ namespace Mains.ViewModels
             _playerModel.StartPointTrans.Subscribe(x =>
             {
                 _startPointTrans.Execute(x);
-            })
-                .AddTo(ref _disposableBag);
-            _playerModel.IsCompletedStartDirection.Subscribe(x =>
-            {
-                _isCompletedStartDirection = x;
             })
                 .AddTo(ref _disposableBag);
             _playerModel.IsMissionClear.Subscribe(isMissionClear =>
@@ -257,6 +246,11 @@ namespace Mains.ViewModels
         {
             if (_playerModel != null)
                 _playerModel.SetPlayerHead(playerHead);
+        }
+
+        public void SetPlayerCharacterController(CharacterController characterController)
+        {
+            _playerModel?.SetPlayerCharacterController(characterController);
         }
 
         public void Dispose()

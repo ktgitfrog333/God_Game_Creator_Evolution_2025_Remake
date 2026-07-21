@@ -713,12 +713,22 @@ namespace Mains.External
             {
                 return;
             }
-            var manager = Manager.GameManager.Instance;
-            if (manager == null)
+            float seVolumeIndex = 0f;
+            var mainsManager = Manager.GameManager.Instance;
+            var selectsManager = Selects.Manager.GameManager.Instance;
+            if (mainsManager != null ||
+                selectsManager != null)
             {
-                return;
+                if (mainsManager != null &&
+                    selectsManager == null)
+                {
+                    seVolumeIndex = mainsManager.AudioOwner.GetSeVolumeIndex();
+                }
+                else
+                {
+                    seVolumeIndex = selectsManager.AudioOwner.GetSeVolumeIndex();
+                }
             }
-            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
             sePicker.PlayHitSuccess3(seVolumeIndex);
         }
 
@@ -729,12 +739,22 @@ namespace Mains.External
             {
                 return;
             }
-            var manager = Manager.GameManager.Instance;
-            if (manager == null)
+            float seVolumeIndex = 0f;
+            var mainsManager = Manager.GameManager.Instance;
+            var selectsManager = Selects.Manager.GameManager.Instance;
+            if (mainsManager != null ||
+                selectsManager != null)
             {
-                return;
+                if (mainsManager != null &&
+                    selectsManager == null)
+                {
+                    seVolumeIndex = mainsManager.AudioOwner.GetSeVolumeIndex();
+                }
+                else
+                {
+                    seVolumeIndex = selectsManager.AudioOwner.GetSeVolumeIndex();
+                }
             }
-            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
             sePicker.PlayHitMiss3(seVolumeIndex);
         }
 
@@ -745,12 +765,22 @@ namespace Mains.External
             {
                 return;
             }
-            var manager = Manager.GameManager.Instance;
-            if (manager == null)
+            float seVolumeIndex = 0f;
+            var mainsManager = Manager.GameManager.Instance;
+            var selectsManager = Selects.Manager.GameManager.Instance;
+            if (mainsManager != null ||
+                selectsManager != null)
             {
-                return;
+                if (mainsManager != null &&
+                    selectsManager == null)
+                {
+                    seVolumeIndex = mainsManager.AudioOwner.GetSeVolumeIndex();
+                }
+                else
+                {
+                    seVolumeIndex = selectsManager.AudioOwner.GetSeVolumeIndex();
+                }
             }
-            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
             sePicker.PlayBatteryLost1(seVolumeIndex);
         }
 
@@ -762,12 +792,22 @@ namespace Mains.External
             {
                 return;
             }
-            var manager = Manager.GameManager.Instance;
-            if (manager == null)
+            float seVolumeIndex = 0f;
+            var mainsManager = Manager.GameManager.Instance;
+            var selectsManager = Selects.Manager.GameManager.Instance;
+            if (mainsManager != null ||
+                selectsManager != null)
             {
-                return;
+                if (mainsManager != null &&
+                    selectsManager == null)
+                {
+                    seVolumeIndex = mainsManager.AudioOwner.GetSeVolumeIndex();
+                }
+                else
+                {
+                    seVolumeIndex = selectsManager.AudioOwner.GetSeVolumeIndex();
+                }
             }
-            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
             sePicker.PlayBatteryGet3(seVolumeIndex);
         }
 
@@ -814,6 +854,8 @@ namespace Mains.External
             sePicker.PlayGhostLaugh3(seVolumeIndex);
         }
 
+        public bool IsInstanceSE_Picker() => SE_Picker.Instance != null;
+
         /// <summary>
         /// ボイスタイプに応じたオバケ笑い声SEを再生する
         /// </summary>
@@ -825,12 +867,27 @@ namespace Mains.External
             {
                 return;
             }
-            var manager = Manager.GameManager.Instance;
-            if (manager == null)
+            var mainsManager = Manager.GameManager.Instance;
+            var selectsManager = Selects.Manager.GameManager.Instance;
+            float seVolumeIndex = 0f;
+            if (mainsManager != null ||
+                selectsManager != null)
             {
-                return;
+                if (mainsManager != null &&
+                    selectsManager == null)
+                {
+                    seVolumeIndex = mainsManager.AudioOwner.GetSeVolumeIndex();
+                }
+                else
+                {
+                    seVolumeIndex = selectsManager.AudioOwner.GetSeVolumeIndex();
+                }
             }
-            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
+            //if (manager == null)
+            //{
+            //    return;
+            //}
+            //float seVolumeIndex = mainsManager.AudioOwner.GetSeVolumeIndex();
             switch (voiceType)
             {
                 case Commons.GhostVoiceType.ghost_voice_chatter_type:

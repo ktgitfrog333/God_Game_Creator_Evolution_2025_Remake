@@ -15,7 +15,7 @@ namespace Mains.Models
     public class PlayerModel : MonoBehaviour, IPlayerModel, IPoltergeistModel, IRhythmPartPanelModel, IHomingObjectCustomizeModel,
         IMissGhostAttackCustomizeModel, IMissileDirectAnimManagerBCustomizeModel, ICommonPanelModel, IFadeImageModel,
         IPlayerRespawnPositionModel, IHPDownDirectionModel, ICommonPanelModel1, IStageClearDirectionModel, IGhostBulletBookModel,
-        ITutorialPanelModel
+        ITutorialPanelModel, IStartDirectionModel
     {
         /// <summary>【探索／シャウトチャンス／リズム】パート情報管理テーブル</summary>
         public InteractionPartTable InteractionPartTable { get; set; }
@@ -44,6 +44,10 @@ namespace Mains.Models
         };
         /// <summary>プレイヤープロパティの構造体</summary>
         public PlayerPropertiesStruct PlayerPropertiesStruct => _playerPropertiesStruct;
+        /// <summary>プレイヤーのCharacterController</summary>
+        private CharacterController _playerCharacterController;
+        /// <summary>プレイヤーのCharacterController</summary>
+        public CharacterController PlayerCharacterController => _playerCharacterController;
         /// <summary>プレイヤーの懐中電灯</summary>
         private Transform _playerFlashLight;
         /// <summary>プレイヤーの懐中電灯</summary>
@@ -590,6 +594,11 @@ namespace Mains.Models
         {
             _playerHead = playerHead;
         }
+
+        public void SetPlayerCharacterController(CharacterController characterController)
+        {
+            _playerCharacterController = characterController;
+        }
     }
 
     /// <summary>
@@ -667,6 +676,11 @@ namespace Mains.Models
         /// </summary>
         /// <param name="playerHead">プレイヤーの頭</param>
         public void SetPlayerHead(Transform playerHead);
+        /// <summary>
+        /// プレイヤーのキャラクターコントローラーをセット
+        /// </summary>
+        /// <param name="characterController">プレイヤーのキャラクターコントローラー</param>
+        public void SetPlayerCharacterController(CharacterController characterController);
     }
 
     /// <summary>
@@ -858,6 +872,18 @@ namespace Mains.Models
     /// フェードイメージのモデルインターフェース
     /// </summary>
     public interface IFadeImageModel
+    {
+        /// <summary>
+        /// ステージ開始演出が完了したかをセット
+        /// </summary>
+        /// <param name="isCompleted">ステージ開始演出が完了したか</param>
+        public void SetIsCompletedStartDirection(bool isCompleted);
+    }
+
+    /// <summary>
+    /// ステージ開始演出のモデルインターフェース
+    /// </summary>
+    public interface IStartDirectionModel
     {
         /// <summary>
         /// ステージ開始演出が完了したかをセット

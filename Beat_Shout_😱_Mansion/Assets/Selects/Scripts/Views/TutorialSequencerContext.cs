@@ -23,6 +23,9 @@ namespace Selects.Views
         /// <summary>レベル上のチュートリアル専用オブジェクト群</summary>
         public TutorialPanelSettings.LevelObjects LevelObjects { get; }
 
+        /// <summary>UIオブジェクト</summary>
+        public TutorialPanelSettings.UIObjects UIObjects { get; }
+
         /// <summary>テーブル（メッセージ・ミサイルパターン）</summary>
         public TutorialPanelSettings.Tables Tables { get; }
 
@@ -32,6 +35,7 @@ namespace Selects.Views
             ITutorialSideEffect sideEffect,
             TutorialPanelViewModel viewModel,
             TutorialPanelSettings.LevelObjects levelObjects,
+            TutorialPanelSettings.UIObjects uiObjects,
             TutorialPanelSettings.Tables tables)
         {
             UI = ui;
@@ -39,6 +43,7 @@ namespace Selects.Views
             SideEffect = sideEffect;
             ViewModel = viewModel;
             LevelObjects = levelObjects;
+            UIObjects = uiObjects;
             Tables = tables;
         }
     }

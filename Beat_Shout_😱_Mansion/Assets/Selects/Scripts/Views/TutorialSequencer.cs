@@ -1,11 +1,13 @@
 using Cysharp.Threading.Tasks;
 using Mains.Commons;
+using Mains.Views;
 using R3;
+using Rewired;
 using Selects.Commons;
 using System.Threading;
+using UnityEngine;
 using Universal.Commons;
 using Universal.Utilities;
-using UnityEngine;
 
 namespace Selects.Views
 {
@@ -40,9 +42,14 @@ namespace Selects.Views
         public async UniTask RunAsync(UserBean userBean, CancellationToken token)
         {
             _userBean = userBean;
+            var vm = _ctx.ViewModel;
 
             if (_userBean == null || TutorialConditionEvaluator.ShouldSkip(_userBean))
+            {
+                vm.SetEnemyBattlePart(EnemyBattlePart.Normal);
+
                 return;
+            }
 
             if (TutorialConditionEvaluator.ShouldRunMove(_userBean))
                 await RunMoveTutorialAsync(token);
@@ -67,6 +74,8 @@ namespace Selects.Views
 
             if (TutorialConditionEvaluator.ShouldRunStage3Guide(_userBean))
                 await RunStage3GuideTutorialAsync(token);
+
+            vm.SetEnemyBattlePart(EnemyBattlePart.Normal);
         }
 
         // =========================================================
@@ -107,19 +116,39 @@ namespace Selects.Views
 
             InitializeStep();
 
-            var playerTransform = vm.PlayerTransform;
+            await Observable.EveryUpdate()
+                .Select(_ => vm.PlayerTransform)
+                .Where(player => player != null)
+                .FirstAsync(token);
+
+            Transform playerTransform = vm.PlayerTransform;
+            var playerCharacterController = vm.PlayerCharacterController;
+
             var flashLight = vm.PlayerFlashLight;
             if (flashLight != null) flashLight.gameObject.SetActive(false);
 
+            await Observable.EveryUpdate()
+                .Select(_ => vm.CommonHeaderPanelRectTrans)
+                .Where(trans => trans != null)
+                .FirstAsync(token);
+
             var headerPanel = vm.CommonHeaderPanelRectTrans;
-            if (headerPanel != null) headerPanel.gameObject.SetActive(false);
+            headerPanel.gameObject.SetActive(false);
+
+            // TODO: IsCompletedStartDirectionAndCharacterControllerEnabled は使わない IsCompletedStartDirectionReactive を監視する形でいい
+            await vm.IsCompletedStartDirection.Where(x => x)
+                .FirstAsync(token);
 
             // --- 前進 ---
             ui.ApplyMessage("MSG0000");
-            await ui.FadeInAsync(0.5f, token);
-            input.EnableOnlyControllerMapCategory("CategoryTutorialForwardOnly");
 
+            await ui.FadeInAsync(0.5f, token);
+
+            input.EnableOnlyControllerMapCategory("CategoryTutorialForwardOnly");
+            // ここでキャラクターコントローラーを有効にする
+            playerCharacterController.enabled = true;
             Vector3 startPos = playerTransform.position;
+
             await Observable.EveryUpdate()
                 .Where(_ => input.MoveVertical > 0.1f)
                 .Where(_ => Vector3.Distance(startPos, playerTransform.position) > 1.5f)
@@ -129,10 +158,13 @@ namespace Selects.Views
 
             // --- 後退 ---
             ui.ApplyMessage("MSG0001");
+
             await ui.FadeInAsync(0.5f, token);
+
             input.EnableOnlyControllerMapCategory("CategoryTutorialBackOnly");
 
             startPos = playerTransform.position;
+
             await Observable.EveryUpdate()
                 .Where(_ => input.MoveVertical < -0.1f)
                 .Where(_ => Vector3.Distance(startPos, playerTransform.position) > 1.5f)
@@ -142,10 +174,13 @@ namespace Selects.Views
 
             // --- 左移動 ---
             ui.ApplyMessage("MSG0002");
+
             await ui.FadeInAsync(0.5f, token);
+
             input.EnableOnlyControllerMapCategory("CategoryTutorialLeftOnly");
 
             startPos = playerTransform.position;
+
             await Observable.EveryUpdate()
                 .Where(_ => input.MoveHorizontal < -0.1f)
                 .Where(_ => Vector3.Distance(startPos, playerTransform.position) > 1.5f)
@@ -155,10 +190,13 @@ namespace Selects.Views
 
             // --- 右移動 ---
             ui.ApplyMessage("MSG0003");
+
             await ui.FadeInAsync(0.5f, token);
+
             input.EnableOnlyControllerMapCategory("CategoryTutorialRightOnly");
 
             startPos = playerTransform.position;
+
             await Observable.EveryUpdate()
                 .Where(_ => input.MoveHorizontal > 0.1f)
                 .Where(_ => Vector3.Distance(startPos, playerTransform.position) > 1.5f)
@@ -168,7 +206,9 @@ namespace Selects.Views
 
             // --- 懐中電灯の取得 ---
             ui.ApplyMessage("MSG0004");
+
             await ui.FadeInAsync(0.5f, token);
+ 
             input.EnableOnlyControllerMapCategory("CategoryTutorialMoveAllAndSearch");
 
             if (lvl.lightRingParticleSys != null) lvl.lightRingParticleSys.SetActive(true);
@@ -183,8 +223,10 @@ namespace Selects.Views
 
             // --- 懐中電灯 取得ボタン押下 ---
             ui.ApplyMessage("MSG0005");
+
             await ui.FadeInAsync(0.5f, token);
-            input.EnableOnlyControllerMapCategory("CategoryTutorialMoveAllAndSearch");
+
+            input.EnableOnlyControllerMapCategory("CategoryTutorialSearchOnly");
             
             // トリガー接触中 かつ Searchボタン押下を待つ
             await Observable.EveryUpdate()
@@ -212,26 +254,61 @@ namespace Selects.Views
             var input = _ctx.Input;
             var vm = _ctx.ViewModel;
             var lvl = _ctx.LevelObjects;
+            var lightRingParticleSys1 = lvl.lightRingParticleSys1;
+            var batteryItem = lvl.batteryItem;
+            var player = ReInput.players.GetPlayer(0);
+
+            await Observable.EveryUpdate()
+                .Select(_ => vm.PlayerTransform)
+                .Where(player => player != null)
+                .FirstAsync(token);
+
             var playerTransform = vm.PlayerTransform;
+            var playerHead = vm.PlayerHead;
+            var playerView = playerTransform.GetComponent<PlayerView>();
+            var playerCharacterController = vm.PlayerCharacterController;
 
             InitializeStep();
 
+            await Observable.EveryUpdate()
+                .Select(_ => vm.CommonHeaderPanelRectTrans)
+                .Where(trans => trans != null)
+                .FirstAsync(token);
+
+            var headerPanel = vm.CommonHeaderPanelRectTrans;
+            headerPanel.gameObject.SetActive(false);
+
+            var isCompletedStartDirection = vm.IsCompletedStartDirection.CurrentValue;
+            //await Observable.EveryUpdate()
+            //    .Where(_ => vm.IsCompletedStartDirection.CurrentValue)
+            //    .FirstAsync(token);
+
+            // TODO: 移動演出が悩ましい
+            // 1. プレイヤー移動（Tween）
+            // 2. フェードイン->プレイヤー移動（瞬間移動）->フェードアウト
+            // 3. プレイヤー移動（瞬間移動）
+            var fadeImageView = _ctx.UIObjects.fadeImageView;
             var sp = lvl.moveCompletePoint;
             if (sp != null)
             {
-                await _ctx.SideEffect.TeleportPlayerAsync(sp.position, sp.eulerAngles, token);
+                await _ctx.SideEffect.TeleportPlayerAsync(sp.position, sp.eulerAngles, isCompletedStartDirection, playerCharacterController, player, playerTransform, playerHead, playerView, fadeImageView, token);
             }
 
             // --- 視点移動 ---
             ui.ApplyMessage("MSG0006");
+
             await ui.FadeInAsync(0.5f, token);
+
             input.EnableOnlyControllerMapCategory("CategoryTutorialAimMoveOnly");
+            lightRingParticleSys1.SetActive(true);
+            batteryItem.SetActive(true);
 
             float lookTimer = 0f;
+
             await Observable.EveryUpdate()
                 .Where(_ =>
                 {
-                    if (IsLookingAt(lvl.batteryItem))
+                    if (vm.BatteryHitPlayerAim.CurrentValue)
                         lookTimer += Time.deltaTime;
                     else
                         lookTimer = 0f;
@@ -243,11 +320,10 @@ namespace Selects.Views
 
             // --- 電池の取得 ---
             ui.ApplyMessage("MSG0007");
-            await ui.FadeInAsync(0.5f, token);
-            input.EnableOnlyControllerMapCategory("CategoryTutorialMoveAllAndSearchAndAimMove");
 
-            if (lvl.lightRingParticleSys1 != null) lvl.lightRingParticleSys1.SetActive(true);
-            if (lvl.batteryItem != null) lvl.batteryItem.SetActive(true);
+            await ui.FadeInAsync(0.5f, token);
+
+            input.EnableOnlyControllerMapCategory("CategoryTutorialMoveAllAndSearchAndAimMove");
 
             await vm.BatteryTriggerStay
                 .Where(x => x)
@@ -257,8 +333,10 @@ namespace Selects.Views
 
             // --- 電池 取得ボタン押下 ---
             ui.ApplyMessage("MSG0008");
+
             await ui.FadeInAsync(0.5f, token);
-            input.EnableOnlyControllerMapCategory("CategoryTutorialMoveAllAndSearchAndAimMove");
+
+            input.EnableOnlyControllerMapCategory("CategoryTutorialSearchOnly");
 
             await Observable.EveryUpdate()
                 .Where(_ => vm.BatteryTriggerStay.CurrentValue)
@@ -267,14 +345,21 @@ namespace Selects.Views
 
             await FadeOutAndResetAsync(token);
 
-            if (lvl.batteryItem != null) lvl.batteryItem.SetActive(false);
-            if (lvl.lightRingParticleSys1 != null) lvl.lightRingParticleSys1.SetActive(false);
+            batteryItem.SetActive(false);
+            lightRingParticleSys1.SetActive(false);
             
             if (lvl.aimMoveCompletePoint != null)
             {
                 await _ctx.SideEffect.TeleportPlayerAsync(
                     lvl.aimMoveCompletePoint.position,
                     lvl.aimMoveCompletePoint.eulerAngles,
+                    isCompletedStartDirection,
+                    playerCharacterController,
+                    player,
+                    playerTransform,
+                    playerHead,
+                    playerView,
+                    fadeImageView,
                     token
                 );
             }
@@ -294,31 +379,65 @@ namespace Selects.Views
             var side = _ctx.SideEffect;
             var vm = _ctx.ViewModel;
             var lvl = _ctx.LevelObjects;
+            var tables = _ctx.Tables;
+            var player = ReInput.players.GetPlayer(0);
+
+            await Observable.EveryUpdate()
+                .Select(_ => vm.PlayerTransform)
+                .Where(player => player != null)
+                .FirstAsync(token);
+
             var playerTransform = vm.PlayerTransform;
+            var playerHead = vm.PlayerHead;
+            var playerCharacterController = vm.PlayerCharacterController;
+            var playerView = playerTransform.GetComponent<PlayerView>();
 
             InitializeStep();
 
+            await Observable.EveryUpdate()
+                .Select(_ => vm.CommonHeaderPanelRectTrans)
+                .Where(trans => trans != null)
+                .FirstAsync(token);
+
+            var headerPanel = vm.CommonHeaderPanelRectTrans;
+            headerPanel.gameObject.SetActive(false);
+
+            var isCompletedStartDirection = vm.IsCompletedStartDirection.CurrentValue;
+            //await vm.IsCompletedStartDirection.Where(x => x)
+            //    .FirstAsync(token);
+
+            var fadeImageView = _ctx.UIObjects.fadeImageView;
             if (lvl.aimMoveCompletePoint != null)
             {
-                await _ctx.SideEffect.TeleportPlayerAsync(
+                await side.TeleportPlayerAsync(
                     lvl.aimMoveCompletePoint.position,
                     lvl.aimMoveCompletePoint.eulerAngles,
+                    isCompletedStartDirection,
+                    playerCharacterController,
+                    player,
+                    playerTransform,
+                    playerHead,
+                    playerView,
+                    fadeImageView,
                     token
                 );
             }
 
             // --- ステップ_0（視点操作にてオバケを探す） ---
             ui.ApplyMessage("MSG0006");
+
             await ui.FadeInAsync(0.5f, token);
+
             input.EnableOnlyControllerMapCategory("CategoryTutorialAimMoveOnly");
-            if (lvl.missGhostEscapeNormal != null) lvl.missGhostEscapeNormal.SetActive(true);
+            side.PlayGhostLaughV2Normal();
+            var missGhostEscapeNormal = lvl.missGhostEscapeNormal;
+            missGhostEscapeNormal.SetActive(true);
 
             float lookTimer = 0f;
             await Observable.EveryUpdate()
                 .Where(_ =>
                 {
-                    if (lvl.missGhostEscapeNormal == null) return true;
-                    if (IsLookingAt(lvl.missGhostEscapeNormal))
+                    if (vm.MissGhostEscapeNormalHitPlayerAim.CurrentValue)
                         lookTimer += Time.deltaTime;
                     else
                         lookTimer = 0f;
@@ -326,38 +445,53 @@ namespace Selects.Views
                 })
                 .FirstAsync(token);
 
-            await UniTask.Delay(1000, cancellationToken: token); // オバケ移動アニメの完了待機（簡易代用）
+            input.EnableOnlyControllerMapCategory(null);
+
+            var missGhostEscapeNormalAnimator = lvl.missGhostEscapeNormalAnimator;
+            var missGhostEscapeView = lvl.missGhostEscapeView;
+
+            await side.EnabledAnimator(missGhostEscapeNormalAnimator, missGhostEscapeView)
+                .FirstAsync(token);
+
+            side.PlayGhostLaughV2Normal();
+            //await UniTask.Delay(1000, cancellationToken: token); // オバケ移動アニメの完了待機（簡易代用）
 
             await FadeOutAndResetAsync(token);
-            if (lvl.missGhostEscapeNormal != null) lvl.missGhostEscapeNormal.SetActive(false);
+
+            missGhostEscapeNormal.SetActive(false);
 
             // --- ステップ_1（オバケを追いかける） ---
             ui.ApplyMessage("MSG0009");
-            await ui.FadeInAsync(0.5f, token);
-            input.EnableOnlyControllerMapCategory("CategoryTutorialMoveAllAndSearchAndAimMove");
 
-            if (lvl.lightRingParticleSys2 != null) lvl.lightRingParticleSys2.SetActive(true);
+            await ui.FadeInAsync(0.5f, token);
+
+            input.EnableOnlyControllerMapCategory("CategoryTutorialMoveAllAndSearchAndAimMove");
+            var lightRingParticleSys2 = lvl.lightRingParticleSys2;
+            lightRingParticleSys2.SetActive(true);
 
             await vm.LightRing2TriggerStay
                 .Where(x => x)
                 .FirstAsync(token);
 
-            if (lvl.lightRingParticleSys2 != null) lvl.lightRingParticleSys2.SetActive(false);
+            lightRingParticleSys2.SetActive(false);
+
             await FadeOutAndResetAsync(token);
 
             // --- ステップ_2（視点操作にてオバケが隠れた家具を探す） ---
             ui.ApplyMessage("MSG0006");
-            await ui.FadeInAsync(0.5f, token);
-            input.EnableOnlyControllerMapCategory("CategoryTutorialAimMoveOnly");
 
-            if (lvl.vaseAndDeskGroup != null) lvl.vaseAndDeskGroup.SetActive(true);
+            await ui.FadeInAsync(0.5f, token);
+
+            input.EnableOnlyControllerMapCategory("CategoryTutorialAimMoveOnly");
+            var vaseAndDeskGroup = lvl.vaseAndDeskGroup;
+            vaseAndDeskGroup.SetActive(true);
 
             lookTimer = 0f;
+
             await Observable.EveryUpdate()
                 .Where(_ =>
                 {
-                    if (lvl.vaseAndDeskGroup == null) return true;
-                    if (IsLookingAt(lvl.vaseAndDeskGroup))
+                    if (vm.VaseAndDeskGroupHitPlayerAim.CurrentValue)
                         lookTimer += Time.deltaTime;
                     else
                         lookTimer = 0f;
@@ -369,34 +503,48 @@ namespace Selects.Views
 
             // --- ステップ_3（シャウトチャンスパート切り替え） ---
             ui.ApplyMessage("MSG0010");
+
             await ui.FadeInAsync(0.5f, token);
+
             input.EnableOnlyControllerMapCategory("CategoryTutorialSwitchPartOnly");
 
             await Observable.EveryUpdate()
                 .Where(_ => input.SwitchPartButtonDown)
                 .FirstAsync(token);
 
+            await Observable.EveryUpdate()
+                .Where(_ => vm.InteractionPart.CurrentValue.Equals(InteractionPart.ShoutChance))
+                .FirstAsync(token);
+
             await FadeOutAndResetAsync(token);
 
             // --- ステップ_4（シャウト練習） ---
             ui.ApplyMessage("MSG0011");
+            playerView.SwitchRayLengthType(1);
+
             await ui.FadeInAsync(0.5f, token);
+
             side.SetMicrophoneActive(true);
+            var dbLevelMax = tables.playerShoutChanceTable.シャウト達成デシベル;
 
             await vm.DbLevelReactive
-                .Where(db => db > 0.5f)
+                .Where(db => dbLevelMax <= db)
                 .FirstAsync(token);
 
             await FadeOutAndResetAsync(token);
 
             // --- ステップ_5（シャウト本番） ---
             ui.ApplyMessage("MSG0012");
+            playerView.SwitchRayLengthType(2);
+
             await ui.FadeInAsync(0.5f, token);
+
             input.EnableOnlyControllerMapCategory("CategoryTutorialForwardOnly");
             side.SetMicrophoneActive(true);
 
-            await vm.DbLevelReactive
-                .Where(db => db > 0.5f)
+            await Observable.EveryUpdate()
+                .Select(_ => vm)
+                .Where(vm => vm.InteractionPart.CurrentValue.Equals(InteractionPart.Rhythm))
                 .FirstAsync(token);
 
             await FadeOutAndResetAsync(token);
@@ -605,18 +753,37 @@ namespace Selects.Views
             var input = _ctx.Input;
             var vm = _ctx.ViewModel;
             var lvl = _ctx.LevelObjects;
+            var player = ReInput.players.GetPlayer(0);
+
+            await Observable.EveryUpdate()
+                .Select(_ => vm.PlayerTransform)
+                .Where(player => player != null)
+                .FirstAsync(token);
+
+            var playerTransform = vm.PlayerTransform;
+            var playerHead = vm.PlayerHead;
+            var playerCharacterController = vm.PlayerCharacterController;
+            var playerView = playerTransform.GetComponent<PlayerView>();
 
             InitializeStep();
 
+            var isCompletedStartDirection = vm.IsCompletedStartDirection.CurrentValue;
             // --- ステップ_0（逃げるオバケのカット） ---
             var footerPanel = vm.CommonFooterPanelRectTrans;
             if (footerPanel != null) footerPanel.gameObject.SetActive(false);
-
+            var fadeImageView = _ctx.UIObjects.fadeImageView;
             if (lvl.aimMoveCompletePoint != null)
             {
                 await _ctx.SideEffect.TeleportPlayerAsync(
                     lvl.aimMoveCompletePoint.position,
                     lvl.aimMoveCompletePoint.eulerAngles,
+                    isCompletedStartDirection,
+                    playerCharacterController,
+                    player,
+                    playerTransform,
+                    playerHead,
+                    playerView,
+                    fadeImageView,
                     token
                 );
             }
