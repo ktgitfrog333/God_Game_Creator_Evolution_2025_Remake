@@ -147,7 +147,52 @@ namespace Mains.External
         /// <summary>BGMの更新</summary>
         System.IDisposable _currentSourceStatusDisposable;
         private ObjectPoolerXyloOther _objectPoolerXyloOther;
-        public Dictionary<string, Queue<GameObject>> PoolDictionary => _objectPoolerXyloOther.poolDictionary;
+        public Dictionary<string, Queue<GameObject>> PoolDictionary
+        {
+            get
+            {
+                var poolOther = _objectPoolerXyloOther;
+                if (poolOther == null)
+                {
+                    poolOther = GameObject.FindAnyObjectByType<ObjectPoolerXyloOther>();
+                    if (poolOther == null)
+                        return null;
+
+                    _objectPoolerXyloOther = poolOther;
+                }
+
+                return poolOther.poolDictionary;
+            }
+        }
+        private MissGhostAttack _missGhostAttack;
+        private ReactiveCommand<bool> _isHitPlayer = new ReactiveCommand<bool>();
+        public ReactiveCommand<bool> IsHitPlayer => _isHitPlayer;
+        public void SetMissGhostAttack(Transform transform)
+        {
+            _missGhostAttack = transform.GetComponent<MissGhostAttack>();
+            Observable.EveryUpdate()
+                .Select(_ => _missGhostAttack.IsHitPlayer)
+                .DistinctUntilChanged()
+                .Subscribe(isHit =>
+                {
+                    _isHitPlayer.Execute(isHit);
+                })
+                .AddTo(ref _disposableBag);
+        }
+        public void SetIsNoHitPlayerForceMode(bool isNoHitPlayerForceMode)
+        {
+            if (_missGhostAttack == null)
+            {
+                Debug.LogWarning($"MissGhostAttackが未取得");
+                return;
+            }
+
+            _missGhostAttack.IsNoHitPlayerForceMode = isNoHitPlayerForceMode;
+        }
+        public void ForceReturnToPool()
+        {
+            _missGhostAttack.ForceReturnToPool();
+        }
         public bool IsReturningToPool
         {
             get
@@ -626,6 +671,17 @@ namespace Mains.External
             }
         }
 
+        public void SetFloorType(int floorType)
+        {
+            if (_test_FootStep == null)
+            {
+                Debug.LogWarning("Test_FootStep インスタンスが見つかりません。");
+                return;
+            }
+
+            _test_FootStep.SetFloorType(floorType);
+        }
+
         public void PlayMove5()
         {
             var sePicker = SE_Picker.Instance;
@@ -640,6 +696,54 @@ namespace Mains.External
             }
             var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
             sePicker.PlayMove5(seVolumeIndex);
+        }
+
+        public void PlayBUB_Move1()
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            var manager = Selects.Manager.GameManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
+            sePicker.PlayBUB_Move1(seVolumeIndex);
+        }
+
+        public void PlayBUB_Move2()
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            var manager = Selects.Manager.GameManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
+            sePicker.PlayBUB_Move2(seVolumeIndex);
+        }
+
+        public void PlayBUB_Move3()
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            var manager = Selects.Manager.GameManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
+            sePicker.PlayBUB_Move3(seVolumeIndex);
         }
 
         public void PlaySubmit2()
@@ -658,6 +762,54 @@ namespace Mains.External
             sePicker.PlaySubmit2(seVolumeIndex);
         }
 
+        public void PlayBUB_Submit1()
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            var manager = Selects.Manager.GameManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
+            sePicker.PlayBUB_Submit1(seVolumeIndex);
+        }
+
+        public void PlayBUB_Submit2()
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            var manager = Selects.Manager.GameManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
+            sePicker.PlayBUB_Submit2(seVolumeIndex);
+        }
+
+        public void PlayBUB_Submit3()
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            var manager = Selects.Manager.GameManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
+            sePicker.PlayBUB_Submit3(seVolumeIndex);
+        }
+
         public void PlayCancel4()
         {
             var sePicker = SE_Picker.Instance;
@@ -674,6 +826,54 @@ namespace Mains.External
             sePicker.PlayCancel4(seVolumeIndex);
         }
 
+        public void PlayBUB_Cancel1()
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            var manager = Selects.Manager.GameManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
+            sePicker.PlayBUB_Cancel1(seVolumeIndex);
+        }
+
+        public void PlayBUB_Cancel2()
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            var manager = Selects.Manager.GameManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
+            sePicker.PlayBUB_Cancel2(seVolumeIndex);
+        }
+
+        public void PlayBUB_Cancel3()
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            var manager = Selects.Manager.GameManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+            var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
+            sePicker.PlayBUB_Cancel3(seVolumeIndex);
+        }
+
         public void PlayHeartbeatFast()
         {
             var sePicker = SE_Picker.Instance;
@@ -687,7 +887,7 @@ namespace Mains.External
                 return;
             }
             var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
-            sePicker.PlayHeartbeatFast(seVolumeIndex);
+            sePicker.PlayBUB_HeartbeatFast(seVolumeIndex);
         }
 
         public void PlayHeartbeatSlow()
@@ -703,10 +903,10 @@ namespace Mains.External
                 return;
             }
             var seVolumeIndex = manager.AudioOwner.GetSeVolumeIndex();
-            sePicker.PlayHeartbeatSlow(seVolumeIndex);
+            sePicker.PlayBUB_HeartbeatSlow(seVolumeIndex);
         }
 
-        public void PlayHitSuccess3()
+        public void PlayHitSuccess3(int notesType)
         {
             var sePicker = SE_Picker.Instance;
             if (sePicker == null)
@@ -729,7 +929,17 @@ namespace Mains.External
                     seVolumeIndex = selectsManager.AudioOwner.GetSeVolumeIndex();
                 }
             }
-            sePicker.PlayHitSuccess3(seVolumeIndex);
+            switch (notesType)
+            {
+                case 1:
+                    sePicker.PlayBUB_HitSuccess_Long(seVolumeIndex);
+
+                    break;
+                default:
+                    sePicker.PlayBUB_HitSuccess_Short(seVolumeIndex);
+
+                    break;
+            }
         }
 
         public void PlayHitMiss3()
@@ -755,7 +965,7 @@ namespace Mains.External
                     seVolumeIndex = selectsManager.AudioOwner.GetSeVolumeIndex();
                 }
             }
-            sePicker.PlayHitMiss3(seVolumeIndex);
+            sePicker.PlayBUB_HitMiss4(seVolumeIndex);
         }
 
         public void PlayBatteryLost1()
@@ -781,7 +991,7 @@ namespace Mains.External
                     seVolumeIndex = selectsManager.AudioOwner.GetSeVolumeIndex();
                 }
             }
-            sePicker.PlayBatteryLost1(seVolumeIndex);
+            sePicker.PlayBUB_BatteryLost(seVolumeIndex);
         }
 
         public void PlayBatteryGet3()
@@ -808,7 +1018,7 @@ namespace Mains.External
                     seVolumeIndex = selectsManager.AudioOwner.GetSeVolumeIndex();
                 }
             }
-            sePicker.PlayBatteryGet3(seVolumeIndex);
+            sePicker.PlayBUB_BatteryGet(seVolumeIndex);
         }
 
         public void PlayDamage1()
@@ -1082,6 +1292,17 @@ namespace Mains.External
             _missileTempoSpawner.SetMissilePattern(newPattern);
         }
 
+        public void SetOneShot(bool oneShot)
+        {
+            if (_missileTempoSpawner == null)
+            {
+                Debug.LogWarning("MissileTempoSpawnerがセットされていません。");
+                return;
+            }
+
+            _missileTempoSpawner.SetOneShot(oneShot);
+        }
+
         /// <summary>
         /// マイク入力中か
         /// </summary>
@@ -1135,8 +1356,8 @@ namespace Mains.External
             if (_micInput_Criware == null)
                 return 0f;
 
-            var volumeSlider = _micInput_Criware.volumeSlider;
-            return volumeSlider.value;
+            var volumeSliderValue = _micInput_Criware.volumeSliderValue;
+            return volumeSliderValue;
         }
 
         private ReactiveCommand<float> _volumeLevelReactive = new ReactiveCommand<float>();

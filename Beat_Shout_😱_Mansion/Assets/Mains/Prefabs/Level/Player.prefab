@@ -472,9 +472,10 @@ MonoBehaviour:
     FlashLight: {fileID: 4931786849995882201}
     startDirectionSequencer: {fileID: 11400000, guid: 42e962088eff5af40820dde2e2d011f8, type: 2}
     playerTable: {fileID: 11400000, guid: 9f42c74ddb83f9f46a95fe32ed3fbda6, type: 2}
+    playerCustomizeTable: {fileID: 11400000, guid: 35a33f5c4b9040f49b1f2efaecd282ff, type: 2}
   characterController: {fileID: 8536045231518824716}
   "\u30C8\u30C3\u30D7_\u79FB\u52D5\u901F\u5EA6": 4
-  "\u8996\u70B9\u901F\u5EA6\u88DC\u6B63": 40
+  "\u8996\u70B9\u901F\u5EA6\u88DC\u6B63": 10
   "\u91CD\u529B": 9.81
   "\u30ED\u30FC_\u5207\u308A\u66FF\u3048\u6642\u9593_\u79D2": 0.35
   "\u30ED\u30FC_\u6B69\u5E45": 0.05

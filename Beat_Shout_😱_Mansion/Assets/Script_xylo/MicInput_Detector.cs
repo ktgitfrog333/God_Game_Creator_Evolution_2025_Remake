@@ -42,6 +42,10 @@ public class MicInput_Criware : MonoBehaviour
     [Header("UI参照")]
     public TextMeshProUGUI text; // 音量表示用のTextMeshPro
     public Slider volumeSlider; // 音量ゲージ用のスライダー
+    // [2026/06/16] Amagata issue #57 start
+    private float _volumeSliderValue;
+    public float volumeSliderValue => _volumeSliderValue;
+    // [2026/06/16] Amagata issue #57 end
     public Image sliderFillImage; // スライダーの塗りつぶし部分のImage（色変更用）
 
     [Header("スライダー色設定")]
@@ -71,6 +75,13 @@ public class MicInput_Criware : MonoBehaviour
     private float lastVolumeUpdateTime = 0f; // 前回の音量更新時刻
     private const float VOLUME_UPDATE_INTERVAL = 0.1f; // 音量更新間隔（秒）
 
+    // [2026/06/16] Amagata issue #57 start
+    private float[] _accumulatedBuffer = null;
+    private int _accumulatedSamples = 0;
+    private const float MIC_PROCESS_INTERVAL = 0.02f;
+    private float _micProcessTimer = 0f;
+    // [2026/06/16] Amagata issue #57 end
+
 
     // シングルトン
     public static MicInput_Criware Instance { get; private set; }
@@ -95,6 +106,9 @@ public class MicInput_Criware : MonoBehaviour
             volumeSlider.minValue = 0f; // 最小値
             volumeSlider.maxValue = 2f; // 音量が1を超える可能性を考慮して2に設定
             volumeSlider.value = 0f;
+            // [2026/06/16] Amagata issue #57 start
+            _volumeSliderValue = 0f;
+            // [2026/06/16] Amagata issue #57 end
         }
 
         // スライダーのFillImageを自動取得（設定されていない場合）
@@ -128,20 +142,48 @@ public class MicInput_Criware : MonoBehaviour
         InitializeMicrophone();
     }
 
-    void Update()
+    // [2026/06/16] Amagata issue #57 start
+    //void Update()
+    //{
+    //    // マイクが有効な場合のみ音量をチェック
+    //    if (isMicActive && mic != null)
+    //    {
+    //        CheckVolume();
+    //    }
+
+    //    // BGM音量を更新
+    //    if (enableBgmCancellation)
+    //    {
+    //        UpdateBgmVolume();
+    //    }
+    //}
+    private void Update()
     {
-        // マイクが有効な場合のみ音量をチェック
+        // ① マイクバッファを毎フレーム吸い上げる（溢れ防止）
         if (isMicActive && mic != null)
         {
-            CheckVolume();
+            DrainMicBuffer();
         }
 
-        // BGM音量を更新
+        // ② 一定時間ごとに蓄積データを処理する（FPS非依存）
+        _micProcessTimer += Time.unscaledDeltaTime;
+        if (_micProcessTimer >= MIC_PROCESS_INTERVAL)
+        {
+            _micProcessTimer -= MIC_PROCESS_INTERVAL;
+
+            if (isMicActive && _accumulatedSamples > 0)
+            {
+                ProcessAccumulatedSamples();
+            }
+        }
+
+        // BGM 音量を更新
         if (enableBgmCancellation)
         {
             UpdateBgmVolume();
         }
     }
+    // [2026/06/16] Amagata issue #57 end
 
     /// <summary>
     /// マイク入力の有効/無効を切り替えるメソッド
@@ -182,8 +224,15 @@ public class MicInput_Criware : MonoBehaviour
             // UI表示をリセット
             if (text != null)
                 text.text = "Vol: 0.00";
+            // [2026/06/16] Amagata issue #57 start
+            //if (volumeSlider != null)
+            //    volumeSlider.value = 0f;
             if (volumeSlider != null)
+            {
                 volumeSlider.value = 0f;
+                _volumeSliderValue = 0f;
+            }
+            // [2026/06/16] Amagata issue #57 end
 
             // スライダーの色をリセット（レベル1の色に）
             if (sliderFillImage != null)
@@ -246,106 +295,226 @@ public class MicInput_Criware : MonoBehaviour
         Debug.Log("CRIWAREのマイク入力を開始しました！");
     }
 
+    // [2026/06/16] Amagata issue #57 start
+    ///// <summary>
+    ///// マイク入力の音量をチェックするメソッド
+    ///// </summary>
+    ///// <summary>
+    ///// マイク入力の音量をチェックするメソッド
+    ///// </summary>
+    ///// <summary>
+    ///// マイク入力の音量をチェックするメソッド
+    ///// </summary>
+    //void CheckVolume()
+    //{
+    //    if (mic == null) return;
+
+    //    float[] micBuffer = new float[sampleSize];
+    //    uint samplesRead = mic.ReadData(micBuffer, (uint)sampleSize);
+
+    //    if (samplesRead > 0)
+    //    {
+    //        float instantVolume = CalculateRMS(micBuffer, (int)samplesRead);
+
+    //        // マイク感度を適用
+    //        instantVolume *= microphoneSensitivity;
+
+    //        // BGM除去処理
+    //        if (enableBgmCancellation)
+    //        {
+    //            instantVolume = ApplyBgmCancellation(instantVolume);
+    //        }
+
+    //        // 音量履歴を更新（スライダー表示用）
+    //        UpdateVolumeHistory(instantVolume);
+
+    //        // 変化検知用履歴を更新
+    //        UpdateChangeDetectionHistory(instantVolume);
+
+    //        // 平均音量を計算
+    //        float averagedVolume = GetAveragedVolume();
+
+    //        // 音量をスライダーとテキストに反映（平均化された値を使用）
+    //        if (text != null)
+    //            text.text = $"Vol: {averagedVolume:F2} (BGM: {currentBgmVolume:F2})";
+
+    //        // スライダーの値を設定（volumeThresholdsの1段階目に達しない場合は0にする）
+    //        if (volumeSlider != null)
+    //        {
+    //            // 音量レベルを評価
+    //            int volumeLevel = GetVolumeDisplayLevel(averagedVolume);
+
+    //            if (volumeLevel == 0)
+    //            {
+    //                // レベル0（1段階目に達しない）の場合はスライダーを0にする
+    //                volumeSlider.value = 0f;
+    //                // [2026/06/16] Amagata issue #57 start
+    //                _volumeSliderValue = 0f;
+    //                // [2026/06/16] Amagata issue #57 end
+    //            }
+    //            else
+    //            {
+    //                // 1段階目以上の場合、volumeThresholds[0]を基準とした相対値を表示
+    //                float baseThreshold = (volumeThresholds != null && volumeThresholds.Length > 0)
+    //                                      ? volumeThresholds[0]
+    //                                      : 1.0f;
+    //                float sliderValue = averagedVolume - baseThreshold;
+    //                volumeSlider.value = Mathf.Max(0f, sliderValue); // 負の値にならないように制限
+    //                // [2026/06/16] Amagata issue #57 start
+    //                _volumeSliderValue = Mathf.Max(0f, sliderValue);
+    //                // [2026/06/16] Amagata issue #57 end
+    //            }
+    //        }
+
+    //        // スライダーの色を音量レベルに応じて変更
+    //        UpdateSliderColor(averagedVolume);
+
+    //        // 大声検知の判定は音量変化量を使用
+    //        float volumeChange = GetVolumeChange();
+    //        if (volumeChange > volumeChangeThreshold)
+    //        {
+    //            if (!isMeasuring)
+    //            {
+    //                isMeasuring = true;
+    //                volumeAccumulation = 0f;
+    //                volumeAccumulationStartTime = Time.time;
+    //                Debug.Log($"音量変化を検出: {volumeChange:F3} (閾値: {volumeChangeThreshold:F3})");
+    //            }
+
+    //            volumeAccumulation += instantVolume;
+
+    //            if (Time.time - volumeAccumulationStartTime >= requiredDuration)
+    //            {
+    //                float averageVolume = volumeAccumulation / (Time.time - volumeAccumulationStartTime);
+    //                int volumeLevel = EvaluateVolumeLevel(averageVolume);
+    //                Debug.Log($"大声検知完了: 平均音量 {averageVolume:F3}, レベル {volumeLevel}");
+
+    //                isMeasuring = false;
+    //            }
+    //        }
+    //        else
+    //        {
+    //            if (isMeasuring)
+    //            {
+    //                // 音量変化が閾値を下回った場合、測定をリセット
+    //                isMeasuring = false;
+    //            }
+    //        }
+    //    }
+    //}
     /// <summary>
-    /// マイク入力の音量をチェックするメソッド
+    /// CRI マイクのリングバッファを毎フレーム全量読み出し、内部バッファへ蓄積する。
+    /// FPS に関わらず呼び出すことでバッファ溢れを防ぐ。
     /// </summary>
-    /// <summary>
-    /// マイク入力の音量をチェックするメソッド
-    /// </summary>
-    /// <summary>
-    /// マイク入力の音量をチェックするメソッド
-    /// </summary>
-    void CheckVolume()
+    private void DrainMicBuffer()
     {
         if (mic == null) return;
 
-        float[] micBuffer = new float[sampleSize];
-        uint samplesRead = mic.ReadData(micBuffer, (uint)sampleSize);
+        // 蓄積バッファが未確保なら初期化（sampleSize の4倍を上限として確保）
+        if (_accumulatedBuffer == null)
+            _accumulatedBuffer = new float[sampleSize * 4];
 
-        if (samplesRead > 0)
+        float[] readBuf = new float[sampleSize];
+
+        // CRI は ReadData を複数回呼ぶことで全データを取り出せる
+        uint samplesRead;
+        while ((samplesRead = mic.ReadData(readBuf, (uint)sampleSize)) > 0)
         {
-            float instantVolume = CalculateRMS(micBuffer, (int)samplesRead);
+            int toWrite = (int)samplesRead;
 
-            // マイク感度を適用
-            instantVolume *= microphoneSensitivity;
-
-            // BGM除去処理
-            if (enableBgmCancellation)
+            // 蓄積バッファが満杯なら古いデータを捨てて最新を優先
+            if (_accumulatedSamples + toWrite > _accumulatedBuffer.Length)
             {
-                instantVolume = ApplyBgmCancellation(instantVolume);
+                // 古いデータを先頭に詰める（単純シフト）
+                int keep = _accumulatedBuffer.Length - toWrite;
+                if (keep > 0)
+                    System.Array.Copy(_accumulatedBuffer, _accumulatedSamples - keep,
+                                      _accumulatedBuffer, 0, keep);
+                _accumulatedSamples = Mathf.Max(0, keep);
             }
 
-            // 音量履歴を更新（スライダー表示用）
-            UpdateVolumeHistory(instantVolume);
+            System.Array.Copy(readBuf, 0, _accumulatedBuffer, _accumulatedSamples, toWrite);
+            _accumulatedSamples += toWrite;
+        }
+    }
 
-            // 変化検知用履歴を更新
-            UpdateChangeDetectionHistory(instantVolume);
+    /// <summary>
+    /// 蓄積されたサンプルを RMS 計算し、音量履歴・スライダー・UI に反映する。
+    /// MIC_PROCESS_INTERVAL ごとに呼ばれるため FPS 非依存。
+    /// </summary>
+    private void ProcessAccumulatedSamples()
+    {
+        // RMS 計算
+        float instantVolume = CalculateRMS(_accumulatedBuffer, _accumulatedSamples);
+        _accumulatedSamples = 0; // 消費済みとしてリセット
 
-            // 平均音量を計算
-            float averagedVolume = GetAveragedVolume();
+        // マイク感度・BGM キャンセル適用
+        instantVolume *= microphoneSensitivity;
+        if (enableBgmCancellation)
+            instantVolume = ApplyBgmCancellation(instantVolume);
 
-            // 音量をスライダーとテキストに反映（平均化された値を使用）
-            if (text != null)
-                text.text = $"Vol: {averagedVolume:F2} (BGM: {currentBgmVolume:F2})";
+        // 音量履歴を更新
+        UpdateVolumeHistory(instantVolume);
+        UpdateChangeDetectionHistory(instantVolume);
 
-            // スライダーの値を設定（volumeThresholdsの1段階目に達しない場合は0にする）
-            if (volumeSlider != null)
+        // 平均音量を取得
+        float averagedVolume = GetAveragedVolume();
+
+        // テキスト表示
+        if (text != null)
+            text.text = $"Vol: {averagedVolume:F2} (BGM: {currentBgmVolume:F2})";
+
+        // スライダー更新
+        if (volumeSlider != null)
+        {
+            int volumeLevel = GetVolumeDisplayLevel(averagedVolume);
+
+            if (volumeLevel == 0)
             {
-                // 音量レベルを評価
-                int volumeLevel = GetVolumeDisplayLevel(averagedVolume);
-
-                if (volumeLevel == 0)
-                {
-                    // レベル0（1段階目に達しない）の場合はスライダーを0にする
-                    volumeSlider.value = 0f;
-                }
-                else
-                {
-                    // 1段階目以上の場合、volumeThresholds[0]を基準とした相対値を表示
-                    float baseThreshold = (volumeThresholds != null && volumeThresholds.Length > 0)
-                                          ? volumeThresholds[0]
-                                          : 1.0f;
-                    float sliderValue = averagedVolume - baseThreshold;
-                    volumeSlider.value = Mathf.Max(0f, sliderValue); // 負の値にならないように制限
-                }
-            }
-
-            // スライダーの色を音量レベルに応じて変更
-            UpdateSliderColor(averagedVolume);
-
-            // 大声検知の判定は音量変化量を使用
-            float volumeChange = GetVolumeChange();
-            if (volumeChange > volumeChangeThreshold)
-            {
-                if (!isMeasuring)
-                {
-                    isMeasuring = true;
-                    volumeAccumulation = 0f;
-                    volumeAccumulationStartTime = Time.time;
-                    Debug.Log($"音量変化を検出: {volumeChange:F3} (閾値: {volumeChangeThreshold:F3})");
-                }
-
-                volumeAccumulation += instantVolume;
-
-                if (Time.time - volumeAccumulationStartTime >= requiredDuration)
-                {
-                    float averageVolume = volumeAccumulation / (Time.time - volumeAccumulationStartTime);
-                    int volumeLevel = EvaluateVolumeLevel(averageVolume);
-                    Debug.Log($"大声検知完了: 平均音量 {averageVolume:F3}, レベル {volumeLevel}");
-
-                    isMeasuring = false;
-                }
+                volumeSlider.value = 0f;
+                _volumeSliderValue = 0f;
             }
             else
             {
-                if (isMeasuring)
-                {
-                    // 音量変化が閾値を下回った場合、測定をリセット
-                    isMeasuring = false;
-                }
+                float baseThreshold = (volumeThresholds != null && volumeThresholds.Length > 0)
+                                      ? volumeThresholds[0]
+                                      : 1.0f;
+                float sliderValue = Mathf.Max(0f, averagedVolume - baseThreshold);
+                volumeSlider.value = sliderValue;
+                _volumeSliderValue = sliderValue;
             }
         }
+
+        UpdateSliderColor(averagedVolume);
+
+        // 上下変動検知
+        float volumeChange = GetVolumeChange();
+        if (volumeChange > volumeChangeThreshold)
+        {
+            if (!isMeasuring)
+            {
+                isMeasuring = true;
+                volumeAccumulation = 0f;
+                volumeAccumulationStartTime = Time.time;
+                Debug.Log($"音量変動検出: {volumeChange:F3} (閾値: {volumeChangeThreshold:F3})");
+            }
+
+            volumeAccumulation += instantVolume;
+
+            if (Time.time - volumeAccumulationStartTime >= requiredDuration)
+            {
+                float averageVolume = volumeAccumulation / (Time.time - volumeAccumulationStartTime);
+                int volumeLevel = EvaluateVolumeLevel(averageVolume);
+                Debug.Log($"上下認識完了: 平均音量 {averageVolume:F3}, レベル {volumeLevel}");
+                isMeasuring = false;
+            }
+        }
+        else
+        {
+            if (isMeasuring) isMeasuring = false;
+        }
     }
+    // [2026/06/16] Amagata issue #57 end
 
     /// <summary>
     /// 音量履歴を更新するメソッド

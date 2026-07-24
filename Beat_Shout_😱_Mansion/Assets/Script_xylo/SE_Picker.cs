@@ -80,6 +80,41 @@ public class SE_Picker : MonoBehaviour
     private string GhostLaughV2Fat;
     private string GhostLaughV2Chatter;
     // [2026/05/08] Amagata Support for Obake FBX variations and Obake voice variations end
+    // [2026/06/07] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" start
+    private string BUB_Submit1;
+    private string BUB_Submit2;
+    private string BUB_Submit3;
+    private string BUB_Cancel1;
+    private string BUB_Cancel2;
+    private string BUB_Cancel3;
+    private string BUB_Move1;
+    private string BUB_Move2;
+    private string BUB_Move3;
+    // [2026/06/07] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" end
+    // [2026/06/14] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" start
+    private string BUB_DoorOpen;
+    private string BUB_garakuta;
+    private string BUB_Shouchitsu_Chakushin;
+    private string BUB_Shouchitsu_Chakushin2;
+    private string BUB_Shouchitsu_Chakushin3;
+    private string BUB_Shouchitsu_Chakushin4;
+    // [2026/06/14] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" end
+    // [2026/07/03] Amagata Support for Implementing Custom Sound Effects start
+    private string BUB_footstep;
+    private string BUB_footstep_wood;
+    private string BUB_HeartbeatSlow;
+    private string BUB_HitMiss4;
+    private string BUB_HitSuccess_Long;
+    private string BUB_HitSuccess_Short;
+    private string BUB_HeartbeatFast;
+    // [2026/07/03] Amagata Support for Implementing Custom Sound Effects end
+    // [2026/07/19] Amagata Support for Implementing Custom Sound Effects start
+    private string BUB_BatteryGet;
+    private string BUB_BatteryGet2;
+    private string BUB_BatteryGet3;
+    private string BUB_BatteryLost;
+    private string BUB_BatteryLost2;
+    // [2026/07/19] Amagata Support for Implementing Custom Sound Effects end
 
 
     private void OnEnable()
@@ -171,6 +206,41 @@ Move4 = "Move4";
         GhostLaughV2Fat = "GhostLaughV2Fat";
         GhostLaughV2Chatter = "GhostLaughV2Chatter";
         // [2026/05/08] Amagata Support for Obake FBX variations and Obake voice variations end
+        // [2026/06/07] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" start
+        BUB_Submit1 = "BUB_Submit1";
+        BUB_Submit2 = "BUB_Submit2";
+        BUB_Submit3 = "BUB_Submit3";
+        BUB_Cancel1 = "BUB_Cancel1";
+        BUB_Cancel2 = "BUB_Cancel2";
+        BUB_Cancel3 = "BUB_Cancel3";
+        BUB_Move1 = "BUB_Move1";
+        BUB_Move2 = "BUB_Move2";
+        BUB_Move3 = "BUB_Move3";
+        // [2026/06/07] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" end
+        // [2026/06/14] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" start
+        BUB_DoorOpen = "BUB_DoorOpen";
+        BUB_garakuta = "BUB_garakuta";
+        BUB_Shouchitsu_Chakushin = "BUB_Shouchitsu_Chakushin";
+        BUB_Shouchitsu_Chakushin2 = "BUB_Shouchitsu_Chakushin2";
+        BUB_Shouchitsu_Chakushin3 = "BUB_Shouchitsu_Chakushin3";
+        BUB_Shouchitsu_Chakushin4 = "BUB_Shouchitsu_Chakushin4";
+        // [2026/06/14] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" end
+        // [2026/07/03] Amagata Support for Implementing Custom Sound Effects start
+        BUB_footstep = "BUB_footstep";
+        BUB_footstep_wood = "BUB_footstep_wood";
+        BUB_HeartbeatSlow = "BUB_HeartbeatSlow";
+        BUB_HitMiss4 = "BUB_HitMiss4";
+        BUB_HitSuccess_Long = "BUB_HitSuccess_Long";
+        BUB_HitSuccess_Short = "BUB_HitSuccess_Short";
+        BUB_HeartbeatFast = "BUB_HeartbeatFast";
+        // [2026/07/03] Amagata Support for Implementing Custom Sound Effects end
+        // [2026/07/19] Amagata Support for Implementing Custom Sound Effects start
+        BUB_BatteryGet = "BUB_BatteryGet";
+        BUB_BatteryGet2 = "BUB_BatteryGet2";
+        BUB_BatteryGet3 = "BUB_BatteryGet3";
+        BUB_BatteryLost = "BUB_BatteryLost";
+        BUB_BatteryLost2 = "BUB_BatteryLost2";
+        // [2026/07/19] Amagata Support for Implementing Custom Sound Effects end
 
 
         // ï€ë∂Ç≥ÇÍÇƒÇ¢ÇÈSEâπó Çì«Ç›çûÇﬁ
@@ -479,4 +549,143 @@ Move4 = "Move4";
         PlaySound(GhostLaughV2Chatter, volume);
     }
     // [2026/05/08] Amagata Support for Obake FBX variations and Obake voice variations end
+    // [2026/06/07] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" start
+    public void PlayBUB_Submit1(float volume)
+    {
+        PlaySound(BUB_Submit1, volume);
+    }
+
+    public void PlayBUB_Submit2(float volume)
+    {
+        PlaySound(BUB_Submit2, volume);
+    }
+
+    public void PlayBUB_Submit3(float volume)
+    {
+        PlaySound(BUB_Submit3, volume);
+    }
+
+    public void PlayBUB_Cancel1(float volume)
+    {
+        PlaySound(BUB_Cancel1, volume);
+    }
+
+    public void PlayBUB_Cancel2(float volume)
+    {
+        PlaySound(BUB_Cancel2, volume);
+    }
+
+    public void PlayBUB_Cancel3(float volume)
+    {
+        PlaySound(BUB_Cancel3, volume);
+    }
+
+    public void PlayBUB_Move1(float volume)
+    {
+        PlaySound(BUB_Move1, volume);
+    }
+
+    public void PlayBUB_Move2(float volume)
+    {
+        PlaySound(BUB_Move2, volume);
+    }
+
+    public void PlayBUB_Move3(float volume)
+    {
+        PlaySound(BUB_Move3, volume);
+    }
+    // [2026/06/07] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" end
+    // [2026/06/14] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" start
+    public void PlayBUB_DoorOpen(float volume)
+    {
+        PlaySound(BUB_DoorOpen, volume);
+    }
+
+    public void PlayBUB_garakuta(float volume)
+    {
+        PlaySound(BUB_garakuta, volume);
+    }
+
+    public void PlayBUB_Shouchitsu_Chakushin(float volume)
+    {
+        PlaySound(BUB_Shouchitsu_Chakushin, volume);
+    }
+
+    public void PlayBUB_Shouchitsu_Chakushin2(float volume)
+    {
+        PlaySound(BUB_Shouchitsu_Chakushin2, volume);
+    }
+
+    public void PlayBUB_Shouchitsu_Chakushin3(float volume)
+    {
+        PlaySound(BUB_Shouchitsu_Chakushin3, volume);
+    }
+
+    public void PlayBUB_Shouchitsu_Chakushin4(float volume)
+    {
+        PlaySound(BUB_Shouchitsu_Chakushin4, volume);
+    }
+    // [2026/06/14] Amagata Created a build file for the stage select screen with three options each for "Confirm," "Cancel," and "Select" end
+    // [2026/07/03] Amagata Support for Implementing Custom Sound Effects start
+    public void PlayBUB_footstep(float volume)
+    {
+        PlaySound(BUB_footstep, volume);
+    }
+
+    public void PlayBUB_footstep_wood(float volume)
+    {
+        PlaySound(BUB_footstep_wood, volume);
+    }
+
+    public void PlayBUB_HeartbeatSlow(float volume)
+    {
+        PlaySound(BUB_HeartbeatSlow, volume);
+    }
+
+    public void PlayBUB_HitMiss4(float volume)
+    {
+        PlaySound(BUB_HitMiss4, volume);
+    }
+
+    public void PlayBUB_HitSuccess_Long(float volume)
+    {
+        PlaySound(BUB_HitSuccess_Long, volume);
+    }
+
+    public void PlayBUB_HitSuccess_Short(float volume)
+    {
+        PlaySound(BUB_HitSuccess_Short, volume);
+    }
+
+    public void PlayBUB_HeartbeatFast(float volume)
+    {
+        PlaySound(BUB_HeartbeatFast, volume);
+    }
+    // [2026/07/03] Amagata Support for Implementing Custom Sound Effects end
+    // [2026/07/19] Amagata Support for Implementing Custom Sound Effects start
+    public void PlayBUB_BatteryGet(float volume)
+    {
+        PlaySound(BUB_BatteryGet, volume);
+    }
+
+    public void PlayBUB_BatteryGet2(float volume)
+    {
+        PlaySound(BUB_BatteryGet2, volume);
+    }
+
+    public void PlayBUB_BatteryGet3(float volume)
+    {
+        PlaySound(BUB_BatteryGet3, volume);
+    }
+
+    public void PlayBUB_BatteryLost(float volume)
+    {
+        PlaySound(BUB_BatteryLost, volume);
+    }
+
+    public void PlayBUB_BatteryLost2(float volume)
+    {
+        PlaySound(BUB_BatteryLost2, volume);
+    }
+    // [2026/07/19] Amagata Support for Implementing Custom Sound Effects end
 }

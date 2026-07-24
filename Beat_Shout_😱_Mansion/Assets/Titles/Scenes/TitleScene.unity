@@ -5571,7 +5571,7 @@ MonoBehaviour:
   ConfirmObi2: {fileID: 1636070494}
   White: {fileID: 696760604}
   fadeDuration: 1
-  gameSceneName: SelectScene
+  gameSceneName: MovieScene
   highlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
   highlightScale: 1.1

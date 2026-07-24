@@ -145,6 +145,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 953840192343252355, guid: 398280f7a6686504e8af169a801c5398, type: 3}
+      propertyPath: strategyId
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 953840192343252355, guid: 398280f7a6686504e8af169a801c5398, type: 3}
       propertyPath: holdingColor.g
       value: 0.7411765
       objectReference: {fileID: 0}
@@ -152,6 +156,14 @@ PrefabInstance:
       propertyPath: holdingColor.r
       value: 0.7411765
       objectReference: {fileID: 0}
+    - target: {fileID: 953840192343252355, guid: 398280f7a6686504e8af169a801c5398, type: 3}
+      propertyPath: aimCircleSprite_1
+      value: 
+      objectReference: {fileID: 21300000, guid: 5005925c148725d4d97cae70be83e7e4, type: 3}
+    - target: {fileID: 953840192343252355, guid: 398280f7a6686504e8af169a801c5398, type: 3}
+      propertyPath: missileUIAnimationLayerCustomizeTable
+      value: 
+      objectReference: {fileID: 11400000, guid: fe297f741c251a443a30062e82c35813, type: 2}
     - target: {fileID: 1947344915237714615, guid: 398280f7a6686504e8af169a801c5398, type: 3}
       propertyPath: m_Name
       value: GhostLong2mic Variant
@@ -241,6 +253,7 @@ MonoBehaviour:
   modelRenderer: {fileID: 7364780292901088989}
   settins:
     homingObjectCustomizeTable: {fileID: 11400000, guid: ca418d9e4a9e5654c91c371c7a4c9ab4, type: 2}
+    notesType: 1
 --- !u!114 &4327258443959204305
 MonoBehaviour:
   m_ObjectHideFlags: 0

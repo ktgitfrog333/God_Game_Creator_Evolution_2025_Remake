@@ -22,7 +22,9 @@ namespace Mains.Views
         {
             _viewModel = new MissileTempoSpawnerCustomizeViewModel();
             _script_XyloApi = new Script_xyloApi();
-            
+            var api = _script_XyloApi;
+            var viewModel = _viewModel;
+
             var spawner = Object.FindAnyObjectByType<MissileTempoSpawner>();
             if (spawner != null)
             {
@@ -75,6 +77,16 @@ namespace Mains.Views
 
                 })
                 .AddTo(ref _disposableBag);
+            // 中ボス戦の場合は、ノーツ生成パターンをワンショットにする
+            bool isOneShot = false;
+            switch (viewModel.EnemyBattlePart)
+            {
+                case Commons.EnemyBattlePart.MidBoss:
+                    isOneShot = true;
+
+                    break;
+            }
+            api.SetOneShot(isOneShot);
         }
 
         private void OnDestroy()

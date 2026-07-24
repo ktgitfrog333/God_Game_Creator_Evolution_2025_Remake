@@ -45,7 +45,7 @@ namespace Mains.Views
                 {
                     if (missGhostAttack.gameObject.activeSelf)
                     {
-                        missGhostAttack.gameObject.SetActive(false);
+                        missGhostAttack.ForceReturnToPool();
                     }
 
                     elapsed = 0f;
