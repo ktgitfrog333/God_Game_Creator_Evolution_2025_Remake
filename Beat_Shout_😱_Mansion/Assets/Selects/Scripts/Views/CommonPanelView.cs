@@ -388,12 +388,20 @@ namespace Selects.Views
                             startLoadCnt.Value++;
                         })
                         .AddTo(ref _disposableBag);
-                    ResourcesUtility utility = new ResourcesUtility();
-                    UserBean userBean = utility.LoadSaveDatasJsonOfUserBean(ConstResorcesNames.USER_DATA);
-                    userBean.sceneIdx = targetStageIndex;
-                    utility.SaveDatasJsonOfUserBean(ConstResorcesNames.USER_DATA, userBean);
+                    // セーフデータの排他制御でロック中の場合は完了を待つ
+                    Observable.EveryUpdate()
+                        .Where(_ => !viewModel.IsLockUserBean.CurrentValue)
+                        .Take(1)
+                        .Subscribe(_ =>
+                        {
+                            ResourcesUtility utility = new ResourcesUtility();
+                            UserBean userBean = utility.LoadSaveDatasJsonOfUserBean(ConstResorcesNames.USER_DATA);
+                            userBean.sceneIdx = targetStageIndex;
+                            utility.SaveDatasJsonOfUserBean(ConstResorcesNames.USER_DATA, userBean);
+                            startLoadCnt.Value++;
+                        })
+                        .AddTo(ref _disposableBag);
                     script_XyloApi.PlayBUB_Submit3();
-                    startLoadCnt.Value++;
 
                     break;
                 case 1:

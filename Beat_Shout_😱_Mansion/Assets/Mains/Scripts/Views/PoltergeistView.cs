@@ -63,6 +63,8 @@ namespace Mains.Views
         private Script_xyloApi _script_XyloApi;
         /// <summary>フェードイメージのビュー</summary>
         private FadeImageView _fadeImageView;
+        /// <summary>フェードイメージのビュー</summary>
+        private Selects.Views.FadeImageView _selectsFadeImageView;
         /// <summary>MissileObjectPoolerのカスタマイズビュー</summary>
         private HomingObjectPoolerCustomizeView _homingObjectPoolerCustomizeView;
         /// <summary>ObjectPoolerXyloOtherのカスタマイズビュー</summary>
@@ -548,6 +550,7 @@ namespace Mains.Views
                 .AddTo(ref _disposableBag);
             _script_XyloApi = new Script_xyloApi();
             _fadeImageView = FindAnyObjectByType<FadeImageView>();
+            _selectsFadeImageView = FindAnyObjectByType<Selects.Views.FadeImageView>();
             _homingObjectPoolerCustomizeView = FindAnyObjectByType<HomingObjectPoolerCustomizeView>();
             _objectPoolerXyloOtherCustomizeView = FindAnyObjectByType<ObjectPoolerXyloOtherCustomizeView>();
         }
@@ -907,7 +910,7 @@ namespace Mains.Views
                                 completionObservables.Add(
                                     Observable.Create<bool>(observer =>
                                     {
-                                        StartCoroutine(_fadeImageView.PlayFadeInDirection(observer));
+                                        StartCoroutine(_selectsFadeImageView.PlayFadeInDirection(observer));
                                         return Disposable.Empty;
                                     })
                                     .Do(_ =>
@@ -937,6 +940,7 @@ namespace Mains.Views
                                 _missileTempoSpawnerInstance.gameObject.SetActive(false);
                                 _homingObjectPoolerCustomizeView.DoReturnAllMissilesToPool();
                                 FindMissileTempoSpawnerInstanceAndDestroy(_missileTempoSpawnerInstance);
+                                viewModel.SetMissileTempoSpawnerTrans(null);
                                 observer.OnNext(true);
                                 observer.OnCompleted();
                                 return Disposable.Empty;
@@ -1121,6 +1125,7 @@ namespace Mains.Views
         /// </summary>
         public void InstanceMissileTempoSpawner()
         {
+            var viewModel = _poltergeistViewModel;
             var originParent = _transform.parent;
             var missileTempoSpawnerInstance = Instantiate(poltergeistTable.missileTempoSpawnerPrefab, _rhythmPartPosition_1, Quaternion.identity);
             missileTempoSpawnerInstance.transform.SetParent(originParent);
@@ -1128,6 +1133,7 @@ namespace Mains.Views
             var originAngles = _rhythmPartEulerAngles_1;
             missileTempoSpawnerInstance.eulerAngles = new Vector3(0f, originAngles.y - 125.09f, 0f);
             _missileTempoSpawnerInstance = missileTempoSpawnerInstance;
+            viewModel.SetMissileTempoSpawnerTrans(missileTempoSpawnerInstance);
         }
 
         /// <summary>

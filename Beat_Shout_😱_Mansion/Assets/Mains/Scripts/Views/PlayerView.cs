@@ -41,8 +41,6 @@ namespace Mains.Views
         [SerializeField] private PlayerShoutChanceTable シャウトチャンスパートの共通パラメータ管理用テーブル;
         /// <summary>プレイヤーのビューモデル</summary>
         private PlayerViewModel _playerViewModel;
-        /// <summary>フェードイメージのビュー</summary>
-        private FadeImageView _fadeImageView;
         /// <summary>地面との距離</summary>
         [SerializeField] private float distanceToGround;
         /// <summary>接地判定の対象レイヤー</summary>
@@ -374,6 +372,10 @@ namespace Mains.Views
                 targetGhost = x;
             })
                 .AddTo(ref _disposableBag);
+            // フェードイメージのビュー
+            ReactiveProperty<FadeImageView> fadeImageView = new ReactiveProperty<FadeImageView>();
+            // フェードイメージのビュー（セレクトシーン用）
+            ReactiveProperty<Selects.Views.FadeImageView> selectsFadeImageView = new ReactiveProperty<Selects.Views.FadeImageView>();
             Observable.EveryUpdate()
                 .Select(_ => _playerViewModel.InteractionPart)
                 .Where(x => x != null)
@@ -596,19 +598,22 @@ namespace Mains.Views
                                     })
                                     .AddTo(ref _disposableBag);
                                 observableUpdateIsFailedDisposable = Observable.EveryUpdate()
-                                    .Where(_ => _playerViewModel.EnemyBattlePart.Equals(EnemyBattlePart.Normal))
                                     .Select(_ => _playerViewModel.IsFailed)
                                     .Where(x => x != null)
                                     .Take(1)
                                     .Subscribe(x =>
                                     {
                                         var customizeTable = set.playerCustomizeTable;
-                                        observableIsFailedDisposable = x.Where(x => x)
+                                        var isNoHitPlayerForceMode = customizeTable.IsNoHitPlayerForceMode;
+                                        observableIsFailedDisposable = x.Where(x => (_playerViewModel.EnemyBattlePart.Equals(EnemyBattlePart.Normal) &&
+                                                !isNoHitPlayerForceMode) ||
+                                            (_playerViewModel.EnemyBattlePart.Equals(EnemyBattlePart.Tutorial) &&
+                                                _playerViewModel.BatteryDropType.CurrentValue.Equals(BatteryDropType.Falling)) &&
+                                            x)
                                             .Subscribe(_ =>
                                             {
                                                 // [Miss]失敗を購読した場合は電池を落とす
-                                                var isNoHitPlayerForceMode = customizeTable.IsNoHitPlayerForceMode;
-                                                if (!isNoHitPlayerForceMode && _playerViewModel.BatteryTransform == null)
+                                                if (_playerViewModel.BatteryTransform == null)
                                                 {
                                                     Transform battery = DropBattery(headTrans, リズムパートで使用するプレイヤープロパティ.spotLightLightTrans);
                                                     _playerViewModel.SetBatteryTransform(battery);
@@ -642,7 +647,15 @@ namespace Mains.Views
                                             {
                                                 Observable.Create<bool>(observer =>
                                                 {
-                                                    StartCoroutine(_fadeImageView.PlayFadeOutDirection(observer, default, false));
+                                                    if (fadeImageView.Value != null &&
+                                                        selectsFadeImageView.Value == null)
+                                                    {
+                                                        StartCoroutine(fadeImageView.Value.PlayFadeOutDirection(observer, default, false));
+                                                    }
+                                                    else
+                                                    {
+                                                        StartCoroutine(selectsFadeImageView.Value.PlayFadeOutDirection(observer, default, false));
+                                                    }
                                                     return Disposable.Empty;
                                                 })
                                                     .Take(1)
@@ -661,7 +674,15 @@ namespace Mains.Views
                                                     {
                                                         Observable.Create<bool>(observer =>
                                                         {
-                                                            StartCoroutine(_fadeImageView.PlayFadeOutDirection(observer, default, false));
+                                                            if (fadeImageView.Value != null &&
+                                                                selectsFadeImageView.Value == null)
+                                                            {
+                                                                StartCoroutine(fadeImageView.Value.PlayFadeOutDirection(observer, default, false));
+                                                            }
+                                                            else
+                                                            {
+                                                                StartCoroutine(selectsFadeImageView.Value.PlayFadeOutDirection(observer, default, false));
+                                                            }
                                                             return Disposable.Empty;
                                                         })
                                                             .Take(1)
@@ -734,7 +755,16 @@ namespace Mains.Views
                 .Take(1)
                 .Subscribe(x =>
                 {
-                    _fadeImageView = x;
+                    fadeImageView.Value = x;
+                })
+                .AddTo(ref _disposableBag);
+            Observable.EveryUpdate()
+                .Select(_ => FindAnyObjectByType<Selects.Views.FadeImageView>())
+                .Where(x => x != null)
+                .Take(1)
+                .Subscribe(x =>
+                {
+                    selectsFadeImageView.Value = x;
                 })
                 .AddTo(ref _disposableBag);
             // シャウトチャンスレンジ検知

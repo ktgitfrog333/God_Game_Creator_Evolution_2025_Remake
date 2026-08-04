@@ -37,6 +37,10 @@ public class MissileObjectPooler : MonoBehaviour
     private Dictionary<int, Queue<GameObject>> missilePoolDict;
     private int activeObjectCount = 0;
     private Camera mainCamera;
+    // [2026/07/28] Amagata Tutorial Implementation: Stage Select start
+    private bool _isCompletedInitializePools;
+    public bool IsCompletedInitializePools => _isCompletedInitializePools;
+    // [2026/07/28] Amagata Tutorial Implementation: Stage Select end
 
     private void Awake()
     {
@@ -94,6 +98,9 @@ public class MissileObjectPooler : MonoBehaviour
 
             missilePoolDict.Add(missileType.missileId, objectPool);
            }
+        // [2026/07/28] Amagata Tutorial Implementation: Stage Select start
+        _isCompletedInitializePools = true;
+        // [2026/07/28] Amagata Tutorial Implementation: Stage Select end
     }
 
     /// <summary>

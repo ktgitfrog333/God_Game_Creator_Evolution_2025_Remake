@@ -64,6 +64,10 @@ public class MissileTempoSpawner : MonoBehaviour
     // [2026/06/26] Amagata issue #80 start
     private bool _oneShot;
     // [2026/06/26] Amagata issue #80 end
+    // [2026/07/28] Amagata Tutorial Implementation: Stage Select start
+    private List<HomingObject> _instancedHomingObjects = new List<HomingObject>();
+    public List<HomingObject> InstancedHomingObjects => _instancedHomingObjects;
+    // [2026/07/28] Amagata Tutorial Implementation: Stage Select end
 
     private void Start()
     {
@@ -125,6 +129,9 @@ public class MissileTempoSpawner : MonoBehaviour
         CRIWARE_conductor.TempoMethodEvent6 -= TempoMethod;
         CRIWARE_conductor.TempoMethodEvent7 -= TempoMethod;
         CRIWARE_conductor.TempoMethodEvent8 -= TempoMethod;
+        // [2026/07/28] Amagata Tutorial Implementation: Stage Select start
+        _instancedHomingObjects.Clear();
+        // [2026/07/28] Amagata Tutorial Implementation: Stage Select end
     }
 
     /// <summary>
@@ -425,6 +432,9 @@ public class MissileTempoSpawner : MonoBehaviour
             if (homingObject != null)
             {
                 homingObject.Init();
+                // [2026/07/28] Amagata Tutorial Implementation: Stage Select start
+                _instancedHomingObjects.Add(homingObject);
+                // [2026/07/28] Amagata Tutorial Implementation: Stage Select end
             }
 
             // ê∂ê¨Ç…ê¨å˜
@@ -458,6 +468,9 @@ public class MissileTempoSpawner : MonoBehaviour
         ParsePatternString();
         currentBeatIndex = 0;
 
+        // [2026/07/28] Amagata Tutorial Implementation: Stage Select start
+        _instancedHomingObjects.Clear();
+        // [2026/07/28] Amagata Tutorial Implementation: Stage Select end
     }
 
     /// <summary>

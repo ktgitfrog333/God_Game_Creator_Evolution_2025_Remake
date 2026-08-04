@@ -33,40 +33,33 @@ namespace Selects.Views
         /// <summary>オバケ笑い声SEを再生する</summary>
         R3.Observable<R3.Unit> EnabledAnimator(Animator missGhostEscapeNormalAnimator, MissGhostEscapeView missGhostEscapeView);
 
+        void SetMissileTempoSpawner(Transform transform);
+
         /// <summary>最初のHomingObjectスポーン監視を開始する</summary>
-        void WatchFirstHomingObjectSpawn();
+        void WatchFirstHomingObjectSpawn(int targetIndex);
 
         /// <summary>最初のHomingObjectスポーン通知</summary>
         R3.Observable<R3.Unit> OnFirstHomingObjectSpawned { get; }
 
-        /// <summary>1体目のオバケがHoming状態になった通知</summary>
-        R3.Observable<R3.Unit> OnGhostHomingStarted();
-
         /// <summary>アクティブなショートノーツのクリック受付判定</summary>
-        bool IsAnyShortNoteClickable();
+        bool IsAnyShortNoteClickable(int targetIndex);
 
         /// <summary>アクティブなロングノーツのクリック受付判定</summary>
-        bool IsAnyLongNoteClickable();
-
-        /// <summary>ノーツの成功判定通知</summary>
-        R3.Observable<bool> OnNoteSuccessful { get; }
-
-        /// <summary>ノーツの失敗判定通知</summary>
-        R3.Observable<bool> OnNoteFailed { get; }
+        bool IsAnyLongNoteClickable(int targetIndex);
 
         /// <summary>判定可能状態のノーツに対して強制的にGOOD判定（クリック）を行う</summary>
-        void ForceClickAnyClickableNote();
+        void ForceClickAnyClickableNote(int targetIndex);
 
-        /// <summary>HP減少通知</summary>
-        R3.Observable<R3.Unit> OnHpDecreased { get; }
+        /// <summary>自動成功モードへ強制的に切り替える処理</summary>
+        /// <param name="targetIndex">対象のインデックス</param>
+        /// <param name="autoMode">自動成功モード有効／無効</param>
+        void ForceSetAutoMode(int targetIndex, bool autoMode);
 
-        /// <summary>落下した電池の取得通知</summary>
-        R3.Observable<R3.Unit> OnBatteryPicked { get; }
-
-        /// <summary>攻撃に向かってきているオバケをすべて消去する</summary>
-        void ClearAllAttackingGhosts();
+        /// <summary>成功／失敗時の生成オバケのプーラーをセット</summary>
+        /// <param name="transform">成功／失敗時の生成オバケのプーラー</param>
+        public void SetObjectPoolerXyloOther(Transform transform);
 
         /// <summary>ターゲットクロスと直近ノーツのスクリーン距離を取得する</summary>
-        float GetNoteToCrosshairScreenDistance();
+        float GetNoteToCrosshairScreenDistance(int targetIndex);
     }
 }

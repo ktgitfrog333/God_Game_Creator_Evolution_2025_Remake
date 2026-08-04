@@ -43,9 +43,11 @@ namespace Selects.Views
         {
             _userBean = userBean;
             var vm = _ctx.ViewModel;
+            vm.SetIsLockUserBean(true);
 
             if (_userBean == null || TutorialConditionEvaluator.ShouldSkip(_userBean))
             {
+                vm.SetIsLockUserBean(false);
                 vm.SetEnemyBattlePart(EnemyBattlePart.Normal);
 
                 return;
@@ -58,10 +60,10 @@ namespace Selects.Views
                 await RunAimMoveTutorialAsync(token);
 
             if (TutorialConditionEvaluator.ShouldRunShout(_userBean))
+            {
                 await RunShoutTutorialAsync(token);
-
-            if (TutorialConditionEvaluator.ShouldRunRhythm(_userBean))
                 await RunRhythmTutorialAsync(token);
+            }
 
             if (TutorialConditionEvaluator.ShouldRunStage1Guide(_userBean))
                 await RunStage1GuideTutorialAsync(token);
@@ -75,6 +77,7 @@ namespace Selects.Views
             if (TutorialConditionEvaluator.ShouldRunStage3Guide(_userBean))
                 await RunStage3GuideTutorialAsync(token);
 
+            vm.SetIsLockUserBean(false);
             vm.SetEnemyBattlePart(EnemyBattlePart.Normal);
         }
 
@@ -525,6 +528,7 @@ namespace Selects.Views
             await ui.FadeInAsync(0.5f, token);
 
             side.SetMicrophoneActive(true);
+            input.EnableOnlyControllerMapCategory("CategoryTutorialInhaleOnly");
             var dbLevelMax = tables.playerShoutChanceTable.シャウト達成デシベル;
 
             await vm.DbLevelReactive
@@ -539,7 +543,7 @@ namespace Selects.Views
 
             await ui.FadeInAsync(0.5f, token);
 
-            input.EnableOnlyControllerMapCategory("CategoryTutorialForwardOnly");
+            input.EnableOnlyControllerMapCategory("CategoryTutorialMoveAllAndInhale");
             side.SetMicrophoneActive(true);
 
             await Observable.EveryUpdate()
@@ -549,7 +553,7 @@ namespace Selects.Views
 
             await FadeOutAndResetAsync(token);
 
-            SaveEventProgress((int)TutorialEventId.ETB0002);
+            // リズムパートから再開が難しいのでシャウト版はここで保存しない
         }
 
         /// <summary>
@@ -565,52 +569,70 @@ namespace Selects.Views
             var side = _ctx.SideEffect;
             var tables = _ctx.Tables;
             var lvl = _ctx.LevelObjects;
+            var missilePatternTable = tables.missilePatternTable;
 
             InitializeStep();
 
-            // --- ステップ_0（オバケ出現テロップ） ---
-            ui.ApplyMessage("MSG0013");
-            await ui.FadeInAsync(0.5f, token);
+            side.SetMicrophoneActive(false);
             input.EnableOnlyControllerMapCategory("CategoryTutorialAimMoveOnly");
             if (lvl.vaseAndDeskGroup != null) lvl.vaseAndDeskGroup.SetActive(true);
-            side.SetAllNotesClickDetection(false);
-            
-            side.WatchFirstHomingObjectSpawn();
+
+            Transform missileTempoSpawnerTrans = null;
+
+            await Observable.EveryUpdate()
+                .Where(_ => vm.MissileTempoSpawnerTrans.CurrentValue != null)
+                .FirstAsync(token);
+
+            missileTempoSpawnerTrans = vm.MissileTempoSpawnerTrans.CurrentValue;
+            side.SetMissileTempoSpawner(missileTempoSpawnerTrans);
+            int firstHomingObjectTargetIndex = missilePatternTable.firstHomingObjectTargetIndex;
+            side.WatchFirstHomingObjectSpawn(firstHomingObjectTargetIndex);
+
             await side.OnFirstHomingObjectSpawned.FirstAsync(token);
+
+            // 「ノーツクリック判定」を更新する場合は、モデル側の「強制的に背面扱いで返すかのフラグ」も更新する
+            vm.SetIsBackReturnForce(true);
+            side.SetAllNotesClickDetection(false);
+            // --- ステップ_0（オバケ出現テロップ） ---
+            ui.ApplyMessage("MSG0013");
+
+            await ui.FadeInAsync(0.5f, token);
 
             Time.timeScale = 0f;
             side.SetBgmPause(true);
 
-            await vm.EventStateReactive
-                .Where(x => x == EnumEventCommand.Submited)
-                .FirstAsync(token);
+            await UniTask.WhenAny(vm.EventStateReactive
+                    .Where(x => x == EnumEventCommand.Submited)
+                    .FirstAsync(token)
+                    .AsUniTask(),
+                UniTask.Delay(3000, DelayType.UnscaledDeltaTime, cancellationToken: token));
 
             await FadeOutAndResetAsync(token);
 
             // --- ステップ_1（ターゲットクロス操作について） ---
             ui.ApplyMessage("MSG0014");
-            await ui.FadeInAsync(0.5f, token);
-            Time.timeScale = 1f;
-            side.SetBgmPause(false);
 
-            await side.OnGhostHomingStarted().FirstAsync(token);
-            Time.timeScale = 0f;
-            side.SetBgmPause(true);
+            await ui.FadeInAsync(0.5f, token);
+
+            int ghostHomingStartedTargetIndex = missilePatternTable.ghostHomingStartedTargetIndex;
             input.EnableOnlyControllerMapCategory("CategoryTutorialAimMoveOnly");
+            float fromMouseToNotesDistance = missilePatternTable.fromMouseToNotesDistance;
 
             await Observable.EveryUpdate()
-                .Where(_ => side.GetNoteToCrosshairScreenDistance() <= 1.0f)
+                .Where(_ => side.GetNoteToCrosshairScreenDistance(ghostHomingStartedTargetIndex) <= fromMouseToNotesDistance)
                 .FirstAsync(token);
+
             await FadeOutAndResetAsync(token);
 
             // --- ステップ_2（ノーツクリックについて） ---
             ui.ApplyMessage("MSG0015");
             await ui.FadeInAsync(0.5f, token);
+
             Time.timeScale = 1f;
             side.SetBgmPause(false);
 
             await Observable.EveryUpdate()
-                .Where(_ => side.IsAnyShortNoteClickable())
+                .Where(_ => side.IsAnyShortNoteClickable(ghostHomingStartedTargetIndex))
                 .FirstAsync(token);
 
             Time.timeScale = 0f;
@@ -620,125 +642,244 @@ namespace Selects.Views
             await Observable.EveryUpdate()
                 .Where(_ => input.TapLightButtonDown)
                 .FirstAsync(token);
-            side.ForceClickAnyClickableNote();
-            
+
+            side.ForceClickAnyClickableNote(ghostHomingStartedTargetIndex);
             Time.timeScale = 1f;
             side.SetBgmPause(false);
+
             await FadeOutAndResetAsync(token);
 
             // --- ステップ_3（ノーツクリック本番） ---
             var patternData = tables.missilePatternTable.Get("SMP0000");
             if (patternData != null) side.SetMissilePattern(patternData.pattern);
-            string total = patternData != null ? patternData.successCount.ToString() : "3";
+            int total = patternData != null ? patternData.successCount : 3;
 
-            ui.ApplyMessageWithProgress("MSG0016", "0", total);
+            ui.ApplyMessageWithProgress("MSG0016", "0", $"{total}");
+
             await ui.FadeInAsync(0.5f, token);
-            input.EnableOnlyControllerMapCategory("CategoryTutorialMoveAllAndSearchAndAimMoveAndSwitchPartInhaleAndTapLight");
-            side.SetAllNotesClickDetection(true);
 
+            input.EnableOnlyControllerMapCategory("CategoryTutorialMoveAllAndSearchAndAimMoveAndSwitchPartInhaleAndTapLight");
+            vm.SetIsBackReturnForce(false);
+            side.SetAllNotesClickDetection(true);
             int successCount = 0;
-            int targetCount = patternData != null ? patternData.successCount : 3;
-            await side.OnNoteSuccessful
-                .Where(success => success)
-                .Do(_ => successCount++)
-                .Where(_ => successCount >= targetCount)
+
+            await vm.OnNoteSuccessful
+                .Where(x => x)
+                .Do(_ =>
+                {
+                    successCount++;
+                    ui.ApplyMessageWithProgress("MSG0016", $"{successCount}", $"{total}");
+                })
+                .Where(_ => successCount >= total)
                 .FirstAsync(token);
+
+            // ミサイルオバケとミスアタックオバケを消す
+            var patternData3 = tables.missilePatternTable.Get("SMP0005");
+            var objectPoolerXyloOtherCustomizeView = GameObject.FindAnyObjectByType<ObjectPoolerXyloOtherCustomizeView>();
+            side.SetObjectPoolerXyloOther(objectPoolerXyloOtherCustomizeView.transform);
+            var homingObjectPoolerCustomizeView = GameObject.FindAnyObjectByType<HomingObjectPoolerCustomizeView>();
+            if (patternData3 != null) side.SetMissilePattern(patternData3.pattern);
+            homingObjectPoolerCustomizeView.DoReturnAllMissilesToPool();
+
+            await objectPoolerXyloOtherCustomizeView.DoAllDisabled()
+                .Where(x => x)
+                .FirstAsync(token);
+
+            vm.SetIsBackReturnForce(true);
+            side.SetAllNotesClickDetection(false);
+
             await FadeOutAndResetAsync(token);
 
             // --- ステップ_4（ロングノーツクリックについて） ---
             ui.ApplyMessage("MSG0017");
+
             await ui.FadeInAsync(0.5f, token);
+
             var patternData1 = tables.missilePatternTable.Get("SMP0001");
             if (patternData1 != null) side.SetMissilePattern(patternData1.pattern);
             input.EnableOnlyControllerMapCategory("CategoryTutorialMoveAllAndSearchAndAimMoveAndSwitchPartInhaleAndTapLight");
-            side.SetAllNotesClickDetection(true);
 
             await Observable.EveryUpdate()
-                .Where(_ => side.IsAnyLongNoteClickable())
+                .Where(_ => side.IsAnyLongNoteClickable(ghostHomingStartedTargetIndex))
                 .FirstAsync(token);
 
             Time.timeScale = 0f;
             side.SetBgmPause(true);
 
             await Observable.EveryUpdate()
-                .Where(_ => input.TapLightButtonDown)
+                .Where(_ => side.GetNoteToCrosshairScreenDistance(ghostHomingStartedTargetIndex) <= fromMouseToNotesDistance &&
+                    input.TapLightButtonDown)
                 .FirstAsync(token);
-            side.ForceClickAnyClickableNote();
+
+            side.ForceClickAnyClickableNote(ghostHomingStartedTargetIndex);
+            // ロングノーツが失敗しない状態にする（強制的に押しっぱなしの状態にする）
+            side.ForceSetAutoMode(ghostHomingStartedTargetIndex, true);
 
             await FadeOutAndResetAsync(token);
 
+            input.EnableOnlyControllerMapCategory("CategoryTutorialMoveAllAndSearchAndAimMoveAndSwitchPartInhaleAndTapLight");
             // --- ステップ_5（ロングノーツリリースについて） ---
             ui.ApplyMessage("MSG0018");
+
             await ui.FadeInAsync(0.5f, token);
+
             Time.timeScale = 1f;
             side.SetBgmPause(false);
 
-            await UniTask.WhenAny(
-                side.OnNoteSuccessful.Where(x => x).FirstAsync(token).AsUniTask(),
-                side.OnNoteFailed.Where(x => x).FirstAsync(token).AsUniTask()
-            );
+            // ロングノーツの完了によるGOODを監視
+            await vm.OnNoteSuccessful
+                .Where(x => x)
+                .FirstAsync(token);
+
+            vm.SetIsBackReturnForce(false);
+            side.SetAllNotesClickDetection(true);
+            side.ForceSetAutoMode(ghostHomingStartedTargetIndex, false);
+
             await FadeOutAndResetAsync(token);
 
             // --- ステップ_6（ロングノーツクリック＆リリース本番） ---
             var patternData2 = tables.missilePatternTable.Get("SMP0002");
             if (patternData2 != null) side.SetMissilePattern(patternData2.pattern);
-            string total2 = patternData2 != null ? patternData2.successCount.ToString() : "3";
+            int total2 = patternData2 != null ? patternData2.successCount : 3;
 
-            ui.ApplyMessageWithProgress("MSG0019", "0", total2);
+            ui.ApplyMessageWithProgress("MSG0019", "0", $"{total2}");
+
             await ui.FadeInAsync(0.5f, token);
-            input.EnableOnlyControllerMapCategory("CategoryTutorialMoveAllAndSearchAndAimMoveAndSwitchPartInhaleAndTapLight");
-            side.SetAllNotesClickDetection(true);
 
+            input.EnableOnlyControllerMapCategory("CategoryTutorialMoveAllAndSearchAndAimMoveAndSwitchPartInhaleAndTapLight");
             int successCount2 = 0;
-            int targetCount2 = patternData2 != null ? patternData2.successCount : 3;
-            await side.OnNoteSuccessful
-                .Where(success => success)
-                .Do(_ => successCount2++)
-                .Where(_ => successCount2 >= targetCount2)
+
+            await vm.OnNoteSuccessful
+                .Where(x => x)
+                .Do(_ =>
+                {
+                    successCount2++;
+                    ui.ApplyMessageWithProgress("MSG0019", $"{successCount2}", $"{total2}");
+                })
+                .Where(_ => successCount2 >= total2)
                 .FirstAsync(token);
+
+            // ミサイルオバケとミスアタックオバケを消す
+            if (patternData3 != null) side.SetMissilePattern(patternData3.pattern);
+            homingObjectPoolerCustomizeView.DoReturnAllMissilesToPool();
+
+            await objectPoolerXyloOtherCustomizeView.DoAllDisabled()
+                .Where(x => x)
+                .FirstAsync(token);
+
             await FadeOutAndResetAsync(token);
 
             // --- ステップ_7（ミスとリカバリについて） ---
             ui.ApplyMessage("MSG0020");
+
             await ui.FadeInAsync(0.5f, token);
+
             if (patternData1 != null) side.SetMissilePattern(patternData1.pattern);
             
-            await side.OnNoteFailed.Where(x => x).FirstAsync(token);
+            await vm.OnNoteFailed
+                .Where(x => x)
+                .FirstAsync(token);
+
+            // 電池出現後の一定時間後、時間を一時停止する
+            await vm.OnFalledBattery.FirstAsync(token);
+
+            await UniTask.Delay(1000, DelayType.UnscaledDeltaTime, cancellationToken: token);
+
             Time.timeScale = 0f;
             side.SetBgmPause(true);
             input.EnableOnlyControllerMapCategory("CategoryTutorialMoveAllAndSearchAndAimMoveAndSwitchPartInhaleAndTapLight");
 
-            await side.OnBatteryPicked.FirstAsync(token);
-            side.ClearAllAttackingGhosts();
+            await vm.OnBatteryPicked.FirstAsync(token);
+
+            Time.timeScale = 1f;
+            side.SetBgmPause(false);
+
+            // ミサイルオバケとミスアタックオバケを消す
+            if (patternData3 != null) side.SetMissilePattern(patternData3.pattern);
+            homingObjectPoolerCustomizeView.DoReturnAllMissilesToPool();
+
+            await objectPoolerXyloOtherCustomizeView.DoAllDisabled()
+                .Where(x => x)
+                .FirstAsync(token);
+
             await FadeOutAndResetAsync(token);
 
             // --- ステップ_8（ミスとペナルティについて） ---
             ui.ApplyMessage("MSG0021");
-            await ui.FadeInAsync(0.5f, token);
-            Time.timeScale = 1f;
-            side.SetBgmPause(false);
 
-            await side.OnHpDecreased.FirstAsync(token);
+            // HPゲージを表示する
+            var commonPanelCustomizeOfMainView = ui.CommonPanelCustomizeOfMainView;
+
+            ui.SetCommonPanelCustomizeOfMainViewEnabled(true);
+
+            await commonPanelCustomizeOfMainView.IsCompletedStart.FirstAsync(token);
+
+            // 体力の初期値をセット
+            vm.SetHealthPointMax();
+
+            await ui.FadeInAsync(0.5f, token);
+
+            if (patternData1 != null) side.SetMissilePattern(patternData1.pattern);
+
+            // ここでミスを発生させるのは難しいので、強制的にHPを減らす
+            await vm.OnHpDecreasedTutorial.FirstAsync(token);
+
+            if (patternData3 != null) side.SetMissilePattern(patternData3.pattern);
+
+            homingObjectPoolerCustomizeView.DoReturnAllMissilesToPool();
+            // 電池を自動で拾う
+            var batteryTransform = vm.BatteryTransform;
+            if (batteryTransform != null)
+            {
+                BatteryView batteryView = batteryTransform.GetComponent<BatteryView>();
+                batteryView.GetBattery();
+            }
+
+            await objectPoolerXyloOtherCustomizeView.DoAllDisabled()
+                .Where(x => x)
+                .FirstAsync(token);
+
             await FadeOutAndResetAsync(token);
 
             // --- ステップ_9（ゲームオーバーについて） ---
             ui.ApplyMessage("MSG0022");
+
             await ui.FadeInAsync(0.5f, token);
-            await UniTask.WhenAny(
-                UniTask.Delay(1000, cancellationToken: token),
-                vm.EventStateReactive.Where(x => x == EnumEventCommand.Submited).FirstAsync(token).AsUniTask()
-            );
+
+            await UniTask.WhenAny(vm.EventStateReactive
+                    .Where(x => x == EnumEventCommand.Submited)
+                    .FirstAsync(token)
+                    .AsUniTask(),
+                UniTask.Delay(3000, DelayType.UnscaledDeltaTime, cancellationToken: token));
+
             await FadeOutAndResetAsync(token);
 
             // --- ステップ_10（ステージクリアについて） ---
             ui.ApplyMessage("MSG0023");
+
             await ui.FadeInAsync(0.5f, token);
-            await UniTask.WhenAny(
-                UniTask.Delay(1000, cancellationToken: token),
-                vm.EventStateReactive.Where(x => x == EnumEventCommand.Submited).FirstAsync(token).AsUniTask()
-            );
+
+            await UniTask.WhenAny(vm.EventStateReactive
+                    .Where(x => x == EnumEventCommand.Submited)
+                    .FirstAsync(token)
+                    .AsUniTask(),
+                UniTask.Delay(3000, DelayType.UnscaledDeltaTime, cancellationToken: token));
+
             await FadeOutAndResetAsync(token);
 
+            // HPのUIを消す
+            ui.SetCommonPanelCustomizeOfMainViewEnabled(false);
+            // リズムパートを終了させる
+            vm.SetIsCompletedDirection(true);
+
+            await Observable.EveryUpdate()
+                .Where(_ => vm.InteractionPart.CurrentValue.Equals(InteractionPart.Search))
+                .FirstAsync(token);
+
+            if (lvl.vaseAndDeskGroup != null) lvl.vaseAndDeskGroup.SetActive(false);
+
+            // リズムパートから再開が難しいのでここで保存する
+            SaveEventProgress((int)TutorialEventId.ETB0002);
             SaveEventProgress((int)TutorialEventId.ETB0003);
         }
 
@@ -767,16 +908,22 @@ namespace Selects.Views
 
             InitializeStep();
 
+            await Observable.EveryUpdate()
+                .Select(_ => vm.CommonHeaderPanelRectTrans)
+                .Where(trans => trans != null)
+                .FirstAsync(token);
+
+            var headerPanel = vm.CommonHeaderPanelRectTrans;
+            headerPanel.gameObject.SetActive(false);
+
             var isCompletedStartDirection = vm.IsCompletedStartDirection.CurrentValue;
             // --- ステップ_0（逃げるオバケのカット） ---
-            var footerPanel = vm.CommonFooterPanelRectTrans;
-            if (footerPanel != null) footerPanel.gameObject.SetActive(false);
             var fadeImageView = _ctx.UIObjects.fadeImageView;
-            if (lvl.aimMoveCompletePoint != null)
+            if (lvl.shoutCompletePoint != null)
             {
                 await _ctx.SideEffect.TeleportPlayerAsync(
-                    lvl.aimMoveCompletePoint.position,
-                    lvl.aimMoveCompletePoint.eulerAngles,
+                    lvl.shoutCompletePoint.position,
+                    lvl.shoutCompletePoint.eulerAngles,
                     isCompletedStartDirection,
                     playerCharacterController,
                     player,
@@ -788,20 +935,31 @@ namespace Selects.Views
                 );
             }
 
-            await UniTask.Delay(2000, cancellationToken: token); // ステージ1案内演出の代用
-            await FadeOutAndResetAsync(token);
+            // ここだけメッセージ表示はなく、メッセージ表示によるオブジェクトを有効化が行われないため、明示的にオブジェクトを有効にする
+            ui.SetEnabledTutorialPanel(true);
+
+            await Observable.EveryUpdate()
+                .Where(_ => ui.IsCompletedStart.CurrentValue &&
+                    ui.IsEnabled.CurrentValue)
+                .FirstAsync(token);
+
+            ui.PlayStage1GuideDirection();
+
+            await Observable.EveryUpdate()
+                .Where(_ => ui.IsCompletedStage1GuideDirection.CurrentValue)
+                .FirstAsync(token);
 
             // --- ステップ_1（逃げたオバケの追跡） ---
             ui.ApplyMessage("MSG0024");
+
             await ui.FadeInAsync(0.5f, token);
+
             input.EnableOnlyControllerMapCategory("Default");
 
-            if (lvl.vaseAndDeskGroup != null) lvl.vaseAndDeskGroup.SetActive(false);
+            await vm.SelectedStageIndex.Where(x => x == 0).FirstAsync(token);
 
-            await vm.SelectedStageIndex.Where(x => x == 1).FirstAsync(token);
             await vm.EventStateReactive.Where(x => x == EnumEventCommand.Submited).FirstAsync(token);
 
-            await FadeOutAndResetAsync(token);
             SaveEventProgress((int)TutorialEventId.ETB0004);
         }
 
@@ -969,7 +1127,6 @@ namespace Selects.Views
         /// <returns>UniTask</returns>
         private async UniTask FadeOutAndResetAsync(CancellationToken token)
         {
-            Time.timeScale = 1f; // フェードアウト時にタイムスケールを確実に元へ戻す
             await _ctx.UI.FadeOutAsync(0.5f, token);
             _ctx.UI.ResetMessages();
             _ctx.Input.EnableOnlyControllerMapCategory(null);

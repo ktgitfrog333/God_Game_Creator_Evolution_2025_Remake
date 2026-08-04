@@ -43,7 +43,7 @@ namespace Selects.Views
         /// ノーツ入力の有効／無効切り替え
         /// </summary>
         /// <param name="active">有効／無効</param>
-        public void SetAllNotesClickDetection(bool active) => _api.SetAllNotesClickDetection(active);
+        public void SetAllNotesClickDetection(bool active) => _api.SetAllEnableClickDetection(active);
         /// <summary>
         /// ノーツ生成パターンを更新
         /// </summary>
@@ -93,20 +93,15 @@ namespace Selects.Views
             });
         }
 
-        public void WatchFirstHomingObjectSpawn() => _api.WatchFirstHomingObjectSpawn();
+        public void SetMissileTempoSpawner(Transform transform) => _api.SetMissileTempoSpawner(transform);
+        public void WatchFirstHomingObjectSpawn(int targetIndex) => _api.WatchFirstHomingObjectSpawn(targetIndex);
         public Observable<Unit> OnFirstHomingObjectSpawned => _api.OnFirstHomingObjectSpawned;
-        public Observable<Unit> OnGhostHomingStarted() => _api.OnGhostHomingStarted();
-        public bool IsAnyShortNoteClickable() => _api.IsAnyShortNoteClickable();
-        public bool IsAnyLongNoteClickable() => _api.IsAnyLongNoteClickable();
-
-        public Observable<bool> OnNoteSuccessful => _api.IsSuccessfulReactive;
-        public Observable<bool> OnNoteFailed => _api.IsFailedReactive;
-        public Observable<Unit> OnHpDecreased => _api.OnHpDecreased;
-        public Observable<Unit> OnBatteryPicked => _api.OnBatteryPicked;
-
-        public void ForceClickAnyClickableNote() => _api.ForceClickAnyClickableNote();
-        public void ClearAllAttackingGhosts() => _api.ClearAllAttackingGhosts();
-        public float GetNoteToCrosshairScreenDistance() => _api.GetNoteToCrosshairScreenDistance();
+        public bool IsAnyShortNoteClickable(int targetIndex) => _api.IsAnyShortNoteClickable(targetIndex);
+        public bool IsAnyLongNoteClickable(int targetIndex) => _api.IsAnyLongNoteClickable(targetIndex);
+        public void ForceClickAnyClickableNote(int targetIndex) => _api.ForceClickAnyClickableNote(targetIndex);
+        public void ForceSetAutoMode(int targetIndex, bool autoMode) => _api.ForceSetAutoMode(targetIndex, autoMode);
+        public void SetObjectPoolerXyloOther(Transform transform) => _api.SetObjectPoolerXyloOther(transform);
+        public float GetNoteToCrosshairScreenDistance(int targetIndex) => _api.GetNoteToCrosshairScreenDistance(targetIndex);
 
         public void Dispose()
         {

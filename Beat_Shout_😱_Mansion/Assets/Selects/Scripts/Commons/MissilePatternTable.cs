@@ -24,6 +24,12 @@ namespace Selects.Commons
     {
         /// <summary>生成パターンデータ配列</summary>
         public MissilePatternData[] list;
+        /// <summary>生成パターンの対象のインデックス</summary>
+        public int firstHomingObjectTargetIndex = 2;
+        /// <summary>生成されたオバケの対象のインデックス</summary>
+        public int ghostHomingStartedTargetIndex = 0;
+        /// <summary>マウスとノーツとの距離</summary>
+        public float fromMouseToNotesDistance = 40f;
 
         /// <summary>
         /// 生成パターンIDから生成パターンデータを取得

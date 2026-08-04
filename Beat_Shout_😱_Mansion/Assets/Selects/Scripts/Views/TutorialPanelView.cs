@@ -14,6 +14,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Universal.Commons;
 using Universal.Utilities;
+using UnityEngine.Playables;
 
 namespace Selects.Views
 {
@@ -34,6 +35,17 @@ namespace Selects.Views
         private XyloApiTutorialSideEffect _sideEffect;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
+        /// <summary>共通UIのビュー</summary>
+        public CommonPanelCustomizeOfMainView CommonPanelCustomizeOfMainView => settings.uIObjects.commonPanelCustomizeOfMainView;
+        /// <summary>ステージ1の案内演出の完了フラグ</summary>
+        private readonly ReactiveProperty<bool> _isCompletedStage1GuideDirection = new ReactiveProperty<bool>();
+        public ReadOnlyReactiveProperty<bool> IsCompletedStage1GuideDirection => _isCompletedStage1GuideDirection;
+        /// <summary>初期処理の完了フラグ</summary>
+        private readonly ReactiveProperty<bool> _isCompletedStart = new ReactiveProperty<bool>(false);
+        public ReadOnlyReactiveProperty<bool> IsCompletedStart => _isCompletedStart;
+        /// <summary>オブジェクトの有効／無効フラグ</summary>
+        private readonly ReactiveProperty<bool> _isEnabled = new ReactiveProperty<bool>();
+        public ReadOnlyReactiveProperty<bool> IsEnabled => _isEnabled;
 
         // ------------------------------------------------------------------
         // ITutorialUI 実装
@@ -47,6 +59,7 @@ namespace Selects.Views
             SetSubMessage(msgData.subMessage);
             SetGuideText(msgData.progressText);
             SetIsInteractIconVisible(msgData.hasInteract);
+            DoSetBatteryDropType(msgData.batteryDropType);
         }
 
         public void ApplyMessageWithProgress(string messageId, string current, string total)
@@ -60,6 +73,7 @@ namespace Selects.Views
                     .Replace("${ghostExitMembersCount}", current)
                     .Replace("${ghostAllMembersCount}", total));
             SetIsInteractIconVisible(msgData.hasInteract);
+            DoSetBatteryDropType(msgData.batteryDropType);
         }
 
         public void ResetMessages()
@@ -86,6 +100,7 @@ namespace Selects.Views
                 _ = seq.Join(ui.subMessageCanvasGroup.DOFade(1f, duration));
             if (ui.guideTextCanvasGroup != null && ui.guideTextCanvasGroup.gameObject.activeSelf)
                 _ = seq.Join(ui.guideTextCanvasGroup.DOFade(1f, duration));
+            _ = seq.SetUpdate(true);
 
             await seq.ToUniTask(cancellationToken: token);
         }
@@ -100,8 +115,31 @@ namespace Selects.Views
                 _ = seq.Join(ui.subMessageCanvasGroup.DOFade(0f, duration));
             if (ui.guideTextCanvasGroup != null && ui.guideTextCanvasGroup.gameObject.activeSelf)
                 _ = seq.Join(ui.guideTextCanvasGroup.DOFade(0f, duration));
+            _ = seq.SetUpdate(true);
 
             await seq.ToUniTask(cancellationToken: token);
+        }
+
+        public void SetCommonPanelCustomizeOfMainViewEnabled(bool enabled)
+        {
+            var commonPanelCustomizeOfMainView = settings.uIObjects.commonPanelCustomizeOfMainView;
+            commonPanelCustomizeOfMainView.gameObject.SetActive(enabled);
+        }
+
+        public void SetEnabledTutorialPanel(bool enabled)
+        {
+            var ui = settings.tutorialUIPanels;
+            if (ui.tutorialPanelCanvasGroup != null)
+            {
+                ui.tutorialPanelCanvasGroup.gameObject.SetActive(enabled);
+                ui.tutorialPanelCanvasGroup.alpha = !enabled ? 0f : 1f;
+            }
+        }
+
+        public void PlayStage1GuideDirection()
+        {
+            var direction = settings.directions.stage1GuideDirector;
+            direction.Play();
         }
 
         // ------------------------------------------------------------------
@@ -336,6 +374,9 @@ namespace Selects.Views
             ResourcesUtility utility = new ResourcesUtility();
             var userBean = utility.LoadSaveDatasJsonOfUserBean(ConstResorcesNames.USER_DATA);
 
+            var direction = settings.directions.stage1GuideDirector;
+            direction.stopped += OnStage1GuideDirectionStopped;
+
             sequencer.RunAsync(userBean, this.GetCancellationTokenOnDestroy())
                 .Forget();
 
@@ -343,36 +384,13 @@ namespace Selects.Views
             // 必要であれば DisposableBag に追加する
         }
 
-        /// <summary>
-        /// プレイヤーの視線が対象オブジェクトを捉えたか
-        /// </summary>
-        /// <param name="headTrans">プレイヤーの頭</param>
-        /// <param name="target">対象オブジェクト</param>
-        /// <param name="aimDistance">目線の距離</param>
-        /// <returns>対象オブジェクトを捉えたか</returns>
-        public bool IsHitPlayerAimToAny(Transform headTrans, Transform target, float aimDistance)
+        private void Update()
         {
-            Vector3 origin = headTrans.position; // 目線の高さ
-            Vector3 direction = headTrans.forward;
-            int layerMaskAimRange = 1 << LayerMask.NameToLayer("AimRange");
+            // 初期処理の完了後にシーケンサー側から呼ばれるようにステータスを明示的に管理
+            if (!_isCompletedStart.CurrentValue)
+                _isCompletedStart.Value = true;
 
-            // デバッグ：Sceneビューに赤線を描画
-            Debug.DrawRay(origin, direction * aimDistance, Color.red);
-
-            int hitCount = Physics.RaycastNonAlloc(origin, direction, _hitsPlayerAimToAny, aimDistance, layerMaskAimRange);
-            if (0 < hitCount)
-            {
-                for (int i = 0; i < hitCount; i++)
-                {
-                    var hit = _hitsPlayerAimToAny[i];
-                    if (hit.collider != null && hit.collider.transform.Equals(target))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
+            _isEnabled.Value = gameObject.activeSelf;
         }
 
         private void OnDestroy()
@@ -381,6 +399,8 @@ namespace Selects.Views
             settings.viewModel.Dispose();
             _script_XyloApi?.Dispose();
             _sideEffect?.Dispose();
+            var direction = settings.directions.stage1GuideDirector;
+            direction.stopped -= OnStage1GuideDirectionStopped;
         }
 
         // ------------------------------------------------------------------
@@ -440,6 +460,38 @@ namespace Selects.Views
         }
 
         /// <summary>
+        /// プレイヤーの視線が対象オブジェクトを捉えたか
+        /// </summary>
+        /// <param name="headTrans">プレイヤーの頭</param>
+        /// <param name="target">対象オブジェクト</param>
+        /// <param name="aimDistance">目線の距離</param>
+        /// <returns>対象オブジェクトを捉えたか</returns>
+        private bool IsHitPlayerAimToAny(Transform headTrans, Transform target, float aimDistance)
+        {
+            Vector3 origin = headTrans.position; // 目線の高さ
+            Vector3 direction = headTrans.forward;
+            int layerMaskAimRange = 1 << LayerMask.NameToLayer("AimRange");
+
+            // デバッグ：Sceneビューに赤線を描画
+            Debug.DrawRay(origin, direction * aimDistance, Color.red);
+
+            int hitCount = Physics.RaycastNonAlloc(origin, direction, _hitsPlayerAimToAny, aimDistance, layerMaskAimRange);
+            if (0 < hitCount)
+            {
+                for (int i = 0; i < hitCount; i++)
+                {
+                    var hit = _hitsPlayerAimToAny[i];
+                    if (hit.collider != null && hit.collider.transform.Equals(target))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// メインメッセージを設定
         /// </summary>
         /// <param name="message">メインメッセージ</param>
@@ -485,6 +537,25 @@ namespace Selects.Views
             if (icon == null) return;
             icon.gameObject.SetActive(isVisible);
         }
+
+        /// <summary>
+        /// 電池落下タイプをセットを呼び出し
+        /// </summary>
+        /// <param name="batteryDropType">電池落下タイプ</param>
+        private void DoSetBatteryDropType(BatteryDropType batteryDropType)
+        {
+            var viewModel = settings.viewModel;
+            viewModel.SetBatteryDropType(batteryDropType);
+        }
+
+        /// <summary>
+        /// ステージ1の案内演出のタイムライン停止
+        /// </summary>
+        /// <param name="d">演出</param>
+        private void OnStage1GuideDirectionStopped(PlayableDirector d)
+        {
+            _isCompletedStage1GuideDirection.Value = true;
+        }
     }
 
     /// <summary>
@@ -505,6 +576,8 @@ namespace Selects.Views
         public UIObjects uIObjects;
         /// <summary>テーブル情報</summary>
         public Tables tables;
+        /// <summary>演出</summary>
+        public Directions directions;
         /// <summary>詳細パラメータ</summary>
         public Details details;
 
@@ -558,8 +631,10 @@ namespace Selects.Views
             public Collider batteryItemAimRangeTrigger;
             /// <summary>移動完了ポイント</summary>
             public Transform moveCompletePoint;
-            /// <summary>移動完了ポイント</summary>
+            /// <summary>視点移動完了ポイント</summary>
             public Transform aimMoveCompletePoint;
+            /// <summary>シャウト完了ポイント</summary>
+            public Transform shoutCompletePoint;
             /// <summary>移動オバケ（ノーマル）</summary>
             public GameObject missGhostEscapeNormal;
             /// <summary>移動オバケ（ノーマル）トリガー（視線補足用）</summary>
@@ -586,6 +661,8 @@ namespace Selects.Views
         {
             /// <summary>フェードイメージのビュー</summary>
             public FadeImageView fadeImageView;
+            /// <summary>共通UIのビュー</summary>
+            public CommonPanelCustomizeOfMainView commonPanelCustomizeOfMainView;
         }
 
         /// <summary>
@@ -602,6 +679,16 @@ namespace Selects.Views
             public PlayerTeleporterStrategySOsLink playerTeleporterStrategySOsLink;
             /// <summary>シャウトチャンスパートの共通パラメータ管理用テーブル</summary>
             public PlayerShoutChanceTable playerShoutChanceTable;
+        }
+
+        /// <summary>
+        /// 演出
+        /// </summary>
+        [System.Serializable]
+        public class Directions
+        {
+            /// <summary>ステージ1の案内演出</summary>
+            public PlayableDirector stage1GuideDirector;
         }
 
         /// <summary>

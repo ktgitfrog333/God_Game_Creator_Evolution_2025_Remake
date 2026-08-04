@@ -320,6 +320,12 @@ namespace Mains.ViewModels
                 _playerModel.SetMidBosskillsRate(midBosskillsRate);
         }
 
+        public void SetMissileTempoSpawnerTrans(Transform transform)
+        {
+            if (_playerModel != null)
+                _playerModel.SetMissileTempoSpawnerTrans(transform);
+        }
+
         public void Dispose()
         {
             _disposableBag.Dispose();

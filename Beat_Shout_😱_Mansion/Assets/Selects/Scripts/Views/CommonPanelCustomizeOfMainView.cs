@@ -22,6 +22,10 @@ namespace Selects.Views
         [SerializeField] private IconHeartSettings iconHeartSettings;
         /// <summary>プレイヤーの体力を取得してハートアイコンへ反映する処理を実装</summary>
         private List<IconHeartImageView> _iconHeartImageViews;
+        /// <summary>開始処理の完了フラグ</summary>
+        private readonly ReactiveCommand<Unit> _isCompletedStart = new ReactiveCommand<Unit>();
+        /// <summary>開始処理の完了フラグ</summary>
+        public ReactiveCommand<Unit> IsCompletedStart => _isCompletedStart;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -71,6 +75,8 @@ namespace Selects.Views
                 }
             })
                 .AddTo(ref _disposableBag);
+
+            _isCompletedStart.Execute(Unit.Default);
         }
 
         private void OnDestroy()

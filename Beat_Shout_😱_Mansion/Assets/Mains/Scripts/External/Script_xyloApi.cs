@@ -1,5 +1,4 @@
 using CriWare;
-using Mains.Views;
 using R3;
 using System.Collections;
 using System.Collections.Generic;
@@ -34,12 +33,6 @@ namespace Mains.External
         public ReactiveCommand<bool> IsSuccessfulReactive => _isSuccessful;
         private readonly ReactiveCommand<bool> _isFailed = new ReactiveCommand<bool>();
         public ReactiveCommand<bool> IsFailedReactive => _isFailed;
-
-        private readonly Subject<Unit> _onHpDecreased = new Subject<Unit>();
-        public Observable<Unit> OnHpDecreased => _onHpDecreased;
-
-        private readonly Subject<Unit> _onBatteryPicked = new Subject<Unit>();
-        public Observable<Unit> OnBatteryPicked => _onBatteryPicked;
 
         public Transform NoteTransform
         {
@@ -996,7 +989,6 @@ namespace Mains.External
 
         public void PlayBatteryGet3()
         {
-            _onBatteryPicked.OnNext(Unit.Default);
             var sePicker = SE_Picker.Instance;
             if (sePicker == null)
             {
@@ -1023,7 +1015,6 @@ namespace Mains.External
 
         public void PlayDamage1()
         {
-            _onHpDecreased.OnNext(Unit.Default);
             var sePicker = SE_Picker.Instance;
             if (sePicker == null)
             {
@@ -1188,9 +1179,10 @@ namespace Mains.External
         /// <summary>
         /// リズムパート開始時に呼ぶ。
         /// MissileTempoSpawnerのcurrentBeatIndexをリフレクションで監視し、
-        /// 最初のHomingObjectが飛び出したタイミングを検知する。
+        /// 最初～2番目のHomingObjectが飛び出したタイミングを検知する。
         /// </summary>
-        public void WatchFirstHomingObjectSpawn()
+        /// <param name="targetIndex">対象のインデックス</param>
+        public void WatchFirstHomingObjectSpawn(int targetIndex)
         {
             _firstSpawnWatcherDisposable?.Dispose();
 
@@ -1224,7 +1216,7 @@ namespace Mains.External
                 {
                     var active = activeField.GetValue(_missileTempoSpawner);
                     var beatIndex = beatIndexField.GetValue(_missileTempoSpawner);
-                    return active is true && beatIndex is int idx && idx > 0;
+                    return active is true && beatIndex is int idx && idx >= targetIndex;
                 })
                 .DistinctUntilChanged()
                 .Where(x => x)   // false→true の瞬間だけ
@@ -1234,33 +1226,6 @@ namespace Mains.External
                     _onFirstHomingObjectSpawned.Execute(Unit.Default);
                 })
                 .AddTo(ref _disposableBag);
-        }
-
-        /// <summary>
-        /// 1体目のオバケ(HomingObject)のFlightPhaseがHoming状態になったことを監視するストリームを提供します。
-        /// </summary>
-        public Observable<Unit> OnGhostHomingStarted()
-        {
-            if (_homingObject == null) return Observable.Empty<Unit>();
-
-            FieldInfo currentPhaseField = typeof(HomingObject).GetField("currentPhase", BindingFlags.NonPublic | BindingFlags.Instance);
-            
-            if (currentPhaseField == null)
-            {
-                Debug.LogError("[Script_xyloApi] HomingObject 内に 'currentPhase' フィールドが見つかりませんでした。");
-                return Observable.Empty<Unit>();
-            }
-
-            return Observable.EveryUpdate()
-                .TakeWhile(_ => _homingObject != null && _homingObject.gameObject != null)
-                .Select(_ =>
-                {
-                    var phaseValue = currentPhaseField.GetValue(_homingObject);
-                    return phaseValue?.ToString();
-                })
-                .Where(phaseName => phaseName == "Homing")
-                .Take(1)
-                .AsUnitObservable();
         }
 
         public void SetMissileTempoSpawner(Transform transform)
@@ -1781,6 +1746,44 @@ namespace Mains.External
             }
         }
 
+        /// <summary>
+        /// シーン内の全ノーツのクリック判定のみを有効・無効にする
+        /// </summary>
+        /// <param name="isEnableClickDetection">有効／無効</param>
+        /// <remarks>
+        /// enabled = false と違いアニメーション・リングの表示は維持される
+        /// enableClickDetection フィールドをリフレクションで操作
+        /// </remarks>
+        public void SetAllEnableClickDetection(bool isEnableClickDetection)
+        {
+            if (_missileTempoSpawner == null)
+            {
+                Debug.LogWarning("MissileTempoSpawnerがセットされていません。");
+                return;
+            }
+
+            List<MissileDirectAnimManagerB> missileDirectAnimManagerBs = new List<MissileDirectAnimManagerB>();
+            List<HomingObject> homingObjects = _missileTempoSpawner.InstancedHomingObjects;
+            foreach (var homingObject in homingObjects)
+            {
+                MissileDirectAnimManagerB itemMissileB = homingObject.GetComponent<MissileDirectAnimManagerB>();
+                missileDirectAnimManagerBs.Add(itemMissileB);
+            }
+
+            var managers = missileDirectAnimManagerBs.ToArray();
+            if (managers == null || managers.Length == 0)
+            {
+                Debug.LogWarning("MissileDirectAnimManagerB がシーン内に見つかりませんでした。");
+                return;
+            }
+
+            foreach (var manager in managers)
+            {
+                _missileDirectAnimManagerB = manager;
+                SetEnableClickDetection(isEnableClickDetection);
+            }
+        }
+
         public void SetEnableClickDetection(bool isEnableClickDetection)
         {
             if (_missileDirectAnimManagerB == null)
@@ -1882,46 +1885,23 @@ namespace Mains.External
         }
 
         /// <summary>
-        /// シーン内の全ノーツのクリック判定のみを有効・無効にする
-        /// </summary>
-        /// <remarks>
-        /// enabled = false と違いアニメーション・リングの表示は維持される
-        /// enableClickDetection フィールドをリフレクションで操作
-        /// </remarks>
-        public void SetAllNotesClickDetection(bool isEnable)
-        {
-            var managers = GameObject.FindObjectsByType<MissileDirectAnimManagerB>(FindObjectsSortMode.None);
-            if (managers == null || managers.Length == 0)
-            {
-                Debug.LogWarning("MissileDirectAnimManagerB がシーン内に見つかりませんでした。");
-                return;
-            }
-
-            var managerType = typeof(MissileDirectAnimManagerB);
-            var enableClickDetectionField = managerType.GetField("enableClickDetection", BindingFlags.NonPublic | BindingFlags.Instance);
-            if (enableClickDetectionField == null)
-            {
-                Debug.LogWarning("enableClickDetection フィールドが見つかりませんでした。");
-                return;
-            }
-
-            foreach (var manager in managers)
-            {
-                enableClickDetectionField.SetValue(manager, isEnable);
-            }
-        }
-
-        /// <summary>
         /// アクティブなショートノーツを監視して、クリック可能なタイミングになったらtrueを返す
         /// </summary>
+        /// <param name="targetIndex">対象のインデックス</param>
         /// <returns>クリック可能なタイミングのショートノーツが存在するか</returns>
-        public bool IsAnyShortNoteClickable()
+        public bool IsAnyShortNoteClickable(int targetIndex)
         {
-            var managers = GameObject.FindObjectsByType<MissileDirectAnimManagerB>(FindObjectsSortMode.None);
-            if (managers == null || managers.Length == 0) return false;
+            if (_missileTempoSpawner == null)
+            {
+                Debug.LogWarning("MissileTempoSpawnerがセットされていません。");
+                return false;
+            }
+
+            List<HomingObject> homingObjects = _missileTempoSpawner.InstancedHomingObjects;
+            HomingObject homingObject = homingObjects[targetIndex];
+            MissileDirectAnimManagerB missileDirectAnimManagerB = homingObject.GetComponent<MissileDirectAnimManagerB>();
 
             var managerType = typeof(MissileDirectAnimManagerB);
-            var clickGracePeriodField = managerType.GetField("clickGracePeriod", BindingFlags.NonPublic | BindingFlags.Instance);
             var oneBeatField = managerType.GetField("oneBeat", BindingFlags.NonPublic | BindingFlags.Instance);
             var objectCreationTimeField = managerType.GetField("objectCreationTime", BindingFlags.NonPublic | BindingFlags.Instance);
             var enableClickDetectionField = managerType.GetField("enableClickDetection", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -1930,37 +1910,34 @@ namespace Mains.External
             var isReturningToPoolField = managerType.GetField("isReturningToPool", BindingFlags.NonPublic | BindingFlags.Instance);
             var isForceReturningField = managerType.GetField("isForceReturning", BindingFlags.NonPublic | BindingFlags.Instance);
 
-            if (clickGracePeriodField == null || oneBeatField == null || objectCreationTimeField == null)
+            if (oneBeatField == null || objectCreationTimeField == null)
             {
                 return false;
             }
 
-            foreach (var manager in managers)
+            var manager = missileDirectAnimManagerB;
+            if (manager == null || !manager.gameObject.activeInHierarchy) return false;
+
+            if (manager.noteType != MissileNoteType.Short) return false;
+
+            if (isFailedField != null && (bool)isFailedField.GetValue(manager)) return false;
+            if (isSuccessfulField != null && (bool)isSuccessfulField.GetValue(manager)) return false;
+            if (isReturningToPoolField != null && (bool)isReturningToPoolField.GetValue(manager)) return false;
+            if (isForceReturningField != null && (bool)isForceReturningField.GetValue(manager)) return false;
+
+            float clickGracePeriod = manager.clickGracePeriod;
+            float oneBeat = (float)oneBeatField.GetValue(manager);
+            float objectCreationTime = (float)objectCreationTimeField.GetValue(manager);
+
+            float elapsedTime = Time.time - objectCreationTime;
+            float absoluteClickTargetTime = oneBeat * 4;
+            float timingDifference = elapsedTime - absoluteClickTargetTime;
+
+            bool inClickWindow = Mathf.Abs(timingDifference) <= clickGracePeriod;
+
+            if (inClickWindow)
             {
-                if (manager == null || !manager.gameObject.activeInHierarchy) continue;
-
-                if (manager.noteType != MissileNoteType.Short) continue;
-
-                if (isFailedField != null && (bool)isFailedField.GetValue(manager)) continue;
-                if (isSuccessfulField != null && (bool)isSuccessfulField.GetValue(manager)) continue;
-                if (enableClickDetectionField != null && !(bool)enableClickDetectionField.GetValue(manager)) continue;
-                if (isReturningToPoolField != null && (bool)isReturningToPoolField.GetValue(manager)) continue;
-                if (isForceReturningField != null && (bool)isForceReturningField.GetValue(manager)) continue;
-
-                float clickGracePeriod = (float)clickGracePeriodField.GetValue(manager);
-                float oneBeat = (float)oneBeatField.GetValue(manager);
-                float objectCreationTime = (float)objectCreationTimeField.GetValue(manager);
-
-                float elapsedTime = Time.time - objectCreationTime;
-                float absoluteClickTargetTime = oneBeat * 4;
-                float timingDifference = elapsedTime - absoluteClickTargetTime;
-
-                bool inClickWindow = Mathf.Abs(timingDifference) <= clickGracePeriod;
-
-                if (inClickWindow)
-                {
-                    return true;
-                }
+                return true;
             }
 
             return false;
@@ -1969,17 +1946,26 @@ namespace Mains.External
         /// <summary>
         /// アクティブなロングノーツを監視して、クリック可能なタイミング、または長押し中であればtrueを返す
         /// </summary>
+        /// <param name="targetIndex">対象のインデックス</param>
         /// <returns>重なっている（判定有効な）ロングノーツが存在するか</returns>
-        public bool IsAnyLongNoteClickable()
+        public bool IsAnyLongNoteClickable(int targetIndex)
         {
-            var managers = GameObject.FindObjectsByType<MissileDirectAnimManagerB>(FindObjectsSortMode.None);
-            if (managers == null || managers.Length == 0) return false;
+            if (_missileTempoSpawner == null)
+            {
+                Debug.LogWarning("MissileTempoSpawnerがセットされていません。");
+                return false;
+            }
+
+            List<HomingObject> homingObjects = _missileTempoSpawner.InstancedHomingObjects;
+            if (homingObjects.Count < 1)
+                return false;
+
+            HomingObject homingObject = homingObjects[targetIndex];
+            MissileDirectAnimManagerB missileDirectAnimManagerB = homingObject.GetComponent<MissileDirectAnimManagerB>();
 
             var managerType = typeof(MissileDirectAnimManagerB);
-            var clickGracePeriodField = managerType.GetField("clickGracePeriod", BindingFlags.NonPublic | BindingFlags.Instance);
             var oneBeatField = managerType.GetField("oneBeat", BindingFlags.NonPublic | BindingFlags.Instance);
             var objectCreationTimeField = managerType.GetField("objectCreationTime", BindingFlags.NonPublic | BindingFlags.Instance);
-            var enableClickDetectionField = managerType.GetField("enableClickDetection", BindingFlags.NonPublic | BindingFlags.Instance);
             var isFailedField = managerType.GetField("isFailed", BindingFlags.NonPublic | BindingFlags.Instance);
             var isSuccessfulField = managerType.GetField("isSuccessful", BindingFlags.NonPublic | BindingFlags.Instance);
             var isReturningToPoolField = managerType.GetField("isReturningToPool", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -1987,75 +1973,72 @@ namespace Mains.External
             var inputManagerField = managerType.GetField("inputManager", BindingFlags.NonPublic | BindingFlags.Instance);
             var micInputManagerField = managerType.GetField("micInputManager", BindingFlags.NonPublic | BindingFlags.Instance);
 
-            if (clickGracePeriodField == null || oneBeatField == null || objectCreationTimeField == null)
+            if (oneBeatField == null || objectCreationTimeField == null)
             {
                 return false;
             }
 
-            foreach (var manager in managers)
+            var manager = missileDirectAnimManagerB;
+            if (manager == null || !manager.gameObject.activeInHierarchy) return false;
+
+            if (manager.noteType != MissileNoteType.Long1Beat &&
+                manager.noteType != MissileNoteType.Long2Beat &&
+                manager.noteType != MissileNoteType.Long3Beat &&
+                manager.noteType != MissileNoteType.Long2Beat_Mic) return false;
+
+            if (isFailedField != null && (bool)isFailedField.GetValue(manager)) return false;
+            if (isSuccessfulField != null && (bool)isSuccessfulField.GetValue(manager)) return false;
+            if (isReturningToPoolField != null && (bool)isReturningToPoolField.GetValue(manager)) return false;
+            if (isForceReturningField != null && (bool)isForceReturningField.GetValue(manager)) return false;
+
+            float clickGracePeriod = manager.clickGracePeriod;
+            float oneBeat = (float)oneBeatField.GetValue(manager);
+            float objectCreationTime = (float)objectCreationTimeField.GetValue(manager);
+
+            float elapsedTime = Time.time - objectCreationTime;
+            float absoluteClickTargetTime = oneBeat * 4;
+            float timingDifference = elapsedTime - absoluteClickTargetTime;
+
+            bool inClickWindow = Mathf.Abs(timingDifference) <= clickGracePeriod;
+
+            if (inClickWindow)
             {
-                if (manager == null || !manager.gameObject.activeInHierarchy) continue;
+                return true;
+            }
 
-                if (manager.noteType != MissileNoteType.Long1Beat &&
-                    manager.noteType != MissileNoteType.Long2Beat &&
-                    manager.noteType != MissileNoteType.Long3Beat &&
-                    manager.noteType != MissileNoteType.Long2Beat_Mic) continue;
-
-                if (isFailedField != null && (bool)isFailedField.GetValue(manager)) continue;
-                if (isSuccessfulField != null && (bool)isSuccessfulField.GetValue(manager)) continue;
-                if (enableClickDetectionField != null && !(bool)enableClickDetectionField.GetValue(manager)) continue;
-                if (isReturningToPoolField != null && (bool)isReturningToPoolField.GetValue(manager)) continue;
-                if (isForceReturningField != null && (bool)isForceReturningField.GetValue(manager)) continue;
-
-                float clickGracePeriod = (float)clickGracePeriodField.GetValue(manager);
-                float oneBeat = (float)oneBeatField.GetValue(manager);
-                float objectCreationTime = (float)objectCreationTimeField.GetValue(manager);
-
-                float elapsedTime = Time.time - objectCreationTime;
-                float absoluteClickTargetTime = oneBeat * 4;
-                float timingDifference = elapsedTime - absoluteClickTargetTime;
-
-                bool inClickWindow = Mathf.Abs(timingDifference) <= clickGracePeriod;
-
-                if (inClickWindow)
+            if (manager.noteType == MissileNoteType.Long2Beat_Mic)
+            {
+                if (micInputManagerField != null)
                 {
-                    return true;
-                }
-
-                if (manager.noteType == MissileNoteType.Long2Beat_Mic)
-                {
-                    if (micInputManagerField != null)
+                    var micInputManager = micInputManagerField.GetValue(manager);
+                    if (micInputManager != null)
                     {
-                        var micInputManager = micInputManagerField.GetValue(manager);
-                        if (micInputManager != null)
+                        var methodInfo = micInputManager.GetType().GetMethod("IsLongPressStarted", BindingFlags.Public | BindingFlags.Instance);
+                        if (methodInfo != null)
                         {
-                            var methodInfo = micInputManager.GetType().GetMethod("IsLongPressStarted", BindingFlags.Public | BindingFlags.Instance);
-                            if (methodInfo != null)
+                            bool isLongPressStarted = (bool)methodInfo.Invoke(micInputManager, null);
+                            if (isLongPressStarted)
                             {
-                                bool isLongPressStarted = (bool)methodInfo.Invoke(micInputManager, null);
-                                if (isLongPressStarted)
-                                {
-                                    return true;
-                                }
+                                return true;
                             }
                         }
                     }
                 }
-                else
+            }
+            else
+            {
+                if (inputManagerField != null)
                 {
-                    if (inputManagerField != null)
+                    var inputManager = inputManagerField.GetValue(manager);
+                    if (inputManager != null)
                     {
-                        var inputManager = inputManagerField.GetValue(manager);
-                        if (inputManager != null)
+                        var methodInfo = inputManager.GetType().GetMethod("IsLongPressStarted", BindingFlags.Public | BindingFlags.Instance);
+                        if (methodInfo != null)
                         {
-                            var methodInfo = inputManager.GetType().GetMethod("IsLongPressStarted", BindingFlags.Public | BindingFlags.Instance);
-                            if (methodInfo != null)
+                            bool isLongPressStarted = (bool)methodInfo.Invoke(inputManager, null);
+                            if (isLongPressStarted)
                             {
-                                bool isLongPressStarted = (bool)methodInfo.Invoke(inputManager, null);
-                                if (isLongPressStarted)
-                                {
-                                    return true;
-                                }
+                                return true;
                             }
                         }
                     }
@@ -2068,90 +2051,113 @@ namespace Mains.External
         /// <summary>
         /// 判定可能状態のノーツに対して強制的にGOOD判定（クリック）を行う
         /// </summary>
-        public void ForceClickAnyClickableNote()
+        /// <param name="targetIndex">対象のインデックス</param>
+        public void ForceClickAnyClickableNote(int targetIndex)
         {
-            var managers = GameObject.FindObjectsByType<MissileDirectAnimManagerB>(FindObjectsSortMode.None);
-            if (managers == null || managers.Length == 0) return;
+            if (_missileTempoSpawner == null)
+            {
+                Debug.LogWarning("MissileTempoSpawnerがセットされていません。");
+                return;
+            }
+
+            List<HomingObject> homingObjects = _missileTempoSpawner.InstancedHomingObjects;
+            HomingObject homingObject = homingObjects[targetIndex];
+            MissileDirectAnimManagerB missileDirectAnimManagerB = homingObject.GetComponent<MissileDirectAnimManagerB>();
 
             var managerType = typeof(MissileDirectAnimManagerB);
-            var clickGracePeriodField = managerType.GetField("clickGracePeriod", BindingFlags.NonPublic | BindingFlags.Instance);
             var oneBeatField = managerType.GetField("oneBeat", BindingFlags.NonPublic | BindingFlags.Instance);
             var objectCreationTimeField = managerType.GetField("objectCreationTime", BindingFlags.NonPublic | BindingFlags.Instance);
-            var enableClickDetectionField = managerType.GetField("enableClickDetection", BindingFlags.NonPublic | BindingFlags.Instance);
             var isFailedField = managerType.GetField("isFailed", BindingFlags.NonPublic | BindingFlags.Instance);
             var isSuccessfulField = managerType.GetField("isSuccessful", BindingFlags.NonPublic | BindingFlags.Instance);
             var isReturningToPoolField = managerType.GetField("isReturningToPool", BindingFlags.NonPublic | BindingFlags.Instance);
             var isForceReturningField = managerType.GetField("isForceReturning", BindingFlags.NonPublic | BindingFlags.Instance);
 
-            if (clickGracePeriodField == null || oneBeatField == null || objectCreationTimeField == null) return;
+            if (oneBeatField == null || objectCreationTimeField == null) return;
 
-            foreach (var manager in managers)
+            var manager = missileDirectAnimManagerB;
+            if (manager == null || !manager.gameObject.activeInHierarchy) return;
+
+            if (isFailedField != null && (bool)isFailedField.GetValue(manager)) return;
+            if (isSuccessfulField != null && (bool)isSuccessfulField.GetValue(manager)) return;
+            if (isReturningToPoolField != null && (bool)isReturningToPoolField.GetValue(manager)) return;
+            if (isForceReturningField != null && (bool)isForceReturningField.GetValue(manager)) return;
+
+            float clickGracePeriod = manager.clickGracePeriod;
+            float oneBeat = (float)oneBeatField.GetValue(manager);
+            float objectCreationTime = (float)objectCreationTimeField.GetValue(manager);
+
+            float elapsedTime = Time.time - objectCreationTime;
+            float absoluteClickTargetTime = oneBeat * 4;
+            float timingDifference = elapsedTime - absoluteClickTargetTime;
+
+            bool inClickWindow = Mathf.Abs(timingDifference) <= clickGracePeriod;
+
+            if (inClickWindow)
             {
-                if (manager == null || !manager.gameObject.activeInHierarchy) continue;
-
-                if (isFailedField != null && (bool)isFailedField.GetValue(manager)) continue;
-                if (isSuccessfulField != null && (bool)isSuccessfulField.GetValue(manager)) continue;
-                if (enableClickDetectionField != null && !(bool)enableClickDetectionField.GetValue(manager)) continue;
-                if (isReturningToPoolField != null && (bool)isReturningToPoolField.GetValue(manager)) continue;
-                if (isForceReturningField != null && (bool)isForceReturningField.GetValue(manager)) continue;
-
-                float clickGracePeriod = (float)clickGracePeriodField.GetValue(manager);
-                float oneBeat = (float)oneBeatField.GetValue(manager);
-                float objectCreationTime = (float)objectCreationTimeField.GetValue(manager);
-
-                float elapsedTime = Time.time - objectCreationTime;
-                float absoluteClickTargetTime = oneBeat * 4;
-                float timingDifference = elapsedTime - absoluteClickTargetTime;
-
-                bool inClickWindow = Mathf.Abs(timingDifference) <= clickGracePeriod;
-
-                if (inClickWindow)
+                MethodInfo methodInfo = managerType.GetMethod("ProcessClick", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (methodInfo != null)
                 {
-                    MethodInfo methodInfo = managerType.GetMethod("ProcessClick", BindingFlags.NonPublic | BindingFlags.Instance);
-                    if (methodInfo != null)
-                    {
-                        methodInfo.Invoke(manager, new object[] { elapsedTime });
-                        return; // 1つ処理したら終了
-                    }
+                    methodInfo.Invoke(manager, new object[] { elapsedTime });
                 }
             }
         }
 
-        /// <summary>
-        /// 攻撃に向かってきているオバケをすべて消去する
-        /// </summary>
-        public void ClearAllAttackingGhosts()
+        /// <summary>自動成功モードへ強制的に切り替える処理</summary>
+        /// <param name="targetIndex">対象のインデックス</param>
+        /// <param name="autoMode">自動成功モード有効／無効</param>
+        public void ForceSetAutoMode(int targetIndex, bool autoMode)
         {
-            if (_objectPoolerXyloOther != null)
+            if (_missileTempoSpawner == null)
             {
-                var view = _objectPoolerXyloOther.GetComponent<Mains.Views.ObjectPoolerXyloOtherCustomizeView>();
-                if (view != null)
-                {
-                    view.DoAllDisabled();
-                }
+                Debug.LogWarning("MissileTempoSpawnerがセットされていません。");
+                return;
+            }
+
+            List<HomingObject> homingObjects = _missileTempoSpawner.InstancedHomingObjects;
+            HomingObject homingObject = homingObjects[targetIndex];
+            MissileDirectAnimManagerB missileDirectAnimManagerB = homingObject.GetComponent<MissileDirectAnimManagerB>();
+
+            if (missileDirectAnimManagerB != null)
+            {
+                missileDirectAnimManagerB.SetForceAutoMode(autoMode);
             }
         }
 
         /// <summary>
         /// ターゲットクロスと直近ノーツのスクリーン距離を取得する
         /// </summary>
-        public float GetNoteToCrosshairScreenDistance()
+        /// <param name="targetIndex">対象のインデックス</param>
+        public float GetNoteToCrosshairScreenDistance(int targetIndex)
         {
-            if (NoteTransform == null) return float.MaxValue;
+            if (_missileTempoSpawner == null)
+            {
+                Debug.LogWarning("MissileTempoSpawnerがセットされていません。");
+                return float.MaxValue;
+            }
+
+            List<HomingObject> homingObjects = _missileTempoSpawner.InstancedHomingObjects;
+            HomingObject homingObject = homingObjects[targetIndex];
+            MissileDirectAnimManagerB missileDirectAnimManagerB = homingObject.GetComponent<MissileDirectAnimManagerB>();
+
+            // プライベートフィールド `_uiManager` をリフレクションで取得
+            var noteGameObject = GetContainerObjectInMissileDirectAnimManagerB(missileDirectAnimManagerB);
+            var noteTransform = noteGameObject.transform;
+
+            if (noteTransform == null) return float.MaxValue;
             
             Camera cam = Camera.main;
             if (cam == null) return float.MaxValue;
 
             // ターゲットクロスは画面中央と仮定
-            Vector2 screenCenter = new Vector2(Screen.width / 2f, Screen.height / 2f);
+            Vector2 screenCenter = Input.mousePosition;
             
             // NoteTransformがRectTransformである前提でスクリーン座標を取得
-            Vector2 noteScreenPos = RectTransformUtility.WorldToScreenPoint(null, NoteTransform.position); // Overlay Canvasならcamはnull
+            Vector2 noteScreenPos = RectTransformUtility.WorldToScreenPoint(null, noteTransform.position); // Overlay Canvasならcamはnull
             
             // Camera.mainを用いてWorldToScreenPointを試行するフォールバック
-            if (noteScreenPos == Vector2.zero && NoteTransform.position != Vector3.zero)
+            if (noteScreenPos == Vector2.zero && noteTransform.position != Vector3.zero)
             {
-                noteScreenPos = RectTransformUtility.WorldToScreenPoint(cam, NoteTransform.position);
+                noteScreenPos = RectTransformUtility.WorldToScreenPoint(cam, noteTransform.position);
             }
 
             return Vector2.Distance(screenCenter, noteScreenPos);

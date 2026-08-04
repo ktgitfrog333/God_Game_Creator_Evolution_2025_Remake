@@ -13,6 +13,8 @@ namespace Selects.ViewModels
     [CreateAssetMenu(fileName = "RhythmPartPanelCustomizeOfMainViewModel", menuName = "Scriptable Objects/RhythmPartPanelCustomizeOfMainViewModel")]
     public class RhythmPartPanelCustomizeOfMainViewModel : ScriptableObject, IRhythmPartPanelModel, System.IDisposable
     {
+        /// <summary>リズムパートで有効なRewairedコントローラーマップカテゴリ</summary>
+        public string[] enabledMapsInCategories;
         /// <summary>プレイヤーのモデル</summary>
         private PlayerModel _playerModel;
         /// <summary>【探索／シャウトチャンス／リズム】パート</summary>

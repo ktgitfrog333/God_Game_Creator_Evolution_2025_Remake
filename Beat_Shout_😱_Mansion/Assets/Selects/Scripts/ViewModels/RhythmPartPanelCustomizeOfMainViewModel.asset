@@ -12,3 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64b8f85ca7812ac46be01f0a670a5d19, type: 3}
   m_Name: RhythmPartPanelCustomizeOfMainViewModel
   m_EditorClassIdentifier: 
+  enabledMapsInCategories:
+  - Default
+  - CategoryTutorialAimMoveOnly
+  - CategoryTutorialTapLightOnly
+  - CategoryTutorialMoveAllAndSearchAndAimMoveAndSwitchPartInhaleAndTapLight
+  - CategoryTutorialMoveAllAndSearchAndAimMoveAndSwitchPartInhaleAndTapLight

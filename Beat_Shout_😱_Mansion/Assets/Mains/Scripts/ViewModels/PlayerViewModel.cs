@@ -81,6 +81,10 @@ namespace Mains.ViewModels
         public bool ShoutNoteActive => _playerModel?.ShoutNoteActive ?? false;
         /// <summary>敵戦パート</summary>
         public EnemyBattlePart EnemyBattlePart => _playerModel?.EnemyBattlePart ?? EnemyBattlePart.Normal;
+        /// <summary>電池落下タイプ</summary>
+        private readonly ReactiveProperty<BatteryDropType> _batteryDropType = new ReactiveProperty<BatteryDropType>();
+        /// <summary>電池落下タイプ</summary>
+        public ReadOnlyReactiveProperty<BatteryDropType> BatteryDropType => _batteryDropType;
 
         public PlayerViewModel(InteractionPartTable interactionPartTable)
         {
@@ -109,6 +113,11 @@ namespace Mains.ViewModels
             _playerModel.TargetGhost.Subscribe(targetGhost =>
             {
                 _targetGhost.Execute(targetGhost);
+            })
+                .AddTo(ref _disposableBag);
+            _playerModel.BatteryDropType.Subscribe(x =>
+            {
+                _batteryDropType.Value = x;
             })
                 .AddTo(ref _disposableBag);
         }

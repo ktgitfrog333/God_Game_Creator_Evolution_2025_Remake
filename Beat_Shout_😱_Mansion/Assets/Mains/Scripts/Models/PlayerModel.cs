@@ -112,9 +112,9 @@ namespace Mains.Models
         private ReactiveCommand<int> _isCompletedRhythmPart = new ReactiveCommand<int>();
         /// <summary>リズムパート完了フラグ</summary>
         public ReactiveCommand<int> IsCompletedRhythmPart => _isCompletedRhythmPart;
-        /// <summary>リズムパートでミスした時にハートが減少する演出完了フラグ
+        /// <summary>リズムパートでミスした時にハートが減少する演出完了フラグ</summary>
         private ReactiveCommand<bool> _isCompletedDirection = new ReactiveCommand<bool>();
-        /// <summary>リズムパートでミスした時にハートが減少する演出完了フラグ
+        /// <summary>リズムパートでミスした時にハートが減少する演出完了フラグ</summary>
         public ReactiveCommand<bool> IsCompletedDirection => _isCompletedDirection;
         /// <summary>リズムパートが失敗で終了したか</summary>
         private ReactiveCommand<bool> _isBadEndRhythmPart = new ReactiveCommand<bool>();
@@ -177,6 +177,39 @@ namespace Mains.Models
         private ReactiveCommand<EnumEventCommand> _eventStateReactive = new ReactiveCommand<EnumEventCommand>();
         /// <summary>実行イベントの監視</summary>
         public ReactiveCommand<EnumEventCommand> EventStateReactive => _eventStateReactive;
+        /// <summary>ミサイルテンポスポナーのトランスフォーム</summary>
+        private ReactiveProperty<Transform> _missileTempoSpawnerTrans = new ReactiveProperty<Transform>();
+        /// <summary>ミサイルテンポスポナーのトランスフォーム</summary>
+        public ReadOnlyReactiveProperty<Transform> MissileTempoSpawnerTrans => _missileTempoSpawnerTrans;
+        /// <summary>強制的に背面扱いで返すかのフラグ</summary>
+        /// <remarks>チュートリアルではノーツクリック判定を明示的に有効／無効に切り替える処理が存在する<br/>
+        /// それとは別に既存クラス <see cref="Views.MissileDirectAnimManagerBCustomizeView"/> から <see cref="External.Script_xyloApi.SetEnableClickDetection"/>> を呼び出す処理もあり、競合する<br/>
+        /// そのため、チュートリアル中は任意のタイミングでフラグ更新を止めて管理</remarks>
+        private bool _isBackReturnForce;
+        /// <summary>ノーツの成功判定通知</summary>
+        private ReactiveCommand<bool> _onNoteSuccessful = new ReactiveCommand<bool>();
+        /// <summary>ノーツの成功判定通知</summary>
+        public ReactiveCommand<bool> OnNoteSuccessful => _onNoteSuccessful;
+        /// <summary>ノーツの失敗判定通知</summary>
+        private ReactiveCommand<bool> _onNoteFailed = new ReactiveCommand<bool>();
+        /// <summary>ノーツの失敗判定通知</summary>
+        public ReactiveCommand<bool> OnNoteFailed => _onNoteFailed;
+        /// <summary>電池落下タイプ</summary>
+        private readonly ReactiveProperty<BatteryDropType> _batteryDropType = new ReactiveProperty<BatteryDropType>();
+        /// <summary>電池落下タイプ</summary>
+        public ReadOnlyReactiveProperty<BatteryDropType> BatteryDropType => _batteryDropType;
+        /// <summary>HP減少通知</summary>
+        private readonly ReactiveCommand<Unit> _onHpDecreasedTutorial = new ReactiveCommand<Unit>();
+        /// <summary>HP減少通知</summary>
+        public ReactiveCommand<Unit> OnHpDecreasedTutorial => _onHpDecreasedTutorial;
+        /// <summary>MissGhostAttackヒット通知</summary>
+        private readonly ReactiveCommand<Unit> _isHitMissGhostAttackTutorial = new ReactiveCommand<Unit>();
+        /// <summary>MissGhostAttackヒット通知</summary>
+        public ReactiveCommand<Unit> IsHitMissGhostAttackTutorial => _isHitMissGhostAttackTutorial;
+        /// <summary>ユーザー情報をロック中か</summary>
+        private readonly ReactiveProperty<bool> _isLockUserBean = new ReactiveProperty<bool>();
+        /// <summary>ユーザー情報をロック中か</summary>
+        public ReadOnlyReactiveProperty<bool> IsLockUserBean => _isLockUserBean;
 
         private void Start()
         {
@@ -429,7 +462,8 @@ namespace Mains.Models
 
         public bool IsFrontMissileDirectAnim(Transform transform)
         {
-            if (_missileDirectAnimCustomizeStructs == null ||
+            if (_isBackReturnForce ||
+                _missileDirectAnimCustomizeStructs == null ||
                 _missileDirectAnimCustomizeStructs.Length < 1)
             {
                 return false;
@@ -511,11 +545,31 @@ namespace Mains.Models
 
         public void SetIsBadEndRhythmPart(bool isBadEndRhythmPart)
         {
-            if (!_playerPropertiesStruct.isLockedUpdateHealthPoint)
+            // TODO: 負債の懸念あり。PoltergeistViewと条件重複している気がする。
+            var enemyBattlePart = _enemyBattlePart;
+            switch (enemyBattlePart)
             {
-                // 多段ヒット防止
-                _playerPropertiesStruct.isLockedUpdateHealthPoint = true;
-                _isBadEndRhythmPart.Execute(isBadEndRhythmPart);
+                case EnemyBattlePart.Tutorial:
+                    var batteryDropType = _batteryDropType.Value;
+                    switch (batteryDropType)
+                    {
+                        case Commons.BatteryDropType.Falling:
+                            // チュートリアルは特殊なので他の処理と関連している内部変数は使用しない
+                            _isHitMissGhostAttackTutorial.Execute(Unit.Default);
+
+                            break;
+                    }
+
+                    break;
+                default:
+                    if (!_playerPropertiesStruct.isLockedUpdateHealthPoint)
+                    {
+                        // 多段ヒット防止
+                        _playerPropertiesStruct.isLockedUpdateHealthPoint = true;
+                        _isBadEndRhythmPart.Execute(isBadEndRhythmPart);
+                    }
+
+                    break;
             }
         }
 
@@ -598,6 +652,41 @@ namespace Mains.Models
         public void SetPlayerCharacterController(CharacterController characterController)
         {
             _playerCharacterController = characterController;
+        }
+
+        public void SetMissileTempoSpawnerTrans(Transform transform)
+        {
+            _missileTempoSpawnerTrans.Value = transform;
+        }
+
+        public void SetIsBackReturnForce(bool isBackReturnForce)
+        {
+            _isBackReturnForce = isBackReturnForce;
+        }
+
+        public void SetOnNoteSuccessful(bool onNoteSuccessful)
+        {
+            _onNoteSuccessful.Execute(onNoteSuccessful);
+        }
+
+        public void SetOnNoteFailed(bool onNoteFailed)
+        {
+            _onNoteFailed.Execute(onNoteFailed);
+        }
+
+        public void SetBatteryDropType(BatteryDropType batteryDropType)
+        {
+            _batteryDropType.Value = batteryDropType;
+        }
+
+        public void SetOnHpDecreasedTutorial()
+        {
+            _onHpDecreasedTutorial.Execute(Unit.Default);
+        }
+
+        public void SetIsLockUserBean(bool isLockUserBean)
+        {
+            _isLockUserBean.Value = isLockUserBean;
         }
     }
 
@@ -751,6 +840,11 @@ namespace Mains.Models
         /// </summary>
         /// <param name="midBosskillsRate">中ボスオバケ退治率</param>
         public void SetMidBosskillsRate(float midBosskillsRate);
+        /// <summary>
+        /// ミサイルテンポスポナーのトランスフォームをセット
+        /// </summary>
+        /// <param name="transform">ミサイルテンポスポナーのトランスフォーム</param>
+        public void SetMissileTempoSpawnerTrans(Transform transform);
     }
 
     /// <summary>
@@ -798,6 +892,16 @@ namespace Mains.Models
         /// [Script_xyloApi.cs]リズムパート失敗をセット
         /// </summary>
         public void SetIsFailed(bool isFailed);
+        /// <summary>
+        /// ノーツの成功判定通知をセット
+        /// </summary>
+        /// <param name="onNoteSuccessful">ノーツの成功判定通知</param>
+        public void SetOnNoteSuccessful(bool onNoteSuccessful);
+        /// <summary>
+        /// ノーツの失敗判定通知をセット
+        /// </summary>
+        /// <param name="onNoteFailed">ノーツの失敗判定通知</param>
+        public void SetOnNoteFailed(bool onNoteFailed);
     }
 
 
@@ -918,6 +1022,10 @@ namespace Mains.Models
         /// プレイヤーのHPを減らす
         /// </summary>
         public void SubtractionHealthPoint();
+        /// <summary>
+        /// HP減少通知を通知
+        /// </summary>
+        public void SetOnHpDecreasedTutorial();
     }
 
     /// <summary>
@@ -967,5 +1075,30 @@ namespace Mains.Models
         /// </summary>
         /// <param name="enemyBattlePart">敵戦パート</param>
         public void SetEnemyBattlePart(EnemyBattlePart enemyBattlePart);
+        /// <summary>
+        /// 強制的に背面扱いで返すかのフラグをセット
+        /// </summary>
+        /// <param name="isBackReturnForce">強制的に背面扱いで返すかのフラグ</param>
+        public void SetIsBackReturnForce(bool isBackReturnForce);
+        /// <summary>
+        /// 電池落下タイプをセット
+        /// </summary>
+        /// <param name="batteryDropType">電池落下タイプ</param>
+        public void SetBatteryDropType(BatteryDropType batteryDropType);
+        /// <summary>
+        /// プレイヤーの最大HPをセット
+        /// </summary>
+        /// <param name="healthPointMax">プレイヤーの最大HP</param>
+        public void SetHealthPointMax(int healthPointMax);
+        /// <summary>
+        /// リズムパートでミスした時にハートが減少する演出完了フラグをセット
+        /// </summary>
+        /// <param name="isCompleted">リズムパートでミスした時にハートが減少する演出完了フラグ</param>
+        public void SetIsCompletedDirection(bool isCompleted);
+        /// <summary>
+        /// ユーザー情報をロック中かをセット
+        /// </summary>
+        /// <param name="isLockUserBean">ユーザー情報をロック中か</param>
+        public void SetIsLockUserBean(bool isLockUserBean);
     }
 }

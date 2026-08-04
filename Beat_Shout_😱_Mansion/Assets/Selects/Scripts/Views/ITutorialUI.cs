@@ -31,5 +31,29 @@ namespace Selects.Views
         /// <param name="duration">アニメーション終了時間</param>
         /// <param name="token">UniTaskのキャンセラレーショントークン</param>
         UniTask FadeOutAsync(float duration, CancellationToken token);
+
+        /// <summary>
+        /// 共通UIのビューの有効／無効を切り替える
+        /// </summary>
+        /// <param name="enabled">有効／無効</param>
+        void SetCommonPanelCustomizeOfMainViewEnabled(bool enabled);
+
+        /// <summary>共通UIのビュー</summary>
+        CommonPanelCustomizeOfMainView CommonPanelCustomizeOfMainView { get; }
+
+        /// <summary>ステージ1の案内演出の再生</summary>
+        void PlayStage1GuideDirection();
+
+        /// <summary>ステージ1の案内演出の完了フラグ</summary>
+        ReadOnlyReactiveProperty<bool> IsCompletedStage1GuideDirection { get; }
+
+        /// <summary>初期処理の完了フラグ</summary>
+        ReadOnlyReactiveProperty<bool> IsCompletedStart { get; }
+
+        /// <summary>オブジェクトの有効／無効フラグ</summary>
+        ReadOnlyReactiveProperty<bool> IsEnabled { get; }
+
+        /// <summary>オブジェクトの有効／無効をセット</summary>
+        void SetEnabledTutorialPanel(bool enabled);
     }
 }

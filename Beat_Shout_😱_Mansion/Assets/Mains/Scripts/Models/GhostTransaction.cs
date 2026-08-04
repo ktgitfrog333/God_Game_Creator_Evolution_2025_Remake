@@ -114,5 +114,20 @@ namespace Mains.Models
         {
             throw new System.NotImplementedException();
         }
+
+        public void SetMissileTempoSpawnerTrans(Transform transform)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void SetOnNoteSuccessful(bool onNoteSuccessful)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void SetOnNoteFailed(bool onNoteFailed)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

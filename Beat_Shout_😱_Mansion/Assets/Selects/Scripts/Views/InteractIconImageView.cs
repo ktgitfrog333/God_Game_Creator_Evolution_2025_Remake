@@ -42,7 +42,8 @@ namespace Selects.Views
         {
             var set = settings;
             _iconTween = _arrowTrans.DOAnchorPosY(-7.5f, 0.5f)
-                .SetLoops(-1, LoopType.Yoyo);
+                .SetLoops(-1, LoopType.Yoyo)
+                .SetUpdate(true);
         }
 
         private void OnDisable()

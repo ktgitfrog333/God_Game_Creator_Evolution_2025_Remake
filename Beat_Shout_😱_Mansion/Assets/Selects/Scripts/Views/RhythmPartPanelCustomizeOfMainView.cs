@@ -60,11 +60,21 @@ namespace Selects.Views
                         targetCrossDisposable = Observable.EveryUpdate()
                             .Select(_ =>
                             {
-                                bool isDefaultMapEnabled =
-                                    player.controllers.maps.GetAllMapsInCategory("Default")
+                                bool isDefaultMapEnabled = false;
+                                foreach (var enabledMapsInCategory in viewModel.enabledMapsInCategories)
+                                {
+                                    isDefaultMapEnabled = player.controllers.maps.GetAllMapsInCategory(enabledMapsInCategory)
                                             .Any(m => m.enabled);
 
+                                    if (isDefaultMapEnabled)
+                                        break;
+                                }
+
                                 return isDefaultMapEnabled;
+                            })
+                            .Do(x =>
+                            {
+                                targetCrossImage.gameObject.SetActive(x);
                             })
                             .Where(x => x)
                             .Subscribe(_ =>

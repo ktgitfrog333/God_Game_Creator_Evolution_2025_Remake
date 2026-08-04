@@ -74,6 +74,7 @@ namespace Mains.Views
                     instancesGoodContents.Item1 = instances.Item1.GetComponent<GoodPanelView>();
                     instancesGoodContents.Item2 = instances.Item2.GetComponent<ParticleSystem>();
                     DoSubtractionTransactionGhostInStaticObjectStruct(_viewModel);
+                    DoSetOnNoteSuccessful(_viewModel);
                     _script_XyloApi.PlayHitSuccess3(notesType);
                 })
                 .AddTo(ref _disposableBag);
@@ -83,6 +84,7 @@ namespace Mains.Views
                 {
                     ShowUIPanelAtObjectPosition(badPanelPrefab, canvasTransform, badParticleSysPrefab, _script_XyloApi.NoteTransform, trans);
                     _script_XyloApi.PlayHitMiss3();
+                    DoSetOnNoteFailed(_viewModel);
                 })
                 .AddTo(ref _disposableBag);
             _script_XyloApi.IsFailedReactive.Where(_ => gameObject.activeSelf)
@@ -227,6 +229,24 @@ namespace Mains.Views
         private void DoSubtractionTransactionGhostInStaticObjectStruct(HomingObjectCustomizeViewModel viewModel)
         {
             viewModel.SubtractionTransactionGhostInStaticObjectStruct();
+        }
+
+        /// <summary>
+        /// ノーツの成功判定通知をセットを呼び出す
+        /// </summary>
+        /// <param name="viewModel">オブジェクトをホーミングする処理のカスタマイズビューモデル</param>
+        private void DoSetOnNoteSuccessful(HomingObjectCustomizeViewModel viewModel)
+        {
+            viewModel.SetOnNoteSuccessful(true);
+        }
+
+        /// <summary>
+        /// ノーツの成功判定通知をセットを呼び出す
+        /// </summary>
+        /// <param name="viewModel">オブジェクトをホーミングする処理のカスタマイズビューモデル</param>
+        private void DoSetOnNoteFailed(HomingObjectCustomizeViewModel viewModel)
+        {
+            viewModel.SetOnNoteFailed(true);
         }
 
         /// <summary>

@@ -44,8 +44,6 @@ namespace Selects.ViewModels
         private ReactiveCommand<EnumEventCommand> _eventStateReactive = new ReactiveCommand<EnumEventCommand>();
         /// <summary>実行イベントの監視</summary>
         public ReactiveCommand<EnumEventCommand> EventStateReactive => _eventStateReactive;
-        /// <summary>共通パネルのフッターパネル</summary>
-        public RectTransform CommonFooterPanelRectTrans => throw new System.NotImplementedException();
         /// <summary>懐中電灯トリガー接触状態</summary>
         private ReactiveProperty<bool> _flashLightTriggerStay = new ReactiveProperty<bool>(false);
         /// <summary>懐中電灯トリガー接触状態</summary>
@@ -86,6 +84,32 @@ namespace Selects.ViewModels
         private ReactiveProperty<bool> _isCompletedStartDirection = new ReactiveProperty<bool>();
         /// <summary>ステージ開始演出が完了したか</summary>
         public ReadOnlyReactiveProperty<bool> IsCompletedStartDirection => _isCompletedStartDirection;
+        /// <summary>ミサイルテンポスポナーのトランスフォーム</summary>
+        private ReactiveProperty<Transform> _missileTempoSpawnerTrans = new ReactiveProperty<Transform>();
+        /// <summary>ミサイルテンポスポナーのトランスフォーム</summary>
+        public ReadOnlyReactiveProperty<Transform> MissileTempoSpawnerTrans => _missileTempoSpawnerTrans;
+        /// <summary>ノーツの成功判定通知</summary>
+        private ReactiveCommand<bool> _onNoteSuccessful = new ReactiveCommand<bool>();
+        /// <summary>ノーツの成功判定通知</summary>
+        public ReactiveCommand<bool> OnNoteSuccessful => _onNoteSuccessful;
+        /// <summary>ノーツの失敗判定通知</summary>
+        private ReactiveCommand<bool> _onNoteFailed = new ReactiveCommand<bool>();
+        /// <summary>ノーツの失敗判定通知</summary>
+        public ReactiveCommand<bool> OnNoteFailed => _onNoteFailed;
+        /// <summary>電池の落下した通知</summary>
+        private readonly ReactiveCommand<Unit> _onFalledBattery = new ReactiveCommand<Unit>();
+        /// <summary>電池の落下した通知</summary>
+        public ReactiveCommand<Unit> OnFalledBattery => _onFalledBattery;
+        /// <summary>落下した電池の取得通知</summary>
+        private readonly ReactiveCommand<Unit> _onBatteryPicked = new ReactiveCommand<Unit>();
+        /// <summary>落下した電池の取得通知</summary>
+        public ReactiveCommand<Unit> OnBatteryPicked => _onBatteryPicked;
+        /// <summary>HP減少通知</summary>
+        private readonly ReactiveCommand<Unit> _onHpDecreasedTutorial = new ReactiveCommand<Unit>();
+        /// <summary>HP減少通知</summary>
+        public ReactiveCommand<Unit> OnHpDecreasedTutorial => _onHpDecreasedTutorial;
+        /// <summary>バッテリーのトランスフォーム</summary>
+        public Transform BatteryTransform => _playerModel?.BatteryTransform ?? null;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -118,7 +142,6 @@ namespace Selects.ViewModels
                         _eventStateReactive.Execute(x);
                     })
                         .AddTo(ref _disposableBag);
-                    _playerModel.SetHealthPointMax(set.開始時のプレイヤーの最大体力);
                     Observable.EveryUpdate()
                         .Select(_ => _playerModel.InteractionPartTable)
                         .Where(x => x != null)
@@ -135,6 +158,59 @@ namespace Selects.ViewModels
                     _playerModel.IsCompletedStartDirection.Subscribe(x =>
                     {
                         _isCompletedStartDirection.Value = x;
+                    })
+                        .AddTo(ref _disposableBag);
+                    _playerModel.MissileTempoSpawnerTrans.Subscribe(x =>
+                    {
+                        _missileTempoSpawnerTrans.Value = x;
+                    })
+                        .AddTo(ref _disposableBag);
+                    _playerModel.OnNoteSuccessful.Subscribe(x =>
+                    {
+                        _onNoteSuccessful.Execute(x);
+                    })
+                        .AddTo(ref _disposableBag);
+                    _playerModel.OnNoteFailed.Subscribe(x =>
+                    {
+                        _onNoteFailed.Execute(x);
+                    })
+                        .AddTo(ref _disposableBag);
+                    Observable.EveryUpdate()
+                        .Where(_ => _playerModel.EnemyBattlePart.Equals(EnemyBattlePart.Tutorial))
+                        .Take(1)
+                        .Subscribe(_ =>
+                        {
+                            ReactiveProperty<bool> isNull = new ReactiveProperty<bool>();
+                            isNull.Pairwise()
+                                .Where(x => x.Previous &&
+                                    !x.Current)
+                                .Subscribe(_ =>
+                                {
+                                    _onFalledBattery.Execute(Unit.Default);
+                                })
+                                .AddTo(ref _disposableBag);
+                            isNull.Pairwise()
+                                .Where(x => !x.Previous &&
+                                    x.Current)
+                                .Subscribe(_ =>
+                                {
+                                    _onBatteryPicked.Execute(Unit.Default);
+                                })
+                                .AddTo(ref _disposableBag);
+
+                            Observable.EveryUpdate()
+                                .Select(_ => _playerModel.BatteryTransform == null)
+                                .DistinctUntilChanged()
+                                .Subscribe(x =>
+                                {
+                                    isNull.Value = x;
+                                })
+                                .AddTo(ref _disposableBag);
+                        })
+                        .AddTo(ref _disposableBag);
+                    _playerModel.OnHpDecreasedTutorial.Subscribe(x =>
+                    {
+                        _onHpDecreasedTutorial.Execute(Unit.Default);
                     })
                         .AddTo(ref _disposableBag);
                 })
@@ -209,6 +285,52 @@ namespace Selects.ViewModels
         public void SetLeftStairsTrigger2FStay(bool leftStairsTrigger2FStay)
         {
             _leftStairsTrigger2FStay.Value= leftStairsTrigger2FStay;
+        }
+
+        public void SetIsBackReturnForce(bool isBackReturnForce)
+        {
+            _playerModel?.SetIsBackReturnForce(isBackReturnForce);
+        }
+
+        public void SetBatteryDropType(BatteryDropType batteryDropType)
+        {
+            _playerModel?.SetBatteryDropType(batteryDropType);
+        }
+
+        public void SetHealthPointMax()
+        {
+            SetHealthPointMax(0);
+        }
+
+        public void SetHealthPointMax(int healthPointMax)
+        {
+            var set = settings;
+            _playerModel?.SetHealthPointMax(set.開始時のプレイヤーの最大体力);
+        }
+
+        public void SetIsCompletedDirection(bool isCompleted)
+        {
+            _playerModel.SetIsCompletedDirection(isCompleted);
+        }
+
+        public void SetIsLockUserBean(bool isLockUserBean)
+        {
+            if (_playerModel != null)
+            {
+                _playerModel.SetIsLockUserBean(isLockUserBean);
+            }
+            else
+            {
+                Observable.EveryUpdate()
+                    .Select(_ => _playerModel)
+                    .Where(x => x != null)
+                    .Take(1)
+                    .Subscribe(model =>
+                    {
+                        model.SetIsLockUserBean(isLockUserBean);
+                    })
+                    .AddTo(ref _disposableBag);
+            }
         }
 
         public void Dispose()
