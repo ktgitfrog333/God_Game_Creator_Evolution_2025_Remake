@@ -128,6 +128,16 @@ namespace Mains.Views
             {
                 var isNoHitPlayerForceMode = table.IsNoHitPlayerForceMode;
                 api.SetIsNoHitPlayerForceMode(isNoHitPlayerForceMode);
+                // チュートリアルモードへ切り替わった場合は、Falseで更新する（1度のみ）
+                Observable.EveryUpdate()
+                    .Select(_ => viewModel.EnemyBattlePart)
+                    .Where(x => x.Equals(EnemyBattlePart.Tutorial))
+                    .Take(1)
+                    .Subscribe(_ =>
+                    {
+                        api.SetIsNoHitPlayerForceMode(false);
+                    })
+                    .AddTo(ref _disposableBag);
             }
         }
 

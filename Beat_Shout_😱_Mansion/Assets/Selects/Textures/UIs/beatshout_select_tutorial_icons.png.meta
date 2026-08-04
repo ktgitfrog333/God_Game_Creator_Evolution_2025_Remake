@@ -97,11 +97,11 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: beatshout_gameselect_tutorial_pc_key_wasd_0
+      name: beatshout_select_tutorial_icons_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 0
+        y: 96
         width: 32
         height: 32
       alignment: 0
@@ -112,14 +112,256 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0f3886055ab143440854fc31c0c1e918
-      internalID: 1243842257
+      spriteID: 33a48e40e5fb95745888c28abf6436da
+      internalID: 611669259
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: beatshout_gameselect_tutorial_pc_key_wasd_1
+      name: beatshout_select_tutorial_icons_1
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 96
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ad60d2f7cf5d0b04b847156cd80a14b2
+      internalID: -1490800140
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: beatshout_select_tutorial_icons_2
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 96
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 05c8a20d69868444c9b11de84762bab5
+      internalID: -1696647842
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: beatshout_select_tutorial_icons_3
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 96
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8b40263ff68ec2645a8938389a995d4a
+      internalID: -1170328897
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: beatshout_select_tutorial_icons_4
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 64
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9035f810bd86c874db5608869a7acacf
+      internalID: 108608966
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: beatshout_select_tutorial_icons_5
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 64
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: acdd9c3c967df7f428eddd19577ff299
+      internalID: -184227396
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: beatshout_select_tutorial_icons_6
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 64
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c146ee52ed751bd488d5be6c583af1c9
+      internalID: -567741153
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: beatshout_select_tutorial_icons_7
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 64
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 531091a9a8a0a2e49a24f2c4b285e867
+      internalID: -132338315
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: beatshout_select_tutorial_icons_8
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 32
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d188516a01cdc834db3082930379eac8
+      internalID: 736118520
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: beatshout_select_tutorial_icons_9
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 32
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5e809309bd940f040b7bd2fc3b40d7ca
+      internalID: -83254909
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: beatshout_select_tutorial_icons_10
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 32
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e0678c9a4de222642a65b51326f45164
+      internalID: 1190464079
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: beatshout_select_tutorial_icons_11
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 128
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1a957eae88e92ad4c8c8c7e9718ab3f6
+      internalID: -685823842
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: beatshout_select_tutorial_icons_12
       rect:
         serializedVersion: 2
         x: 32
@@ -134,8 +376,52 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: dca70fe12e47c9e4badf468f8b6bed6d
-      internalID: -258043412
+      spriteID: bf250956869087c4cb78d1d709c92a6f
+      internalID: -1533787781
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: beatshout_select_tutorial_icons_13
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 0
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 040ffc23dd6be1f40b58c7cb2443a925
+      internalID: -486121225
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: beatshout_select_tutorial_icons_14
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 0
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: eda6928fb54a60a4d9c46b9f1f9f7eb1
+      internalID: 457275621
       vertices: []
       indices: 
       edges: []
@@ -154,8 +440,21 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      beatshout_gameselect_tutorial_pc_key_wasd_0: 1243842257
-      beatshout_gameselect_tutorial_pc_key_wasd_1: -258043412
+      beatshout_select_tutorial_icons_0: 611669259
+      beatshout_select_tutorial_icons_1: -1490800140
+      beatshout_select_tutorial_icons_10: 1190464079
+      beatshout_select_tutorial_icons_11: -685823842
+      beatshout_select_tutorial_icons_12: -1533787781
+      beatshout_select_tutorial_icons_13: -486121225
+      beatshout_select_tutorial_icons_14: 457275621
+      beatshout_select_tutorial_icons_2: -1696647842
+      beatshout_select_tutorial_icons_3: -1170328897
+      beatshout_select_tutorial_icons_4: 108608966
+      beatshout_select_tutorial_icons_5: -184227396
+      beatshout_select_tutorial_icons_6: -567741153
+      beatshout_select_tutorial_icons_7: -132338315
+      beatshout_select_tutorial_icons_8: 736118520
+      beatshout_select_tutorial_icons_9: -83254909
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

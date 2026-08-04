@@ -289,6 +289,7 @@ namespace Mains.ViewModels
 
             var part = EnemyBattlePart;
             var checkClearStruct = table.subSettings.checkClearStruct;
+            
             var result = checkClearStruct.enemyBattlePart.Equals(part);
             if (!result)
             {
@@ -317,6 +318,12 @@ namespace Mains.ViewModels
         {
             if (_playerModel != null)
                 _playerModel.SetMidBosskillsRate(midBosskillsRate);
+        }
+
+        public void SetMissileTempoSpawnerTrans(Transform transform)
+        {
+            if (_playerModel != null)
+                _playerModel.SetMissileTempoSpawnerTrans(transform);
         }
 
         public void Dispose()

@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 690210008ae5bd04fa6436de1084b62d, type: 3}
+  m_Name: MissilePatternTable
+  m_EditorClassIdentifier: 
+  list:
+  - patternId: SMP0000
+    pattern: 00000000H1000C10000D1000E1000F1
+    successCount: 5
+  - patternId: SMP0001
+    pattern: 00000000H3
+    successCount: 0
+  - patternId: SMP0002
+    pattern: 00000000H3000000C30000000D3000000E3000000F3000
+    successCount: 5
+  - patternId: SMP0003
+    pattern: 00000000H5
+    successCount: 0
+  - patternId: SMP0004
+    pattern: 00000000H5000000C50000000D5000
+    successCount: 3
+  - patternId: SMP0005
+    pattern: 0
+    successCount: 3
+  firstHomingObjectTargetIndex: 4
+  ghostHomingStartedTargetIndex: 0
+  fromMouseToNotesDistance: 40

@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using R3;
 using Selects.Manager;
@@ -16,6 +17,8 @@ namespace Selects.Views
     {
         /// <summary>イメージ</summary>
         [SerializeField] private Image image;
+        /// <summary>フェードイメージの設定</summary>
+        [SerializeField] private FadeImageSettings settings;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -27,6 +30,7 @@ namespace Selects.Views
 
         private void Start()
         {
+            var set = settings;
             Observable.EveryUpdate()
                 .Select(_ => GameManager.Instance)
                 .Where(x => x != null)
@@ -38,16 +42,23 @@ namespace Selects.Views
                     owner.IsCompleted.Where(x => x)
                         .Subscribe(_ =>
                         {
-                            Observable.Create<bool>(observer =>
-                            {
-                                StartCoroutine(PlayFadeOutDirection(observer, 1.5f, false));
-                                return Disposable.Empty;
-                            })
-                                .Subscribe(_ =>
-                                {
-                                    viewModel.SetIsCompletedStartDirection(true);
-                                })
-                                .AddTo(ref _disposableBag);
+                            var sequencer = set.startDirectionSequencer;
+                            sequencer.SetDoPostHideEffectDelegate(
+                                (duraction, andFromTweenMode) => PlayFadeOutDirection(duraction, andFromTweenMode),
+                                this.GetCancellationTokenOnDestroy(),
+                                1.5f,
+                                false
+                            ).Forget();
+                            //Observable.Create<bool>(observer =>
+                            //{
+                            //    StartCoroutine(PlayFadeOutDirection(observer, 1.5f, false));
+                            //    return Disposable.Empty;
+                            //})
+                            //    .Subscribe(_ =>
+                            //    {
+                            //        viewModel.SetIsCompletedStartDirection(true);
+                            //    })
+                            //    .AddTo(ref _disposableBag);
                         })
                         .AddTo(ref _disposableBag);
                 })
@@ -56,7 +67,9 @@ namespace Selects.Views
 
         private void OnDestroy()
         {
+            var set = settings;
             _disposableBag.Dispose();
+            set.startDirectionSequencer.Dispose();
         }
 
         /// <summary>
@@ -82,6 +95,21 @@ namespace Selects.Views
                 }); // 緩やかなフェードイン
 
             yield return null;
+        }
+
+        /// <summary>
+        /// 暗幕フェードイン演出
+        /// </summary>
+        /// <param name="duration">終了時間</param>
+        /// <returns>オブザーバブル</returns>
+        public Observable<bool> PlayFadeInDirection(float duration = .5f)
+        {
+            return Observable.Create<bool>(observer =>
+            {
+                StartCoroutine(PlayFadeInDirection(observer, duration));
+
+                return Disposable.Empty;
+            });
         }
 
         /// <summary>
@@ -113,5 +141,31 @@ namespace Selects.Views
         
             yield return null;
         }
+
+        /// <summary>
+        /// 暗幕フェードアウト演出
+        /// </summary>
+        /// <param name="duration">終了時間</param>
+        /// <param name="andFromTweenMode">0から1遷移演出を有効</param>
+        /// <returns>オブザーバブル</returns>
+        public Observable<bool> PlayFadeOutDirection(float duration = .5f, bool andFromTweenMode = true)
+        {
+            return Observable.Create<bool>(observer =>
+            {
+                StartCoroutine(PlayFadeOutDirection(observer, duration, andFromTweenMode));
+
+                return Disposable.Empty;
+            });
+        }
+    }
+
+    /// <summary>
+    /// フェードイメージの設定
+    /// </summary>
+    [System.Serializable]
+    public class FadeImageSettings
+    {
+        /// <summary>ステージ開始演出のシーケンサ</summary>
+        public StartDirectionSequencer startDirectionSequencer;
     }
 }

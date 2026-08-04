@@ -19,21 +19,27 @@ namespace Selects.ViewModels
         private ReactiveCommand<int> _isOnTriggerEnterSearchRangeIndex = new ReactiveCommand<int>();
         /// <summary>部屋の扉の前で調べる当たり判定に触れた階層</summary>
         public ReactiveCommand<int> IsOnTriggerEnterSearchRangeIndex => _isOnTriggerEnterSearchRangeIndex;
+        /// <summary>ユーザー情報をロック中か</summary>
+        private readonly ReactiveProperty<bool> _isLockUserBean = new ReactiveProperty<bool>();
+        /// <summary>ユーザー情報をロック中か</summary>
+        public ReadOnlyReactiveProperty<bool> IsLockUserBean => _isLockUserBean;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
         public CommonPanelViewModel()
         {
-            System.IDisposable disposable = null;
-            disposable = Observable.EveryUpdate()
+            Observable.EveryUpdate()
                 .Select(_ => GameObject.FindAnyObjectByType<PlayerModel>())
                 .Where(x => x != null)
                 .Take(1)
                 .Subscribe(x =>
                 {
                     _playerModel = x;
-                    // 1度のみ実行されれば良いので破棄しても問題なし
-                    disposable.Dispose();
+                    _playerModel.IsLockUserBean.Subscribe(x =>
+                    {
+                        _isLockUserBean.Value = x;
+                    })
+                    .AddTo(ref _disposableBag);
                 })
                 .AddTo(ref _disposableBag);
             Observable.EveryUpdate()
@@ -59,14 +65,34 @@ namespace Selects.ViewModels
                 _playerModel.SetSelectedStageIndex(selectedStageIndex);
         }
 
-        public void Dispose()
-        {
-            _disposableBag.Dispose();
-        }
-
         public void SetIsOnTriggerEnterSearchRangeIndex(int isOnTriggerEnterSearchRangeIndex)
         {
             throw new System.NotImplementedException();
+        }
+
+        public void SetCommonHeaderPanelRectTrans(RectTransform commonHeaderPanelRectTrans)
+        {
+            if (_playerModel != null)
+            {
+                _playerModel.SetCommonHeaderPanelRectTrans(commonHeaderPanelRectTrans);
+            }
+            else
+            {
+                Observable.EveryUpdate()
+                    .Select(_ => _playerModel)
+                    .Where(x => x != null)
+                    .Take(1)
+                    .Subscribe(model =>
+                    {
+                        model.SetCommonHeaderPanelRectTrans(commonHeaderPanelRectTrans);
+                    })
+                    .AddTo(ref _disposableBag);
+            }
+        }
+
+        public void Dispose()
+        {
+            _disposableBag.Dispose();
         }
     }
 }

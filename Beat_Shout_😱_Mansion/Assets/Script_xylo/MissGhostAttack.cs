@@ -118,14 +118,21 @@ public class MissGhostAttack : MonoBehaviour
         {
             UpdateFailedMovement();
             // [2026/06/26] Amagata issue #80 start
-            if (IsNoHitPlayerForceMode)
+            // [2026/07/28] Amagata Tutorial Implementation: Stage Select start
+            //if (IsNoHitPlayerForceMode)
+            //{
+            //    var collider = GetComponent<BoxCollider>();
+            //    if (collider != null)
+            //    {
+            //        collider.enabled = false;
+            //    }
+            //}
+            var collider = GetComponent<BoxCollider>();
+            if (collider != null)
             {
-                var collider = GetComponent<BoxCollider>();
-                if (collider != null)
-                {
-                    collider.enabled = false;
-                }
+                collider.enabled = !IsNoHitPlayerForceMode;
             }
+            // [2026/07/28] Amagata Tutorial Implementation: Stage Select end
             // [2026/06/26] Amagata issue #80 end
         }
         else

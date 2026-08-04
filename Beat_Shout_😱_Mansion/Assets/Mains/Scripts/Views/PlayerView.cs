@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Mains.Commons;
 using Mains.External;
@@ -5,12 +6,16 @@ using Mains.Manager;
 using Mains.ViewModels;
 using R3;
 using Rewired;
+using Selects.Views;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Universal.Commons;
+using Universal.Utilities;
 
 namespace Mains.Views
 {
@@ -36,8 +41,6 @@ namespace Mains.Views
         [SerializeField] private PlayerShoutChanceTable シャウトチャンスパートの共通パラメータ管理用テーブル;
         /// <summary>プレイヤーのビューモデル</summary>
         private PlayerViewModel _playerViewModel;
-        /// <summary>フェードイメージのビュー</summary>
-        private FadeImageView _fadeImageView;
         /// <summary>地面との距離</summary>
         [SerializeField] private float distanceToGround;
         /// <summary>接地判定の対象レイヤー</summary>
@@ -58,6 +61,14 @@ namespace Mains.Views
         private bool _isDualInhaling;
         /// <summary>ボタン入力によるマイク入力時間</summary>
         private float _shoutNoteMicTimer;
+        /// <summary>現在のY軸回転角度 (左右回転)</summary>
+        private float _currentYaw;
+        /// <summary>プレイヤーのシャウト判定用レイの距離</summary>
+        /// <see cref="PlayerTable.rayLengthDefault"/>
+        /// <remarks>初期値は上記をセット</remarks>
+        private float _rayLength;
+        /// <summary>プレイヤーのテーブル</summary>
+        public PlayerTable PlayerTable => settings.playerTable;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -79,6 +90,27 @@ namespace Mains.Views
                 {
                     if (headTrans == null)
                         headTrans = child;
+                    foreach (Transform item in child)
+                    {
+                        if (item.name.Equals("Elbow"))
+                        {
+                            foreach (Transform item1 in item)
+                            {
+                                if (item1.name.Equals("Arm"))
+                                {
+                                    foreach (Transform item2 in item1)
+                                    {
+                                        if (item2.name.Equals("FlashLight"))
+                                        {
+                                            var set = settings;
+                                            if (set.FlashLight == null)
+                                                set.FlashLight = item2;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -180,9 +212,8 @@ namespace Mains.Views
             // プレイヤーへキーボードやコントローラー操作を割り当てる場合は
             // 当該プレハブから実施すること（シーンからの変更は適用されない）
             var player = ReInput.players.GetPlayer(0);
-            player.controllers.maps.SetMapsEnabled(true, "Default"); // ゲーム操作を無効化
             // 現在のY軸回転角度 (左右回転)
-            float currentYaw = headTrans.rotation.eulerAngles.y;
+            _currentYaw = headTrans.rotation.eulerAngles.y;
             // 現在のX軸回転角度 (上下回転)
             float currentPitch = headTrans.rotation.eulerAngles.x;
             // ターゲットとなるポルターガイストビュー
@@ -249,7 +280,7 @@ namespace Mains.Views
                                     .Subscribe(_ =>
                                     {
                                         headTrans.eulerAngles = poltergeistView.RhythmPartEulerAngles;
-                                        currentYaw = headTrans.eulerAngles.y;
+                                        _currentYaw = headTrans.eulerAngles.y;
                                         movePlayerAndpoltergeistProcessCnt.Value++;
                                     })
                                     .AddTo(ref _disposableBag);
@@ -276,24 +307,58 @@ namespace Mains.Views
             // 重力管理用のVelocity
             Vector3 velocity = Vector3.zero;
             _playerViewModel.SetPlayerTransform(transform);
-            // イントロが完了するまではプレイヤー操作禁止
-            characterController.enabled = false;
-            // フェード処理が完了するまではプレイヤー操作禁止
-            Observable.EveryUpdate()
-                .Select(_ => _playerViewModel.IsCompletedStartDirectionReactive)
-                .Where(x => x != null)
-                .Take(1)
-                .Subscribe(x =>
+            // ステージ開始演出のシーケンサ
+            var sequencer = set.startDirectionSequencer;
+            // チュートリアルモードか
+            bool isTutorial = false;
+            // セレクトシーンのみ
+            var currentSceneName = SceneManager.GetActiveScene().name;
+            if (currentSceneName.Equals(settings.targetSceneName))
+            {
+                ResourcesUtility utility = new ResourcesUtility();
+                UserBean userBean = utility.LoadSaveDatasJsonOfUserBean(ConstResorcesNames.USER_DATA);
+                bool isNormal = TutorialConditionEvaluator.ShouldSkip(userBean);
+                if (isNormal)
                 {
-                    x.Where(x => x)
-                        .Subscribe(_ =>
-                        {
-                            if (!characterController.enabled)
-                                characterController.enabled = true;
-                        })
-                        .AddTo(ref _disposableBag);
-                })
-                .AddTo(ref _disposableBag);
+                    var sceneIdx = userBean.sceneIdx;
+                    bool isMove = sceneIdx < 5;
+                    if (isMove)
+                    {
+                        _playerViewModel.StartPointTrans.Where(x => x != null)
+                            .Take(1)
+                            .Subscribe(startTrans =>
+                            {
+                                MoveToPoint(startTrans, false, trans, headTrans, characterController, ref _currentYaw, sequencer, this.GetCancellationTokenOnDestroy());
+                            })
+                            .AddTo(ref _disposableBag);
+                    }
+                }
+                else
+                {
+                    isTutorial = true;
+                }
+                _playerViewModel.SetPlayerFlashLight(settings.FlashLight);
+            }
+            // チュートリアルモード以外の場合：
+            //  [キャラクターコントローラー]：無効⇒演出⇒有効
+            //  [Rewiredのデフォルトコントローラーマップ]：無効⇒演出⇒有効
+            // チュートリアルモードの場合：
+            //  [キャラクターコントローラー]：無効⇒演出⇒有効
+            //  [Rewiredのデフォルトコントローラーマップ]：未設定（※チュートリアル側のロジックに委ねる）
+            sequencer.SetDoPreProcessDelegate(
+                (characterControllerEnabled, characterController, playerEnabled, player) => SetPlayerController(characterControllerEnabled, characterController, playerEnabled, player),
+                false,
+                characterController,
+                !isTutorial ? 1 : 0,
+                player,
+                this.GetCancellationTokenOnDestroy()
+            ).Forget();
+            sequencer.SetDoPostProcessDelegate(
+                (characterControllerEnabled, characterController, playerEnabled, player) => SetPlayerController(characterControllerEnabled, characterController, playerEnabled, player),
+                true,
+                !isTutorial ? 2 : 0,
+                this.GetCancellationTokenOnDestroy()
+            ).Forget();
             // シャウトが成功したポジション
             Vector3? successShoutPosition = null;
             // シャウトが成功したオイラー角度
@@ -307,6 +372,10 @@ namespace Mains.Views
                 targetGhost = x;
             })
                 .AddTo(ref _disposableBag);
+            // フェードイメージのビュー
+            ReactiveProperty<FadeImageView> fadeImageView = new ReactiveProperty<FadeImageView>();
+            // フェードイメージのビュー（セレクトシーン用）
+            ReactiveProperty<Selects.Views.FadeImageView> selectsFadeImageView = new ReactiveProperty<Selects.Views.FadeImageView>();
             Observable.EveryUpdate()
                 .Select(_ => _playerViewModel.InteractionPart)
                 .Where(x => x != null)
@@ -347,7 +416,7 @@ namespace Mains.Views
                                 observableTargetCrossPositionDisposable?.Dispose();
                                 // 1. 探索、シャウト用の操作
                                 observablePlayerControllerDisposable = Observable.EveryUpdate()
-                                    .Where(_ => characterController.enabled)
+                                    .Where(_ => characterController.enabled && Camera.main != null)
                                     .Subscribe(_ =>
                                     {
                                         // プレイヤーの移動入力
@@ -364,7 +433,7 @@ namespace Mains.Views
                                         }
                                         // 移動方向のベクトル
                                         Vector3 moveInput = new Vector3(moveX, 0, moveZ).normalized;
-                                        Vector3 moveDirection = Quaternion.Euler(0f, currentYaw, 0f) * moveInput;
+                                        Vector3 moveDirection = Quaternion.Euler(0f, _currentYaw, 0f) * moveInput;
 
                                         // カメラの正面方向
                                         if (mainCamera == null)
@@ -417,10 +486,10 @@ namespace Mains.Views
                                             }
                                         }
                                         // 視点移動入力
-                                        AjustHeadEulerAnglesXY(targetGhost, headTrans, player, ref currentYaw, ref currentPitch, 視点速度補正);
+                                        AjustHeadEulerAnglesXY(targetGhost, headTrans, player, ref _currentYaw, ref currentPitch, 視点速度補正);
 
                                         // 回転を適用
-                                        headTrans.rotation = Quaternion.Euler(currentPitch, currentYaw, 0f);
+                                        headTrans.rotation = Quaternion.Euler(currentPitch, _currentYaw, 0f);
 
                                         bool isSwitchPart = player.GetButtonDown("SwitchPart");
                                         _playerViewModel.SetIsSwitchPart(isSwitchPart);
@@ -529,19 +598,22 @@ namespace Mains.Views
                                     })
                                     .AddTo(ref _disposableBag);
                                 observableUpdateIsFailedDisposable = Observable.EveryUpdate()
-                                    .Where(_ => _playerViewModel.EnemyBattlePart.Equals(EnemyBattlePart.Normal))
                                     .Select(_ => _playerViewModel.IsFailed)
                                     .Where(x => x != null)
                                     .Take(1)
                                     .Subscribe(x =>
                                     {
                                         var customizeTable = set.playerCustomizeTable;
-                                        observableIsFailedDisposable = x.Where(x => x)
+                                        var isNoHitPlayerForceMode = customizeTable.IsNoHitPlayerForceMode;
+                                        observableIsFailedDisposable = x.Where(x => (_playerViewModel.EnemyBattlePart.Equals(EnemyBattlePart.Normal) &&
+                                                !isNoHitPlayerForceMode) ||
+                                            (_playerViewModel.EnemyBattlePart.Equals(EnemyBattlePart.Tutorial) &&
+                                                _playerViewModel.BatteryDropType.CurrentValue.Equals(BatteryDropType.Falling)) &&
+                                            x)
                                             .Subscribe(_ =>
                                             {
                                                 // [Miss]失敗を購読した場合は電池を落とす
-                                                var isNoHitPlayerForceMode = customizeTable.IsNoHitPlayerForceMode;
-                                                if (!isNoHitPlayerForceMode && _playerViewModel.BatteryTransform == null)
+                                                if (_playerViewModel.BatteryTransform == null)
                                                 {
                                                     Transform battery = DropBattery(headTrans, リズムパートで使用するプレイヤープロパティ.spotLightLightTrans);
                                                     _playerViewModel.SetBatteryTransform(battery);
@@ -575,7 +647,15 @@ namespace Mains.Views
                                             {
                                                 Observable.Create<bool>(observer =>
                                                 {
-                                                    StartCoroutine(_fadeImageView.PlayFadeOutDirection(observer, default, false));
+                                                    if (fadeImageView.Value != null &&
+                                                        selectsFadeImageView.Value == null)
+                                                    {
+                                                        StartCoroutine(fadeImageView.Value.PlayFadeOutDirection(observer, default, false));
+                                                    }
+                                                    else
+                                                    {
+                                                        StartCoroutine(selectsFadeImageView.Value.PlayFadeOutDirection(observer, default, false));
+                                                    }
                                                     return Disposable.Empty;
                                                 })
                                                     .Take(1)
@@ -594,7 +674,15 @@ namespace Mains.Views
                                                     {
                                                         Observable.Create<bool>(observer =>
                                                         {
-                                                            StartCoroutine(_fadeImageView.PlayFadeOutDirection(observer, default, false));
+                                                            if (fadeImageView.Value != null &&
+                                                                selectsFadeImageView.Value == null)
+                                                            {
+                                                                StartCoroutine(fadeImageView.Value.PlayFadeOutDirection(observer, default, false));
+                                                            }
+                                                            else
+                                                            {
+                                                                StartCoroutine(selectsFadeImageView.Value.PlayFadeOutDirection(observer, default, false));
+                                                            }
                                                             return Disposable.Empty;
                                                         })
                                                             .Take(1)
@@ -614,7 +702,7 @@ namespace Mains.Views
                                             {
                                                 trans.position = successShoutPosition.Value;
                                                 trans.eulerAngles = successShoutEulerAngles.Value;
-                                                currentYaw = trans.eulerAngles.y;
+                                                _currentYaw = trans.eulerAngles.y;
                                             }
                                             // 初期値へリセット
                                             successShoutPosition = null;
@@ -667,7 +755,16 @@ namespace Mains.Views
                 .Take(1)
                 .Subscribe(x =>
                 {
-                    _fadeImageView = x;
+                    fadeImageView.Value = x;
+                })
+                .AddTo(ref _disposableBag);
+            Observable.EveryUpdate()
+                .Select(_ => FindAnyObjectByType<Selects.Views.FadeImageView>())
+                .Where(x => x != null)
+                .Take(1)
+                .Subscribe(x =>
+                {
+                    selectsFadeImageView.Value = x;
                 })
                 .AddTo(ref _disposableBag);
             // シャウトチャンスレンジ検知
@@ -681,6 +778,8 @@ namespace Mains.Views
             System.IDisposable disposableDbLevel = null;
             // シャウト成功判定が既に実行されたかどうかを追跡
             bool isShoutSuccessProcessed = false;
+            var playerTable = set.playerTable;
+            _rayLength = playerTable.rayLengthDefault;
             Observable.EveryUpdate()
                 .Select(_ => _playerViewModel.InteractionPart)
                 .Where(x => x != null)
@@ -696,12 +795,11 @@ namespace Mains.Views
                         switch (x)
                         {
                             case InteractionPart.ShoutChance:
-                                float rayLength = 1f; // 正面に飛ばす長さ（必要に応じて調整）
-
                                 disposableShoutChanceRangesSetter = Observable.EveryUpdate()
                                     .Subscribe(_ =>
                                     {
                                         shoutChanceRanges.Clear();
+                                        float rayLength = _rayLength; // 正面に飛ばす長さ（必要に応じて調整）
 
                                         Vector3 origin = headTrans.position; // 目線の高さ
                                         Vector3 direction = headTrans.forward;
@@ -820,18 +918,8 @@ namespace Mains.Views
                     hitTriggerTrans.position = followPlayerCameraView.transform.position;
                 })
                 .AddTo(ref _disposableBag);
-            // セレクトシーンのみ
-            var currentSceneName = SceneManager.GetActiveScene().name;
-            if (currentSceneName.Equals(settings.targetSceneName))
-            {
-                _playerViewModel.StartPointTrans.Where(x => x != null)
-                    .Take(1)
-                    .Subscribe(startTrans =>
-                    {
-                        MoveToPoint(startTrans, _playerViewModel.IsCompletedStartDirection, trans, characterController, ref currentYaw);
-                    })
-                    .AddTo(ref _disposableBag);
-            }
+            _playerViewModel.SetPlayerHead(headTrans);
+            _playerViewModel.SetPlayerCharacterController(characterController);
             _didStartAsObservable.OnNext(Unit.Default);
             _didStartAsObservable.OnCompleted();
         }
@@ -965,8 +1053,33 @@ namespace Mains.Views
             _disposableBag.Dispose();
             _script_XyloApi?.Dispose();
             _playerViewModel?.Dispose();
+
+            set.startDirectionSequencer.Dispose();
             var customizeTable = set.playerCustomizeTable;
             customizeTable.Dispose();
+        }
+
+        /// <summary>
+        /// プレイヤー制御
+        /// </summary>
+        /// <param name="enabled">有効／無効</param>
+        /// <param name="characterController">キャラクターコントローラー</param>
+        /// <param name="playerEnabled">Rewiredプレイヤーの有効／無効</param>
+        /// <param name="player">Rewiredプレイヤー</param>
+        private void SetPlayerController(bool enabled, CharacterController characterController, int playerEnabled, Player player)
+        {
+            characterController.enabled = enabled;
+            switch (playerEnabled)
+            {
+                case 1:
+                    player.controllers.maps.SetMapsEnabled(false, "Default");
+
+                    break;
+                case 2:
+                    player.controllers.maps.SetMapsEnabled(true, "Default");
+
+                    break;
+            }
         }
 
         public Observable<Unit> DidStartAsObservable()
@@ -983,6 +1096,47 @@ namespace Mains.Views
 
                 return Disposable.Empty;
             });
+        }
+
+        /// <summary>
+        /// 現在のY軸回転角度 (左右回転)をセット
+        /// </summary>
+        /// <param name="currentYaw">現在のY軸回転角度 (左右回転)</param>
+        public void SetCurrentYaw(float currentYaw)
+        {
+            _currentYaw = currentYaw;
+        }
+
+        /// <summary>
+        /// プレイヤーのシャウト判定用レイの距離を切り替える
+        /// </summary>
+        /// <param name="type">距離タイプ</param>
+        /// <remarks>距離パラメータの直接指定は禁止<br/>
+        /// 距離タイプで分けて、数値に応じてテーブルに設定された距離へ更新する<br/>
+        /// 設定はロジック上で追加する</remarks>
+        public void SwitchRayLengthType(int type = 0)
+        {
+            float rayLength = 0f;
+            var set = settings;
+            var playerTable = set.playerTable;
+
+            switch (type)
+            {
+                case 0:
+                    rayLength = playerTable.rayLengthDefault;
+
+                    break;
+                case 1:
+                    rayLength = playerTable.rayLengthTutorialShoutPractice;
+
+                    break;
+                case 2:
+                    rayLength = playerTable.rayLengthTutorialShoutPerformance;
+
+                    break;
+            }
+
+            _rayLength = rayLength;
         }
 
         /// <summary>
@@ -1149,20 +1303,40 @@ namespace Mains.Views
         /// <param name="startPointTrans">ステージ開始位置</param>
         /// <param name="isCompletedStartDirection">ステージ開始演出が完了したか</param>
         /// <param name="trans">トランスフォーム</param>
+        /// <param name="headTrans">カメラ視線用のトランスフォーム</param>
         /// <param name="characterController">キャラクター移動制御</param>
         /// <param name="currentYaw">現在のY軸回転角度 (左右回転)</param>
-        private void MoveToPoint(Transform startPointTrans, bool isCompletedStartDirection, Transform trans, CharacterController characterController, ref float currentYaw)
+        /// <param name="startDirectionSequencer">ステージ開始演出のシーケンサ</param>
+        /// <param name="token">キャンセラレーショントークン</param>
+        private void MoveToPoint(Transform startPointTrans, bool isCompletedStartDirection, Transform trans, Transform headTrans, CharacterController characterController,
+            ref float currentYaw, StartDirectionSequencer startDirectionSequencer, CancellationToken token)
         {
-            if (characterController.enabled)
-                characterController.enabled = false;
-            trans.position = startPointTrans.position;
-            trans.eulerAngles = startPointTrans.eulerAngles;
-            currentYaw = trans.eulerAngles.y;
-            if (isCompletedStartDirection)
-            {
-                if (!characterController.enabled)
-                    characterController.enabled = true;
-            }
+            var sequencer = startDirectionSequencer;
+            sequencer.SetDoTeleportDelegate(
+                (position, angles, playerTransform, playerHeadTransform, playerView) => TeleportPlayer(position, angles, playerTransform, playerHeadTransform, playerView),
+                startPointTrans.position,
+                startPointTrans.eulerAngles,
+                trans,
+                headTrans,
+                this,
+                token
+            ).Forget();
+        }
+
+        /// <summary>
+        /// プレイヤーを座標位置へ瞬間移動
+        /// </summary>
+        /// <param name="position">移動先の位置</param>
+        /// <param name="angles">移動先の角度</param>
+        /// <param name="playerTransform">プレイヤーのTransform</param>
+        /// <param name="playerHeadTransform">プレイヤー頭のTransform</param>
+        /// <param name="playerView">プレイヤーのビュー</param>
+        private void TeleportPlayer(Vector3 position, Vector3 angles, Transform playerTransform, Transform playerHeadTransform, PlayerView playerView)
+        {
+            playerTransform.position = position;
+            playerTransform.eulerAngles = angles;
+            playerHeadTransform.eulerAngles = angles;
+            playerView.SetCurrentYaw(angles.y);
         }
     }
 
@@ -1175,6 +1349,12 @@ namespace Mains.Views
         /// <summary>対象シーン名</summary>
         /// <remarks>セレクトシーンを指定する</remarks>
         public string targetSceneName;
+        /// <summary>懐中電灯</summary>
+        public Transform FlashLight;
+        /// <summary>ステージ開始演出のシーケンサ</summary>
+        public StartDirectionSequencer startDirectionSequencer;
+        /// <summary>プレイヤーのテーブル</summary>
+        public PlayerTable playerTable;
         /// <summary>プレイヤーのカスタマイズテーブル</summary>
         public PlayerCustomizeTable playerCustomizeTable;
     }

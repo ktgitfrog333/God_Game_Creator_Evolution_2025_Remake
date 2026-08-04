@@ -5,6 +5,7 @@ using R3.Triggers;
 using Rewired;
 using UnityEngine;
 using UnityEngine.Playables;
+using Mains.Commons;
 
 namespace Mains.Views
 {
@@ -58,6 +59,14 @@ namespace Mains.Views
                     PlayHPDownDirection(settings.playableDirector, _viewModel);
                 })
                 .AddTo(ref _disposableBag);
+            // チュートリアル用オバケがプレイヤーへヒットして、HP減少演出を再生させる機構
+            _viewModel.IsHitMissGhostAttackTutorial.Where(_ => _viewModel.EnemyBattlePart.Equals(EnemyBattlePart.Tutorial) &&
+                _viewModel.BatteryDropType.CurrentValue.Equals(BatteryDropType.Falling))
+                .Subscribe(_ =>
+                {
+                    PlayHPDownDirection(settings.playableDirector, _viewModel, true);
+                })
+                .AddTo(ref _disposableBag);
         }
 
         private void OnDestroy()
@@ -75,10 +84,22 @@ namespace Mains.Views
         private void OnTimelineStopped(PlayableDirector d)
         {
             var viewModel = _viewModel;
-            viewModel.SetIsCompletedDirection(true);
-            viewModel.SetPlayerControllerEnabled(true);
-            Time.timeScale = 1f;
-            viewModel.SubtractionHealthPoint();
+            var enemyBattlePart = viewModel.EnemyBattlePart;
+            switch (enemyBattlePart)
+            {
+                case EnemyBattlePart.Tutorial:
+                    Time.timeScale = 1f;
+                    viewModel.SetOnHpDecreasedTutorial();
+
+                    break;
+                default:
+                    viewModel.SetIsCompletedDirection(true);
+                    viewModel.SetPlayerControllerEnabled(true);
+                    Time.timeScale = 1f;
+                    viewModel.SubtractionHealthPoint();
+
+                    break;
+            }
         }
 
         /// <summary>
@@ -86,9 +107,11 @@ namespace Mains.Views
         /// </summary>
         /// <param name="playableDirector">演出</param>
         /// <param name="viewModel">ハートが減少する演出ビューモデル</param>
-        private void PlayHPDownDirection(PlayableDirector playableDirector, HPDownDirectionViewModel viewModel)
+        /// <param name="ignoreSetPlayerControllerEnabled">コントローラーマップ更新を無視</param>
+        private void PlayHPDownDirection(PlayableDirector playableDirector, HPDownDirectionViewModel viewModel, bool ignoreSetPlayerControllerEnabled = false)
         {
-            viewModel.SetPlayerControllerEnabled(false);
+            if (!ignoreSetPlayerControllerEnabled)
+                viewModel.SetPlayerControllerEnabled(false);
             Time.timeScale = 0f;
             playableDirector.Play();
             _script_XyloApi.PlayDamage1();

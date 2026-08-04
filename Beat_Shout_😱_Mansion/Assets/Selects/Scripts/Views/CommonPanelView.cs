@@ -21,6 +21,8 @@ namespace Selects.Views
     /// </summary>
     public class CommonPanelView : MonoBehaviour
     {
+        [Tooltip("CommonPanel > HeaderPanel をセット")]
+        [SerializeField] private RectTransform commonHeaderPanelRectTrans;
         [Tooltip("CommonPanel > HeaderPanel > ControlGuidePanelPC をセット")]
         [SerializeField] private RectTransform controlGuidePanelPC;
         [Tooltip("CommonPanel > HeaderPanel > ControlGuidePanelXbox360Con をセット")]
@@ -68,6 +70,11 @@ namespace Selects.Views
                 cursorIconImage = transform.GetChild(1).GetChild(2).GetChild(2) as RectTransform;
             foreach (Transform child in transform)
             {
+                if (child.name.Equals("HeaderPanel"))
+                {
+                    if (commonHeaderPanelRectTrans == null)
+                        commonHeaderPanelRectTrans = child as RectTransform;
+                }
                 if (child.name.Equals("CenterPanel"))
                 {
                     foreach (Transform item in child)
@@ -265,6 +272,7 @@ namespace Selects.Views
                 })
                 .AddTo(ref _disposableBag);
             _viewModel.IsOnTriggerEnterSearchRangeIndex.Execute(-1);
+            _viewModel.SetCommonHeaderPanelRectTrans(commonHeaderPanelRectTrans);
         }
 
         private void OnDestroy()
@@ -380,12 +388,20 @@ namespace Selects.Views
                             startLoadCnt.Value++;
                         })
                         .AddTo(ref _disposableBag);
-                    ResourcesUtility utility = new ResourcesUtility();
-                    UserBean userBean = utility.LoadSaveDatasJsonOfUserBean(ConstResorcesNames.USER_DATA);
-                    userBean.sceneIdx = targetStageIndex;
-                    utility.SaveDatasJsonOfUserBean(ConstResorcesNames.USER_DATA, userBean);
+                    // セーフデータの排他制御でロック中の場合は完了を待つ
+                    Observable.EveryUpdate()
+                        .Where(_ => !viewModel.IsLockUserBean.CurrentValue)
+                        .Take(1)
+                        .Subscribe(_ =>
+                        {
+                            ResourcesUtility utility = new ResourcesUtility();
+                            UserBean userBean = utility.LoadSaveDatasJsonOfUserBean(ConstResorcesNames.USER_DATA);
+                            userBean.sceneIdx = targetStageIndex;
+                            utility.SaveDatasJsonOfUserBean(ConstResorcesNames.USER_DATA, userBean);
+                            startLoadCnt.Value++;
+                        })
+                        .AddTo(ref _disposableBag);
                     script_XyloApi.PlayBUB_Submit3();
-                    startLoadCnt.Value++;
 
                     break;
                 case 1:

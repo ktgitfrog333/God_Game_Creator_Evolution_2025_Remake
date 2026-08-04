@@ -69,6 +69,16 @@ namespace Mains.ViewModels
                 _playerModel.SetIsFailed(isFailed);
         }
 
+        public void SetOnNoteSuccessful(bool onNoteSuccessful)
+        {
+            _playerModel?.SetOnNoteSuccessful(onNoteSuccessful);
+        }
+
+        public void SetOnNoteFailed(bool onNoteFailed)
+        {
+            _playerModel?.SetOnNoteFailed(onNoteFailed);
+        }
+
         /// <summary>
         /// 現在のトランザクション中のオバケボイスタイプを取得する
         /// </summary>

@@ -1,0 +1,291 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed030b3700628084d820cac2a062bd71, type: 3}
+  m_Name: StubSO
+  m_EditorClassIdentifier: 
+  commons:
+    commonPanelCustomizeOfMainViewTest:
+      "_\u6700\u5927HP\u304C\u30BB\u30C3\u30C8\u3055\u308C\u308B\u3053\u3068\u3092\u78BA\u8A8D":
+        playerHealthPointMax: 5
+      "_\u73FE\u5728HP\u304C\u30BB\u30C3\u30C8\u3055\u308C\u308B\u3053\u3068\u3092\u78BA\u8A8D":
+        playerHealthPoint: 4
+      "_\u30CF\u30FC\u30C8\u304C\u6E1B\u5C11\u3059\u308B\u6F14\u51FA\u304C\u5B9F\u884C\u3055\u308C\u308B\u3053\u3068\u3092\u78BA\u8A8D":
+        isHitGhostAttack: 1
+    rhythmPartPanelCustomizeOfMainViewTest:
+      "_\u30EA\u30BA\u30E0\u30D1\u30FC\u30C8\u72B6\u614B":
+        interactionPart: 3
+    tutorialPanelViewTest:
+      "_ApplyMessage\u306E\u78BA\u8A8D":
+        messageId: MSG0001
+      "_ApplyMessageWithProgress\u306E\u78BA\u8A8D":
+        messageId: MSG0002
+        current: 1
+        total: 5
+      "_FadeInAsync\u306E\u78BA\u8A8D":
+        duration: 0.5
+      "_FadeOutAsync\u306E\u78BA\u8A8D":
+        duration: 0.5
+    tutorialConditionEvaluatorTest:
+      "_IsCompleted\u306E\u78BA\u8A8D":
+        userBeanParameter:
+          state: 0100000000000000000000000000000000000000
+          eventProgressList:
+          - eventId: 0
+            status: 0
+          - eventId: 1
+            status: 0
+        eventId: 2
+      "_IsCompletedUpTo\u306E\u78BA\u8A8D":
+        userBeanParameter:
+          state: 0100000000000000000000000000000000000000
+          eventProgressList:
+          - eventId: 0
+            status: 0
+          - eventId: 1
+            status: 0
+          - eventId: 2
+            status: 0
+        upToEventId: 1
+      "_ShouldSkip\u306E\u78BA\u8A8D":
+        userBeanParameter:
+          state: 0100000000000000000000000000000000000000
+          eventProgressList:
+          - eventId: 0
+            status: 0
+          - eventId: 1
+            status: 0
+          - eventId: 2
+            status: 0
+          - eventId: 3
+            status: 0
+          - eventId: 4
+            status: 0
+          - eventId: 5
+            status: 0
+      "_ShouldRunMove\u306E\u78BA\u8A8D":
+        userBeanParameter:
+          state: 0100000000000000000000000000000000000000
+          eventProgressList:
+          - eventId: 0
+            status: 1
+          - eventId: 1
+            status: 0
+          - eventId: 2
+            status: 0
+          - eventId: 3
+            status: 0
+          - eventId: 4
+            status: 0
+          - eventId: 5
+            status: 0
+          - eventId: 6
+            status: 0
+          - eventId: 7
+            status: 0
+      "_ShouldRunAimMove\u306E\u78BA\u8A8D":
+        userBeanParameter:
+          state: 0100000000000000000000000000000000000000
+          eventProgressList:
+          - eventId: 0
+            status: 1
+          - eventId: 1
+            status: 1
+          - eventId: 2
+            status: 0
+          - eventId: 3
+            status: 0
+          - eventId: 4
+            status: 0
+          - eventId: 5
+            status: 0
+          - eventId: 6
+            status: 0
+          - eventId: 7
+            status: 0
+      "_ShouldRunShout\u306E\u78BA\u8A8D":
+        userBeanParameter:
+          state: 0100000000000000000000000000000000000000
+          eventProgressList:
+          - eventId: 0
+            status: 1
+          - eventId: 1
+            status: 1
+          - eventId: 2
+            status: 1
+          - eventId: 3
+            status: 0
+          - eventId: 4
+            status: 0
+          - eventId: 5
+            status: 0
+          - eventId: 6
+            status: 0
+          - eventId: 7
+            status: 0
+      "_ShouldRunRhythm\u306E\u78BA\u8A8D":
+        userBeanParameter:
+          state: 0100000000000000000000000000000000000000
+          eventProgressList:
+          - eventId: 0
+            status: 1
+          - eventId: 1
+            status: 1
+          - eventId: 2
+            status: 1
+          - eventId: 3
+            status: 1
+          - eventId: 4
+            status: 0
+          - eventId: 5
+            status: 0
+          - eventId: 6
+            status: 0
+          - eventId: 7
+            status: 0
+      "_ShouldRunStage1Guide\u306E\u78BA\u8A8D":
+        userBeanParameter:
+          state: 0100000000000000000000000000000000000000
+          eventProgressList:
+          - eventId: 0
+            status: 1
+          - eventId: 1
+            status: 1
+          - eventId: 2
+            status: 1
+          - eventId: 3
+            status: 1
+          - eventId: 4
+            status: 1
+          - eventId: 5
+            status: 0
+          - eventId: 6
+            status: 0
+          - eventId: 7
+            status: 0
+      "_ShouldRunShoutNoteGuide\u306E\u78BA\u8A8D":
+        userBeanParameter:
+          state: 0200000002000000010000000000000000000000
+          eventProgressList:
+          - eventId: 0
+            status: 1
+          - eventId: 1
+            status: 1
+          - eventId: 2
+            status: 1
+          - eventId: 3
+            status: 1
+          - eventId: 4
+            status: 1
+          - eventId: 5
+            status: 1
+          - eventId: 6
+            status: 0
+          - eventId: 7
+            status: 0
+      "_ShouldRunShoutNote\u306E\u78BA\u8A8D":
+        userBeanParameter:
+          state: 0200000002000000010000000000000000000000
+          eventProgressList:
+          - eventId: 0
+            status: 1
+          - eventId: 1
+            status: 1
+          - eventId: 2
+            status: 1
+          - eventId: 3
+            status: 1
+          - eventId: 4
+            status: 1
+          - eventId: 5
+            status: 1
+          - eventId: 6
+            status: 1
+          - eventId: 7
+            status: 0
+      "_ShouldRunStage3Guide\u306E\u78BA\u8A8D":
+        userBeanParameter:
+          state: 0200000002000000010000000000000000000000
+          eventProgressList:
+          - eventId: 0
+            status: 1
+          - eventId: 1
+            status: 1
+          - eventId: 2
+            status: 1
+          - eventId: 3
+            status: 1
+          - eventId: 4
+            status: 1
+          - eventId: 5
+            status: 1
+          - eventId: 6
+            status: 1
+          - eventId: 7
+            status: 1
+    rewiredControllerMapTest:
+      categoryName: CategoryTutorialTapLightOnly
+  views:
+    playerTeleporterStrategySOTest:
+      playerTeleporterStrategySO: {fileID: 11400000, guid: a8d59c28bc7afe04d8d1a61c598ce7cb, type: 2}
+      playerTeleporterStrategySO1: {fileID: 11400000, guid: adc0bbd4cc2d4c64889eddb990b3a102, type: 2}
+      playerTeleporterStrategySO2: {fileID: 11400000, guid: 5d7db21573e345f449eeafdcbed85a75, type: 2}
+      position: {x: -6.8397503, y: 0.6, z: 3.2525818}
+      angles: {x: 0, y: 294.3467, z: 0}
+      isCompletedStartDirection: 1
+      startDirectionSequencer: {fileID: 11400000, guid: 42e962088eff5af40820dde2e2d011f8, type: 2}
+      playerTeleporterStrategySOsLinkTween: {fileID: 11400000, guid: ee6946d6b7af4fb4d8f34d536bf23b4c, type: 2}
+      playerTeleporterStrategySOsLinkFadeAndTeleport: {fileID: 11400000, guid: 8ff783e2b58d0094fa3a84111696b089, type: 2}
+      playerTeleporterStrategySOsLinkTeleport: {fileID: 11400000, guid: b96ba88ed38ffe5478ab4a129cac6350, type: 2}
+    startDirectionSequencerTest:
+      startDirectionSequencer: {fileID: 11400000, guid: 42e962088eff5af40820dde2e2d011f8, type: 2}
+      targetSceneName: MainScene
+      userBean:
+        sceneIdx: 0
+        state: 0200000002000000020000000200000001000000
+        bgmVolumeIndex: 5
+        seVolumeIndex: 1
+        vibrationEnableIndex: 1
+        eventProgressList:
+        - eventId: 0
+          status: 0
+        - eventId: 1
+          status: 0
+        - eventId: 2
+          status: 0
+        - eventId: 3
+          status: 0
+        - eventId: 4
+          status: 0
+        - eventId: 5
+          status: 0
+        - eventId: 6
+          status: 0
+        - eventId: 7
+          status: 0
+      playerTeleporterStrategySOsLink: {fileID: 11400000, guid: 6f71c76e6f1e4c7499739b67f7dddbe3, type: 2}
+      playerTeleporterStrategySOsLinkTween: {fileID: 11400000, guid: ee6946d6b7af4fb4d8f34d536bf23b4c, type: 2}
+      playerTeleporterStrategySOsLinkFadeAndTeleport: {fileID: 11400000, guid: 8ff783e2b58d0094fa3a84111696b089, type: 2}
+      playerTeleporterStrategySOsLinkTeleport: {fileID: 11400000, guid: b96ba88ed38ffe5478ab4a129cac6350, type: 2}
+      preProcessCharacterControllerEnabled: 0
+      preProcessPlayerEnabled: 1
+      preHideEffectDuration: 1.5
+      teleportPosition: {x: 1, y: 2, z: 3}
+      teleportAngles: {x: 4, y: 5, z: 6}
+      postHideEffectDuration: 0.2
+      andFromTweenMode: 1
+      tweenMovePosition: {x: 11, y: 12, z: 13}
+      tweenMoveAngles: {x: 14, y: 15, z: 16}
+      tweenMoveDurations:
+      - 0.3
+      - 0.4
+      postProcessCharacterControllerEnabled: 1
+      postProcessPlayerEnabled: 2

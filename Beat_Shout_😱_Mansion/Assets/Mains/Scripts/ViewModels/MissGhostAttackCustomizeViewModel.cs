@@ -12,6 +12,10 @@ namespace Mains.ViewModels
     {
         /// <summary>プレイヤーのモデル</summary>
         private PlayerModel _playerModel;
+        /// <summary>敵戦パート</summary>
+        private EnemyBattlePart _enemyBattlePart;
+        /// <summary>敵戦パート</summary>
+        public EnemyBattlePart EnemyBattlePart => _enemyBattlePart;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
         /// <summary>【探索／シャウトチャンス／リズム】パート</summary>
@@ -32,6 +36,13 @@ namespace Mains.ViewModels
                 .Subscribe(x =>
                 {
                     _playerModel = x;
+                    Observable.EveryUpdate()
+                        .Select(_ => x.EnemyBattlePart)
+                        .Subscribe(enemyBattlePart =>
+                        {
+                            _enemyBattlePart = enemyBattlePart;
+                        })
+                        .AddTo(ref _disposableBag);
                 })
                 .AddTo(ref _disposableBag);
         }

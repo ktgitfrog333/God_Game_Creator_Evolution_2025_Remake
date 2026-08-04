@@ -1,8 +1,10 @@
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Mains.External;
 using Mains.Manager;
 using Mains.ViewModels;
 using R3;
+using Selects.Views;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -24,6 +26,8 @@ namespace Mains.Views
         private Script_xyloApi _script_XyloApi;
         /// <summary>フェードイメージのビューモデル</summary>
         private FadeImageViewModel _viewModel;
+        /// <summary>フェードイメージの設定</summary>
+        [SerializeField] private FadeImageSettings settings;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -35,6 +39,7 @@ namespace Mains.Views
 
         private void Start()
         {
+            var set = settings;
             _viewModel = new FadeImageViewModel();
             Observable.EveryUpdate()
                 .Select(_ => GameManager.Instance)
@@ -78,16 +83,23 @@ namespace Mains.Views
                             }
                             else
                             {
-                                Observable.Create<bool>(observer =>
-                                {
-                                    StartCoroutine(PlayFadeOutDirection(observer, 1.5f, false));
-                                    return Disposable.Empty;
-                                })
-                                    .Subscribe(_ =>
-                                    {
-                                        _viewModel.SetIsCompletedStartDirection(true);
-                                    })
-                                    .AddTo(ref _disposableBag);
+                                var seqencer = set.startDirectionSequencer;
+                                seqencer.SetDoPostHideEffectDelegate(
+                                    (duraction, andFromTweenMode) => PlayFadeOutDirection(duraction, andFromTweenMode),
+                                    this.GetCancellationTokenOnDestroy(),
+                                    1.5f,
+                                    false
+                                ).Forget();
+                                //Observable.Create<bool>(observer =>
+                                //{
+                                //    StartCoroutine(PlayFadeOutDirection(observer, 1.5f, false));
+                                //    return Disposable.Empty;
+                                //})
+                                //    .Subscribe(_ =>
+                                //    {
+                                //        _viewModel.SetIsCompletedStartDirection(true);
+                                //    })
+                                //    .AddTo(ref _disposableBag);
                             }
                         })
                         .AddTo(ref _disposableBag);
@@ -97,9 +109,11 @@ namespace Mains.Views
 
         private void OnDestroy()
         {
+            var set = settings;
             _disposableBag.Dispose();
             _script_XyloApi?.Dispose();
             _viewModel?.Dispose();
+            set.startDirectionSequencer.Dispose();
         }
 
         /// <summary>
@@ -125,6 +139,21 @@ namespace Mains.Views
                 }); // 緩やかなフェードイン
 
             yield return null;
+        }
+
+        /// <summary>
+        /// 暗幕フェードイン演出
+        /// </summary>
+        /// <param name="duration">終了時間</param>
+        /// <returns>オブザーバブル</returns>
+        public Observable<bool> PlayFadeInDirection(float duration = .5f)
+        {
+            return Observable.Create<bool>(observer =>
+            {
+                StartCoroutine(PlayFadeInDirection(observer, duration));
+
+                return Disposable.Empty;
+            });
         }
 
         /// <summary>
@@ -172,5 +201,31 @@ namespace Mains.Views
         
             yield return null;
         }
+
+        /// <summary>
+        /// 暗幕フェードアウト演出
+        /// </summary>
+        /// <param name="duration">終了時間</param>
+        /// <param name="andFromTweenMode">0から1遷移演出を有効</param>
+        /// <returns>オブザーバブル</returns>
+        public Observable<bool> PlayFadeOutDirection(float duration = .5f, bool andFromTweenMode = true)
+        {
+            return Observable.Create<bool>(observer =>
+            {
+                StartCoroutine(PlayFadeOutDirection(observer, duration, andFromTweenMode));
+
+                return Disposable.Empty;
+            });
+        }
+    }
+
+    /// <summary>
+    /// フェードイメージの設定
+    /// </summary>
+    [System.Serializable]
+    public class FadeImageSettings
+    {
+        /// <summary>ステージ開始演出のシーケンサ</summary>
+        public StartDirectionSequencer startDirectionSequencer;
     }
 }

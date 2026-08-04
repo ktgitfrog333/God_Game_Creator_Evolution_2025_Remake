@@ -1,3 +1,4 @@
+using Mains.Commons;
 using Mains.Models;
 using R3;
 using Rewired;
@@ -22,6 +23,18 @@ namespace Mains.ViewModels
         private ReactiveCommand<bool> _isHitGhostAttack = new ReactiveCommand<bool>();
         /// <summary>オバケ攻撃のヒットフラグ</summary>
         public ReactiveCommand<bool> IsHitGhostAttack => _isHitGhostAttack;
+        /// <summary>敵戦パート</summary>
+        private EnemyBattlePart _enemyBattlePart;
+        /// <summary>敵戦パート</summary>
+        public EnemyBattlePart EnemyBattlePart => _enemyBattlePart;
+        /// <summary>電池落下タイプ</summary>
+        private readonly ReactiveProperty<BatteryDropType> _batteryDropType = new ReactiveProperty<BatteryDropType>();
+        /// <summary>電池落下タイプ</summary>
+        public ReadOnlyReactiveProperty<BatteryDropType> BatteryDropType => _batteryDropType;
+        /// <summary>MissGhostAttackヒット通知</summary>
+        private readonly ReactiveCommand<Unit> _isHitMissGhostAttackTutorial = new ReactiveCommand<Unit>();
+        /// <summary>MissGhostAttackヒット通知</summary>
+        public ReactiveCommand<Unit> IsHitMissGhostAttackTutorial => _isHitMissGhostAttackTutorial;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -42,6 +55,21 @@ namespace Mains.ViewModels
                     _playerModel.IsHitGhostAttack.Subscribe(isHitGhostAttack =>
                     {
                         _isHitGhostAttack.Execute(isHitGhostAttack);
+                    })
+                        .AddTo(ref _disposableBag);
+                    _playerModel.EnemyBattlePartReactive.Subscribe(x =>
+                    {
+                        _enemyBattlePart = x;
+                    })
+                        .AddTo(ref _disposableBag);
+                    _playerModel.IsHitMissGhostAttackTutorial.Subscribe(x =>
+                    {
+                        _isHitMissGhostAttackTutorial.Execute(Unit.Default);
+                    })
+                        .AddTo(ref _disposableBag);
+                    _playerModel.BatteryDropType.Subscribe(x =>
+                    {
+                        _batteryDropType.Value = x;
                     })
                         .AddTo(ref _disposableBag);
                 })
@@ -69,6 +97,12 @@ namespace Mains.ViewModels
         {
             if (_playerModel != null)
                 _playerModel.SubtractionHealthPoint();
+        }
+
+        public void SetOnHpDecreasedTutorial()
+        {
+            if (_playerModel != null)
+                _playerModel.SetOnHpDecreasedTutorial();
         }
 
         public void Dispose()

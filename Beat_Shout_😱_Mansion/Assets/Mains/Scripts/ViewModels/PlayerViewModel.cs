@@ -59,12 +59,6 @@ namespace Mains.ViewModels
         public ReactiveCommand<bool> IsFailed => _playerModel?.IsFailed ?? null;
         /// <summary>選択されたMissGhostAttack</summary>
         public Transform SelectedMissGhostAttackTransform => _playerModel?.SelectedMissGhostAttackTransform ?? null;
-        /// <summary>ステージ開始演出が完了したか</summary>
-        public bool _isCompletedStartDirection;
-        /// <summary>ステージ開始演出が完了したか</summary>
-        public bool IsCompletedStartDirection => _isCompletedStartDirection;
-        /// <summary>ステージ開始演出が完了したか</summary>
-        public ReactiveCommand<bool> IsCompletedStartDirectionReactive => _playerModel?.IsCompletedStartDirection ?? null;
         /// <summary>ステージ開始位置トランスフォーム</summary>
         private ReactiveCommand<Transform> _startPointTrans = new ReactiveCommand<Transform>();
         /// <summary>ステージ開始位置トランスフォーム</summary>
@@ -87,6 +81,10 @@ namespace Mains.ViewModels
         public bool ShoutNoteActive => _playerModel?.ShoutNoteActive ?? false;
         /// <summary>敵戦パート</summary>
         public EnemyBattlePart EnemyBattlePart => _playerModel?.EnemyBattlePart ?? EnemyBattlePart.Normal;
+        /// <summary>電池落下タイプ</summary>
+        private readonly ReactiveProperty<BatteryDropType> _batteryDropType = new ReactiveProperty<BatteryDropType>();
+        /// <summary>電池落下タイプ</summary>
+        public ReadOnlyReactiveProperty<BatteryDropType> BatteryDropType => _batteryDropType;
 
         public PlayerViewModel(InteractionPartTable interactionPartTable)
         {
@@ -107,11 +105,6 @@ namespace Mains.ViewModels
                 _startPointTrans.Execute(x);
             })
                 .AddTo(ref _disposableBag);
-            _playerModel.IsCompletedStartDirection.Subscribe(x =>
-            {
-                _isCompletedStartDirection = x;
-            })
-                .AddTo(ref _disposableBag);
             _playerModel.IsMissionClear.Subscribe(isMissionClear =>
             {
                 _isMissionClearReactive.Execute(isMissionClear);
@@ -120,6 +113,11 @@ namespace Mains.ViewModels
             _playerModel.TargetGhost.Subscribe(targetGhost =>
             {
                 _targetGhost.Execute(targetGhost);
+            })
+                .AddTo(ref _disposableBag);
+            _playerModel.BatteryDropType.Subscribe(x =>
+            {
+                _batteryDropType.Value = x;
             })
                 .AddTo(ref _disposableBag);
         }
@@ -286,6 +284,23 @@ namespace Mains.ViewModels
         {
             if (_playerModel != null)
                 _playerModel.SetIsPostRhythmFaceOff(isPostRhythmFaceOff);
+        }
+
+        public void SetPlayerFlashLight(Transform playerFlashLight)
+        {
+            if (_playerModel != null)
+                _playerModel.SetPlayerFlashLight(playerFlashLight);
+        }
+
+        public void SetPlayerHead(Transform playerHead)
+        {
+            if (_playerModel != null)
+                _playerModel.SetPlayerHead(playerHead);
+        }
+
+        public void SetPlayerCharacterController(CharacterController characterController)
+        {
+            _playerModel?.SetPlayerCharacterController(characterController);
         }
 
         public void Dispose()

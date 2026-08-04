@@ -118,6 +118,9 @@ public class MissileDirectAnimManagerB : MonoBehaviour
     [SerializeField] private int strategyId = 0;
     [SerializeField] private MissileUIAnimationLayerCustomizeTable missileUIAnimationLayerCustomizeTable;
     // [2026/07/07] Amagata issue #80 end
+    // [2026/07/28] Amagata Tutorial Implementation: Stage Select start
+    private MissileDirectAnimManagerBUtility _instanceMissileDirectAnimManagerBUtility;
+    // [2026/07/28] Amagata Tutorial Implementation: Stage Select end
 
     #endregion
 
@@ -184,6 +187,9 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         // [2026/07/07] Amagata issue #80 end
 
         UpdateTempoInfo();
+        // [2026/07/28] Amagata Tutorial Implementation: Stage Select start
+        _instanceMissileDirectAnimManagerBUtility = new MissileDirectAnimManagerBUtility(noteType, oneBeat);
+        // [2026/07/28] Amagata Tutorial Implementation: Stage Select end
     }
 
     private void OnEnable()
@@ -361,6 +367,24 @@ public class MissileDirectAnimManagerB : MonoBehaviour
                 }
             }
         }
+        // [2026/07/28] Amagata Tutorial Implementation: Stage Select start
+        var util = _instanceMissileDirectAnimManagerBUtility;
+        if (util.ForceAutoMode && !util.AutoSuccessTriggered && !isSuccessful && !isFailed)
+        {
+            if (noteType == MissileNoteType.Long1Beat ||
+                noteType == MissileNoteType.Long2Beat ||
+                noteType == MissileNoteType.Long3Beat ||
+                noteType == MissileNoteType.Long2Beat_Mic)
+            {
+                float elapsed = Time.time - objectCreationTime;
+                if (elapsed >= util.GetReleaseTargetTime())
+                {
+                    TriggerSuccessEvent();
+                    util.SetAutoSuccessTriggered(true);
+                }
+            }
+        }
+        // [2026/07/28] Amagata Tutorial Implementation: Stage Select end
 
         // ’Êí“ü—Íˆ—
         if (enableClickDetection && !isFailed && !isSuccessful && inputManager != null
@@ -765,6 +789,13 @@ public class MissileDirectAnimManagerB : MonoBehaviour
 
         StopAllCoroutines();
         activeCoroutines.Clear();
+        // [2026/07/28] Amagata Tutorial Implementation: Stage Select start
+        var util = _instanceMissileDirectAnimManagerBUtility;
+        if (util != null)
+        {
+            util.ResetAnimation();
+        }
+        // [2026/07/28] Amagata Tutorial Implementation: Stage Select end
     }
 
     public void TriggerSuccessEvent()
@@ -879,6 +910,13 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         if (!isInitialized)
         {
             UpdateTempoInfo();
+            // [2026/07/28] Amagata Tutorial Implementation: Stage Select start
+            var util = _instanceMissileDirectAnimManagerBUtility;
+            if (util == null)
+                util = new MissileDirectAnimManagerBUtility(noteType, oneBeat);
+
+            util.SetOneBeat(oneBeat);
+            // [2026/07/28] Amagata Tutorial Implementation: Stage Select end
             if (!isInitialized) return;
         }
 
@@ -1090,6 +1128,17 @@ public class MissileDirectAnimManagerB : MonoBehaviour
     public bool IsClickDetectionEnabled() => enableClickDetection;
     public bool IsSuccessful() => isSuccessful;
     public bool IsFailed() => isFailed;
+    // [2026/07/28] Amagata Tutorial Implementation: Stage Select start
+    public void SetEnableClickDetection(bool enableClickDetection)
+    {
+        this.enableClickDetection = enableClickDetection;
+    }
+
+    public void SetForceAutoMode(bool enable)
+    {
+        _instanceMissileDirectAnimManagerBUtility?.SetForceAutoMode(enable);
+    }
+    // [2026/07/28] Amagata Tutorial Implementation: Stage Select end
 
     #endregion
 }
