@@ -1100,5 +1100,10 @@ namespace Mains.Models
         /// </summary>
         /// <param name="isLockUserBean">ユーザー情報をロック中か</param>
         public void SetIsLockUserBean(bool isLockUserBean);
+        /// <summary>
+        /// 視界ジャック用ゴーストをセット
+        /// </summary>
+        /// <param name="targetGhost">視界ジャック用ゴースト</param>
+        public void SetTargetGhost(Transform targetGhost);
     }
 }

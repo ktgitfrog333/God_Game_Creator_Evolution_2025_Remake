@@ -69,10 +69,10 @@ namespace Selects.Views
                 await RunStage1GuideTutorialAsync(token);
 
             if (TutorialConditionEvaluator.ShouldRunShoutNoteGuide(_userBean))
+            {
                 await RunShoutNoteGuideTutorialAsync(token);
-
-            if (TutorialConditionEvaluator.ShouldRunShoutNote(_userBean))
                 await RunShoutNoteTutorialAsync(token);
+            }
 
             if (TutorialConditionEvaluator.ShouldRunStage3Guide(_userBean))
                 await RunStage3GuideTutorialAsync(token);
@@ -974,44 +974,87 @@ namespace Selects.Views
             var input = _ctx.Input;
             var vm = _ctx.ViewModel;
             var lvl = _ctx.LevelObjects;
+            var side = _ctx.SideEffect;
+            var player = ReInput.players.GetPlayer(0);
+
+            await Observable.EveryUpdate()
+                .Select(_ => vm.PlayerTransform)
+                .Where(player => player != null)
+                .FirstAsync(token);
+
+            var playerTransform = vm.PlayerTransform;
+            var playerHead = vm.PlayerHead;
+            var playerCharacterController = vm.PlayerCharacterController;
+            var playerView = playerTransform.GetComponent<PlayerView>();
 
             InitializeStep();
 
+            var isCompletedStartDirection = vm.IsCompletedStartDirection.CurrentValue;
             // --- ステップ_0（待ち構えているオバケのカット） ---
-            //if (lvl.stage2DoorPoint != null)
-            //{
-            //    vm.PlayerTransform.SetPositionAndRotation(
-            //        lvl.stage2DoorPoint.position,
-            //        lvl.stage2DoorPoint.rotation
-            //    );
-            //}
+            var fadeImageView = _ctx.UIObjects.fadeImageView;
+            var playerRespawnPosition_1 = lvl.playerRespawnPosition_1;
+            if (playerRespawnPosition_1 != null)
+            {
+                await side.TeleportPlayerAsync(
+                    playerRespawnPosition_1.position,
+                    playerRespawnPosition_1.eulerAngles,
+                    isCompletedStartDirection,
+                    playerCharacterController,
+                    player,
+                    playerTransform,
+                    playerHead,
+                    playerView,
+                    fadeImageView,
+                    token
+                );
+            }
 
-            await UniTask.Delay(2000, cancellationToken: token); // ステージ3の案内演出_ステージ2扉前 代用
-            await FadeOutAndResetAsync(token);
+            // ここだけメッセージ表示はなく、メッセージ表示によるオブジェクトを有効化が行われないため、明示的にオブジェクトを有効にする
+            ui.SetEnabledTutorialPanel(true);
+            
+            var missGhostEscapeView_1 = lvl.missGhostEscapeView_1;
+            missGhostEscapeView_1.gameObject.SetActive(true);
+
+            await missGhostEscapeView_1.IsEscapeCompleted.Where(x => x).FirstAsync(token);
+
+            side.PlayGhostLaughV2Normal();
 
             // --- ステップ_1（寝室へ向かうオバケのカット） ---
             input.EnableOnlyControllerMapCategory("Default");
             if (lvl.rightStairsTrigger1F != null) lvl.rightStairsTrigger1F.gameObject.SetActive(true);
 
             await Observable.EveryUpdate()
-                .Where(_ => lvl.rightStairsTrigger1F != null && lvl.rightStairsTrigger1F.bounds.Contains(vm.PlayerTransform.position))
+                .Where(_ => vm.RightStairsTrigger1FStay.CurrentValue)
                 .FirstAsync(token);
 
             input.EnableOnlyControllerMapCategory(null);
-            await UniTask.Delay(2000, cancellationToken: token); // ステージ3の案内演出_ステージ3扉前 代用
-            await FadeOutAndResetAsync(token);
+            var missGhostEscapeView_2 = lvl.missGhostEscapeView_2;
+            missGhostEscapeView_2.gameObject.SetActive(true);
+            // 注視するオバケ情報をセット
+            vm.SetTargetGhost(missGhostEscapeView_2.transform);
+
+            await missGhostEscapeView_2.IsEscapeCompleted.Where(x => x).FirstAsync(token);
+
+            side.PlayGhostLaughV2Normal();
+            // 注視するオバケ情報を解除
+            vm.SetTargetGhost(null);
+            var vaseAndDeskGroup1 = lvl.vaseAndDeskGroup1;
+            vaseAndDeskGroup1.SetActive(true);
 
             // --- ステップ_2（階段にて目の前にオバケ） ---
             input.EnableOnlyControllerMapCategory("Default");
             if (lvl.leftStairsTrigger2F != null) lvl.leftStairsTrigger2F.gameObject.SetActive(true);
 
             await Observable.EveryUpdate()
-                .Where(_ => lvl.leftStairsTrigger2F != null && lvl.leftStairsTrigger2F.bounds.Contains(vm.PlayerTransform.position))
+                .Where(_ => vm.LeftStairsTrigger2FStay.CurrentValue)
                 .FirstAsync(token);
 
-            await FadeOutAndResetAsync(token);
+            await Observable.EveryUpdate()
+                .Select(_ => vm)
+                .Where(vm => vm.InteractionPart.CurrentValue.Equals(InteractionPart.Rhythm))
+                .FirstAsync(token);
 
-            SaveEventProgress((int)TutorialEventId.ETS0000);
+            // リズムパートから再開が難しいのでチュートリアル_シャウトノーツの案内版はここで保存しない
         }
 
         /// <summary>
@@ -1027,20 +1070,41 @@ namespace Selects.Views
             var side = _ctx.SideEffect;
             var tables = _ctx.Tables;
             var lvl = _ctx.LevelObjects;
+            var missilePatternTable = tables.missilePatternTable;
 
             InitializeStep();
 
+            input.EnableOnlyControllerMapCategory("Default");
+            Transform missileTempoSpawnerTrans = null;
+
+            await Observable.EveryUpdate()
+                .Where(_ => vm.MissileTempoSpawnerTrans.CurrentValue != null)
+                .FirstAsync(token);
+
+            missileTempoSpawnerTrans = vm.MissileTempoSpawnerTrans.CurrentValue;
+            side.SetMissileTempoSpawner(missileTempoSpawnerTrans);
+            int firstHomingObjectTargetIndex = missilePatternTable.firstHomingObjectTargetIndex;
+            side.WatchFirstHomingObjectSpawn(firstHomingObjectTargetIndex);
+
+            await side.OnFirstHomingObjectSpawned.FirstAsync(token);
+
+            // 「ノーツクリック判定」を更新する場合は、モデル側の「強制的に背面扱いで返すかのフラグ」も更新する
+            vm.SetIsBackReturnForce(true);
+            side.SetAllNotesClickDetection(false);
             // --- ステップ_0（オバケ出現テロップシャウトノーツ版） ---
             ui.ApplyMessage("MSG0013");
+
             await ui.FadeInAsync(0.5f, token);
-            if (lvl.vaseAndDeskGroup != null) lvl.vaseAndDeskGroup.SetActive(true);
-            side.SetAllNotesClickDetection(false);
+
+            Time.timeScale = 0f;
             side.SetBgmPause(true);
 
-            await UniTask.WhenAny(
-                UniTask.Delay(1000, cancellationToken: token),
-                vm.EventStateReactive.Where(x => x == EnumEventCommand.Submited).FirstAsync(token).AsUniTask()
-            );
+            await UniTask.WhenAny(vm.EventStateReactive
+                    .Where(x => x == EnumEventCommand.Submited)
+                    .FirstAsync(token)
+                    .AsUniTask(),
+                UniTask.Delay(3000, DelayType.UnscaledDeltaTime, cancellationToken: token));
+
             await FadeOutAndResetAsync(token);
 
             // --- ステップ_1（シャウトノーツシャウトについて） ---
@@ -1080,6 +1144,8 @@ namespace Selects.Views
             await vm.IsPostRhythmFaceOff.Where(x => x).FirstAsync(token); // 成功数監視代用
             await FadeOutAndResetAsync(token);
 
+            // リズムパートから再開が難しいのでここで保存する
+            SaveEventProgress((int)TutorialEventId.ETS0000);
             SaveEventProgress((int)TutorialEventId.ETS0001);
         }
 

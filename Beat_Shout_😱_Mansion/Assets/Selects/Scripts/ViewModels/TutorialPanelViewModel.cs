@@ -333,6 +333,11 @@ namespace Selects.ViewModels
             }
         }
 
+        public void SetTargetGhost(Transform targetGhost)
+        {
+            _playerModel?.SetTargetGhost(targetGhost);
+        }
+
         public void Dispose()
         {
             _disposableBag.Dispose();

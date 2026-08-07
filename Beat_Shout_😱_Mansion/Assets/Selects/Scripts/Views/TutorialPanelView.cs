@@ -647,10 +647,21 @@ namespace Selects.Views
             public GameObject vaseAndDeskGroup;
             /// <summary>花瓶と机トリガー（視線補足用）</summary>
             public Collider vaseAndDeskGroupAimRangeTrigger;
+            /// <summary>ステージ2入口のポイント</summary>
+            public Transform playerRespawnPosition_1;
+            /// <summary>移動オバケ（ノーマル）移動用オバケのビュー</summary>
+            /// <remarks>ステージ2扉前</remarks>
+            public MissGhostEscapeView missGhostEscapeView_1;
+            /// <summary>移動オバケ（ノーマル）移動用オバケのビュー</summary>
+            /// <remarks>ステージ3扉前</remarks>
+            public MissGhostEscapeView missGhostEscapeView_2;
             /// <summary>1階の右階段トリガー</summary>
             public Collider rightStairsTrigger1F;
             /// <summary>2階の左階段トリガー</summary>
             public Collider leftStairsTrigger2F;
+            /// <summary>花瓶と机</summary>
+            /// <remarks>ステージ3扉前</remarks>
+            public GameObject vaseAndDeskGroup1;
         }
 
         /// <summary>
