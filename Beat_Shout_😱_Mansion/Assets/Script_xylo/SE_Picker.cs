@@ -115,6 +115,9 @@ public class SE_Picker : MonoBehaviour
     private string BUB_BatteryLost;
     private string BUB_BatteryLost2;
     // [2026/07/19] Amagata Support for Implementing Custom Sound Effects end
+    // [2026/08/07] Amagata Support for Implementing Custom Sound Effects start
+    private string BUB_Damage4;
+    // [2026/08/07] Amagata Support for Implementing Custom Sound Effects end
 
 
     private void OnEnable()
@@ -241,6 +244,9 @@ Move4 = "Move4";
         BUB_BatteryLost = "BUB_BatteryLost";
         BUB_BatteryLost2 = "BUB_BatteryLost2";
         // [2026/07/19] Amagata Support for Implementing Custom Sound Effects end
+        // [2026/08/07] Amagata Support for Implementing Custom Sound Effects start
+        BUB_Damage4 = "BUB_Damage4";
+        // [2026/08/07] Amagata Support for Implementing Custom Sound Effects end
 
 
         // ï€ë∂Ç≥ÇÍÇƒÇ¢ÇÈSEâπó Çì«Ç›çûÇﬁ
@@ -688,4 +694,10 @@ Move4 = "Move4";
         PlaySound(BUB_BatteryLost2, volume);
     }
     // [2026/07/19] Amagata Support for Implementing Custom Sound Effects end
+    // [2026/08/07] Amagata Support for Implementing Custom Sound Effects start
+    public void PlayBUB_Damage4(float volume)
+    {
+        PlaySound(BUB_Damage4, volume);
+    }
+    // [2026/08/07] Amagata Support for Implementing Custom Sound Effects end
 }

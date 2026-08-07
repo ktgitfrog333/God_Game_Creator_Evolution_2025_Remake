@@ -1022,21 +1022,21 @@ namespace Mains.External
             }
             var mainsManager = Manager.GameManager.Instance;
             var selectsManager = Selects.Manager.GameManager.Instance;
+            float seVolumeIndex = 0f;
             if (mainsManager != null ||
                 selectsManager != null)
             {
                 if (mainsManager != null &&
                     selectsManager == null)
                 {
-                    var seVolumeIndex = mainsManager.AudioOwner.GetSeVolumeIndex();
-                    sePicker.PlayDamage1(seVolumeIndex);
+                    seVolumeIndex = mainsManager.AudioOwner.GetSeVolumeIndex();
                 }
                 else
                 {
-                    var seVolumeIndex = selectsManager.AudioOwner.GetSeVolumeIndex();
-                    sePicker.PlayDamage1(seVolumeIndex);
+                    seVolumeIndex = selectsManager.AudioOwner.GetSeVolumeIndex();
                 }
             }
+            sePicker.PlayBUB_Damage4(seVolumeIndex);
         }
 
         public void PlayGhostLaugh3()
