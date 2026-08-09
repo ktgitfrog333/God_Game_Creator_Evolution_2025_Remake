@@ -1071,8 +1071,17 @@ namespace Selects.Views
             var tables = _ctx.Tables;
             var lvl = _ctx.LevelObjects;
             var missilePatternTable = tables.missilePatternTable;
+            var playerShoutChanceTable = tables.playerShoutChanceTable;
 
             InitializeStep();
+
+            await Observable.EveryUpdate()
+                .Select(_ => vm.CommonHeaderPanelRectTrans)
+                .Where(trans => trans != null)
+                .FirstAsync(token);
+
+            var headerPanel = vm.CommonHeaderPanelRectTrans;
+            headerPanel.gameObject.SetActive(false);
 
             input.EnableOnlyControllerMapCategory("Default");
             Transform missileTempoSpawnerTrans = null;
@@ -1109,25 +1118,54 @@ namespace Selects.Views
 
             // --- ステップ_1（シャウトノーツシャウトについて） ---
             ui.ApplyMessage("MSG0025");
+
             await ui.FadeInAsync(0.5f, token);
-            var patternData = tables.missilePatternTable.Get("SMP0003");
-            if (patternData != null) side.SetMissilePattern(patternData.pattern);
+
+            //var patternData = tables.missilePatternTable.Get("SMP0003");
+            //if (patternData != null) side.SetMissilePattern(patternData.pattern);
             input.EnableOnlyControllerMapCategory("CategoryTutorialMoveAllAndSearchAndAimMoveAndSwitchPartInhaleAndTapLight");
             side.SetMicrophoneActive(true);
             side.SetAllNotesClickDetection(true);
 
-            await UniTask.Delay(1000, cancellationToken: token); // ロングノーツ重なり待ち代用
-            side.SetBgmPause(true);
+            Time.timeScale = 1f;
+            side.SetBgmPause(false);
+            int ghostHomingStartedTargetIndex = missilePatternTable.ghostHomingStartedTargetIndex;
 
-            await vm.DbLevelReactive.Where(db => db > 0.5f).FirstAsync(token);
+            // シャウトノーツ重なり待ち
+            await Observable.EveryUpdate()
+                .Where(_ => side.IsAnyLongNoteClickable(ghostHomingStartedTargetIndex))
+                .FirstAsync(token);
+            //await UniTask.Delay(1000, cancellationToken: token); // ロングノーツ重なり待ち代用
+            //side.SetBgmPause(true);
+
+            Time.timeScale = 0f;
+            side.SetBgmPause(true);
+            var dbLevelMax = playerShoutChanceTable.シャウト達成デシベル;
+
+            await vm.DbLevelReactive
+                .Where(db => dbLevelMax <= db)
+                .FirstAsync(token);
+            //await vm.DbLevelReactive.Where(db => db > 0.5f).FirstAsync(token);
+
             await FadeOutAndResetAsync(token);
 
             // --- ステップ_2（シャウトノーツロングトーンについて） ---
             ui.ApplyMessage("MSG0026");
+
             await ui.FadeInAsync(0.5f, token);
+
+            Time.timeScale = 1f;
             side.SetBgmPause(false);
+            // シャウトノーツが失敗しない状態にする（強制的に押しっぱなしの状態にする）
+            var dbLevelShoutNote = playerShoutChanceTable.マイク手動入力値;
+            var dbInputRate = playerShoutChanceTable.マイク自動入力間隔;
+            side.ForceSeriaSetMicButtonInput(dbLevelShoutNote, dbInputRate);
 
             await UniTask.Delay(1000, cancellationToken: token); // 成功監視代用
+
+            // TODO: 強制停止
+            side.ForceStopSetMicButtonInput();
+
             await FadeOutAndResetAsync(token);
 
             // --- ステップ_3（シャウトノーツシャウト＆ロングトーン本番） ---

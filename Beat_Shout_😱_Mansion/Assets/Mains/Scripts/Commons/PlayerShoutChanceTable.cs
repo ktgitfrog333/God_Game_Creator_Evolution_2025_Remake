@@ -13,5 +13,6 @@ namespace Mains.Commons
         public float 恐怖値のカウント停止時間;
         public float マイク手動入力値;
         public float マイク手動入力解放時間;
+        public float マイク自動入力間隔;
     }
 }

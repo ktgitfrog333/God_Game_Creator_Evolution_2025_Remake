@@ -4,6 +4,7 @@ using Mains.External;
 using Mains.Views;
 using R3;
 using Rewired;
+using System;
 using System.Threading;
 using UnityEngine;
 
@@ -102,6 +103,22 @@ namespace Selects.Views
         public void ForceSetAutoMode(int targetIndex, bool autoMode) => _api.ForceSetAutoMode(targetIndex, autoMode);
         public void SetObjectPoolerXyloOther(Transform transform) => _api.SetObjectPoolerXyloOther(transform);
         public float GetNoteToCrosshairScreenDistance(int targetIndex) => _api.GetNoteToCrosshairScreenDistance(targetIndex);
+        
+        private readonly SerialDisposable _SeriaSetMicButtonInputDisposable;
+        public void ForceSeriaSetMicButtonInput(float dbLevel, float dbInputRate)
+        {
+            Observable.Interval(TimeSpan.FromSeconds(dbInputRate))
+                .Subscribe(_ =>
+                {
+                    _api.SetMicButtonInput(dbLevel);
+                })
+                .AddTo(ref _disposableBag);
+        }
+
+        public void ForceStopSetMicButtonInput()
+        {
+
+        }
 
         public void Dispose()
         {
