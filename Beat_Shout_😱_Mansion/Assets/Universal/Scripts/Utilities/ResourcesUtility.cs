@@ -67,6 +67,7 @@ namespace Universal.Utilities
                             return new UserBean(JsonUtility.FromJson<UserBean>(sr.ReadToEnd()));
                     case EnumLoadMode.Default:
                     case EnumLoadMode.Default1:
+                    case EnumLoadMode.ClearToSceneIdx_1:
                     case EnumLoadMode.All:
                         using (var sr = new StreamReader($"{path}{resourcesLoadName}{EXTENSION_JSON}", Encoding.GetEncoding(ENCODING)))
                             return new UserBean(JsonUtility.FromJson<UserBean>(sr.ReadToEnd()), enumLoadMode);

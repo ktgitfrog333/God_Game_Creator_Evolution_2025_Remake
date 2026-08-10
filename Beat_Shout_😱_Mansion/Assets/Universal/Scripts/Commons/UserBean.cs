@@ -92,6 +92,20 @@ namespace Universal.Commons
                     vibrationEnableIndex = 1;
 
                     break;
+                case EnumLoadMode.ClearToSceneIdx_1:
+                    sceneIdx = 5;
+                    state = new int[]
+                    {
+                        2,
+                        2,
+                        1,
+                        0,
+                        0,
+                    };
+                    InitializeEventProgressList();
+                    SetCompleteEventProgress((int)TutorialEventId.ETB0004);
+
+                    break;
                 case EnumLoadMode.All:
                     sceneIdx = 5;
                     state = new int[]
@@ -119,6 +133,26 @@ namespace Universal.Commons
                 if (eventId != TutorialEventId.None)
                 {
                     eventProgressList.Add(new EventProgress((int)eventId, 0));
+                }
+            }
+        }
+
+        /// <summary>
+        /// イベント進捗配列にて指定されたチュートリアルのイベントIDまで完了にする
+        /// </summary>
+        /// <param name="eventId">チュートリアルのイベントID</param>
+        private void SetCompleteEventProgress(int eventId)
+        {
+            var eventProgressList = this.eventProgressList;
+            for (int i = 0; i < eventProgressList.Count; i++)
+            {
+                var eventProgress = eventProgressList[i];
+                if ((TutorialEventId)eventProgress.eventId != TutorialEventId.None)
+                {
+                    if (eventProgress.eventId <= eventId)
+                    {
+                        eventProgress.status = 1;
+                    }
                 }
             }
         }

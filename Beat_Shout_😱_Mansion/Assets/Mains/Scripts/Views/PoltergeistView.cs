@@ -115,6 +115,8 @@ namespace Mains.Views
         private int _remainingRepeatsInPhase;
         /// <summary>現在のフェーズでの再生間隔（秒）</summary>
         private float _currentLaughInterval;
+        /// <summary>静的コライダー群</summary>
+        private Transform _staticColldersInstance;
 
         private void Reset()
         {
@@ -175,6 +177,7 @@ namespace Mains.Views
             var originParent_1 = motorInstance.transform.parent;
             // 静的コライダー群
             Transform staticColldersInstance = Instantiate(poltergeistTable.staticColldersPrefab, motorInstance.transform.position, Quaternion.identity).transform;
+            _staticColldersInstance = staticColldersInstance;
             // シャウトチャンスの範囲
             Transform shoutChanceInstance = null;
             // プレイヤーガード
@@ -1233,6 +1236,21 @@ namespace Mains.Views
             }
             
             yield return null;
+        }
+
+        /// <summary>
+        /// ゲームオブジェクトの有効／無効切り替え
+        /// </summary>
+        public void DisableStaticCollders()
+        {
+            if (_staticColldersInstance == null)
+            {
+                Debug.LogError($"Start処理が未完了状態で呼び出し不可です。静的コライダー群 [{_staticColldersInstance}] のセット後に呼び出して下さい。");
+
+                return;
+            }
+
+            _staticColldersInstance.gameObject.SetActive(false);
         }
 
         /// <summary>

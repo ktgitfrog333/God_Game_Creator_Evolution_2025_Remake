@@ -4,7 +4,6 @@ using Mains.External;
 using Mains.Views;
 using R3;
 using Rewired;
-using System;
 using System.Threading;
 using UnityEngine;
 
@@ -21,6 +20,8 @@ namespace Selects.Views
         /// <summary>プレイヤー移動演出ストラテジー</summary>
         private readonly IPlayerTeleporterStrategySO _teleporterStrategy;
         private DisposableBag _disposableBag = new DisposableBag();
+        /// <summary>マイクボタン強制連続入力の監視</summary>
+        private readonly SerialDisposable _SeriaSetMicButtonInputDisposable = new SerialDisposable();
 
         public XyloApiTutorialSideEffect(Script_xyloApi api, IPlayerTeleporterStrategySO teleporterStrategy)
         {
@@ -103,13 +104,15 @@ namespace Selects.Views
         public void ForceSetAutoMode(int targetIndex, bool autoMode) => _api.ForceSetAutoMode(targetIndex, autoMode);
         public void SetObjectPoolerXyloOther(Transform transform) => _api.SetObjectPoolerXyloOther(transform);
         public float GetNoteToCrosshairScreenDistance(int targetIndex) => _api.GetNoteToCrosshairScreenDistance(targetIndex);
-        
-        private readonly SerialDisposable _SeriaSetMicButtonInputDisposable;
         public void ForceSeriaSetMicButtonInput(float dbLevel, float dbInputRate)
         {
-            Observable.Interval(TimeSpan.FromSeconds(dbInputRate))
+            float elapsedTime = 0f;
+            _SeriaSetMicButtonInputDisposable.Disposable = Observable.EveryUpdate()
+                .Do(_ => elapsedTime += Time.deltaTime)
+                .Where(_ => dbInputRate <= elapsedTime)
                 .Subscribe(_ =>
                 {
+                    elapsedTime = 0f;
                     _api.SetMicButtonInput(dbLevel);
                 })
                 .AddTo(ref _disposableBag);
@@ -117,12 +120,14 @@ namespace Selects.Views
 
         public void ForceStopSetMicButtonInput()
         {
-
+            _api.SetMicButtonInput(0f);
+            _SeriaSetMicButtonInputDisposable.Dispose();
         }
 
         public void Dispose()
         {
             _disposableBag.Dispose();
+            _SeriaSetMicButtonInputDisposable.Dispose();
         }
     }
 }

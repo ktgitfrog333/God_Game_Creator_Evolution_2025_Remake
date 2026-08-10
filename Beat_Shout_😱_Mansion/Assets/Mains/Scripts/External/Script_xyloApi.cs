@@ -496,22 +496,29 @@ namespace Mains.External
             var volumeHistoryField = type.GetField("volumeHistory", BindingFlags.NonPublic | BindingFlags.Instance);
             var timeHistoryField = type.GetField("timeHistory", BindingFlags.NonPublic | BindingFlags.Instance);
             var totalVolumeField = type.GetField("totalVolume", BindingFlags.NonPublic | BindingFlags.Instance);
+            var isMicActiveField = type.GetField("isMicActive", BindingFlags.NonPublic | BindingFlags.Instance);
 
-            if (volumeHistoryField == null || timeHistoryField == null || totalVolumeField == null)
+            if (volumeHistoryField == null || timeHistoryField == null || totalVolumeField == null || isMicActiveField == null)
             {
-                Debug.LogWarning("MicInput_Criware の volumeHistory / timeHistory / totalVolume フィールドが見つかりませんでした。");
+                Debug.LogWarning("MicInput_Criware の volumeHistory / timeHistory / totalVolume / isMicActiveField フィールドが見つかりませんでした。");
                 return;
             }
 
             var volumeHistory = volumeHistoryField.GetValue(_micInput_Criware) as Queue<float>;
             var timeHistory = timeHistoryField.GetValue(_micInput_Criware) as Queue<float>;
             var totalVolumeObj = totalVolumeField.GetValue(_micInput_Criware);
+            var isMicActiveObj = isMicActiveField.GetValue(_micInput_Criware);
 
-            if (volumeHistory == null || timeHistory == null || totalVolumeObj == null)
+            if (volumeHistory == null || timeHistory == null || totalVolumeObj == null || isMicActiveObj == null)
             {
                 Debug.LogWarning("MicInput_Criware の volumeHistory / timeHistory / totalVolume の値取得に失敗しました。");
                 return;
             }
+
+            bool isMicActive = (bool)isMicActiveObj;
+
+            if (!isMicActive)
+                return;
 
             float totalVolume = (float)totalVolumeObj;
             float currentTime = Time.time;
@@ -1323,6 +1330,17 @@ namespace Mains.External
 
             var volumeSliderValue = _micInput_Criware.volumeSliderValue;
             return volumeSliderValue;
+        }
+
+        public bool IsMicActive
+        {
+            get
+            {
+                if (_micInput_Criware == null)
+                    return false;
+                
+                return _micInput_Criware.IsMicActive;
+            }
         }
 
         private ReactiveCommand<float> _volumeLevelReactive = new ReactiveCommand<float>();

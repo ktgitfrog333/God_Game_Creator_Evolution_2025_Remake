@@ -47,6 +47,12 @@ namespace Selects.Views
         /// <summary>ステージ1の案内演出の完了フラグ</summary>
         ReadOnlyReactiveProperty<bool> IsCompletedStage1GuideDirection { get; }
 
+        /// <summary>ステージ3の案内演出の再生</summary>
+        void PlayStage3GuideDirection();
+
+        /// <summary>ステージ3の案内演出の完了フラグ</summary>
+        ReadOnlyReactiveProperty<bool> IsCompletedStage3GuideDirection { get; }
+
         /// <summary>初期処理の完了フラグ</summary>
         ReadOnlyReactiveProperty<bool> IsCompletedStart { get; }
 

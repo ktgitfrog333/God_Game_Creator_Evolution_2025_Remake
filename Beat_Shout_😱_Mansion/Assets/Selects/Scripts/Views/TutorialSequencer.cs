@@ -487,7 +487,7 @@ namespace Selects.Views
 
             input.EnableOnlyControllerMapCategory("CategoryTutorialAimMoveOnly");
             var vaseAndDeskGroup = lvl.vaseAndDeskGroup;
-            vaseAndDeskGroup.SetActive(true);
+            vaseAndDeskGroup.gameObject.SetActive(true);
 
             lookTimer = 0f;
 
@@ -575,7 +575,8 @@ namespace Selects.Views
 
             side.SetMicrophoneActive(false);
             input.EnableOnlyControllerMapCategory("CategoryTutorialAimMoveOnly");
-            if (lvl.vaseAndDeskGroup != null) lvl.vaseAndDeskGroup.SetActive(true);
+            var vaseAndDeskGroup = lvl.vaseAndDeskGroup;
+            if (vaseAndDeskGroup != null) vaseAndDeskGroup.gameObject.SetActive(true);
 
             Transform missileTempoSpawnerTrans = null;
 
@@ -876,7 +877,7 @@ namespace Selects.Views
                 .Where(_ => vm.InteractionPart.CurrentValue.Equals(InteractionPart.Search))
                 .FirstAsync(token);
 
-            if (lvl.vaseAndDeskGroup != null) lvl.vaseAndDeskGroup.SetActive(false);
+            if (vaseAndDeskGroup != null) vaseAndDeskGroup.DisableStaticCollders();
 
             // リズムパートから再開が難しいのでここで保存する
             SaveEventProgress((int)TutorialEventId.ETB0002);
@@ -1039,11 +1040,12 @@ namespace Selects.Views
             // 注視するオバケ情報を解除
             vm.SetTargetGhost(null);
             var vaseAndDeskGroup1 = lvl.vaseAndDeskGroup1;
-            vaseAndDeskGroup1.SetActive(true);
+            vaseAndDeskGroup1.gameObject.SetActive(true);
 
             // --- ステップ_2（階段にて目の前にオバケ） ---
             input.EnableOnlyControllerMapCategory("Default");
             if (lvl.leftStairsTrigger2F != null) lvl.leftStairsTrigger2F.gameObject.SetActive(true);
+            side.SetMicrophoneActive(true);
 
             await Observable.EveryUpdate()
                 .Where(_ => vm.LeftStairsTrigger2FStay.CurrentValue)
@@ -1121,11 +1123,7 @@ namespace Selects.Views
 
             await ui.FadeInAsync(0.5f, token);
 
-            //var patternData = tables.missilePatternTable.Get("SMP0003");
-            //if (patternData != null) side.SetMissilePattern(patternData.pattern);
             input.EnableOnlyControllerMapCategory("CategoryTutorialMoveAllAndSearchAndAimMoveAndSwitchPartInhaleAndTapLight");
-            side.SetMicrophoneActive(true);
-            side.SetAllNotesClickDetection(true);
 
             Time.timeScale = 1f;
             side.SetBgmPause(false);
@@ -1135,9 +1133,9 @@ namespace Selects.Views
             await Observable.EveryUpdate()
                 .Where(_ => side.IsAnyLongNoteClickable(ghostHomingStartedTargetIndex))
                 .FirstAsync(token);
-            //await UniTask.Delay(1000, cancellationToken: token); // ロングノーツ重なり待ち代用
-            //side.SetBgmPause(true);
 
+            side.SetMicrophoneActive(true);
+            side.SetAllNotesClickDetection(true);
             Time.timeScale = 0f;
             side.SetBgmPause(true);
             var dbLevelMax = playerShoutChanceTable.シャウト達成デシベル;
@@ -1145,7 +1143,6 @@ namespace Selects.Views
             await vm.DbLevelReactive
                 .Where(db => dbLevelMax <= db)
                 .FirstAsync(token);
-            //await vm.DbLevelReactive.Where(db => db > 0.5f).FirstAsync(token);
 
             await FadeOutAndResetAsync(token);
 
@@ -1154,6 +1151,7 @@ namespace Selects.Views
 
             await ui.FadeInAsync(0.5f, token);
 
+            side.SetMicrophoneActive(true);
             Time.timeScale = 1f;
             side.SetBgmPause(false);
             // シャウトノーツが失敗しない状態にする（強制的に押しっぱなしの状態にする）
@@ -1161,9 +1159,12 @@ namespace Selects.Views
             var dbInputRate = playerShoutChanceTable.マイク自動入力間隔;
             side.ForceSeriaSetMicButtonInput(dbLevelShoutNote, dbInputRate);
 
-            await UniTask.Delay(1000, cancellationToken: token); // 成功監視代用
+            // シャウトノーツの完了によるGOODを監視
+            await vm.OnNoteSuccessful
+                .Where(x => x)
+                .FirstAsync(token);
 
-            // TODO: 強制停止
+            // 強制停止
             side.ForceStopSetMicButtonInput();
 
             await FadeOutAndResetAsync(token);
@@ -1171,16 +1172,37 @@ namespace Selects.Views
             // --- ステップ_3（シャウトノーツシャウト＆ロングトーン本番） ---
             var patternData2 = tables.missilePatternTable.Get("SMP0004");
             if (patternData2 != null) side.SetMissilePattern(patternData2.pattern);
-            string total = patternData2 != null ? patternData2.successCount.ToString() : "3";
+            int total = patternData2 != null ? patternData2.successCount : 3;
 
-            ui.ApplyMessageWithProgress("MSG0027", "0", total);
+            ui.ApplyMessageWithProgress("MSG0027", "0", $"{total}");
+
             await ui.FadeInAsync(0.5f, token);
-            input.EnableOnlyControllerMapCategory("CategoryTutorialMoveAllAndSearchAndAimMoveAndSwitchPartInhaleAndTapLight");
-            side.SetMicrophoneActive(true);
-            side.SetAllNotesClickDetection(true);
 
-            await vm.IsPostRhythmFaceOff.Where(x => x).FirstAsync(token); // 成功数監視代用
+            side.SetMicrophoneActive(true);
+            input.EnableOnlyControllerMapCategory("CategoryTutorialMoveAllAndSearchAndAimMoveAndSwitchPartInhaleAndTapLight");
+            int successCount = 0;
+
+            await vm.OnNoteSuccessful
+                .Where(x => x)
+                .Do(_ =>
+                {
+                    successCount++;
+                    ui.ApplyMessageWithProgress("MSG0027", $"{successCount}", $"{total}");
+                })
+                .Where(_ => successCount >= total)
+                .FirstAsync(token);
+
             await FadeOutAndResetAsync(token);
+
+            // リズムパートを終了させる
+            vm.SetIsCompletedDirection(true);
+
+            await Observable.EveryUpdate()
+                .Where(_ => vm.InteractionPart.CurrentValue.Equals(InteractionPart.Search))
+                .FirstAsync(token);
+
+            var vaseAndDeskGroup1 = lvl.vaseAndDeskGroup1;
+            vaseAndDeskGroup1.DisableStaticCollders();
 
             // リズムパートから再開が難しいのでここで保存する
             SaveEventProgress((int)TutorialEventId.ETS0000);
@@ -1198,24 +1220,72 @@ namespace Selects.Views
             var input = _ctx.Input;
             var vm = _ctx.ViewModel;
             var lvl = _ctx.LevelObjects;
+            var player = ReInput.players.GetPlayer(0);
+
+            await Observable.EveryUpdate()
+                .Select(_ => vm.PlayerTransform)
+                .Where(player => player != null)
+                .FirstAsync(token);
+
+            var playerTransform = vm.PlayerTransform;
+            var playerHead = vm.PlayerHead;
+            var playerCharacterController = vm.PlayerCharacterController;
+            var playerView = playerTransform.GetComponent<PlayerView>();
 
             InitializeStep();
 
+            await Observable.EveryUpdate()
+                .Select(_ => vm.CommonHeaderPanelRectTrans)
+                .Where(trans => trans != null)
+                .FirstAsync(token);
+
+            var headerPanel = vm.CommonHeaderPanelRectTrans;
+            headerPanel.gameObject.SetActive(false);
+
+            var isCompletedStartDirection = vm.IsCompletedStartDirection.CurrentValue;
             // --- ステップ_0（逃げるオバケのカットステージ3版） ---
-            await UniTask.Delay(2000, cancellationToken: token); // ステージ3案内演出代用
-            await FadeOutAndResetAsync(token);
+            var fadeImageView = _ctx.UIObjects.fadeImageView;
+            if (lvl.shoutCompletePoint != null)
+            {
+                await _ctx.SideEffect.TeleportPlayerAsync(
+                    lvl.shoutCompletePoint.position,
+                    lvl.shoutCompletePoint.eulerAngles,
+                    isCompletedStartDirection,
+                    playerCharacterController,
+                    player,
+                    playerTransform,
+                    playerHead,
+                    playerView,
+                    fadeImageView,
+                    token
+                );
+            }
+
+            // ここだけメッセージ表示はなく、メッセージ表示によるオブジェクトを有効化が行われないため、明示的にオブジェクトを有効にする
+            ui.SetEnabledTutorialPanel(true);
+
+            await Observable.EveryUpdate()
+                .Where(_ => ui.IsCompletedStart.CurrentValue &&
+                    ui.IsEnabled.CurrentValue)
+                .FirstAsync(token);
+
+            ui.PlayStage3GuideDirection();
+
+            await Observable.EveryUpdate()
+                .Where(_ => ui.IsCompletedStage3GuideDirection.CurrentValue)
+                .FirstAsync(token);
 
             // --- ステップ_1（逃げたオバケの追跡ステージ3版） ---
             ui.ApplyMessage("MSG0024");
+
             await ui.FadeInAsync(0.5f, token);
+
             input.EnableOnlyControllerMapCategory("Default");
 
-            if (lvl.vaseAndDeskGroup != null) lvl.vaseAndDeskGroup.SetActive(false);
+            await vm.SelectedStageIndex.Where(x => x == 2).FirstAsync(token);
 
-            await vm.SelectedStageIndex.Where(x => x == 3).FirstAsync(token);
             await vm.EventStateReactive.Where(x => x == EnumEventCommand.Submited).FirstAsync(token);
 
-            await FadeOutAndResetAsync(token);
             SaveEventProgress((int)TutorialEventId.ETS0002);
         }
 

@@ -59,6 +59,9 @@ public class MicInput_Criware : MonoBehaviour
     private float volumeAccumulationStartTime = 0f; // 音量計測開始時間
     private bool isMeasuring = false; // 計測中かどうか
     private bool isMicActive = true; // マイク入力が有効かどうか
+    // [2026/08/10] Amagata Tutorial Implementation: Stage Select start
+    public bool IsMicActive => isMicActive;
+    // [2026/08/10] Amagata Tutorial Implementation: Stage Select end
 
     // スライダー表示用の音量平均化
     private Queue<float> volumeHistory = new Queue<float>(); // 音量履歴

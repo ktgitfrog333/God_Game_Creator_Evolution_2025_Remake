@@ -40,6 +40,9 @@ namespace Selects.Views
         /// <summary>ステージ1の案内演出の完了フラグ</summary>
         private readonly ReactiveProperty<bool> _isCompletedStage1GuideDirection = new ReactiveProperty<bool>();
         public ReadOnlyReactiveProperty<bool> IsCompletedStage1GuideDirection => _isCompletedStage1GuideDirection;
+        /// <summary>ステージ3の案内演出の完了フラグ</summary>
+        private readonly ReactiveProperty<bool> _isCompletedStage3GuideDirection = new ReactiveProperty<bool>();
+        public ReadOnlyReactiveProperty<bool> IsCompletedStage3GuideDirection => _isCompletedStage3GuideDirection;
         /// <summary>初期処理の完了フラグ</summary>
         private readonly ReactiveProperty<bool> _isCompletedStart = new ReactiveProperty<bool>(false);
         public ReadOnlyReactiveProperty<bool> IsCompletedStart => _isCompletedStart;
@@ -139,6 +142,12 @@ namespace Selects.Views
         public void PlayStage1GuideDirection()
         {
             var direction = settings.directions.stage1GuideDirector;
+            direction.Play();
+        }
+
+        public void PlayStage3GuideDirection()
+        {
+            var direction = settings.directions.stage3GuideDirector;
             direction.Play();
         }
 
@@ -376,6 +385,8 @@ namespace Selects.Views
 
             var direction = settings.directions.stage1GuideDirector;
             direction.stopped += OnStage1GuideDirectionStopped;
+            var direction1 = settings.directions.stage3GuideDirector;
+            direction1.stopped += OnStage3GuideDirectionStopped;
 
             sequencer.RunAsync(userBean, this.GetCancellationTokenOnDestroy())
                 .Forget();
@@ -401,6 +412,8 @@ namespace Selects.Views
             _sideEffect?.Dispose();
             var direction = settings.directions.stage1GuideDirector;
             direction.stopped -= OnStage1GuideDirectionStopped;
+            var direction1 = settings.directions.stage3GuideDirector;
+            direction1.stopped -= OnStage3GuideDirectionStopped;
         }
 
         // ------------------------------------------------------------------
@@ -556,6 +569,15 @@ namespace Selects.Views
         {
             _isCompletedStage1GuideDirection.Value = true;
         }
+
+        /// <summary>
+        /// ステージ3の案内演出のタイムライン停止
+        /// </summary>
+        /// <param name="d">演出</param>
+        private void OnStage3GuideDirectionStopped(PlayableDirector d)
+        {
+            _isCompletedStage3GuideDirection.Value = true;
+        }
     }
 
     /// <summary>
@@ -644,7 +666,7 @@ namespace Selects.Views
             /// <summary>移動オバケ（ノーマル）移動用オバケのビュー</summary>
             public MissGhostEscapeView missGhostEscapeView;
             /// <summary>花瓶と机</summary>
-            public GameObject vaseAndDeskGroup;
+            public PoltergeistView vaseAndDeskGroup;
             /// <summary>花瓶と机トリガー（視線補足用）</summary>
             public Collider vaseAndDeskGroupAimRangeTrigger;
             /// <summary>ステージ2入口のポイント</summary>
@@ -661,7 +683,7 @@ namespace Selects.Views
             public Collider leftStairsTrigger2F;
             /// <summary>花瓶と机</summary>
             /// <remarks>ステージ3扉前</remarks>
-            public GameObject vaseAndDeskGroup1;
+            public PoltergeistView vaseAndDeskGroup1;
         }
 
         /// <summary>
@@ -700,6 +722,8 @@ namespace Selects.Views
         {
             /// <summary>ステージ1の案内演出</summary>
             public PlayableDirector stage1GuideDirector;
+            /// <summary>ステージ3の案内演出</summary>
+            public PlayableDirector stage3GuideDirector;
         }
 
         /// <summary>

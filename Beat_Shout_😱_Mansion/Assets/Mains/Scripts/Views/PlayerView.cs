@@ -1010,6 +1010,15 @@ namespace Mains.Views
             bool inhaleHeldCon = (player.GetButtonDown("InhaleHalfLeft") && player.GetButton("InhaleHalfRight")) ||
                 (player.GetButton("InhaleHalfLeft") && player.GetButtonDown("InhaleHalfRight"));
             bool isMicInput = _script_XyloApi.IsMicInput();
+            bool isMicActive = _script_XyloApi.IsMicActive;
+
+            if (!isMicActive)
+            {
+                _shoutNoteMicTimer = 0f;
+                dbLevelShoutNote.Value = 0f;
+
+                return;
+            }
 
             // Inhale 単体の入力 (長押しには対応させないのでGetButtonDownの時のみ判定)
             if (inhaleHeld &&
