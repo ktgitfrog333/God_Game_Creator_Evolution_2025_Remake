@@ -16,5 +16,6 @@ namespace Mains.Commons
         public GameObject Stage_xと書かれたプレハブ;
         public int 開始時のプレイヤーの最大体力;
         public float 恐怖値最大;
+        public bool 最終ステージか;
     }
 }
