@@ -1938,7 +1938,7 @@ MonoBehaviour:
     "\u968E\u5C64": 3
   - "\u30EC\u30D9\u30EBID": 4
     "\u30B9\u30C6\u30FC\u30B8\u540D\u79F0": "\u8AC7\u8A71\u5BA4"
-    "\u30B9\u30C6\u30FC\u30B8\u540D\u79F0_\u7269\u7406\u540D": MainScene_Stage4_Lounge
+    "\u30B9\u30C6\u30FC\u30B8\u540D\u79F0_\u7269\u7406\u540D": MainScene_Stage5_Lounge
     "\u968E\u5C64": 4
   interactPanelPC: {fileID: 6562284233515549269}
   interactPanelXbox360Con: {fileID: 3238376293491131001}

@@ -8668,10 +8668,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: CommonPanel
       objectReference: {fileID: 0}
-    - target: {fileID: 7213732705794613627, guid: 883b48c306f93354489adaf3287aee1c, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
