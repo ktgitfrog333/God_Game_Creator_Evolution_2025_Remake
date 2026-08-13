@@ -21,6 +21,11 @@ public class LongSePicker : MonoBehaviour
     public string IntroStage01;
 
     public bool isNotStage= false;
+    // [2026/08/13] Amagata Implementation of the Save Feature start
+    /// <summary><seealso cref="SE_Picker.masterSEVolume"/>から流用</summary>
+    // マスター音量の設定（AudioSettingsControllerから設定される）
+    private float masterSEVolume = 1.0f;
+    // [2026/08/13] Amagata Implementation of the Save Feature end
     private void OnEnable()
     {
         Invoke("Delay", 1.2f);
@@ -54,9 +59,29 @@ public class LongSePicker : MonoBehaviour
 
         if (!isNotStage)
         {
-            PlayIntroStage01(1, 2f);
+            // [2026/08/13] Amagata Implementation of the Save Feature start
+            LoadMasterSEVolume();
+            //PlayIntroStage01(1, 2f);
+            PlayIntroStage01(masterSEVolume, 2f);
+            // [2026/08/13] Amagata Implementation of the Save Feature end
         }
     }
+    // [2026/08/13] Amagata Implementation of the Save Feature start
+
+    /// <summary>
+    /// マスターSE音量を読み込むメソッド
+    /// AudioSettingsManagerから設定を取得
+    /// </summary>
+    /// <remarks><seealso cref="SE_Picker.LoadMasterSEVolume"/>から流用</remarks>
+    private void LoadMasterSEVolume()
+    {
+        // AudioSettingsManagerから設定を読み込む
+        AudioSettingsData settings = AudioSettingsManager.LoadSettings();
+        masterSEVolume = settings.seVolume;
+        Debug.Log($"LongSePicker: マスターSE音量を読み込みました: {masterSEVolume:F1}");
+    }
+
+    // [2026/08/13] Amagata Implementation of the Save Feature end
     private CriAtomExPlayer GetNextPlayer()
     {
         if (availablePlayers.Count > 0)

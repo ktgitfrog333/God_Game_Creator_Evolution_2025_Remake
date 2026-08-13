@@ -52,6 +52,14 @@ namespace Titles.Tests
                 入出力コンテンツ = temp.LoadSaveDatasJsonOfUserBean(ConstResorcesNames.USER_DATA, EnumLoadMode.All);
                 temp.SaveDatasJsonOfUserBean(ConstResorcesNames.USER_DATA, 入出力コンテンツ);
             }
+            // ステージクリアボタンを追加
+            Rect buttonRect5 = new Rect(10, y + height * 5, 250, height);
+            if (GUI.Button(buttonRect5, "ステージクリア"))
+            {
+                var result = temp.LoadDataAndUpdateStateAndSaveData(ConstResorcesNames.USER_DATA);
+                if (!result)
+                    Debug.LogWarning($"セーブデータの更新に失敗しました。シーン遷移処理に失敗している可能性があります。");
+            }
         }
     }
 }

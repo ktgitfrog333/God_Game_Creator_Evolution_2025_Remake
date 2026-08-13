@@ -1,3 +1,5 @@
+using Rewired;
+using System.Linq;
 using UnityEngine;
 
 namespace Mains.Commons
@@ -14,5 +16,27 @@ namespace Mains.Commons
         public float マイク手動入力値;
         public float マイク手動入力解放時間;
         public float マイク自動入力間隔;
+        /// <summary>シャウトチャンスパートで有効なRewairedコントローラーマップカテゴリ</summary>
+        [SerializeField] private string[] enabledMapsInCategories;
+
+        /// <summary>
+        /// マイク入力用のボタンが有効か
+        /// </summary>
+        /// <param name="player">Rewired</param>
+        /// <returns>マイク入力用のボタンが有効か</returns>
+        public bool IsMicButtonActive(Player player)
+        {
+            bool isDefaultMapEnabled = false;
+            foreach (var enabledMapsInCategory in enabledMapsInCategories)
+            {
+                isDefaultMapEnabled = player.controllers.maps.GetAllMapsInCategory(enabledMapsInCategory)
+                        .Any(m => m.enabled);
+
+                if (isDefaultMapEnabled)
+                    break;
+            }
+
+            return isDefaultMapEnabled;
+        }
     }
 }

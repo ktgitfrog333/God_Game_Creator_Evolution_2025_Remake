@@ -84,6 +84,11 @@ public class MicInput_Criware : MonoBehaviour
     private const float MIC_PROCESS_INTERVAL = 0.02f;
     private float _micProcessTimer = 0f;
     // [2026/06/16] Amagata issue #57 end
+    // [2026/08/13] Amagata Implementation of the Save Feature start
+    // 現在のオーディオ設定
+    /// <summary><seealso cref="AudioSettingsController.audioSettings"/>から流用</summary>
+    private AudioSettingsData audioSettings;
+    // [2026/08/13] Amagata Implementation of the Save Feature end
 
 
     // シングルトン
@@ -100,6 +105,11 @@ public class MicInput_Criware : MonoBehaviour
         {
             Destroy(gameObject);
         }
+        // [2026/08/13] Amagata Implementation of the Save Feature start
+        audioSettings = AudioSettingsManager.LoadSettings();
+        // マイク入力の有効/無効を設定
+        UpdateMicInputState(audioSettings.micInputEnabled);
+        // [2026/08/13] Amagata Implementation of the Save Feature end
 
         StartCoroutine(InitializeMicrophoneWithDelay());
 
@@ -128,6 +138,18 @@ public class MicInput_Criware : MonoBehaviour
             }
         }
     }
+    // [2026/08/13] Amagata Implementation of the Save Feature start
+
+    /// <summary>
+    /// マイク入力状態を実際のオブジェクトに適用
+    /// GameObjectの有効/無効と、MicInput_Criwareのアクティブ状態を切り替えます
+    /// </summary>
+    /// <remarks><seealso cref="AudioSettingsController.UpdateMicInputState"/>から一部を流用</remarks>
+    private void UpdateMicInputState(bool isEnabled)
+    {
+        SetMicrophoneActive(isEnabled);
+    }
+    // [2026/08/13] Amagata Implementation of the Save Feature end
 
     /// <summary>
     /// 遅延を入れてマイクを初期化するコルーチン
@@ -550,6 +572,13 @@ public class MicInput_Criware : MonoBehaviour
         return totalVolume / volumeHistory.Count;
     }
 
+    // [2026/08/13] Amagata Implementation of the Save Feature start
+    public void DoClearVolumeHistory()
+    {
+        ClearVolumeHistory();
+    }
+
+    // [2026/08/13] Amagata Implementation of the Save Feature end
     /// <summary>
     /// 音量履歴をクリアするメソッド
     /// </summary>

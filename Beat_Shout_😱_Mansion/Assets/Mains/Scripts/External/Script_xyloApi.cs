@@ -496,29 +496,22 @@ namespace Mains.External
             var volumeHistoryField = type.GetField("volumeHistory", BindingFlags.NonPublic | BindingFlags.Instance);
             var timeHistoryField = type.GetField("timeHistory", BindingFlags.NonPublic | BindingFlags.Instance);
             var totalVolumeField = type.GetField("totalVolume", BindingFlags.NonPublic | BindingFlags.Instance);
-            var isMicActiveField = type.GetField("isMicActive", BindingFlags.NonPublic | BindingFlags.Instance);
 
-            if (volumeHistoryField == null || timeHistoryField == null || totalVolumeField == null || isMicActiveField == null)
+            if (volumeHistoryField == null || timeHistoryField == null || totalVolumeField == null)
             {
-                Debug.LogWarning("MicInput_Criware の volumeHistory / timeHistory / totalVolume / isMicActiveField フィールドが見つかりませんでした。");
+                Debug.LogWarning("MicInput_Criware の volumeHistory / timeHistory / totalVolume フィールドが見つかりませんでした。");
                 return;
             }
 
             var volumeHistory = volumeHistoryField.GetValue(_micInput_Criware) as Queue<float>;
             var timeHistory = timeHistoryField.GetValue(_micInput_Criware) as Queue<float>;
             var totalVolumeObj = totalVolumeField.GetValue(_micInput_Criware);
-            var isMicActiveObj = isMicActiveField.GetValue(_micInput_Criware);
 
-            if (volumeHistory == null || timeHistory == null || totalVolumeObj == null || isMicActiveObj == null)
+            if (volumeHistory == null || timeHistory == null || totalVolumeObj == null)
             {
                 Debug.LogWarning("MicInput_Criware の volumeHistory / timeHistory / totalVolume の値取得に失敗しました。");
                 return;
             }
-
-            bool isMicActive = (bool)isMicActiveObj;
-
-            if (!isMicActive)
-                return;
 
             float totalVolume = (float)totalVolumeObj;
             float currentTime = Time.time;
@@ -539,6 +532,15 @@ namespace Mains.External
 
             // totalVolumeをリフレクションで書き戻す
             totalVolumeField.SetValue(_micInput_Criware, totalVolume);
+        }
+
+        public void DoClearVolumeHistory()
+        {
+            if (_micInput_Criware == null)
+                return;
+
+            var micInput_Criware = _micInput_Criware;
+            micInput_Criware.DoClearVolumeHistory();
         }
 
         public void SetHomingObject(Transform transform)

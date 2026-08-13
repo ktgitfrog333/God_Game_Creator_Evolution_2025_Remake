@@ -108,5 +108,47 @@ namespace Universal.Utilities
                 return false;
             }
         }
+
+        /// <summary>
+        /// クリアステータスを更新してセーブする
+        /// </summary>
+        /// <param name="resourcesLoadName">リソースCSVファイル名</param>
+        public bool LoadDataAndUpdateStateAndSaveData(string resourcesLoadName)
+        {
+            var userBean = LoadSaveDatasJsonOfUserBean(resourcesLoadName);
+
+            // クリアステータス更新
+            var sceneIdx = userBean.sceneIdx;
+            var state = userBean.state;
+            if (sceneIdx < 5)
+            {
+                if (sceneIdx < 4)
+                {
+                    // ステージ1～4
+                    if (state[sceneIdx] != 2)
+                        state[sceneIdx] = 2;
+
+                    var nextSceneIdx = sceneIdx + 1;
+                    if (state[nextSceneIdx] != 1)
+                        state[nextSceneIdx] = 1;
+                }
+                else
+                {
+                    // 最終ステージ
+                    if (state[sceneIdx] != 2)
+                        state[sceneIdx] = 2;
+                }
+            }
+            else
+            {
+                // 不正シーン遷移
+                return false;
+            }
+            userBean.state = state;
+
+            SaveDatasJsonOfUserBean(resourcesLoadName, userBean);
+
+            return true;
+        }
     }
 }

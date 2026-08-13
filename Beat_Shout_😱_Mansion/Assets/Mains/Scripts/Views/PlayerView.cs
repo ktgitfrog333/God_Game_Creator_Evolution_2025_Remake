@@ -1004,13 +1004,14 @@ namespace Mains.Views
         /// <remarks>ボタン入力のみ</remarks>
         private void InputMicButtonOnly(Player player, ReactiveProperty<float> dbLevelShoutNote)
         {
-            float releaseTimeSec = シャウトチャンスパートの共通パラメータ管理用テーブル.マイク手動入力解放時間;
+            var table = シャウトチャンスパートの共通パラメータ管理用テーブル;
+            float releaseTimeSec = table.マイク手動入力解放時間;
 
             bool inhaleHeld = player.GetButtonDown("Inhale");
             bool inhaleHeldCon = (player.GetButtonDown("InhaleHalfLeft") && player.GetButton("InhaleHalfRight")) ||
                 (player.GetButton("InhaleHalfLeft") && player.GetButtonDown("InhaleHalfRight"));
             bool isMicInput = _script_XyloApi.IsMicInput();
-            bool isMicActive = _script_XyloApi.IsMicActive;
+            bool isMicActive = table.IsMicButtonActive(player);
 
             if (!isMicActive)
             {
@@ -1042,11 +1043,13 @@ namespace Mains.Views
             if (_shoutNoteMicTimer > 0f)
             {
                 _shoutNoteMicTimer -= Time.deltaTime;
-                dbLevelShoutNote.Value = シャウトチャンスパートの共通パラメータ管理用テーブル.マイク手動入力値;
+                dbLevelShoutNote.Value = table.マイク手動入力値;
 
                 if (_shoutNoteMicTimer <= 0f)
                 {
                     dbLevelShoutNote.Value = 0f;
+                    // マイク入力の平均もリセット
+                    _script_XyloApi.DoClearVolumeHistory();
                 }
             }
 

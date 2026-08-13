@@ -625,6 +625,7 @@ namespace Mains.Views
                     {
                         if (viewModel.CheckClearAndUpdateEnemyBattlePart())
                         {
+                            DoSave();
                             viewModel.IsCompletedStageClearDirection.Where(x => x)
                                 .Take(1)
                                 .Subscribe(_ =>
@@ -642,6 +643,7 @@ namespace Mains.Views
                     var subSettings = viewModel.PoltergeistTable.subSettings;
                     if (subSettings.targetkillsRate <= midBosskillsRate)
                     {
+                        DoSave();
                         viewModel.IsCompletedStageClearDirection.Where(x => x)
                             .Take(1)
                             .Subscribe(_ =>
@@ -736,6 +738,17 @@ namespace Mains.Views
                 _script_XyloApi.SetMicrophoneActive(false);
             }
             gameOverPanel.gameObject.SetActive(true);
+        }
+
+        /// <summary>
+        /// セーブ処理を呼び出す
+        /// </summary>
+        private void DoSave()
+        {
+            var util = new ResourcesUtility();
+            var result = util.LoadDataAndUpdateStateAndSaveData(ConstResorcesNames.USER_DATA);
+            if (!result)
+                Debug.LogWarning($"セーブデータの更新に失敗しました。シーン遷移処理に失敗している可能性があります。");
         }
 
         /// <summary>
