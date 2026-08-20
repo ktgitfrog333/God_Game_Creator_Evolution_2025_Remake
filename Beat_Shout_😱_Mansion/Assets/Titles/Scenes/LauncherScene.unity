@@ -490,7 +490,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   viewModel: {fileID: 11400000, guid: a008a255a46f8a841b85b635f3ecce6a, type: 2}
   commandButton: {fileID: 274793737}
-  loadSceneName: TitleScene
+  loadSceneName: TitlePrevScene
 --- !u!1 &378542522
 GameObject:
   m_ObjectHideFlags: 0

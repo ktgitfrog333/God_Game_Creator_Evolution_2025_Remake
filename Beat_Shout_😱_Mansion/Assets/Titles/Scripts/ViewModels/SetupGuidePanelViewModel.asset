@@ -9,9 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ae34a81c949bdff45af57b21e401f821, type: 3}
-  m_Name: FrontPanelViewModel
+  m_Script: {fileID: 11500000, guid: 7fb3ccafec4ad534abf5c7ca6b19b117, type: 3}
+  m_Name: SetupGuidePanelViewModel
   m_EditorClassIdentifier: 
   model: {fileID: 11400000, guid: 317350af9c1a4c242aef50259e8b2533, type: 2}
-  autoLoadTimeLimit: 0.5
-  loadSceneName: TitlePrevScene
+  movementAnimationDuration: 1
+  downUpAnimationDuration: 0.5
+  downUpAnimationDistance: 16
+  animationOffsetUpDistance: 80
+  scaleUpAnimationDuration: 0.3
+  scaleUpAnimationFromScale: {x: 0.5, y: 0.5, z: 0.5}

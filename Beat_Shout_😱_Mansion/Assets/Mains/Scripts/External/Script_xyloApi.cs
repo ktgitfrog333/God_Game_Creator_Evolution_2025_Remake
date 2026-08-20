@@ -2,6 +2,7 @@ using CriWare;
 using R3;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -361,6 +362,9 @@ namespace Mains.External
         public ReactiveCommand<bool> IsVolumeSliderMaxValueToTwo => _isVolumeSliderMaxValueToTwo;
         /// <summary>ボリュームスライダーのMAX値が2fへセットされたかDisposable</summary>
         private readonly SerialDisposable _volumeSliderMaxValueToTwoDisposable = new SerialDisposable();
+        /// <summary>現在のオーディオ設定</summary>
+        /// <remarks><seealso cref="AudioSettingsController.audioSettings"/>を参考</remarks>
+        private AudioSettingsData _audioSettings;
 
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
@@ -2181,6 +2185,67 @@ namespace Mains.External
             }
 
             return Vector2.Distance(screenCenter, noteScreenPos);
+        }
+
+        /// <summary>
+        /// オーディオ設定データを変換して取得
+        /// </summary>
+        /// <remarks>オーディオ設定データ<br/>
+        /// [0]: bgmVolume<br/>
+        /// [1]: seVolume<br/>
+        /// [2]: micInputEnabled<br/>
+        /// [3]: currentDeviceId<br/>
+        /// [4]: vibrationEnabled</remarks>
+        public Dictionary<int, string> GetAudioSettingsDataDic()
+        {
+            var audioSettings = AudioSettingsManager.LoadSettings();
+
+            Dictionary<int, string> audioSettingsDataDic = new Dictionary<int, string>();
+            audioSettingsDataDic[0] = $"{audioSettings.bgmVolume}";
+            audioSettingsDataDic[1] = $"{audioSettings.seVolume}";
+            int micInputEnabled = audioSettings.micInputEnabled ? 1 : 0;
+            audioSettingsDataDic[2] = $"{micInputEnabled}";
+            audioSettingsDataDic[3] = $"{audioSettings.currentDeviceId}";
+            int vibrationEnabled = audioSettings.vibrationEnabled ? 1 : 0;
+            audioSettingsDataDic[4] = $"{vibrationEnabled}";
+
+            return audioSettingsDataDic;
+        }
+
+        /// <summary>
+        /// オーディオ設定データを変換して渡す
+        /// </summary>
+        /// <param name="audioSettingsDataDic">オーディオ設定データ</param>
+        public void SetAudioSettingsData(Dictionary<int, string> audioSettingsDataDic)
+        {
+            AudioSettingsData audioSettingsData = new AudioSettingsData();
+            audioSettingsData.bgmVolume = float.Parse(audioSettingsDataDic[0], CultureInfo.InvariantCulture);
+            audioSettingsData.seVolume = float.Parse(audioSettingsDataDic[1], CultureInfo.InvariantCulture);
+            int micInputEnabled = int.Parse(audioSettingsDataDic[2], CultureInfo.InvariantCulture);
+            audioSettingsData.micInputEnabled = micInputEnabled == 1;
+            audioSettingsData.currentDeviceId = audioSettingsDataDic[3];
+            int vibrationEnabled = int.Parse(audioSettingsDataDic[4], CultureInfo.InvariantCulture);
+            audioSettingsData.vibrationEnabled = vibrationEnabled == 1;
+
+            _audioSettings = audioSettingsData;
+        }
+
+        /// <summary>
+        /// 音声設定を保存します
+        /// </summary>
+        /// <remarks><seealso cref="AudioSettingsController.SaveSettings"/>を参考</remarks>
+        public void SaveSettings()
+        {
+            var audioSettings = _audioSettings;
+            bool success = AudioSettingsManager.SaveSettings(audioSettings);
+            if (success)
+            {
+                Debug.Log($"音声設定を保存しました: BGM={audioSettings.bgmVolume}, SE={audioSettings.seVolume}, MicInput={audioSettings.micInputEnabled}, DeviceId={audioSettings.currentDeviceId}");
+            }
+            else
+            {
+                Debug.LogWarning("音声設定の保存に失敗しました。");
+            }
         }
 
         public void Dispose()
