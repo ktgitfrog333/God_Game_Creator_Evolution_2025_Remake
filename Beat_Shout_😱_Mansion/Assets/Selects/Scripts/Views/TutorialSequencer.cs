@@ -231,9 +231,8 @@ namespace Selects.Views
 
             input.EnableOnlyControllerMapCategory("CategoryTutorialSearchOnly");
             
-            // トリガー接触中 かつ Searchボタン押下を待つ
+            // Searchボタン押下を待つ
             await Observable.EveryUpdate()
-                .Where(_ => vm.FlashLightTriggerStay.CurrentValue)
                 .Where(_ => input.SearchButtonDown)
                 .FirstAsync(token);
 
@@ -341,8 +340,8 @@ namespace Selects.Views
 
             input.EnableOnlyControllerMapCategory("CategoryTutorialSearchOnly");
 
+            // Searchボタン押下を待つ
             await Observable.EveryUpdate()
-                .Where(_ => vm.BatteryTriggerStay.CurrentValue)
                 .Where(_ => input.SearchButtonDown)
                 .FirstAsync(token);
 
