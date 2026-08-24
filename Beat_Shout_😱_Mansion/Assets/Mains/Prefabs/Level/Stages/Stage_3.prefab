@@ -1072,7 +1072,7 @@ MonoBehaviour:
     membersCount: 8
     attackType: 1
     moveType: 0
-    customShoutRadius: 0
+    customShoutRadius: 2
     soundOutputType: 0
     role: 0
     ghostModelType: 2
@@ -4557,7 +4557,7 @@ MonoBehaviour:
     membersCount: 16
     attackType: 1
     moveType: 0
-    customShoutRadius: 0
+    customShoutRadius: 2
     soundOutputType: 0
     role: 0
     ghostModelType: 2
@@ -7824,7 +7824,7 @@ MonoBehaviour:
     membersCount: 10
     attackType: 1
     moveType: 0
-    customShoutRadius: 0
+    customShoutRadius: 2
     soundOutputType: 0
     role: 0
     ghostModelType: 2
