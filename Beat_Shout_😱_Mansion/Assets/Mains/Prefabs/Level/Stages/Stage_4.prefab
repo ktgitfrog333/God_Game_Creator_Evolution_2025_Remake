@@ -491,14 +491,14 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 082bd37323e6ac848b8311e6d665839b, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 0
-    membersCount: 0
-    attackType: 0
+    useStatus: 1
+    membersCount: 8
+    attackType: 1
     moveType: 0
-    customShoutRadius: 0
+    customShoutRadius: 2
     soundOutputType: 0
     role: 0
-    ghostModelType: 0
+    ghostModelType: 2
     ghostVoiceType: 0
   settings:
     ghostAttack:
@@ -1980,7 +1980,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1940212749709984952}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.25029865, z: 0, w: 0.9681687}
+  m_LocalRotation: {x: 0, y: 0.15058185, z: 0, w: -0.9885976}
   m_LocalPosition: {x: 1.04, y: -1.14, z: 0.437}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -2661,15 +2661,15 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 082bd37323e6ac848b8311e6d665839b, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 0
-    membersCount: 0
+    useStatus: 1
+    membersCount: 8
     attackType: 0
     moveType: 0
     customShoutRadius: 0
-    soundOutputType: 0
+    soundOutputType: 2
     role: 0
-    ghostModelType: 0
-    ghostVoiceType: 0
+    ghostModelType: 1
+    ghostVoiceType: 1
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -2985,8 +2985,8 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 082bd37323e6ac848b8311e6d665839b, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 1
-    membersCount: 1
+    useStatus: 0
+    membersCount: 0
     attackType: 0
     moveType: 0
     customShoutRadius: 0
@@ -3000,13 +3000,13 @@ MonoBehaviour:
     poltergeistAnimationSO: {fileID: 0}
     midBossGhostInStaticObjectStruct:
       poltergeistViewID: 0
-      useStatus: 1
-      membersCount: 104
+      useStatus: 0
+      membersCount: 0
       attackType: 0
       moveType: 0
       customShoutRadius: 0
       soundOutputType: 0
-      role: 1
+      role: 0
       ghostModelType: 0
       ghostVoiceType: 0
 --- !u!65 &789005727762862200
@@ -3086,8 +3086,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2997390905367237935}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.9681687, z: 0, w: -0.25029856}
-  m_LocalPosition: {x: 4.231, y: -0.092, z: 6.196}
+  m_LocalRotation: {x: 0, y: 0.9885976, z: 0, w: 0.15058191}
+  m_LocalPosition: {x: -0.92, y: -0.092, z: 6.73}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4717,8 +4717,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4311168329488191870}
   serializedVersion: 2
-  m_LocalRotation: {x: 9.305601e-10, y: 0.98747194, z: -1.4870047e-10, w: -0.1577948}
-  m_LocalPosition: {x: 1.99, y: 1.44, z: 5.65}
+  m_LocalRotation: {x: 0, y: 0.23302616, z: 0, w: 0.97247046}
+  m_LocalPosition: {x: -3.05, y: 1.44, z: -6.49}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5281,7 +5281,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4672029003091353699}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0.99826974, z: 0, w: 0.058801208}
+  m_LocalRotation: {x: -0.0000000018791602, y: 0.49634343, z: -0.0000000032867329, w: 0.8681263}
   m_LocalPosition: {x: 0.513, y: 0.47, z: -0.43}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -5399,14 +5399,14 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 082bd37323e6ac848b8311e6d665839b, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 0
-    membersCount: 0
+    useStatus: 1
+    membersCount: 16
     attackType: 0
-    moveType: 0
+    moveType: 1
     customShoutRadius: 0
     soundOutputType: 0
     role: 0
-    ghostModelType: 0
+    ghostModelType: 3
     ghostVoiceType: 0
   settings:
     ghostAttack:
@@ -6366,15 +6366,15 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 082bd37323e6ac848b8311e6d665839b, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 0
-    membersCount: 0
+    useStatus: 1
+    membersCount: 8
     attackType: 0
     moveType: 0
     customShoutRadius: 0
-    soundOutputType: 0
+    soundOutputType: 2
     role: 0
-    ghostModelType: 0
-    ghostVoiceType: 0
+    ghostModelType: 1
+    ghostVoiceType: 1
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -7103,7 +7103,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6090909180613917496}
   serializedVersion: 2
-  m_LocalRotation: {x: -1.4870044e-10, y: 0.15779477, z: -9.305601e-10, w: 0.98747194}
+  m_LocalRotation: {x: 0, y: 0.9724705, z: 0, w: -0.23302612}
   m_LocalPosition: {x: -0.068, y: 0.42000002, z: -0.625}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -7807,14 +7807,14 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 082bd37323e6ac848b8311e6d665839b, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 0
-    membersCount: 0
-    attackType: 0
+    useStatus: 1
+    membersCount: 10
+    attackType: 1
     moveType: 0
-    customShoutRadius: 0
+    customShoutRadius: 2
     soundOutputType: 0
     role: 0
-    ghostModelType: 0
+    ghostModelType: 2
     ghostVoiceType: 0
   settings:
     ghostAttack:
@@ -7982,14 +7982,14 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 082bd37323e6ac848b8311e6d665839b, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 0
-    membersCount: 0
+    useStatus: 1
+    membersCount: 8
     attackType: 0
-    moveType: 0
+    moveType: 1
     customShoutRadius: 0
     soundOutputType: 0
     role: 0
-    ghostModelType: 0
+    ghostModelType: 3
     ghostVoiceType: 0
   settings:
     ghostAttack:
@@ -8274,15 +8274,15 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 082bd37323e6ac848b8311e6d665839b, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 0
-    membersCount: 0
+    useStatus: 1
+    membersCount: 24
     attackType: 0
     moveType: 0
-    customShoutRadius: 0
+    customShoutRadius: 1
     soundOutputType: 0
     role: 0
-    ghostModelType: 0
-    ghostVoiceType: 0
+    ghostModelType: 4
+    ghostVoiceType: 2
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -8544,7 +8544,7 @@ Transform:
   m_GameObject: {fileID: 7352767533962820949}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.05880111, z: 0, w: 0.99826974}
-  m_LocalPosition: {x: -0.253, y: 1.66, z: -6.91}
+  m_LocalPosition: {x: -0.26, y: 1.43, z: -7.01}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -8935,14 +8935,14 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 082bd37323e6ac848b8311e6d665839b, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 0
-    membersCount: 0
+    useStatus: 1
+    membersCount: 10
     attackType: 0
     moveType: 0
     customShoutRadius: 0
-    soundOutputType: 0
+    soundOutputType: 3
     role: 0
-    ghostModelType: 0
+    ghostModelType: 5
     ghostVoiceType: 0
   settings:
     ghostAttack:
@@ -9399,8 +9399,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8319277478138522295}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.05880111, z: 0, w: 0.99826974}
-  m_LocalPosition: {x: -0.253, y: 1.66, z: -6.91}
+  m_LocalRotation: {x: 0.0000000032867329, y: 0.8681263, z: -0.0000000018791606, w: -0.4963435}
+  m_LocalPosition: {x: 6.17, y: 1.43, z: 2.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -9681,13 +9681,13 @@ MonoBehaviour:
     poltergeistAnimationSO: {fileID: 0}
     midBossGhostInStaticObjectStruct:
       poltergeistViewID: 0
-      useStatus: 0
-      membersCount: 0
+      useStatus: 1
+      membersCount: 104
       attackType: 0
       moveType: 0
       customShoutRadius: 0
       soundOutputType: 0
-      role: 0
+      role: 1
       ghostModelType: 0
       ghostVoiceType: 0
 --- !u!65 &6829425529930097471
