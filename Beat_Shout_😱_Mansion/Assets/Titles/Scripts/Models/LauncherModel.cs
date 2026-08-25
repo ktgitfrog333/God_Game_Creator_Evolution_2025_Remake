@@ -20,6 +20,14 @@ namespace Titles.Models
         private ReactiveProperty<bool> _isActiveAdminMode;
         /// <summary>管理者モード有効フラグ</summary>
         public ReadOnlyReactiveProperty<bool> IsActiveAdminMode => _isActiveAdminMode;
+        /// <summary>シーンロード演出の完了タイプ</summary>
+        /// <remarks>0: シーン開始演出中<br/>
+        /// 1: シーン開始演出の完了<br/>
+        /// 2: シーン終了演出中<br/>
+        /// 3: シーン終了演出の完了</remarks>
+        private ReactiveProperty<int> _completedSceneLoadDirectionType;
+        /// <summary>シーンロード演出の完了タイプ</summary>
+        public ReadOnlyReactiveProperty<int> CompletedSceneLoadDirectionType => _completedSceneLoadDirectionType;
 
         public void Initialize()
         {
@@ -28,6 +36,7 @@ namespace Titles.Models
 
             _messages = new ReactiveProperty<List<string>>(new List<string>());
             _isActiveAdminMode = new ReactiveProperty<bool>();
+            _completedSceneLoadDirectionType = new ReactiveProperty<int>();
         }
 
         /// <summary>
@@ -47,10 +56,16 @@ namespace Titles.Models
             _isActiveAdminMode.Value = isActiveAdminMode;
         }
 
+        public void SetCompletedSceneLoadDirectionType(int completedSceneLoadDirectionType)
+        {
+            _completedSceneLoadDirectionType.Value = completedSceneLoadDirectionType;
+        }
+
         public void Dispose()
         {
             _messages = null;
             _isActiveAdminMode = null;
+            _completedSceneLoadDirectionType = null;
             _isInitialized = false;
         }
     }

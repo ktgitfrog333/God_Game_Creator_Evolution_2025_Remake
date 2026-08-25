@@ -1540,7 +1540,7 @@ MonoBehaviour:
   AcbFilePath: SE_Long.acb
   maxPlayers: 5
   IntroStage01: search-part_Aintro
-  isNotStage: 0
+  isNotStage: 1
 --- !u!1 &973733826
 GameObject:
   m_ObjectHideFlags: 0
@@ -2401,7 +2401,7 @@ MonoBehaviour:
     - 0
     - 0
     - 0
-  _cueName: search-part_A
+  _cueName: Stage4_search_BPM105_loop
   _cueSheet: BGM
 --- !u!114 &1617177613
 MonoBehaviour:
@@ -2469,7 +2469,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ThisStageNumber: 0
-  introDelayTime: 12.2
+  introDelayTime: 0
   atomSourceA: {fileID: 1617177612}
   atomSourceB: {fileID: 1617177613}
   atomSourceBOfBPM: 155

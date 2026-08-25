@@ -4,6 +4,9 @@ using UnityEngine.UI;
 using CriWare;
 using System.Collections;
 using System.Collections.Generic;
+// [2026/08/17] Amagata Merging the Title Sequence start
+using System.Linq;
+// [2026/08/17] Amagata Merging the Title Sequence end
 
 /// <summary>
 /// CRIWARE APIを使用したマイク入力管理クラス
@@ -59,6 +62,12 @@ public class MicInput_Criware : MonoBehaviour
     private float volumeAccumulationStartTime = 0f; // 音量計測開始時間
     private bool isMeasuring = false; // 計測中かどうか
     private bool isMicActive = true; // マイク入力が有効かどうか
+    // [2026/08/10] Amagata Tutorial Implementation: Stage Select start
+    public bool IsMicActive => isMicActive;
+    // [2026/08/10] Amagata Tutorial Implementation: Stage Select end
+    // [2026/08/17] Amagata Merging the Title Sequence start
+    private string _currentDeviceId;
+    // [2026/08/17] Amagata Merging the Title Sequence end
 
     // スライダー表示用の音量平均化
     private Queue<float> volumeHistory = new Queue<float>(); // 音量履歴
@@ -81,6 +90,11 @@ public class MicInput_Criware : MonoBehaviour
     private const float MIC_PROCESS_INTERVAL = 0.02f;
     private float _micProcessTimer = 0f;
     // [2026/06/16] Amagata issue #57 end
+    // [2026/08/13] Amagata Implementation of the Save Feature start
+    // 現在のオーディオ設定
+    /// <summary><seealso cref="AudioSettingsController.audioSettings"/>から流用</summary>
+    private AudioSettingsData audioSettings;
+    // [2026/08/13] Amagata Implementation of the Save Feature end
 
 
     // シングルトン
@@ -97,6 +111,14 @@ public class MicInput_Criware : MonoBehaviour
         {
             Destroy(gameObject);
         }
+        // [2026/08/13] Amagata Implementation of the Save Feature start
+        audioSettings = AudioSettingsManager.LoadSettings();
+        // マイク入力の有効/無効を設定
+        // [2026/08/17] Amagata Merging the Title Sequence start
+        //UpdateMicInputState(audioSettings.micInputEnabled);
+        UpdateMicInputState(audioSettings.micInputEnabled, audioSettings.currentDeviceId);
+        // [2026/08/17] Amagata Merging the Title Sequence end
+        // [2026/08/13] Amagata Implementation of the Save Feature end
 
         StartCoroutine(InitializeMicrophoneWithDelay());
 
@@ -125,6 +147,22 @@ public class MicInput_Criware : MonoBehaviour
             }
         }
     }
+    // [2026/08/13] Amagata Implementation of the Save Feature start
+
+    // [2026/08/17] Amagata Merging the Title Sequence start
+    //private void UpdateMicInputState(bool isEnabled)
+    /// <summary>
+    /// マイク入力状態を実際のオブジェクトに適用
+    /// GameObjectの有効/無効と、MicInput_Criwareのアクティブ状態を切り替えます
+    /// </summary>
+    /// <remarks><seealso cref="AudioSettingsController.UpdateMicInputState"/>から一部を流用</remarks>
+    private void UpdateMicInputState(bool isEnabled, string currentDeviceId)
+    {
+        //SetMicrophoneActive(isEnabled);
+        SetMicrophoneActive(isEnabled, currentDeviceId);
+        // [2026/08/17] Amagata Merging the Title Sequence end
+    }
+    // [2026/08/13] Amagata Implementation of the Save Feature end
 
     /// <summary>
     /// 遅延を入れてマイクを初期化するコルーチン
@@ -185,20 +223,46 @@ public class MicInput_Criware : MonoBehaviour
     }
     // [2026/06/16] Amagata issue #57 end
 
+    // [2026/08/17] Amagata Merging the Title Sequence start
     /// <summary>
     /// マイク入力の有効/無効を切り替えるメソッド
     /// </summary>
     /// <param name="active">有効にする場合はtrue、無効にする場合はfalse</param>
     public void SetMicrophoneActive(bool active)
     {
+        SetMicrophoneActive(active, _currentDeviceId);
+    }
+    ///// <summary>
+    ///// マイク入力の有効/無効を切り替えるメソッド
+    ///// </summary>
+    ///// <param name="active">有効にする場合はtrue、無効にする場合はfalse</param>
+    /// <summary>
+    /// マイク入力の有効/無効を切り替えるメソッド
+    /// </summary>
+    /// <param name="active">有効にする場合はtrue、無効にする場合はfalse</param>
+    /// <param name="currentDeviceId">現在のデバイスID</param>
+    public void SetMicrophoneActive(bool active, string currentDeviceId = "")
+    {
+        // [2026/08/17] Amagata Merging the Title Sequence end
         // 既に同じ状態なら何もしない
-        if (isMicActive == active)
+        // [2026/08/17] Amagata Merging the Title Sequence start
+        //if (isMicActive == active)
+        if (isMicActive == active &&
+            (string.IsNullOrEmpty(currentDeviceId) && string.IsNullOrEmpty(_currentDeviceId) ||
+                !string.IsNullOrEmpty(_currentDeviceId) && _currentDeviceId.Equals(currentDeviceId)))
+            // [2026/08/17] Amagata Merging the Title Sequence end
             return;
 
         isMicActive = active;
 
         if (active)
         {
+            // [2026/08/17] Amagata Merging the Title Sequence start
+            if (!string.IsNullOrEmpty(currentDeviceId) &&
+                (string.IsNullOrEmpty(_currentDeviceId) || !_currentDeviceId.Equals(currentDeviceId)))
+                _currentDeviceId = currentDeviceId;
+
+            // [2026/08/17] Amagata Merging the Title Sequence end
             // マイク入力を再開
             if (mic == null)
             {
@@ -266,6 +330,30 @@ public class MicInput_Criware : MonoBehaviour
             Debug.LogError("利用可能なマイクデバイスが見つかりません！");
             return;
         }
+        // [2026/08/17] Amagata Merging the Title Sequence start
+        string deviceId = "";
+        var currentDeviceId = _currentDeviceId;
+        if (!string.IsNullOrEmpty(currentDeviceId))
+        {
+            if (!currentDeviceId.Equals("*Do not use the microphone"))
+            {
+                deviceId = devices.FirstOrDefault(q => q.deviceId.Equals(currentDeviceId)).deviceId;
+                if (string.IsNullOrEmpty(deviceId))
+                {
+                    Debug.LogWarning($"対象デバイスID [{currentDeviceId}] が見つからなかったため取得デバイスの1番目を使用します");
+                    deviceId = devices[0].deviceId; // 最初のデバイスを使用
+                }
+            }
+            else
+            {
+                deviceId = currentDeviceId;
+            }
+        }
+        else
+        {
+            deviceId = devices[0].deviceId; // 最初のデバイスを使用
+        }
+        // [2026/08/17] Amagata Merging the Title Sequence end
 
         // 既存のマイクインスタンスをクリーンアップ
         if (mic != null)
@@ -277,7 +365,10 @@ public class MicInput_Criware : MonoBehaviour
 
         // マイクの設定を作成
         var config = CriAtomExMic.Config.Default;
-        config.deviceId = devices[0].deviceId; // 最初のデバイスを使用
+        // [2026/08/17] Amagata Merging the Title Sequence start
+        //config.deviceId = devices[0].deviceId; // 最初のデバイスを使用
+        config.deviceId = deviceId;
+        // [2026/08/17] Amagata Merging the Title Sequence end
         config.numChannels = 1; // モノラル
         config.samplingRate = 44100;
         config.frameSize = (uint)sampleSize;
@@ -547,6 +638,13 @@ public class MicInput_Criware : MonoBehaviour
         return totalVolume / volumeHistory.Count;
     }
 
+    // [2026/08/13] Amagata Implementation of the Save Feature start
+    public void DoClearVolumeHistory()
+    {
+        ClearVolumeHistory();
+    }
+
+    // [2026/08/13] Amagata Implementation of the Save Feature end
     /// <summary>
     /// 音量履歴をクリアするメソッド
     /// </summary>
@@ -803,6 +901,9 @@ public class MicInput_Criware : MonoBehaviour
             mic.Stop();
             mic.Dispose();
             mic = null;
+            // [2026/08/17] Amagata Merging the Title Sequence start
+            _currentDeviceId = string.Empty;
+            // [2026/08/17] Amagata Merging the Title Sequence end
         }
 
         // CRIWAREのマイクモジュールを終了

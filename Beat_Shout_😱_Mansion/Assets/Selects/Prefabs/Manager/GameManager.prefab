@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 206978633037383634}
   - component: {fileID: 3362755948493679670}
   - component: {fileID: 3790734634968465759}
+  - component: {fileID: 2314014089416144965}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -125,3 +126,17 @@ MonoBehaviour:
     - scriptName: PlayerRespawnPositionView_2
     - scriptName: PlayerRespawnPositionView_3
     - scriptName: PlayerRespawnPositionView_4
+--- !u!114 &2314014089416144965
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8118110424409686172}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 954335a4ec992404d931b85a8fac270c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  performanceSettings:
+    targetFrameRate: 60

@@ -67,6 +67,7 @@ namespace Universal.Utilities
                             return new UserBean(JsonUtility.FromJson<UserBean>(sr.ReadToEnd()));
                     case EnumLoadMode.Default:
                     case EnumLoadMode.Default1:
+                    case EnumLoadMode.ClearToSceneIdx_1:
                     case EnumLoadMode.All:
                         using (var sr = new StreamReader($"{path}{resourcesLoadName}{EXTENSION_JSON}", Encoding.GetEncoding(ENCODING)))
                             return new UserBean(JsonUtility.FromJson<UserBean>(sr.ReadToEnd()), enumLoadMode);
@@ -106,6 +107,48 @@ namespace Universal.Utilities
                 Debug.LogError(e);
                 return false;
             }
+        }
+
+        /// <summary>
+        /// クリアステータスを更新してセーブする
+        /// </summary>
+        /// <param name="resourcesLoadName">リソースCSVファイル名</param>
+        public bool LoadDataAndUpdateStateAndSaveData(string resourcesLoadName)
+        {
+            var userBean = LoadSaveDatasJsonOfUserBean(resourcesLoadName);
+
+            // クリアステータス更新
+            var sceneIdx = userBean.sceneIdx;
+            var state = userBean.state;
+            if (sceneIdx < 5)
+            {
+                if (sceneIdx < 4)
+                {
+                    // ステージ1～4
+                    if (state[sceneIdx] != 2)
+                        state[sceneIdx] = 2;
+
+                    var nextSceneIdx = sceneIdx + 1;
+                    if (state[nextSceneIdx] != 1)
+                        state[nextSceneIdx] = 1;
+                }
+                else
+                {
+                    // 最終ステージ
+                    if (state[sceneIdx] != 2)
+                        state[sceneIdx] = 2;
+                }
+            }
+            else
+            {
+                // 不正シーン遷移
+                return false;
+            }
+            userBean.state = state;
+
+            SaveDatasJsonOfUserBean(resourcesLoadName, userBean);
+
+            return true;
         }
     }
 }

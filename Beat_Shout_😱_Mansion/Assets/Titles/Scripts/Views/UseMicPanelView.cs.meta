@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: f2eea2471cee8004b967a90bfc1a4d26
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - viewModel: {fileID: 11400000, guid: d2c81ea547557b7409ff079eff816e42, type: 2}
+  - useMicDropdown: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

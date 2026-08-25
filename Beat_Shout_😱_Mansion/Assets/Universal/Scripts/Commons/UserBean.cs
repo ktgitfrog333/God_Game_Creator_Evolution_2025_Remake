@@ -22,14 +22,6 @@ namespace Universal.Commons
             0,
             0,
         };
-        /// <summary>BGMボリュームインデックス</summary>
-        /// <remarks>範囲:0～10<br/>
-        /// デフォルト:5</remarks>
-        public int bgmVolumeIndex = 5;
-        /// <summary>SEボリュームインデックス</summary>
-        /// <remarks>範囲:0.0 - 1.0<br/>
-        /// デフォルト:1.0</remarks>
-        public float seVolumeIndex = 1.0f;
         /// <summary>振動有効インデックス</summary>
         /// <remarks>0:振動オフ<br/>
         /// 1:振動オン</remarks>
@@ -52,8 +44,6 @@ namespace Universal.Commons
         {
             sceneIdx = userBean.sceneIdx;
             state = userBean.state.ToArray();
-            bgmVolumeIndex = userBean.bgmVolumeIndex;
-            seVolumeIndex = userBean.seVolumeIndex;
             vibrationEnableIndex = userBean.vibrationEnableIndex;
             eventProgressList = new System.Collections.Generic.List<EventProgress>();
             if (userBean.eventProgressList != null)
@@ -87,9 +77,21 @@ namespace Universal.Commons
 
                     break;
                 case EnumLoadMode.Default1:
-                    bgmVolumeIndex = 5;
-                    seVolumeIndex = 1.0f;
                     vibrationEnableIndex = 1;
+
+                    break;
+                case EnumLoadMode.ClearToSceneIdx_1:
+                    sceneIdx = 5;
+                    state = new int[]
+                    {
+                        2,
+                        2,
+                        1,
+                        0,
+                        0,
+                    };
+                    InitializeEventProgressList();
+                    SetCompleteEventProgress((int)TutorialEventId.ETB0004);
 
                     break;
                 case EnumLoadMode.All:
@@ -103,6 +105,7 @@ namespace Universal.Commons
                         2,
                     };
                     InitializeEventProgressList();
+                    SetCompleteEventProgress((int)TutorialEventId.ETS0002);
 
                     break;
             }
@@ -119,6 +122,26 @@ namespace Universal.Commons
                 if (eventId != TutorialEventId.None)
                 {
                     eventProgressList.Add(new EventProgress((int)eventId, 0));
+                }
+            }
+        }
+
+        /// <summary>
+        /// イベント進捗配列にて指定されたチュートリアルのイベントIDまで完了にする
+        /// </summary>
+        /// <param name="eventId">チュートリアルのイベントID</param>
+        private void SetCompleteEventProgress(int eventId)
+        {
+            var eventProgressList = this.eventProgressList;
+            for (int i = 0; i < eventProgressList.Count; i++)
+            {
+                var eventProgress = eventProgressList[i];
+                if ((TutorialEventId)eventProgress.eventId != TutorialEventId.None)
+                {
+                    if (eventProgress.eventId <= eventId)
+                    {
+                        eventProgress.status = 1;
+                    }
                 }
             }
         }

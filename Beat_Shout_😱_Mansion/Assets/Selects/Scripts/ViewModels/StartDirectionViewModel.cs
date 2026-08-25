@@ -13,7 +13,7 @@ namespace Selects.ViewModels
         /// <summary>プレイヤーのモデル</summary>
         private PlayerModel _playerModel;
         /// <summary>ステージ開始演出が完了したか</summary>
-        private readonly ReactiveProperty<bool> _isCompletedStartDirection = new ReactiveProperty<bool>(false);
+        private ReactiveProperty<bool> _isCompletedStartDirection;
         /// <summary>ステージ開始演出が完了したか</summary>
         public ReadOnlyReactiveProperty<bool> IsCompletedStartDirection => _isCompletedStartDirection;
         /// <summary>一度のみ初期化フラグ</summary>
@@ -26,6 +26,7 @@ namespace Selects.ViewModels
             if (!_isOnly)
             {
                 _isOnly = true;
+                _isCompletedStartDirection = new ReactiveProperty<bool>();
                 Observable.EveryUpdate()
                     .Select(_ => GameObject.FindAnyObjectByType<PlayerModel>())
                     .Where(x => x != null)
@@ -54,6 +55,7 @@ namespace Selects.ViewModels
         {
             _disposableBag.Dispose();
             _isOnly = false;
+            _isCompletedStartDirection = null;
         }
     }
 }

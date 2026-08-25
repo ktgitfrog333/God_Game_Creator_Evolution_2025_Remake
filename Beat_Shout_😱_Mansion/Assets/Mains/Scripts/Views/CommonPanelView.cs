@@ -13,6 +13,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Universal.Commons;
+using Universal.Utilities;
 
 namespace Mains.Views
 {
@@ -42,6 +44,17 @@ namespace Mains.Views
         [SerializeField] private HorrorGaugeSliderFillColorStruct[] horrorGaugeSliderFillColorStructs;
         [Header("オバケ移動演出")]
         [SerializeField] private RetryInfoSettings retryInfoSettings;
+        [Header("ステージクリア演出")]
+        [Tooltip("CommonPanel > CenterPanel > StageClearPanel をセット")]
+        /// <summary>STAGE CLEARのパネル</summary>
+        [SerializeField] private RectTransform stageClearPanel;
+        [Tooltip("CommonPanel > CenterPanel > StageClearPanel > StageClearText をセット")]
+        /// <summary>STAGE CLEARのテキスト</summary>
+        [SerializeField] private TextMeshProUGUI stageClearText;
+        /// <summary>コングラチュレーションのビュー</summary>
+        [SerializeField] private CongratulationsPanelView congratulationsPanelView;
+        /// <summary>レベル構造体管理テーブル</summary>
+        [SerializeField] private LevelTable levelTable;
         [Header("その他オプション")]
         [Tooltip("CommonPanel > HeaderPanel > IconAndGuidePanel をセット")]
         /// <summary>アイコンとガイド文言表示パネルのキャンバスグループ</summary>
@@ -59,12 +72,6 @@ namespace Mains.Views
         private Sequence _changeGuideTextsNormalToMidBossSequence;
         /// <summary>ハートアイコン設定</summary>
         [SerializeField] private IconHeartSettings iconHeartSettings;
-        [Tooltip("CommonPanel > CenterPanel > StageClearPanel をセット")]
-        /// <summary>STAGE CLEARのパネル</summary>
-        [SerializeField] private RectTransform stageClearPanel;
-        [Tooltip("CommonPanel > CenterPanel > StageClearPanel > StageClearText をセット")]
-        /// <summary>STAGE CLEARのテキスト</summary>
-        [SerializeField] private TextMeshProUGUI stageClearText;
         [SerializeField] private CommonPanelTemplateStruct 共通UIのテンプレート;
         [Tooltip("Assets/Mains/Prefabs/Level/ObjectsPoolView.prefabをセットしておく。")]
         [SerializeField] private GameObject objectsPoolViewPrefab;
@@ -151,6 +158,11 @@ namespace Mains.Views
                     if (retryInfoSettings.footerMessagePanelCanvasGroup == null)
                         retryInfoSettings.footerMessagePanelCanvasGroup = child.GetComponent<CanvasGroup>();
                 }
+                if (child.name.Equals("CenterPanel"))
+                {
+                    if (congratulationsPanelView == null)
+                        congratulationsPanelView = child.GetComponent<CongratulationsPanelView>();
+                }
             }
             if (stageClearPanel == null)
                 stageClearPanel = transform.GetChild(3).GetChild(0) as RectTransform;
@@ -164,6 +176,19 @@ namespace Mains.Views
             var player = ReInput.players.GetPlayer(0);
             FadeImageView fadeImageView = FindAnyObjectByType<FadeImageView>();
             var viewModel = _commonPanelViewModel;
+            var temp = new ResourcesUtility();
+            var userBean = temp.LoadSaveDatasJsonOfUserBean(ConstResorcesNames.USER_DATA);
+            var levelStructs = levelTable.レベル構造体リスト;
+            var sceneIdx = userBean.sceneIdx;
+            var levelStruct = levelStructs.FirstOrDefault(q => q.階層 == sceneIdx);
+            if (levelStruct.Stage_xと書かれたプレハブ == null)
+            {
+                Debug.LogError($"条件に一致するステージインデックス [{sceneIdx}] が見つかりませんでした。");
+                sceneIdx = 0;
+                levelStruct = levelStructs.FirstOrDefault(q => q.階層 == sceneIdx);
+            }
+            // 最終ステージか
+            bool isFinalStage = levelStruct.最終ステージか;
             // オバケの家具入居管理の構造体リストから、オバケの数を全て取得してその合計をミッションガイド概要／詳細へ反映する処理を実装
             Observable.EveryUpdate()
                 .Select(_ => _commonPanelViewModel.GhostInStaticObjectStructs)
@@ -200,8 +225,8 @@ namespace Mains.Views
                             var ghostExitMembersCount = ghostAllMembersCount - ghostAllMembersUpdCount;
                             missionText.text = 共通UIのテンプレート.missionText.Replace("${ghostAllMembersCount}", $"{ghostAllMembersCount}")
                                 .Replace("${ghostExitMembersCount}", $"{ghostExitMembersCount}");
-                            CheckMissionStatusAndDirectionClear(ghostAllMembersUpdCount, gameSceneNameBack,
-                                stageClearPanel, stageClearText, player, fadeImageView,
+                            CheckMissionStatusAndDirectionClear(ghostAllMembersUpdCount, gameSceneNameBack, isFinalStage,
+                                stageClearPanel, stageClearText, player, fadeImageView, congratulationsPanelView,
                                 viewModel);
                         })
                         .AddTo(ref _disposableBag);
@@ -581,13 +606,15 @@ namespace Mains.Views
         /// </summary>
         /// <param name="ghostAllMembersUpdCount">利用総人数（更新後）</param>
         /// <param name="gameSceneNameBack">前に戻るシーン名</param>
+        /// <param name="isFinalStage">最終ステージか</param>
         /// <param name="stageClearPanel">STAGE CLEARのパネル</param>
         /// <param name="stageClearText">STAGE CLEARのテキスト</param>
         /// <param name="player">ReInputのPlayer</param>
         /// <param name="fadeImageView">フェードイメージのビュー</param>
+        /// <param name="congratulationsPanelView">コングラチュレーションのビュー</param>
         /// <param name="commonPanelViewModel">共通UIのビューモデル</param>
-        private void CheckMissionStatusAndDirectionClear(int ghostAllMembersUpdCount, string gameSceneNameBack,
-            RectTransform stageClearPanel, TextMeshProUGUI stageClearText, Player player, FadeImageView fadeImageView,
+        private void CheckMissionStatusAndDirectionClear(int ghostAllMembersUpdCount, string gameSceneNameBack, bool isFinalStage,
+            RectTransform stageClearPanel, TextMeshProUGUI stageClearText, Player player, FadeImageView fadeImageView, CongratulationsPanelView congratulationsPanelView,
             CommonPanelViewModel commonPanelViewModel)
         {
             var viewModel = commonPanelViewModel;
@@ -598,12 +625,13 @@ namespace Mains.Views
                     {
                         if (viewModel.CheckClearAndUpdateEnemyBattlePart())
                         {
+                            DoSave();
                             viewModel.IsCompletedStageClearDirection.Where(x => x)
                                 .Take(1)
                                 .Subscribe(_ =>
                                 {
-                                    PlayDirectionClear(gameSceneNameBack,
-                                        stageClearPanel, stageClearText, player, fadeImageView);
+                                    PlayDirectionClear(gameSceneNameBack, isFinalStage,
+                                        stageClearPanel, stageClearText, player, fadeImageView, congratulationsPanelView);
                                 })
                                 .AddTo(ref _disposableBag);
                         }
@@ -615,12 +643,13 @@ namespace Mains.Views
                     var subSettings = viewModel.PoltergeistTable.subSettings;
                     if (subSettings.targetkillsRate <= midBosskillsRate)
                     {
+                        DoSave();
                         viewModel.IsCompletedStageClearDirection.Where(x => x)
                             .Take(1)
                             .Subscribe(_ =>
                             {
-                                PlayDirectionClear(gameSceneNameBack,
-                                    stageClearPanel, stageClearText, player, fadeImageView);
+                                PlayDirectionClear(gameSceneNameBack, isFinalStage,
+                                    stageClearPanel, stageClearText, player, fadeImageView, congratulationsPanelView);
                             })
                             .AddTo(ref _disposableBag);
                     }
@@ -712,59 +741,95 @@ namespace Mains.Views
         }
 
         /// <summary>
+        /// セーブ処理を呼び出す
+        /// </summary>
+        private void DoSave()
+        {
+            var util = new ResourcesUtility();
+            var result = util.LoadDataAndUpdateStateAndSaveData(ConstResorcesNames.USER_DATA);
+            if (!result)
+                Debug.LogWarning($"セーブデータの更新に失敗しました。シーン遷移処理に失敗している可能性があります。");
+        }
+
+        /// <summary>
         /// クリア演出を実行
         /// </summary>
         /// <param name="gameSceneNameBack">前に戻るシーン名</param>
+        /// <param name="isFinalStage">最終ステージか</param>
         /// <param name="stageClearPanel">STAGE CLEARのパネル</param>
         /// <param name="stageClearText">STAGE CLEARのテキスト</param>
         /// <param name="player">ReInputのPlayer</param>
         /// <param name="fadeImageView">フェードイメージのビュー</param>
-        private void PlayDirectionClear(string gameSceneNameBack,
-            RectTransform stageClearPanel, TextMeshProUGUI stageClearText, Player player, FadeImageView fadeImageView)
+        /// <param name="congratulationsPanelView">コングラチュレーションのビュー</param>
+        private void PlayDirectionClear(string gameSceneNameBack, bool isFinalStage,
+            RectTransform stageClearPanel, TextMeshProUGUI stageClearText, Player player, FadeImageView fadeImageView, CongratulationsPanelView congratulationsPanelView)
         {
             // 時間を停止
             Time.timeScale = 0f;
             player.controllers.maps.SetMapsEnabled(false, "Default"); // ゲーム操作を無効化
 
-            // TextMeshProを取得して、クリア演出の様なDOTweenアニメーションをつける。完了を通知する。
-            stageClearPanel.gameObject.SetActive(true);
-            stageClearText.transform.localScale = Vector3.zero;
-            stageClearText.DOFade(0f, 0f);
-            DOTween.Sequence()
-                .Append(stageClearText.DOFade(1f, 0.5f))
-                .Join(stageClearText.transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack))
-                .SetUpdate(true)
-                .OnComplete(() =>
+            if (!isFinalStage)
+            {
+                // TextMeshProを取得して、クリア演出の様なDOTweenアニメーションをつける。完了を通知する。
+                stageClearPanel.gameObject.SetActive(true);
+                stageClearText.transform.localScale = Vector3.zero;
+                stageClearText.DOFade(0f, 0f);
+                DOTween.Sequence()
+                    .Append(stageClearText.DOFade(1f, 0.5f))
+                    .Join(stageClearText.transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack))
+                    .SetUpdate(true)
+                    .OnComplete(() =>
+                    {
+                        PlayDirectionClearAfter(gameSceneNameBack, player, fadeImageView);
+                    });
+            }
+            else
+            {
+                // ステージ5の場合はコングラチュレーションの画面を表示する
+                congratulationsPanelView.EnableAndPlayFadeInCongratulations().Subscribe(_ =>
                 {
-                    // 必要ならここでさらに次の処理を繋ぐ
-                    player.controllers.maps.SetMapsEnabled(true, "CategoryUI");       // UI操作だけ有効化
-                    Observable.EveryUpdate()
-                        .Select(_ => player.GetButtonDown("Submit"))
-                        .DistinctUntilChanged()
-                        .Where(x => x)
-                        .Take(1)
+                    PlayDirectionClearAfter(gameSceneNameBack, player, fadeImageView);
+                })
+                    .AddTo(ref _disposableBag);
+            }
+        }
+
+        /// <summary>
+        /// クリア演出の後処理
+        /// </summary>
+        /// <param name="gameSceneNameBack">前に戻るシーン名</param>
+        /// <param name="player">ReInputのPlayer</param>
+        /// <param name="fadeImageView">フェードイメージのビュー</param>
+        private void PlayDirectionClearAfter(string gameSceneNameBack, Player player, FadeImageView fadeImageView)
+        {
+            // 必要ならここでさらに次の処理を繋ぐ
+            player.controllers.maps.SetMapsEnabled(true, "CategoryUI");       // UI操作だけ有効化
+            Observable.EveryUpdate()
+                .Select(_ => player.GetButtonDown("Submit"))
+                .DistinctUntilChanged()
+                .Where(x => x)
+                .Take(1)
+                .Subscribe(_ =>
+                {
+                    player.controllers.maps.SetMapsEnabled(false, "CategoryUI");
+                    Observable.Create<bool>(observer =>
+                    {
+                        StartCoroutine(fadeImageView.PlayFadeInDirection(observer));
+                        return Disposable.Empty;
+                    })
                         .Subscribe(_ =>
                         {
-                            player.controllers.maps.SetMapsEnabled(false, "CategoryUI");
                             Observable.Create<bool>(observer =>
                             {
-                                StartCoroutine(fadeImageView.PlayFadeInDirection(observer));
+                                StartCoroutine(LoadSceneCoroutine(observer, gameSceneNameBack));
                                 return Disposable.Empty;
                             })
-                                .Subscribe(_ =>
-                                {
-                                    Observable.Create<bool>(observer =>
-                                    {
-                                        StartCoroutine(LoadSceneCoroutine(observer, gameSceneNameBack));
-                                        return Disposable.Empty;
-                                    })
-                                        .Subscribe(_ => { })
-                                        .AddTo(ref _disposableBag);
-                                })
+                                .Subscribe(_ => { })
                                 .AddTo(ref _disposableBag);
                         })
                         .AddTo(ref _disposableBag);
-                });
+                })
+                .AddTo(ref _disposableBag);
         }
 
         /// <summary>

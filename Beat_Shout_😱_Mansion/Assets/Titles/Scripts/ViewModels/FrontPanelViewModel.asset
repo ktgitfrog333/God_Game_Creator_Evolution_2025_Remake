@@ -13,3 +13,5 @@ MonoBehaviour:
   m_Name: FrontPanelViewModel
   m_EditorClassIdentifier: 
   model: {fileID: 11400000, guid: 317350af9c1a4c242aef50259e8b2533, type: 2}
+  autoLoadTimeLimit: 0.5
+  loadSceneName: TitlePrevScene

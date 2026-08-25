@@ -24,7 +24,7 @@ namespace Selects.Views
             if (s[0] == 2 && s[1] == 1 && s[2] == 0 && s[3] == 0 && s[4] == 0) return true;
 
             if (s[0] == 2 && s[1] == 2 && s[2] == 1 && s[3] == 0 && s[4] == 0)
-                if (IsCompletedUpTo(bean, TutorialEventId.ETS0001)) return true;
+                if (IsCompletedUpTo(bean, TutorialEventId.ETS0002)) return true;
 
             if (s[0] == 2 && s[1] == 2 && s[2] == 2 && s[3] == 1 && s[4] == 0) return true;
             if (s[0] == 2 && s[1] == 2 && s[2] == 2 && s[3] == 2 && s[4] == 1) return true;

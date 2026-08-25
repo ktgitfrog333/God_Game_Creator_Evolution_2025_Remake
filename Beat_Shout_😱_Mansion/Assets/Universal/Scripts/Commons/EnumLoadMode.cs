@@ -20,6 +20,10 @@ namespace Universal.Commons
         /// </summary>
         Default1,
         /// <summary>
+        /// ステージ2完了モード
+        /// </summary>
+        ClearToSceneIdx_1,
+        /// <summary>
         /// 全解放モード
         /// </summary>
         All,

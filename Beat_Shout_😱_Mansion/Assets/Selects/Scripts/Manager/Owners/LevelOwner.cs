@@ -27,36 +27,36 @@ namespace Selects.Manager.Owners
         {
             var mainCamera = Camera.main;
             mainCamera.enabled = false;
-            var directionalLight = GameObject.Find("Directional Light").GetComponent<Light>();
-            if (DirectionalLightを継承して再設定.Updateされる度に更新)
-            {
-                Observable.EveryUpdate()
-                    .Subscribe(_ =>
-                    {
-                        directionalLight.intensity = DirectionalLightを継承して再設定.intensity;
-                        directionalLight.shadowStrength = DirectionalLightを継承して再設定.shadowStrength;
-                        directionalLight.color = DirectionalLightを継承して再設定.lightColor;
-                    })
-                    .AddTo(ref _disposableBag);
-            }
-            else
-            {
-                directionalLight.intensity = DirectionalLightを継承して再設定.intensity;
-                directionalLight.shadowStrength = DirectionalLightを継承して再設定.shadowStrength;
-                directionalLight.color = DirectionalLightを継承して再設定.lightColor;
-            }
-            mainCamera.gameObject.layer = Mathf.RoundToInt(Mathf.Log(MainCameraを継承して再設定.PostProcessing用のLayer.value, 2));
-            // Post-Process Layerコンポーネントを追加
-            PostProcessLayer postProcessLayer = mainCamera.gameObject.GetComponent<PostProcessLayer>();
-            if (postProcessLayer == null)
-            {
-                postProcessLayer = mainCamera.gameObject.AddComponent<PostProcessLayer>();
-            }
+            //var directionalLight = GameObject.Find("Directional Light").GetComponent<Light>();
+            //if (DirectionalLightを継承して再設定.Updateされる度に更新)
+            //{
+            //    Observable.EveryUpdate()
+            //        .Subscribe(_ =>
+            //        {
+            //            directionalLight.intensity = DirectionalLightを継承して再設定.intensity;
+            //            directionalLight.shadowStrength = DirectionalLightを継承して再設定.shadowStrength;
+            //            directionalLight.color = DirectionalLightを継承して再設定.lightColor;
+            //        })
+            //        .AddTo(ref _disposableBag);
+            //}
+            //else
+            //{
+            //    directionalLight.intensity = DirectionalLightを継承して再設定.intensity;
+            //    directionalLight.shadowStrength = DirectionalLightを継承して再設定.shadowStrength;
+            //    directionalLight.color = DirectionalLightを継承して再設定.lightColor;
+            //}
+            //mainCamera.gameObject.layer = Mathf.RoundToInt(Mathf.Log(MainCameraを継承して再設定.PostProcessing用のLayer.value, 2));
+            //// Post-Process Layerコンポーネントを追加
+            //PostProcessLayer postProcessLayer = mainCamera.gameObject.GetComponent<PostProcessLayer>();
+            //if (postProcessLayer == null)
+            //{
+            //    postProcessLayer = mainCamera.gameObject.AddComponent<PostProcessLayer>();
+            //}
 
-            // Post-Process Layerの設定を調整
-            postProcessLayer.volumeLayer = MainCameraを継承して再設定.PostProcessing用のLayer; // Post-Processing用のLayerを設定
-            postProcessLayer.antialiasingMode = PostProcessLayer.Antialiasing.SubpixelMorphologicalAntialiasing;
-            postProcessLayer.subpixelMorphologicalAntialiasing.quality = SubpixelMorphologicalAntialiasing.Quality.Medium;
+            //// Post-Process Layerの設定を調整
+            //postProcessLayer.volumeLayer = MainCameraを継承して再設定.PostProcessing用のLayer; // Post-Processing用のLayerを設定
+            //postProcessLayer.antialiasingMode = PostProcessLayer.Antialiasing.SubpixelMorphologicalAntialiasing;
+            //postProcessLayer.subpixelMorphologicalAntialiasing.quality = SubpixelMorphologicalAntialiasing.Quality.Medium;
             await Task.Delay(500);
             mainCamera.enabled = true;
             _isCompleted.Execute(true);

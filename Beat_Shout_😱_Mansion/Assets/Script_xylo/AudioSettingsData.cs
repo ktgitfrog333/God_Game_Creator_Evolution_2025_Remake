@@ -11,6 +11,9 @@ public class AudioSettingsData
     private const float DEFAULT_BGM_VOLUME = 1.0f;
     private const float DEFAULT_SE_VOLUME = 1.0f;
     private const bool DEFAULT_MIC_INPUT_ENABLED = true;
+    // [2026/08/17] Amagata Merging the Title Sequence start
+    private const string DEFAULT_CURRENT_DEVICE_ID = "";
+    // [2026/08/17] Amagata Merging the Title Sequence end
     private const bool DEFAULT_VIBRATION_ENABLED = true; // 追加
 
     // BGM音量 (0.0 - 1.0)
@@ -21,6 +24,9 @@ public class AudioSettingsData
 
     // マイク入力の有効/無効
     public bool micInputEnabled = DEFAULT_MIC_INPUT_ENABLED;
+    // [2026/08/17] Amagata Merging the Title Sequence start
+    public string currentDeviceId = DEFAULT_CURRENT_DEVICE_ID;
+    // [2026/08/17] Amagata Merging the Title Sequence end
 
     // 振動の有効/無効（新規追加）
     public bool vibrationEnabled = DEFAULT_VIBRATION_ENABLED;
@@ -36,6 +42,9 @@ public class AudioSettingsData
             bgmVolume = DEFAULT_BGM_VOLUME,
             seVolume = DEFAULT_SE_VOLUME,
             micInputEnabled = DEFAULT_MIC_INPUT_ENABLED,
+            // [2026/08/17] Amagata Merging the Title Sequence start
+            currentDeviceId = DEFAULT_CURRENT_DEVICE_ID,
+            // [2026/08/17] Amagata Merging the Title Sequence end
             vibrationEnabled = DEFAULT_VIBRATION_ENABLED // 追加
         };
     }
@@ -51,6 +60,9 @@ public class AudioSettingsData
             bgmVolume = this.bgmVolume,
             seVolume = this.seVolume,
             micInputEnabled = this.micInputEnabled,
+            // [2026/08/17] Amagata Merging the Title Sequence start
+            currentDeviceId = this.currentDeviceId,
+            // [2026/08/17] Amagata Merging the Title Sequence end
             vibrationEnabled = this.vibrationEnabled // 追加
         };
     }

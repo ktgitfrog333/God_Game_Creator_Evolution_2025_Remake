@@ -61,5 +61,11 @@ namespace Selects.Views
 
         /// <summary>ターゲットクロスと直近ノーツのスクリーン距離を取得する</summary>
         float GetNoteToCrosshairScreenDistance(int targetIndex);
+
+        /// <summary>マイクボタン強制連続入力セット処理</summary>
+        void ForceSeriaSetMicButtonInput(float dbLevel, float dbInputRate);
+
+        /// <summary>マイクボタン強制停止処理</summary>
+        void ForceStopSetMicButtonInput();
     }
 }
