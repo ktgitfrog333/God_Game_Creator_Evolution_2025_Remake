@@ -491,14 +491,14 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 082bd37323e6ac848b8311e6d665839b, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 1
-    membersCount: 8
-    attackType: 1
+    useStatus: 0
+    membersCount: 0
+    attackType: 0
     moveType: 0
-    customShoutRadius: 2
+    customShoutRadius: 0
     soundOutputType: 0
     role: 0
-    ghostModelType: 2
+    ghostModelType: 0
     ghostVoiceType: 0
   settings:
     ghostAttack:
@@ -2661,15 +2661,15 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 082bd37323e6ac848b8311e6d665839b, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 1
-    membersCount: 8
+    useStatus: 0
+    membersCount: 0
     attackType: 0
     moveType: 0
     customShoutRadius: 0
-    soundOutputType: 2
+    soundOutputType: 0
     role: 0
-    ghostModelType: 1
-    ghostVoiceType: 1
+    ghostModelType: 0
+    ghostVoiceType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -2985,8 +2985,8 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 082bd37323e6ac848b8311e6d665839b, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 0
-    membersCount: 0
+    useStatus: 1
+    membersCount: 1
     attackType: 0
     moveType: 0
     customShoutRadius: 0
@@ -3000,13 +3000,13 @@ MonoBehaviour:
     poltergeistAnimationSO: {fileID: 0}
     midBossGhostInStaticObjectStruct:
       poltergeistViewID: 0
-      useStatus: 0
-      membersCount: 0
+      useStatus: 1
+      membersCount: 104
       attackType: 0
       moveType: 0
       customShoutRadius: 0
       soundOutputType: 0
-      role: 0
+      role: 1
       ghostModelType: 0
       ghostVoiceType: 0
 --- !u!65 &789005727762862200
@@ -5399,14 +5399,14 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 082bd37323e6ac848b8311e6d665839b, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 1
-    membersCount: 16
+    useStatus: 0
+    membersCount: 0
     attackType: 0
-    moveType: 1
+    moveType: 0
     customShoutRadius: 0
     soundOutputType: 0
     role: 0
-    ghostModelType: 3
+    ghostModelType: 0
     ghostVoiceType: 0
   settings:
     ghostAttack:
@@ -5846,7 +5846,7 @@ Transform:
   - {fileID: 4280846324100454172}
   - {fileID: 3944902417703793860}
   - {fileID: 4150035104561599470}
-  - {fileID: 4529971083683332135}
+  - {fileID: 5574257305616754361}
   - {fileID: 4247941095492631130}
   - {fileID: 877802947187407348}
   - {fileID: 5583534232421661249}
@@ -6366,15 +6366,15 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 082bd37323e6ac848b8311e6d665839b, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 1
-    membersCount: 8
+    useStatus: 0
+    membersCount: 0
     attackType: 0
     moveType: 0
     customShoutRadius: 0
-    soundOutputType: 2
+    soundOutputType: 0
     role: 0
-    ghostModelType: 1
-    ghostVoiceType: 1
+    ghostModelType: 0
+    ghostVoiceType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -7807,14 +7807,14 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 082bd37323e6ac848b8311e6d665839b, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 1
-    membersCount: 10
-    attackType: 1
+    useStatus: 0
+    membersCount: 0
+    attackType: 0
     moveType: 0
-    customShoutRadius: 2
+    customShoutRadius: 0
     soundOutputType: 0
     role: 0
-    ghostModelType: 2
+    ghostModelType: 0
     ghostVoiceType: 0
   settings:
     ghostAttack:
@@ -7877,8 +7877,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6689510351857478343}
   serializedVersion: 2
-  m_LocalRotation: {x: 9.305601e-10, y: 0.98747194, z: -1.4870047e-10, w: -0.1577948}
-  m_LocalPosition: {x: 1.99, y: 1.44, z: 5.65}
+  m_LocalRotation: {x: 0, y: 0.2682081, z: 0, w: 0.963361}
+  m_LocalPosition: {x: -2.74, y: 1.14, z: -4.8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7982,14 +7982,14 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 082bd37323e6ac848b8311e6d665839b, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 1
-    membersCount: 8
+    useStatus: 0
+    membersCount: 0
     attackType: 0
-    moveType: 1
+    moveType: 0
     customShoutRadius: 0
     soundOutputType: 0
     role: 0
-    ghostModelType: 3
+    ghostModelType: 0
     ghostVoiceType: 0
   settings:
     ghostAttack:
@@ -8098,6 +8098,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4247941095492631130}
+  - component: {fileID: 3315183107901123668}
   m_Layer: 8
   m_Name: 05_16_door_openable
   m_TagString: Untagged
@@ -8121,6 +8122,28 @@ Transform:
   - {fileID: 4453585932360999110}
   m_Father: {fileID: 4113441617471035125}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &3315183107901123668
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6898159518866514584}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 21649f5ae5d2da7479520e60ed86338d, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &6928695711478809197
 GameObject:
   m_ObjectHideFlags: 0
@@ -8251,15 +8274,15 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 082bd37323e6ac848b8311e6d665839b, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 1
-    membersCount: 24
+    useStatus: 0
+    membersCount: 0
     attackType: 0
     moveType: 0
-    customShoutRadius: 1
+    customShoutRadius: 0
     soundOutputType: 0
     role: 0
-    ghostModelType: 4
-    ghostVoiceType: 2
+    ghostModelType: 0
+    ghostVoiceType: 0
   settings:
     ghostAttack:
       ghostBulletBookInstance: {fileID: 0}
@@ -8912,14 +8935,14 @@ MonoBehaviour:
   poltergeistTable: {fileID: 11400000, guid: 082bd37323e6ac848b8311e6d665839b, type: 2}
   ghostInStaticObjectStruct:
     poltergeistViewID: 0
-    useStatus: 1
-    membersCount: 10
+    useStatus: 0
+    membersCount: 0
     attackType: 0
     moveType: 0
     customShoutRadius: 0
-    soundOutputType: 3
+    soundOutputType: 0
     role: 0
-    ghostModelType: 5
+    ghostModelType: 0
     ghostVoiceType: 0
   settings:
     ghostAttack:
@@ -9137,7 +9160,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8169138635512602783}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 0.7403914, z: 0, w: 0.67217606}
   m_LocalPosition: {x: -0.484, y: 1.052, z: -7.490027}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -9788,8 +9811,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8587374361969632732}
   serializedVersion: 2
-  m_LocalRotation: {x: -1.4870044e-10, y: 0.15779477, z: -9.305601e-10, w: 0.98747194}
-  m_LocalPosition: {x: -0.068, y: 0.42000002, z: -0.625}
+  m_LocalRotation: {x: 0, y: 0.963361, z: 0, w: -0.26820806}
+  m_LocalPosition: {x: 0.66, y: 0.13999999, z: 0.83}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -10056,6 +10079,61 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2206296118969554150}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8934951104048803801
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5574257305616754361}
+  - component: {fileID: 1444579456220394949}
+  m_Layer: 8
+  m_Name: 05_16_door_fbx
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5574257305616754361
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8934951104048803801}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 4529971083683332135}
+  m_Father: {fileID: 4113441617471035125}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &1444579456220394949
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8934951104048803801}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 275efb8960afeb94488d1f7e8a1bc275, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &9026202184973237222
 GameObject:
   m_ObjectHideFlags: 0
@@ -11982,7 +12060,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 4113441617471035125}
+    m_TransformParent: {fileID: 5574257305616754361}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: b8ed25afc0a45aa4d8d9a36fce05edef, type: 3}
       propertyPath: m_LocalPosition.x
@@ -12269,6 +12347,10 @@ PrefabInstance:
     - target: {fileID: -2443036302556752375, guid: bdcf96fd2cab4f3409ef6753fb0645b7, type: 3}
       propertyPath: m_Lightmapping
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -2443036302556752375, guid: bdcf96fd2cab4f3409ef6753fb0645b7, type: 3}
+      propertyPath: m_BoundingSphereOverride.y
+      value: -4.1597398e-22
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: bdcf96fd2cab4f3409ef6753fb0645b7, type: 3}
       propertyPath: m_Name
@@ -13103,10 +13185,10 @@ PrefabInstance:
     - target: {fileID: 1521085589279364539, guid: bea8e8403be92964496d53e1a3aa4c17, type: 3}
       propertyPath: m_PlayableAsset
       value: 
-      objectReference: {fileID: 11400000, guid: 2b57255ee70d97b41b77449d3bff75eb, type: 2}
+      objectReference: {fileID: 11400000, guid: e8d87574377beb546bbb085f75f764db, type: 2}
     - target: {fileID: 1521085589279364539, guid: bea8e8403be92964496d53e1a3aa4c17, type: 3}
       propertyPath: m_SceneBindings.Array.size
-      value: 48
+      value: 59
       objectReference: {fileID: 0}
     - target: {fileID: 1521085589279364539, guid: bea8e8403be92964496d53e1a3aa4c17, type: 3}
       propertyPath: m_SceneBindings.Array.data[14].key
@@ -13245,6 +13327,50 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -6527856907988436962, guid: 2b57255ee70d97b41b77449d3bff75eb, type: 2}
     - target: {fileID: 1521085589279364539, guid: bea8e8403be92964496d53e1a3aa4c17, type: 3}
+      propertyPath: m_SceneBindings.Array.data[48].key
+      value: 
+      objectReference: {fileID: 1421716576896759025, guid: e8d87574377beb546bbb085f75f764db, type: 2}
+    - target: {fileID: 1521085589279364539, guid: bea8e8403be92964496d53e1a3aa4c17, type: 3}
+      propertyPath: m_SceneBindings.Array.data[49].key
+      value: 
+      objectReference: {fileID: -7239517833256654702, guid: e8d87574377beb546bbb085f75f764db, type: 2}
+    - target: {fileID: 1521085589279364539, guid: bea8e8403be92964496d53e1a3aa4c17, type: 3}
+      propertyPath: m_SceneBindings.Array.data[50].key
+      value: 
+      objectReference: {fileID: 371148103334149120, guid: e8d87574377beb546bbb085f75f764db, type: 2}
+    - target: {fileID: 1521085589279364539, guid: bea8e8403be92964496d53e1a3aa4c17, type: 3}
+      propertyPath: m_SceneBindings.Array.data[51].key
+      value: 
+      objectReference: {fileID: 5237916875397435191, guid: e8d87574377beb546bbb085f75f764db, type: 2}
+    - target: {fileID: 1521085589279364539, guid: bea8e8403be92964496d53e1a3aa4c17, type: 3}
+      propertyPath: m_SceneBindings.Array.data[52].key
+      value: 
+      objectReference: {fileID: 2829011564505071548, guid: e8d87574377beb546bbb085f75f764db, type: 2}
+    - target: {fileID: 1521085589279364539, guid: bea8e8403be92964496d53e1a3aa4c17, type: 3}
+      propertyPath: m_SceneBindings.Array.data[53].key
+      value: 
+      objectReference: {fileID: -9016692387762953209, guid: e8d87574377beb546bbb085f75f764db, type: 2}
+    - target: {fileID: 1521085589279364539, guid: bea8e8403be92964496d53e1a3aa4c17, type: 3}
+      propertyPath: m_SceneBindings.Array.data[54].key
+      value: 
+      objectReference: {fileID: 7737603648125121829, guid: e8d87574377beb546bbb085f75f764db, type: 2}
+    - target: {fileID: 1521085589279364539, guid: bea8e8403be92964496d53e1a3aa4c17, type: 3}
+      propertyPath: m_SceneBindings.Array.data[55].key
+      value: 
+      objectReference: {fileID: -7245360381194112708, guid: e8d87574377beb546bbb085f75f764db, type: 2}
+    - target: {fileID: 1521085589279364539, guid: bea8e8403be92964496d53e1a3aa4c17, type: 3}
+      propertyPath: m_SceneBindings.Array.data[56].key
+      value: 
+      objectReference: {fileID: -8277942328332839134, guid: e8d87574377beb546bbb085f75f764db, type: 2}
+    - target: {fileID: 1521085589279364539, guid: bea8e8403be92964496d53e1a3aa4c17, type: 3}
+      propertyPath: m_SceneBindings.Array.data[57].key
+      value: 
+      objectReference: {fileID: -550971483938246954, guid: e8d87574377beb546bbb085f75f764db, type: 2}
+    - target: {fileID: 1521085589279364539, guid: bea8e8403be92964496d53e1a3aa4c17, type: 3}
+      propertyPath: m_SceneBindings.Array.data[58].key
+      value: 
+      objectReference: {fileID: 7249101387381325278, guid: e8d87574377beb546bbb085f75f764db, type: 2}
+    - target: {fileID: 1521085589279364539, guid: bea8e8403be92964496d53e1a3aa4c17, type: 3}
       propertyPath: m_SceneBindings.Array.data[22].value
       value: 
       objectReference: {fileID: 3390518806086523463}
@@ -13266,6 +13392,26 @@ PrefabInstance:
       objectReference: {fileID: 3390518806086523463}
     - target: {fileID: 1521085589279364539, guid: bea8e8403be92964496d53e1a3aa4c17, type: 3}
       propertyPath: m_SceneBindings.Array.data[45].value
+      value: 
+      objectReference: {fileID: 9130310111532346271}
+    - target: {fileID: 1521085589279364539, guid: bea8e8403be92964496d53e1a3aa4c17, type: 3}
+      propertyPath: m_SceneBindings.Array.data[53].value
+      value: 
+      objectReference: {fileID: 1444579456220394949}
+    - target: {fileID: 1521085589279364539, guid: bea8e8403be92964496d53e1a3aa4c17, type: 3}
+      propertyPath: m_SceneBindings.Array.data[54].value
+      value: 
+      objectReference: {fileID: 6898159518866514584}
+    - target: {fileID: 1521085589279364539, guid: bea8e8403be92964496d53e1a3aa4c17, type: 3}
+      propertyPath: m_SceneBindings.Array.data[55].value
+      value: 
+      objectReference: {fileID: 3315183107901123668}
+    - target: {fileID: 1521085589279364539, guid: bea8e8403be92964496d53e1a3aa4c17, type: 3}
+      propertyPath: m_SceneBindings.Array.data[56].value
+      value: 
+      objectReference: {fileID: 3390518806086523463}
+    - target: {fileID: 1521085589279364539, guid: bea8e8403be92964496d53e1a3aa4c17, type: 3}
+      propertyPath: m_SceneBindings.Array.data[57].value
       value: 
       objectReference: {fileID: 9130310111532346271}
     - target: {fileID: 3178791215092973913, guid: bea8e8403be92964496d53e1a3aa4c17, type: 3}
@@ -13314,11 +13460,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5685984059323955327, guid: bea8e8403be92964496d53e1a3aa4c17, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 9.69
+      value: -0.005
       objectReference: {fileID: 0}
     - target: {fileID: 5685984059323955327, guid: bea8e8403be92964496d53e1a3aa4c17, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -7.718
+      value: -8.618
       objectReference: {fileID: 0}
     - target: {fileID: 5685984059323955327, guid: bea8e8403be92964496d53e1a3aa4c17, type: 3}
       propertyPath: m_LocalRotation.w

@@ -239,10 +239,6 @@ PrefabInstance:
       propertyPath: m_SceneBindings.Array.data[2].value
       value: 
       objectReference: {fileID: 1409560957}
-    - target: {fileID: 6919161668707443212, guid: bbcd53414e0dc2a4dbee55cb1618bbd4, type: 3}
-      propertyPath: m_BoundingSphereOverride.y
-      value: -4.1597398e-22
-      objectReference: {fileID: 0}
     - target: {fileID: 7512520105825987286, guid: bbcd53414e0dc2a4dbee55cb1618bbd4, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -385,6 +381,30 @@ PrefabInstance:
       objectReference: {fileID: 460326293}
     - target: {fileID: 8613923374252989255, guid: bbcd53414e0dc2a4dbee55cb1618bbd4, type: 3}
       propertyPath: m_SceneBindings.Array.data[46].value
+      value: 
+      objectReference: {fileID: 1384175215}
+    - target: {fileID: 8613923374252989255, guid: bbcd53414e0dc2a4dbee55cb1618bbd4, type: 3}
+      propertyPath: m_SceneBindings.Array.data[48].value
+      value: 
+      objectReference: {fileID: 770950966}
+    - target: {fileID: 8613923374252989255, guid: bbcd53414e0dc2a4dbee55cb1618bbd4, type: 3}
+      propertyPath: m_SceneBindings.Array.data[49].value
+      value: 
+      objectReference: {fileID: 1409560956}
+    - target: {fileID: 8613923374252989255, guid: bbcd53414e0dc2a4dbee55cb1618bbd4, type: 3}
+      propertyPath: m_SceneBindings.Array.data[50].value
+      value: 
+      objectReference: {fileID: 1969530519}
+    - target: {fileID: 8613923374252989255, guid: bbcd53414e0dc2a4dbee55cb1618bbd4, type: 3}
+      propertyPath: m_SceneBindings.Array.data[51].value
+      value: 
+      objectReference: {fileID: 1384175214}
+    - target: {fileID: 8613923374252989255, guid: bbcd53414e0dc2a4dbee55cb1618bbd4, type: 3}
+      propertyPath: m_SceneBindings.Array.data[52].value
+      value: 
+      objectReference: {fileID: 460326293}
+    - target: {fileID: 8613923374252989255, guid: bbcd53414e0dc2a4dbee55cb1618bbd4, type: 3}
+      propertyPath: m_SceneBindings.Array.data[58].value
       value: 
       objectReference: {fileID: 1384175215}
     - target: {fileID: 8613923374252989255, guid: bbcd53414e0dc2a4dbee55cb1618bbd4, type: 3}
@@ -921,7 +941,7 @@ MonoBehaviour:
     - 0
     - 0
     - 0
-  _cueName: Stage4_rhythm_BPM155_v2
+  _cueName: Stage5_rhythm_BPM155
   _cueSheet: BGM
 --- !u!114 &477783981
 MonoBehaviour:
@@ -954,7 +974,7 @@ MonoBehaviour:
     - 0
     - 0
     - 0
-  _cueName: Stage4_rhythm_BPM155_v2_loop
+  _cueName: Stage5_rhythm_BPM155_loop
   _cueSheet: BGM
 --- !u!114 &477783982
 MonoBehaviour:
@@ -1548,7 +1568,7 @@ Animator:
   m_GameObject: {fileID: 1384175214}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: bca8ddc1cd843784484e90f13bbd18f3, type: 2}
+  m_Controller: {fileID: 9100000, guid: bb2afb273ab5bcd44a1e2836fc443deb, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -1612,7 +1632,7 @@ Transform:
   m_GameObject: {fileID: 1384175214}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 1, z: -0, w: -0.00000004371139}
-  m_LocalPosition: {x: 9.69, y: 0.75, z: -2.8043938}
+  m_LocalPosition: {x: 0, y: 0.75, z: -3.52}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3258,6 +3278,10 @@ PrefabInstance:
     - target: {fileID: 1657831830642617336, guid: a27bfc18d371bda469a2e1535e0ae8aa, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4893377036556315553, guid: a27bfc18d371bda469a2e1535e0ae8aa, type: 3}
+      propertyPath: m_Alpha
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9022511652047306412, guid: a27bfc18d371bda469a2e1535e0ae8aa, type: 3}
       propertyPath: m_Name
