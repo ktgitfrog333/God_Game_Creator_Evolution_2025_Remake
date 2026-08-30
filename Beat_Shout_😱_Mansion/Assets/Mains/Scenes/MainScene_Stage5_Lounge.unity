@@ -3341,7 +3341,7 @@ MonoBehaviour:
     numberOfBinders: 8
     numberOfInstallers: 2
     installBufferSize: 32
-    maxPath: 256
+    maxPath: 1024
     userAgentString: 
     minimizeFileDescriptorUsage: 0
     enableCrcCheck: 0
