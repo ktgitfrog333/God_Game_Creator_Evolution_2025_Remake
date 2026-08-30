@@ -342,6 +342,18 @@ public class CRIWARE_conductor : MonoBehaviour
         ForceSetTempo(atomSourceCOfBPM);
         // [2026/07/15] Amagata issue #80 end
     }
+    // [2026/08/30] Amagata Support for Implementing Custom Sound Effects start
+    public void StopBgmA()
+    {
+        if (currentSource != atomSourceA)
+        {
+            return; // àŸÇ»ÇÈBGMÇÃèÍçáÇÕâΩÇ‡ÇµÇ»Ç¢
+        }
+        BGM_A_Sw = false;
+        currentSource.Stop(); // åªç›ÇÃBGMÇí‚é~
+        currentSource = null;
+    }
+    // [2026/08/30] Amagata Support for Implementing Custom Sound Effects end
 
     // [2026/07/15] Amagata issue #80 start
     private void ForceSetTempo(float bpm)

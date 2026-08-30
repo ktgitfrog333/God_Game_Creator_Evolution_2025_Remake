@@ -1052,6 +1052,32 @@ namespace Mains.External
             sePicker.PlayBUB_Damage4(seVolumeIndex);
         }
 
+        public void PlayBUB_Gameover_v2()
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            var mainsManager = Manager.GameManager.Instance;
+            var selectsManager = Selects.Manager.GameManager.Instance;
+            float seVolumeIndex = 0f;
+            if (mainsManager != null ||
+                selectsManager != null)
+            {
+                if (mainsManager != null &&
+                    selectsManager == null)
+                {
+                    seVolumeIndex = mainsManager.AudioOwner.GetSeVolumeIndex();
+                }
+                else
+                {
+                    seVolumeIndex = selectsManager.AudioOwner.GetSeVolumeIndex();
+                }
+            }
+            sePicker.PlayBUB_Gameover_v2(seVolumeIndex);
+        }
+
         public void PlayGhostLaugh3()
         {
             var sePicker = SE_Picker.Instance;
@@ -2245,6 +2271,15 @@ namespace Mains.External
             else
             {
                 Debug.LogWarning("音声設定の保存に失敗しました。");
+            }
+        }
+
+        public void StopBgmA()
+        {
+            var conductor = CRIWARE_conductor.Instance;
+            if (conductor != null)
+            {
+                conductor.StopBgmA();
             }
         }
 

@@ -263,6 +263,7 @@ namespace Mains.Views
             // プレイヤーの体力を取得してハートアイコンへ反映する処理を実装
             List<IconHeartImageView> iconHeartImageViews = new List<IconHeartImageView>();
             _iconHeartImageViews = iconHeartImageViews;
+            _script_XyloApi = new Script_xyloApi();
             Observable.EveryUpdate()
                 .Select(_ => _commonPanelViewModel.PlayerHealthPointMax)
                 .Where(x => x != null)
@@ -307,7 +308,8 @@ namespace Mains.Views
                                     .Select(x => x.Current)
                                     .Subscribe(currentHp =>
                                 {
-                                    CheckPlayerHealthPointAndDoDirectionGameOver(currentHp, player, fadeImageView);
+                                    var api = _script_XyloApi;
+                                    CheckPlayerHealthPointAndDoDirectionGameOver(currentHp, player, fadeImageView, api);
                                 })
                                 .AddTo(ref _disposableBag);
                             }
@@ -316,7 +318,6 @@ namespace Mains.Views
                 })
                 .AddTo(ref _disposableBag);
             stageClearPanel.gameObject.SetActive(false);
-            _script_XyloApi = new Script_xyloApi();
             // 恐怖もくもくフレームUIと恐怖ゲージUIを制御
             var heartBeatPropStruct = heartBeatPropStructs[0];
             Observable.EveryUpdate()
@@ -593,11 +594,12 @@ namespace Mains.Views
         /// <param name="healthPoint">プレイヤーのHP</param>
         /// <param name="player">RewiredのPlayer</param>
         /// <param name="fadeImageView">フェードイメージのビュー</param>
-        private void CheckPlayerHealthPointAndDoDirectionGameOver(int healthPoint, Player player, FadeImageView fadeImageView)
+        /// <param name="script_XyloApi">シロさんのコンポーネントへアクセスするAPI</param>
+        private void CheckPlayerHealthPointAndDoDirectionGameOver(int healthPoint, Player player, FadeImageView fadeImageView, Script_xyloApi script_XyloApi)
         {
             if (healthPoint < 1)
             {
-                DirectionGameOver(player, fadeImageView);
+                DirectionGameOver(player, fadeImageView, script_XyloApi);
             }
         }
 
@@ -736,6 +738,8 @@ namespace Mains.Views
             if (_script_XyloApi != null)
             {
                 _script_XyloApi.SetMicrophoneActive(false);
+                _script_XyloApi.StopBgmA();
+                _script_XyloApi.PlayBUB_Gameover_v2();
             }
             gameOverPanel.gameObject.SetActive(true);
         }
