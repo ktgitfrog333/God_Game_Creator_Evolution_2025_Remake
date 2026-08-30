@@ -9682,7 +9682,7 @@ MonoBehaviour:
     midBossGhostInStaticObjectStruct:
       poltergeistViewID: 0
       useStatus: 1
-      membersCount: 104
+      membersCount: 107
       attackType: 0
       moveType: 0
       customShoutRadius: 0
