@@ -109,11 +109,6 @@ namespace Mains.Views
             /// <summary>最終：5秒間隔で無制限</summary>
             Final,
         }
-        /// <summary>笑い声再生間隔のタイプ</summary>
-        private LaughPhase _currentLaughPhase = LaughPhase.First;
-        /// <summary>現在のフェーズで残り何回まで連続再生するか（-1は無制限）</summary>
-        private int _remainingRepeatsInPhase;
-        /// <summary>現在のフェーズでの再生間隔（秒）</summary>
         private float _currentLaughInterval;
         /// <summary>静的コライダー群</summary>
         private Transform _staticColldersInstance;
@@ -1422,8 +1417,6 @@ namespace Mains.Views
                 // ★ 状態を初期化（範囲外リセット用）
                 void ResetLaughSequence()
                 {
-                    _currentLaughPhase = LaughPhase.First;
-                    _remainingRepeatsInPhase = laughSettings.firstStartCount;               // 初回フェーズ：1回のみ
                     _currentLaughInterval = laughSettings.firstInterval;
                 }
                 ResetLaughSequence();
@@ -1438,60 +1431,23 @@ namespace Mains.Views
                             return;
 
                         var playerPos = _poltergeistViewModel.PlayerTransform.position;
-                        float dist = Vector3.Distance(_motorView.transform.position, playerPos);
-
-                        if (dist <= shoutRadius)
+                        // 静止時のみカウントダウンするか（ReactiveStatic 用）
+                        bool canCountDown = true;
+                        if (soundOutputType == SoundOutputType.ReactiveStatic)
                         {
-                            // 静止時のみカウントダウンするか（ReactiveStatic 用）
-                            bool canCountDown = true;
-                            if (soundOutputType == SoundOutputType.ReactiveStatic)
-                            {
-                                if (Vector3.Distance(playerPos, lastPos) >= 0.01f)
-                                    canCountDown = false; // 動いているとタイマー停止
-                            }
-
-                            if (canCountDown)
-                            {
-                                timer -= Time.deltaTime;
-                                if (timer <= 0f)
-                                {
-                                    // SEを再生
-                                    PlayLaughSE(laughSettings);
-
-                                    // 次の再生までの時間と回数を設定
-                                    if (_remainingRepeatsInPhase > 0)
-                                        _remainingRepeatsInPhase--;
-
-                                    // フェーズ遷移
-                                    if (_remainingRepeatsInPhase == 0)
-                                    {
-                                        switch (_currentLaughPhase)
-                                        {
-                                            case LaughPhase.First:
-                                                _currentLaughPhase = LaughPhase.Second;
-                                                _remainingRepeatsInPhase = laughSettings.secondStartCount;      // 第二フェーズ：3回連続
-                                                _currentLaughInterval = laughSettings.secondInterval;
-                                                break;
-                                            case LaughPhase.Second:
-                                                _currentLaughPhase = LaughPhase.Final;
-                                                _remainingRepeatsInPhase = -1;     // 最終フェーズ：無制限
-                                                _currentLaughInterval = laughSettings.maxInterval;
-                                                break;
-                                            case LaughPhase.Final:
-                                                // 最終フェーズは回数無制限なのでそのまま
-                                                break;
-                                        }
-                                    }
-
-                                    timer = _currentLaughInterval;
-                                }
-                            }
+                            if (Vector3.Distance(playerPos, lastPos) >= 0.01f)
+                                canCountDown = false; // 動いているとタイマー停止
                         }
-                        else
+
+                        if (canCountDown)
                         {
-                            // 範囲外に出たら状態をリセット（次に近づいたとき初回から）
-                            ResetLaughSequence();
-                            timer = _currentLaughInterval;
+                            timer -= Time.deltaTime;
+                            if (timer <= 0f)
+                            {
+                                // SEを再生
+                                PlayLaughSE(laughSettings);
+                                timer = _currentLaughInterval;
+                            }
                         }
 
                         lastPos = playerPos;
@@ -1539,14 +1495,11 @@ namespace Mains.Views
 
             if (t3DSoundPlayer != null && _motorView != null && _motorView.IsEnabledPoltergeist && _poltergeistViewModel?.PlayerTransform != null)
             {
-                Vector3 motorPos = _motorView.transform.position;
-                float dist = Vector3.Distance(motorPos, _poltergeistViewModel.PlayerTransform.position);
-                if (dist <= _motorView.MaxDistance)
-                {
-                    float intensity = Mathf.Clamp01(1f - (dist / _motorView.MaxDistance));
-                    string seName = Script_xyloApi.GetGhostLaughSEName(ghostInStaticObjectStruct.ghostVoiceType);
-                    t3DSoundPlayer.PlaySound(seName, intensity);
-                }
+                t3DSoundPlayer.transform.position = _transform.position;
+                string seName = Script_xyloApi.GetGhostLaughSEName(ghostInStaticObjectStruct.ghostVoiceType);
+                var instanceId = GetInstanceID();
+                var trans = _transform;
+                t3DSoundPlayer.PlaySound(seName, 1f, instanceId, trans.position, trans.forward);
             }
         }
 

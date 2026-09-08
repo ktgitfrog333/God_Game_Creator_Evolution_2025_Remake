@@ -1919,6 +1919,7 @@ MonoBehaviour:
   "cursorIconImage\u306E\u30DE\u30FC\u30B8\u30F3": 208
   "\u5171\u901AUI\u306E\u30C6\u30F3\u30D7\u30EC\u30FC\u30C8":
     enterRoomText: "${stageName}\u306B\u5165\u308A\u307E\u3059\u304B\uFF1F"
+  objectsPoolViewPrefab: {fileID: 9047147154769791731, guid: 0fcd19e76e96f9b46add68c72347b690, type: 3}
   "\u30EC\u30D9\u30EB\u69CB\u9020\u4F53\u30EA\u30B9\u30C8":
   - "\u30EC\u30D9\u30EBID": 0
     "\u30B9\u30C6\u30FC\u30B8\u540D\u79F0": "\u30EA\u30D3\u30F3\u30B0"

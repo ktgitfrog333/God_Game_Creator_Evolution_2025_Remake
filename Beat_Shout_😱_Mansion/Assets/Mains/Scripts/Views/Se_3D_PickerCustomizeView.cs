@@ -30,7 +30,7 @@ namespace Mains.Views
             _disposableBag.Dispose();
         }
 
-        public void PlaySound(string SeName, float volume)
+        public void PlaySound(string SeName, float volume, int instanceId, Vector3 position, Vector3 front)
         {
             Observable.EveryUpdate()
                 .Select(_ => _isCompleted)
@@ -39,7 +39,7 @@ namespace Mains.Views
                 .Select(_ => _xyloApi)
                 .Subscribe(api =>
                 {
-                    api.PlaySound(SeName, volume);
+                    api.PlaySound(SeName, volume, instanceId, position, front);
                 })
                 .AddTo(ref _disposableBag);
         }

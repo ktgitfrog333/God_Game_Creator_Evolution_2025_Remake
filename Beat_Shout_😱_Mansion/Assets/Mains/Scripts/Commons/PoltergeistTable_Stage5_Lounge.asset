@@ -24,11 +24,7 @@ MonoBehaviour:
     defaultShoutRadius: 1.5
     defaultSoundOutputType: 1
     laughSettings:
-      firstInterval: 1
-      firstStartCount: 1
-      secondInterval: 2.5
-      secondStartCount: 2
-      maxInterval: 5
+      firstInterval: 3
     moveIntervalSeconds: 30
     targetkillsRate: 0.8
     checkClearStruct:

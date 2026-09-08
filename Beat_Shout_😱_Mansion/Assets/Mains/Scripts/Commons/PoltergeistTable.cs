@@ -80,14 +80,6 @@ namespace Mains.Commons
             [Header("ループ間隔設定")]
             [Tooltip("最初の笑い声の再生間隔（秒）")]
             public float firstInterval = 1f;
-            [Tooltip("最初の笑い声の再生回数")]
-            public int firstStartCount = 1;
-            [Tooltip("次点の笑い声の再生間隔（秒）")]
-            public float secondInterval = 2.5f;
-            [Tooltip("次点の笑い声の再生回数")]
-            public int secondStartCount = 2;
-            [Tooltip("間隔の最大値（この秒数以上は遅くならない）")]
-            public float maxInterval = 5f;
         }
 
         /// <summary>

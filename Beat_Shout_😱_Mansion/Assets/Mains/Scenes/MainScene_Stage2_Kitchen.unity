@@ -1706,6 +1706,7 @@ GameObject:
   - component: {fileID: 931032684}
   - component: {fileID: 931032683}
   - component: {fileID: 931032682}
+  - component: {fileID: 931032685}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -1867,6 +1868,20 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 931032679}
   m_Enabled: 1
+--- !u!114 &931032685
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 931032679}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce7d42e042e4c9c4db4bde98b863e167, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  regionOnStart: {fileID: 0}
+  activateListenerOnEnable: 0
 --- !u!134 &945087809
 PhysicsMaterial:
   m_ObjectHideFlags: 0
@@ -3236,7 +3251,7 @@ MonoBehaviour:
     maxCueLinkCallbacksPerFrame: 1
     standardVoicePoolConfig:
       memoryVoices: 16
-      streamingVoices: 8
+      streamingVoices: 16
     hcaMxVoicePoolConfig:
       memoryVoices: 0
       streamingVoices: 0

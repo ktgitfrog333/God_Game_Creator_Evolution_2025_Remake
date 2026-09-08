@@ -1788,11 +1788,11 @@ namespace Mains.External
             }
         }
 
-        public void PlaySound(string SeName, float volume)
+        public void PlaySound(string SeName, float volume, int instanceId, Vector3 position, Vector3 front)
         {
             if (_se_3D_Picker != null)
             {
-                _se_3D_Picker.PlaySound(SeName, volume);
+                _se_3D_Picker.PlaySound(SeName, volume, instanceId, position, front);
             }
         }
 
