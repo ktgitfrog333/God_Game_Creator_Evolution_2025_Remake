@@ -147,6 +147,7 @@ public class Se_3D_Picker : MonoBehaviour
     }
 
     // [2026/09/06] Amagata issue #87 start
+    // [2026/09/08] Amagata issue #87 start
     /// <summary>
     /// 指定した音声を再生するメソッド
     /// </summary>
@@ -155,10 +156,13 @@ public class Se_3D_Picker : MonoBehaviour
     /// <param name="instanceId">インスタンスID</param>
     /// <param name="position">再生位置</param>
     /// <param name="front">前方方向</param>
-    public void PlaySound(string SeName, float volume, int instanceId, Vector3 position, Vector3 front)
+    /// <param name="regionHandle">3Dリージョンハンドル</param>
+    public void PlaySound(string SeName, float volume, int instanceId, Vector3 position, Vector3 front, CriAtomEx3dRegion regionHandle = null)
     {
         //public void PlaySound(string SeName, float volume)
+        //public void PlaySound(string SeName, float volume, int instanceId, Vector3 position, Vector3 front)
         // [2026/09/06] Amagata issue #87 end
+        // [2026/09/08] Amagata issue #87 end
         // CriAtomSourceがアタッチされているか確認
         if (source == null)
         {
@@ -191,6 +195,9 @@ public class Se_3D_Picker : MonoBehaviour
                 var tmpInstanceId = instanceId;
                 var tmpPosition = position;
                 var tmpFront = front;
+                // [2026/09/08] Amagata issue #87 start
+                var tmpRegionHandle = regionHandle;
+                // [2026/09/08] Amagata issue #87 end
                 CriAtomExPlayer player = null;
                 CriAtomEx3dSource criAtomEx3DSource = null;
                 var tmpSeName = SeName;
@@ -226,6 +233,12 @@ public class Se_3D_Picker : MonoBehaviour
 
                 criAtomEx3DSource.SetPosition(tmpPosition.x, tmpPosition.y, tmpPosition.z);
                 criAtomEx3DSource.SetOrientation(tmpFront, Vector3.up);
+                // [2026/09/08] Amagata issue #87 start
+                if (tmpRegionHandle != null)
+                {
+                    criAtomEx3DSource.Set3dRegion(tmpRegionHandle);
+                }
+                // [2026/09/08] Amagata issue #87 end
                 criAtomEx3DSource.Update();
 
                 player.Start();

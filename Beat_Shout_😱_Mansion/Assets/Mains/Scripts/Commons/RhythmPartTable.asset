@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d6098cd20aaa134c935e254eb7d3dd1, type: 3}
   m_Name: RhythmPartTable
   m_EditorClassIdentifier: 
-  isNoHitPlayerForceMode: 1
+  isNoHitPlayerForceMode: 0

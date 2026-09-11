@@ -1,3 +1,4 @@
+using CriWare;
 using Mains.External;
 using R3;
 using Unity.Collections;
@@ -30,7 +31,7 @@ namespace Mains.Views
             _disposableBag.Dispose();
         }
 
-        public void PlaySound(string SeName, float volume, int instanceId, Vector3 position, Vector3 front)
+        public void PlaySound(string SeName, float volume, int instanceId, Vector3 position, Vector3 front, CriAtomEx3dRegion regionHandle = null)
         {
             Observable.EveryUpdate()
                 .Select(_ => _isCompleted)
@@ -39,7 +40,7 @@ namespace Mains.Views
                 .Select(_ => _xyloApi)
                 .Subscribe(api =>
                 {
-                    api.PlaySound(SeName, volume, instanceId, position, front);
+                    api.PlaySound(SeName, volume, instanceId, position, front, regionHandle);
                 })
                 .AddTo(ref _disposableBag);
         }

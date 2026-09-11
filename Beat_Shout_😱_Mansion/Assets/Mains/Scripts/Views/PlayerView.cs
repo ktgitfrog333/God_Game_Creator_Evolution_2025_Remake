@@ -1,3 +1,4 @@
+using CriWare;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Mains.Commons;
@@ -5,6 +6,7 @@ using Mains.External;
 using Mains.Manager;
 using Mains.ViewModels;
 using R3;
+using R3.Triggers;
 using Rewired;
 using Selects.Views;
 using System.Collections;
@@ -49,6 +51,10 @@ namespace Mains.Views
         [SerializeField] private Transform headTrans;
         /// <summary>カメラ視線用のトランスフォーム</summary>
         public Transform HeadTrans => headTrans;
+        /// <summary>リージョン切り替え用のトリガー</summary>
+        [SerializeField] private LayerMask regionSwitchTrigger;
+        /// <summary>リスナー検知用のトリガー</summary>
+        [SerializeField] private Collider hitTriggerListener;
         [Header("リズムパート")]
         [SerializeField] private PlayerRhythmStruct リズムパートで使用するプレイヤープロパティ;
         /// <summary>シロさんのコンポーネントへアクセスするAPI</summary>
@@ -111,6 +117,11 @@ namespace Mains.Views
                             }
                         }
                     }
+                }
+                if (child.name.Equals("HitTriggerListener"))
+                {
+                    if (hitTriggerListener == null)
+                        hitTriggerListener = child.GetComponent<Collider>();
                 }
             }
         }
@@ -858,6 +869,36 @@ namespace Mains.Views
                     .AddTo(ref _disposableBag);
                 })
                 .AddTo(ref _disposableBag);
+
+            // 拾ったRegionSwitchTriggerの親要素からRegionを取得する。カメラにあるリスナーにてRegion情報を更新する。
+            var tmpHitTriggerListener = hitTriggerListener;
+            // カメラのリスナー情報
+            ReactiveProperty<CriAtomListener> criAtomListener = new ReactiveProperty<CriAtomListener>();
+            tmpHitTriggerListener.OnTriggerStayAsObservable()
+                .Where(x => (regionSwitchTrigger.value & (1 << x.gameObject.layer)) != 0)
+                .DistinctUntilChanged()
+                .Subscribe(collider =>
+                {
+                    Camera mainCamera = Camera.main;
+                    if (mainCamera == null)
+                        return;
+
+                    if (criAtomListener.CurrentValue == null)
+                        criAtomListener.Value = mainCamera.GetComponent<CriAtomListener>();
+
+                    var tmpCriAtomListener = criAtomListener.CurrentValue;
+                    var trans = collider.transform;
+                    var criAtomRegion = trans.GetComponentInParent<CriAtomRegion>();
+                    // カメラのリスナーにてRegionが未設定または、異なる場合は更新する
+                    if (tmpCriAtomListener.region3d == null || criAtomRegion != tmpCriAtomListener.region3d)
+                    {
+                        tmpCriAtomListener = UpdateCurrentRegion(criAtomRegion, tmpCriAtomListener);
+
+                        criAtomListener.Value = tmpCriAtomListener;
+                    }
+                })
+                .AddTo(ref _disposableBag);
+
             // ブレイブシャウト用
             // 一定のレベルを超えた際に一定時間減少を止める
             dbLevel.Where(x => シャウトチャンスパートの共通パラメータ管理用テーブル.シャウト達成デシベル <= x &&
@@ -922,6 +963,21 @@ namespace Mains.Views
             _playerViewModel.SetPlayerCharacterController(characterController);
             _didStartAsObservable.OnNext(Unit.Default);
             _didStartAsObservable.OnCompleted();
+        }
+
+        /// <summary>
+        /// カメラのリスナーにてRegionを更新
+        /// </summary>
+        /// <param name="criAtomRegion">CRIのリージョン</param>
+        /// <param name="criAtomListener">カメラのリスナー</param>
+        /// <returns>カメラのリスナー</returns>
+        private CriAtomListener UpdateCurrentRegion(CriAtomRegion criAtomRegion, CriAtomListener criAtomListener)
+        {
+            var tmpCriAtomListener = criAtomListener;
+
+            tmpCriAtomListener.region3d = criAtomRegion;
+
+            return tmpCriAtomListener;
         }
 
         /// <summary>

@@ -1,3 +1,4 @@
+using CriWare;
 using DG.Tweening;
 using Mains.Commons;
 using Mains.External;
@@ -305,6 +306,7 @@ namespace Mains.Views
                             StopSoundOutputBehavior();
                             if (x.NewValue.useStatus == UseStatus.Using)
                             {
+                                StartSoundOutputBehavior(soundOutputType);
                                 if (x.NewValue.moveType == MoveType.Patrol)
                                 {
                                     StartPatrolTimer();
@@ -1490,6 +1492,7 @@ namespace Mains.Views
         /// <param name="laughSettings">オバケ笑い声の再生間隔・エコー設定</param>
         private void PlayLaughSE(PoltergeistTableSubSettings.PoltergeistLaughSettings laughSettings)
         {
+            var set = settings;
             ObjectsPoolView objectsPoolView = ObjectsPoolView;
             Se_3D_PickerCustomizeView t3DSoundPlayer = objectsPoolView?.Get3DSoundPlayer();
 
@@ -1499,7 +1502,14 @@ namespace Mains.Views
                 string seName = Script_xyloApi.GetGhostLaughSEName(ghostInStaticObjectStruct.ghostVoiceType);
                 var instanceId = GetInstanceID();
                 var trans = _transform;
-                t3DSoundPlayer.PlaySound(seName, 1f, instanceId, trans.position, trans.forward);
+                var isUseRegion = set.isUseRegion;
+                var criAtomRegion = set.criAtomRegion;
+                CriAtomEx3dRegion regionHandle = null;
+                if (isUseRegion)
+                {
+                    regionHandle = criAtomRegion.region3dHn;
+                }
+                t3DSoundPlayer.PlaySound(seName, 1f, instanceId, trans.position, trans.forward, regionHandle);
             }
         }
 
@@ -1527,6 +1537,10 @@ namespace Mains.Views
         public PoltergeistAnimationSO poltergeistAnimationSO;
         /// <summary>中ボスオバケの家具入居管理のデータクラス</summary>
         public GhostInStaticObjectStruct midBossGhostInStaticObjectStruct;
+        /// <summary>リージョンを使用するか</summary>
+        public bool isUseRegion;
+        /// <summary>CRIの3Dリージョン</summary>
+        public CriAtomRegion criAtomRegion;
 
         /// <summary>
         /// オバケの攻撃タイプの設定
