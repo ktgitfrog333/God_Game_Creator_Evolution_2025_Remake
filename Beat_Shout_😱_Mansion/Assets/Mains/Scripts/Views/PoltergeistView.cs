@@ -488,10 +488,11 @@ namespace Mains.Views
             }
             // オバケの攻撃タイプの場合、攻撃開始状態を監視
             var ghostAttack = poltergeistTable.subSettings.ghostAttack;
-            _poltergeistViewModel.IsStartAttack
+            _poltergeistViewModel.IsStartAttack.Where(x => x != null)
                 .Subscribe(player =>
                 {
                     var type = ghostAttackType.Value;
+                    var api = _script_XyloApi;
                     switch (type)
                     {
                         case GhostAttackType.ThrowBookInstance:
@@ -503,6 +504,7 @@ namespace Mains.Views
                                     _poltergeistViewModel.SetIsStartAttack(null);
                                 })
                                 .AddTo(ref _disposableBag);
+                            PlayLaughSEAttack();
 
                             break;
                         case GhostAttackType.ThrowBookNotInstance:
@@ -516,6 +518,7 @@ namespace Mains.Views
                                         _poltergeistViewModel.SetIsStartAttack(null);
                                     })
                                     .AddTo(ref _disposableBag);
+                                PlayLaughSEAttack();
                             }
                             else
                             {
@@ -530,6 +533,7 @@ namespace Mains.Views
                                         _poltergeistViewModel.SetIsStartAttack(null);
                                     })
                                     .AddTo(ref _disposableBag);
+                                PlayLaughSEAttack();
                             }
 
                             break;
@@ -1512,6 +1516,30 @@ namespace Mains.Views
                 t3DSoundPlayer.PlaySound(seName, 1f, instanceId, trans.position, trans.forward, regionHandle);
             }
         }
+        /// <summary>
+        /// 本が空中に浮く音４SEを再生（簡易3Dサウンド）
+        /// </summary>
+        private void PlayLaughSEAttack()
+        {
+            var set = settings;
+            ObjectsPoolView objectsPoolView = ObjectsPoolView;
+            Se_3D_PickerCustomizeView t3DSoundPlayer = objectsPoolView?.Get3DSoundPlayer();
+
+            if (t3DSoundPlayer != null)
+            {
+                string seName = UniqueSeName.BUB_FloatingBook4.ToString();
+                var instanceId = GetInstanceID();
+                var trans = _transform;
+                var isUseRegion = set.isUseRegion;
+                var criAtomRegion = set.criAtomRegion;
+                CriAtomEx3dRegion regionHandle = null;
+                if (isUseRegion)
+                {
+                    regionHandle = criAtomRegion.region3dHn;
+                }
+                t3DSoundPlayer.PlaySound(seName, 1f, instanceId, trans.position, trans.forward, regionHandle);
+            }
+        }
 
         /// <summary>
         /// モデルタイプ別の逃走用オバケプレハブを取得する
@@ -1552,5 +1580,16 @@ namespace Mains.Views
             /// <see cref="GhostAttackType.ThrowBookNotInstance"/>
             public Transform ghostBulletBookInstance;
         }
+    }
+
+    /// <summary>
+    /// 家具専用SE名
+    /// </summary>
+    public enum UniqueSeName
+    {
+        /// <summary>未設定</summary>
+        Unknown,
+        /// <summary>本が空中に浮く音４</summary>
+        BUB_FloatingBook4,
     }
 }

@@ -25,7 +25,10 @@ public class Se_3D_Picker : MonoBehaviour
     [SerializeField] private string CueSheetName = "SE_System";
     [SerializeField] private string AcbFilePath = "SE_System.acb";
     private CriAtomExAcb _acbBomb;
-    private Dictionary<int, Se_3D_PickerPoltergeistAudioData> _audioDataDictionary = new Dictionary<int, Se_3D_PickerPoltergeistAudioData>();
+    // [2026/09/11] Amagata Support for Implementing Custom Sound Effects start
+    //private Dictionary<int, Se_3D_PickerPoltergeistAudioData> _audioDataDictionary = new Dictionary<int, Se_3D_PickerPoltergeistAudioData>();
+    private Dictionary<int, Dictionary<string, Se_3D_PickerPoltergeistAudioData>> _audioDataGroupDictionary = new Dictionary<int, Dictionary<string, Se_3D_PickerPoltergeistAudioData>>();
+    // [2026/09/11] Amagata Support for Implementing Custom Sound Effects end
     private Transform _transform;
     private DisposableBag _disposableBag = new DisposableBag();
     // [2026/09/06] Amagata issue #87 end
@@ -191,7 +194,10 @@ public class Se_3D_Picker : MonoBehaviour
             .Subscribe(_ =>
             {
                 var trans = _transform;
-                var audioDataDictionary = _audioDataDictionary;
+                // [2026/09/11] Amagata Support for Implementing Custom Sound Effects start
+                //var audioDataDictionary = _audioDataDictionary;
+                var audioDataGroupDictionary = _audioDataGroupDictionary;
+                // [2026/09/11] Amagata Support for Implementing Custom Sound Effects end
                 var tmpInstanceId = instanceId;
                 var tmpPosition = position;
                 var tmpFront = front;
@@ -202,24 +208,60 @@ public class Se_3D_Picker : MonoBehaviour
                 CriAtomEx3dSource criAtomEx3DSource = null;
                 var tmpSeName = SeName;
                 var tmpVolume = finalVolume;
+                // [2026/09/11] Amagata Support for Implementing Custom Sound Effects start
+                Dictionary<string, Se_3D_PickerPoltergeistAudioData> audioDataDictionary = null;
 
-                if (audioDataDictionary.ContainsKey(tmpInstanceId))
+                //if (audioDataDictionary.ContainsKey(tmpInstanceId))
+                //{
+                //    var audioData = audioDataDictionary[tmpInstanceId];
+                //    player = audioData.player;
+                //    criAtomEx3DSource = audioData.criAtomEx3DSource;
+
+                //}
+                //else
+                //{
+                //    player = new CriAtomExPlayer();
+                //    criAtomEx3DSource = new CriAtomEx3dSource();
+                //    audioDataDictionary[tmpInstanceId] = new Se_3D_PickerPoltergeistAudioData
+                //    {
+                //        player = player,
+                //        criAtomEx3DSource = criAtomEx3DSource
+                //    };
+                //}
+                if (audioDataGroupDictionary.ContainsKey(tmpInstanceId))
                 {
-                    var audioData = audioDataDictionary[tmpInstanceId];
-                    player = audioData.player;
-                    criAtomEx3DSource = audioData.criAtomEx3DSource;
-
+                    audioDataDictionary = audioDataGroupDictionary[tmpInstanceId];
+                    if (audioDataDictionary.ContainsKey(tmpSeName))
+                    {
+                        var audioData = audioDataDictionary[tmpSeName];
+                        player = audioData.player;
+                        criAtomEx3DSource = audioData.criAtomEx3DSource;
+                    }
+                    else
+                    {
+                        player = new CriAtomExPlayer();
+                        criAtomEx3DSource = new CriAtomEx3dSource();
+                        audioDataDictionary[tmpSeName] = new Se_3D_PickerPoltergeistAudioData
+                        {
+                            player = player,
+                            criAtomEx3DSource = criAtomEx3DSource
+                        };
+                        audioDataGroupDictionary[tmpInstanceId] = audioDataDictionary;
+                    }
                 }
                 else
                 {
                     player = new CriAtomExPlayer();
                     criAtomEx3DSource = new CriAtomEx3dSource();
-                    audioDataDictionary[tmpInstanceId] = new Se_3D_PickerPoltergeistAudioData
+                    audioDataDictionary = new Dictionary<string, Se_3D_PickerPoltergeistAudioData>();
+                    audioDataDictionary[SeName] = new Se_3D_PickerPoltergeistAudioData
                     {
                         player = player,
                         criAtomEx3DSource = criAtomEx3DSource
                     };
+                    audioDataGroupDictionary[tmpInstanceId] = audioDataDictionary;
                 }
+                // [2026/09/11] Amagata Support for Implementing Custom Sound Effects end
 
                 if (_acbBomb == null)
                 {
@@ -243,7 +285,10 @@ public class Se_3D_Picker : MonoBehaviour
 
                 player.Start();
 
-                _audioDataDictionary = audioDataDictionary;
+                // [2026/09/11] Amagata Support for Implementing Custom Sound Effects start
+                //_audioDataDictionary = audioDataDictionary;
+                _audioDataGroupDictionary = audioDataGroupDictionary;
+                // [2026/09/11] Amagata Support for Implementing Custom Sound Effects end
             })
             .AddTo(ref _disposableBag);
         // [2026/09/06] Amagata issue #87 end
