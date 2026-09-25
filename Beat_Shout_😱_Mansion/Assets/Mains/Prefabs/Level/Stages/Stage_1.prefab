@@ -1428,6 +1428,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &3998804248944219125
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1742,6 +1746,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &588536584006745148
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2027,6 +2035,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 1
+    playAddSEQueName: BUB_PlateBreaking
 --- !u!65 &1348651758386550928
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2707,6 +2719,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &3762148752086222205
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2851,6 +2867,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &142442609536757159
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3472,6 +3492,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &5828068948482356149
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3665,6 +3689,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &4584480187815873614
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3862,6 +3890,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &8479405211982522943
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3962,6 +3994,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &4662597371397692147
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4543,6 +4579,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &7268866835667526367
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4687,6 +4727,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &6749179490256299972
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5221,6 +5265,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &6855065015961232994
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5414,6 +5462,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &6900220944939275718
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5698,6 +5750,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &1516539191963144930
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6034,6 +6090,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &1471932549857805956
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6134,6 +6194,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &2897235271871992570
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6340,6 +6404,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 1
+    playAddSEQueName: BUB_PlateBreaking
 --- !u!65 &7025676744548379891
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6769,6 +6837,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &392788503604380787
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -7107,6 +7179,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &3488780281795493853
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -7544,6 +7620,10 @@ MonoBehaviour:
       role: 1
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &3305075140359092050
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -7644,6 +7724,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 1
+    playAddSEQueName: BUB_PlateBreaking
 --- !u!65 &4504690772062739531
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -9327,6 +9411,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &1684251210621308473
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -9617,6 +9705,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &7864866364800435286
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -9858,6 +9950,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &485401285473614599
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -9958,6 +10054,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &9017289743534166297
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -10292,6 +10392,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &2901002006167974566
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -10454,6 +10558,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &7746989589036026303
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -10684,6 +10792,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 1
+    playAddSEQueName: BUB_PlateBreaking
 --- !u!65 &5546013952451498083
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -10815,6 +10927,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &3001532604036846070
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -11427,6 +11543,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &4741169222958573555
 BoxCollider:
   m_ObjectHideFlags: 0

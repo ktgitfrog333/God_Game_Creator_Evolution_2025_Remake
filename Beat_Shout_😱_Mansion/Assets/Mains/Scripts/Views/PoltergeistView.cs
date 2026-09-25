@@ -1433,6 +1433,9 @@ namespace Mains.Views
                 Observable.EveryUpdate()
                     .Subscribe(_ =>
                     {
+                        var set = settings;
+                        var isPlayAddSE = set.isPlayAddSE;
+
                         if (_motorView == null || _poltergeistViewModel?.PlayerTransform == null || !_motorView.IsEnabledPoltergeist)
                             return;
 
@@ -1452,6 +1455,11 @@ namespace Mains.Views
                             {
                                 // SEを再生
                                 PlayLaughSE(laughSettings);
+                                // 追加SEがある場合はSEを再生する
+                                if (isPlayAddSE)
+                                {
+                                    PlayAddSE();
+                                }
                                 timer = _currentLaughInterval;
                             }
                         }
@@ -1542,6 +1550,41 @@ namespace Mains.Views
         }
 
         /// <summary>
+        /// 追加SEを再生
+        /// </summary>
+        private void PlayAddSE()
+        {
+            var set = settings;
+            var playAddSEQueName = set.playAddSEQueName;
+            var api = _script_XyloApi;
+
+            if (string.IsNullOrEmpty(playAddSEQueName))
+            {
+                Debug.LogWarning($"追加SE再生キュー名が空です。: [{playAddSEQueName}] 再生処理を中断しました");
+
+                return;
+            }
+
+            ObjectsPoolView objectsPoolView = ObjectsPoolView;
+            Se_3D_PickerCustomizeView t3DSoundPlayer = objectsPoolView?.Get3DSoundPlayer();
+
+            if (t3DSoundPlayer != null)
+            {
+                string seName = playAddSEQueName;
+                var instanceId = GetInstanceID();
+                var trans = _transform;
+                var isUseRegion = set.isUseRegion;
+                var criAtomRegion = set.criAtomRegion;
+                CriAtomEx3dRegion regionHandle = null;
+                if (isUseRegion)
+                {
+                    regionHandle = criAtomRegion.region3dHn;
+                }
+                t3DSoundPlayer.PlaySound(seName, 1f, instanceId, trans.position, trans.forward, regionHandle);
+            }
+        }
+
+        /// <summary>
         /// モデルタイプ別の逃走用オバケプレハブを取得する
         /// </summary>
         /// <param name="modelType">オバケモデルタイプ（FBX差分）</param>
@@ -1569,6 +1612,10 @@ namespace Mains.Views
         public bool isUseRegion;
         /// <summary>CRIの3Dリージョン</summary>
         public CriAtomRegion criAtomRegion;
+        /// <summary>追加SE再生を有効にするか</summary>
+        public bool isPlayAddSE;
+        /// <summary>追加SE再生キュー名</summary>
+        public string playAddSEQueName;
 
         /// <summary>
         /// オバケの攻撃タイプの設定

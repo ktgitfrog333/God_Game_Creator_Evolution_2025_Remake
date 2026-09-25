@@ -1049,7 +1049,7 @@ namespace Mains.External
                     seVolumeIndex = selectsManager.AudioOwner.GetSeVolumeIndex();
                 }
             }
-            sePicker.PlayBUB_Damage4(seVolumeIndex);
+            sePicker.PlayBUB_Damage5(seVolumeIndex);
         }
 
         public void PlayBUB_Gameover_v2()
