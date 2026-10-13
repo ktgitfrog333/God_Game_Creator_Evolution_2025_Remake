@@ -659,7 +659,7 @@ MonoBehaviour:
   initializesAtom: 1
   atomConfig:
     acfFileName: 
-    maxVirtualVoices: 32
+    maxVirtualVoices: 112
     maxVoiceLimitGroups: 32
     maxCategories: 32
     maxAisacs: 8
@@ -669,7 +669,7 @@ MonoBehaviour:
     maxCueLinkCallbacksPerFrame: 1
     standardVoicePoolConfig:
       memoryVoices: 16
-      streamingVoices: 16
+      streamingVoices: 96
     hcaMxVoicePoolConfig:
       memoryVoices: 0
       streamingVoices: 0
@@ -1383,6 +1383,7 @@ MonoBehaviour:
   maxPlayers: 5
   IntroStage01: search-part_Aintro
   isNotStage: 0
+  startTimeSeconds: 2
 --- !u!224 &920594676 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2193038749109108025, guid: f82ca87000f877d419d1538d48cd9f15, type: 3}

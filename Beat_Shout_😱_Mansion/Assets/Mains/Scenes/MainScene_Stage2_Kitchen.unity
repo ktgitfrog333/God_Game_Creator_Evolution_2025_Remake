@@ -568,7 +568,7 @@ MonoBehaviour:
     - 0
     - 0
     - 0
-  _cueName: search-part_B
+  _cueName: Stage2_search_BPM90_v3_loop
   _cueSheet: BGM
 --- !u!114 &313430794
 MonoBehaviour:
@@ -636,7 +636,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ThisStageNumber: 0
-  introDelayTime: 0
+  introDelayTime: 76.5
   atomSourceA: {fileID: 313430793}
   atomSourceB: {fileID: 313430794}
   atomSourceBOfBPM: 160
@@ -1314,8 +1314,9 @@ MonoBehaviour:
   CueSheetName: SE_Long
   AcbFilePath: SE_Long.acb
   maxPlayers: 5
-  IntroStage01: untitled
-  isNotStage: 1
+  IntroStage01: Stage2_search_BPM90_v3_1st
+  isNotStage: 0
+  startTimeSeconds: 0
 --- !u!4 &668718946 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3182044482788010926, guid: eb0c9de2a4371b8449d27c66eb57b736, type: 3}
@@ -1521,6 +1522,14 @@ PrefabInstance:
     - target: {fileID: 6266780223078806780, guid: a358affd96cb42140a5d17944515c1a4, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6988706155286126097, guid: a358affd96cb42140a5d17944515c1a4, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 270.32578
+      objectReference: {fileID: 0}
+    - target: {fileID: 6988706155286126097, guid: a358affd96cb42140a5d17944515c1a4, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -167.99998
       objectReference: {fileID: 0}
     - target: {fileID: 7969603215508203675, guid: a358affd96cb42140a5d17944515c1a4, type: 3}
       propertyPath: m_SizeDelta.x
@@ -3241,7 +3250,7 @@ MonoBehaviour:
   initializesAtom: 1
   atomConfig:
     acfFileName: 
-    maxVirtualVoices: 32
+    maxVirtualVoices: 160
     maxVoiceLimitGroups: 32
     maxCategories: 32
     maxAisacs: 8
@@ -3250,8 +3259,8 @@ MonoBehaviour:
     maxBeatSyncCallbacksPerFrame: 1
     maxCueLinkCallbacksPerFrame: 1
     standardVoicePoolConfig:
-      memoryVoices: 16
-      streamingVoices: 16
+      memoryVoices: 32
+      streamingVoices: 128
     hcaMxVoicePoolConfig:
       memoryVoices: 0
       streamingVoices: 0

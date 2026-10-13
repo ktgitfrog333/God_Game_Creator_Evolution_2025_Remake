@@ -2750,7 +2750,7 @@ MonoBehaviour:
   initializesAtom: 1
   atomConfig:
     acfFileName: 
-    maxVirtualVoices: 32
+    maxVirtualVoices: 128
     maxVoiceLimitGroups: 32
     maxCategories: 32
     maxAisacs: 8
@@ -2759,8 +2759,8 @@ MonoBehaviour:
     maxBeatSyncCallbacksPerFrame: 1
     maxCueLinkCallbacksPerFrame: 1
     standardVoicePoolConfig:
-      memoryVoices: 16
-      streamingVoices: 16
+      memoryVoices: 32
+      streamingVoices: 96
     hcaMxVoicePoolConfig:
       memoryVoices: 0
       streamingVoices: 0
@@ -3049,7 +3049,7 @@ MonoBehaviour:
     - 0
     - 0
     - 0
-  _cueName: Stage3_search_BPM118_loop
+  _cueName: Stage3_search_BPM118_v3_loop
   _cueSheet: BGM
 --- !u!114 &1730013431
 MonoBehaviour:
@@ -3117,7 +3117,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ThisStageNumber: 0
-  introDelayTime: 0
+  introDelayTime: 63.5
   atomSourceA: {fileID: 1730013430}
   atomSourceB: {fileID: 1730013431}
   atomSourceBOfBPM: 160
@@ -3806,8 +3806,9 @@ MonoBehaviour:
   CueSheetName: SE_Long
   AcbFilePath: SE_Long.acb
   maxPlayers: 5
-  IntroStage01: search-part_Aintro
-  isNotStage: 1
+  IntroStage01: Stage3_search_BPM118_v3_1st
+  isNotStage: 0
+  startTimeSeconds: 0
 --- !u!134 &2039283794
 PhysicsMaterial:
   m_ObjectHideFlags: 0
