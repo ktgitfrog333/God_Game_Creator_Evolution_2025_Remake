@@ -74,6 +74,8 @@ namespace Mains.Views
         private List<Collider> _noTriggerColliders;
         /// <summary>Rigidbody</summary>
         private Rigidbody _rigidbody;
+        /// <summary>追加SEの再生中かどうか</summary>
+        private bool _isPlayingAddSE;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
         /// <summary>パトロール（引っ越し）タイマー</summary>
@@ -383,9 +385,36 @@ namespace Mains.Views
                 }
                 else if (part == InteractionPart.Rhythm)
                 {
+                    var set = settings;
+                    var isPlayAddSE = set.isPlayAddSE;
+
                     // リズムパート時は一時停止
                     PausePatrolTimer();
                     StopSoundOutputBehavior();
+
+                    if (isPlayAddSE && _isPlayingAddSE)
+                    {
+                        var add_02_10_fireplace_fbxView = set.add_02_10_fireplace_fbxView;
+                        var add_03_19_model_airplane_fbxView = set.add_03_19_model_airplane_fbxView;
+
+                        if (add_02_10_fireplace_fbxView != null || add_03_19_model_airplane_fbxView != null)
+                        {
+                            if (add_02_10_fireplace_fbxView != null && add_03_19_model_airplane_fbxView == null)
+                            {
+                                add_02_10_fireplace_fbxView.StopDirection();
+                            }
+                            else if (add_03_19_model_airplane_fbxView != null)
+                            {
+                                add_03_19_model_airplane_fbxView.StopDirection();
+                            }
+                            else
+                            {
+                                Debug.LogWarning($"演出処理の複合は不適切な可能性があります。組み合わせが正しいか仕様を確認してください。" +
+                                    $" \n add_02_10_fireplace_fbxView: [{add_02_10_fireplace_fbxView}]" +
+                                    $" \n add_03_19_model_airplane_fbxView: [{add_03_19_model_airplane_fbxView}]");
+                            }
+                        }
+                    }
                 }
             }).AddTo(ref _disposableBag);
             _poltergeistViewModel.InteractionPartReactive.Pairwise()
@@ -560,6 +589,20 @@ namespace Mains.Views
         }
 
         /// <summary>
+        /// 追加SEを再生（一度のみ）処理を呼び出す
+        /// </summary>
+        public void DoPlayAddSEOnce()
+        {
+            var set = settings;
+            var isPlayAddSE = set.isPlayAddSE;
+
+            if (isPlayAddSE)
+            {
+                StartCoroutine(PlayAddSEOnce());
+            }
+        }
+
+        /// <summary>
         /// オバケ攻撃を実行
         /// </summary>
         /// <param name="ghostTurretPosition">オバケタレットの位置</param>
@@ -632,10 +675,14 @@ namespace Mains.Views
 
         private void OnDestroy()
         {
+            var set = settings;
+            var add_03_19_model_airplane_fbxView = set.add_03_19_model_airplane_fbxView;
+
             StopPatrolTimer();
             _disposableBag.Dispose();
             _script_XyloApi?.Dispose();
             _poltergeistViewModel?.Dispose();
+            add_03_19_model_airplane_fbxView?.Dispose();
         }
 
         /// <summary>
@@ -1434,7 +1481,6 @@ namespace Mains.Views
                     .Subscribe(_ =>
                     {
                         var set = settings;
-                        var isPlayAddSE = set.isPlayAddSE;
 
                         if (_motorView == null || _poltergeistViewModel?.PlayerTransform == null || !_motorView.IsEnabledPoltergeist)
                             return;
@@ -1455,11 +1501,6 @@ namespace Mains.Views
                             {
                                 // SEを再生
                                 PlayLaughSE(laughSettings);
-                                // 追加SEがある場合はSEを再生する
-                                if (isPlayAddSE)
-                                {
-                                    PlayAddSE();
-                                }
                                 timer = _currentLaughInterval;
                             }
                         }
@@ -1550,6 +1591,89 @@ namespace Mains.Views
         }
 
         /// <summary>
+        /// 追加SEを再生（一度のみ）
+        /// </summary>
+        /// <returns>コルーチン</returns>
+        private IEnumerator PlayAddSEOnce()
+        {
+            if (_isPlayingAddSE)
+                yield break;
+
+            _isPlayingAddSE = true;
+
+            var set = settings;
+            var add_02_10_fireplace_fbxView = set.add_02_10_fireplace_fbxView;
+            var add_03_19_model_airplane_fbxView = set.add_03_19_model_airplane_fbxView;
+            var intervalMaxAddSE = poltergeistTable.subSettings.laughSettings.intervalMaxAddSE;
+
+            if (add_02_10_fireplace_fbxView != null || add_03_19_model_airplane_fbxView != null)
+            {
+                if (add_02_10_fireplace_fbxView != null && add_03_19_model_airplane_fbxView == null)
+                {
+                    // 暖炉専用のSE再生処理
+                    add_02_10_fireplace_fbxView.OnStoppedDirection.Subscribe(_ =>
+                    {
+                        _isPlayingAddSE = false;
+                    })
+                        .AddTo(ref _disposableBag);
+
+                    add_02_10_fireplace_fbxView.OnBUB_FireGoingOut.Subscribe(_ =>
+                    {
+                        PlayAddSEs(2);
+                    })
+                        .AddTo(ref _disposableBag);
+
+                    add_02_10_fireplace_fbxView.OnBUB_FireBurningFireplace.Subscribe(_ =>
+                    {
+                        PlayAddSEs(1);
+                    })
+                        .AddTo(ref _disposableBag);
+
+                    add_02_10_fireplace_fbxView.OnBUB_FireFireplace.Subscribe(_ =>
+                    {
+                        PlayAddSEs(0);
+                    })
+                        .AddTo(ref _disposableBag);
+
+                    add_02_10_fireplace_fbxView.PlayDirection();
+                }
+                else if (add_03_19_model_airplane_fbxView != null)
+                {
+                    var airplaneRenderer = set.airplaneRenderer;
+
+                    // 初期化処理は一度のみ行う
+                    add_03_19_model_airplane_fbxView.Initialize(airplaneRenderer);
+
+                    add_03_19_model_airplane_fbxView.OnStoppedDirection.Subscribe(_ =>
+                    {
+                        _isPlayingAddSE = false;
+                    })
+                        .AddTo(ref _disposableBag);
+
+                    add_03_19_model_airplane_fbxView.PlayDirection();
+                    PlayAddSE();
+                }
+                else
+                {
+                    Debug.LogWarning($"演出処理の複合は不適切な可能性があります。組み合わせが正しいか仕様を確認してください。" +
+                        $" \n add_02_10_fireplace_fbxView: [{add_02_10_fireplace_fbxView}]" +
+                        $" \n add_03_19_model_airplane_fbxView: [{add_03_19_model_airplane_fbxView}]");
+                }
+
+                yield return null;
+            }
+            else
+            {
+                // デフォルトSE再生処理
+                PlayAddSE();
+
+                yield return new WaitForSeconds(intervalMaxAddSE);
+
+                _isPlayingAddSE = false;
+            }
+        }
+
+        /// <summary>
         /// 追加SEを再生
         /// </summary>
         private void PlayAddSE()
@@ -1564,6 +1688,44 @@ namespace Mains.Views
 
                 return;
             }
+
+            ObjectsPoolView objectsPoolView = ObjectsPoolView;
+            Se_3D_PickerCustomizeView t3DSoundPlayer = objectsPoolView?.Get3DSoundPlayer();
+
+            if (t3DSoundPlayer != null)
+            {
+                string seName = playAddSEQueName;
+                var instanceId = GetInstanceID();
+                var trans = _transform;
+                var isUseRegion = set.isUseRegion;
+                var criAtomRegion = set.criAtomRegion;
+                CriAtomEx3dRegion regionHandle = null;
+                if (isUseRegion)
+                {
+                    regionHandle = criAtomRegion.region3dHn;
+                }
+                t3DSoundPlayer.PlaySound(seName, 1f, instanceId, trans.position, trans.forward, regionHandle);
+            }
+        }
+
+        /// <summary>
+        /// 追加複数SEを再生
+        /// </summary>
+        /// <param name="index">インデックス</param>
+        private void PlayAddSEs(int index)
+        {
+            var set = settings;
+            var playAddSEQueNames = set.playAddSEQueNames;
+            var api = _script_XyloApi;
+
+            if (playAddSEQueNames == null || index < 0 || index >= playAddSEQueNames.Length || string.IsNullOrEmpty(playAddSEQueNames[index]))
+            {
+                Debug.LogWarning($"追加SE再生キュー名配列が空です。: [{playAddSEQueNames}] 再生処理を中断しました");
+
+                return;
+            }
+
+            var playAddSEQueName = playAddSEQueNames[index];
 
             ObjectsPoolView objectsPoolView = ObjectsPoolView;
             Se_3D_PickerCustomizeView t3DSoundPlayer = objectsPoolView?.Get3DSoundPlayer();
@@ -1616,6 +1778,15 @@ namespace Mains.Views
         public bool isPlayAddSE;
         /// <summary>追加SE再生キュー名</summary>
         public string playAddSEQueName;
+        /// <summary>追加SE再生キュー名（複数版）</summary>
+        /// <remarks>複数のSEを使用する場合はインデックスが若い数字から再生される想定で設定する</remarks>
+        public string[] playAddSEQueNames;
+        /// <summary>暖炉FBXモデルの追加処理のビュー</summary>
+        public Add_02_10_fireplace_fbxView add_02_10_fireplace_fbxView;
+        /// <summary>木製の飛行機FBXモデルの追加処理のビュー</summary>
+        public Add_03_19_model_airplane_fbxView add_03_19_model_airplane_fbxView;
+        /// <summary>木製の飛行機FBXモデルのスキンメッシュレンダラー</summary>
+        public SkinnedMeshRenderer airplaneRenderer;
 
         /// <summary>
         /// オバケの攻撃タイプの設定

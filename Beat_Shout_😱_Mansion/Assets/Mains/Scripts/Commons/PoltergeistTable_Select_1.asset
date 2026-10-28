@@ -25,6 +25,7 @@ MonoBehaviour:
     defaultSoundOutputType: 1
     laughSettings:
       firstInterval: 3
+      intervalMaxAddSE: 3
     moveIntervalSeconds: 30
     targetkillsRate: 0.8
     checkClearStruct:

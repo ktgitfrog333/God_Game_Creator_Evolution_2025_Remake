@@ -1432,6 +1432,8 @@ MonoBehaviour:
     criAtomRegion: {fileID: 0}
     isPlayAddSE: 0
     playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
 --- !u!65 &3998804248944219125
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1750,6 +1752,8 @@ MonoBehaviour:
     criAtomRegion: {fileID: 0}
     isPlayAddSE: 0
     playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
 --- !u!65 &588536584006745148
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2039,6 +2043,8 @@ MonoBehaviour:
     criAtomRegion: {fileID: 0}
     isPlayAddSE: 1
     playAddSEQueName: BUB_PlateBreaking
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
 --- !u!65 &1348651758386550928
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2723,6 +2729,8 @@ MonoBehaviour:
     criAtomRegion: {fileID: 0}
     isPlayAddSE: 0
     playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
 --- !u!65 &3762148752086222205
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2871,6 +2879,8 @@ MonoBehaviour:
     criAtomRegion: {fileID: 0}
     isPlayAddSE: 0
     playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
 --- !u!65 &142442609536757159
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3496,6 +3506,8 @@ MonoBehaviour:
     criAtomRegion: {fileID: 0}
     isPlayAddSE: 0
     playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
 --- !u!65 &5828068948482356149
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3693,6 +3705,8 @@ MonoBehaviour:
     criAtomRegion: {fileID: 0}
     isPlayAddSE: 0
     playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
 --- !u!65 &4584480187815873614
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3894,6 +3908,8 @@ MonoBehaviour:
     criAtomRegion: {fileID: 0}
     isPlayAddSE: 0
     playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
 --- !u!65 &8479405211982522943
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3996,8 +4012,10 @@ MonoBehaviour:
       ghostVoiceType: 0
     isUseRegion: 0
     criAtomRegion: {fileID: 0}
-    isPlayAddSE: 0
-    playAddSEQueName: 
+    isPlayAddSE: 1
+    playAddSEQueName: BUB_LampSwitch
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
 --- !u!65 &4662597371397692147
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4581,8 +4599,10 @@ MonoBehaviour:
       ghostVoiceType: 0
     isUseRegion: 0
     criAtomRegion: {fileID: 0}
-    isPlayAddSE: 0
-    playAddSEQueName: 
+    isPlayAddSE: 1
+    playAddSEQueName: BUB_CandleGoingOut
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
 --- !u!65 &7268866835667526367
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4731,6 +4751,8 @@ MonoBehaviour:
     criAtomRegion: {fileID: 0}
     isPlayAddSE: 0
     playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
 --- !u!65 &6749179490256299972
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5269,6 +5291,8 @@ MonoBehaviour:
     criAtomRegion: {fileID: 0}
     isPlayAddSE: 0
     playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
 --- !u!65 &6855065015961232994
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5466,6 +5490,8 @@ MonoBehaviour:
     criAtomRegion: {fileID: 0}
     isPlayAddSE: 0
     playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
 --- !u!65 &6900220944939275718
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5487,6 +5513,38 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.44040012, y: 1.0183923, z: 0.5780689}
   m_Center: {x: 0.002888441, y: 0.044396225, z: -0.015324026}
+--- !u!1 &4973076922868696606
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9001414383935216723}
+  m_Layer: 0
+  m_Name: AddGameObjects
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9001414383935216723
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4973076922868696606}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1695750001164991298}
+  m_Father: {fileID: 3182044482788010926}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5026166580234865240
 GameObject:
   m_ObjectHideFlags: 0
@@ -5754,6 +5812,8 @@ MonoBehaviour:
     criAtomRegion: {fileID: 0}
     isPlayAddSE: 0
     playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
 --- !u!65 &1516539191963144930
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6094,6 +6154,8 @@ MonoBehaviour:
     criAtomRegion: {fileID: 0}
     isPlayAddSE: 0
     playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
 --- !u!65 &1471932549857805956
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6198,6 +6260,8 @@ MonoBehaviour:
     criAtomRegion: {fileID: 0}
     isPlayAddSE: 0
     playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
 --- !u!65 &2897235271871992570
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6408,6 +6472,8 @@ MonoBehaviour:
     criAtomRegion: {fileID: 0}
     isPlayAddSE: 1
     playAddSEQueName: BUB_PlateBreaking
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
 --- !u!65 &7025676744548379891
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6841,6 +6907,8 @@ MonoBehaviour:
     criAtomRegion: {fileID: 0}
     isPlayAddSE: 0
     playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
 --- !u!65 &392788503604380787
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -7183,6 +7251,8 @@ MonoBehaviour:
     criAtomRegion: {fileID: 0}
     isPlayAddSE: 0
     playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
 --- !u!65 &3488780281795493853
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -7622,8 +7692,13 @@ MonoBehaviour:
       ghostVoiceType: 0
     isUseRegion: 0
     criAtomRegion: {fileID: 0}
-    isPlayAddSE: 0
+    isPlayAddSE: 1
     playAddSEQueName: 
+    playAddSEQueNames:
+    - BUB_FireFireplace
+    - BUB_FireBurningFireplace
+    - BUB_FireGoingOut
+    add_02_10_fireplace_fbxView: {fileID: 5158767835055509364}
 --- !u!65 &3305075140359092050
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -7728,6 +7803,8 @@ MonoBehaviour:
     criAtomRegion: {fileID: 0}
     isPlayAddSE: 1
     playAddSEQueName: BUB_PlateBreaking
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
 --- !u!65 &4504690772062739531
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -8917,6 +8994,7 @@ Transform:
   m_Children:
   - {fileID: 8650160852408045698}
   - {fileID: 704220570222769933}
+  - {fileID: 9001414383935216723}
   - {fileID: 8040011359270974745}
   - {fileID: 4611816756182785929}
   - {fileID: 8530552808380040893}
@@ -9415,6 +9493,8 @@ MonoBehaviour:
     criAtomRegion: {fileID: 0}
     isPlayAddSE: 0
     playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
 --- !u!65 &1684251210621308473
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -9707,8 +9787,10 @@ MonoBehaviour:
       ghostVoiceType: 0
     isUseRegion: 0
     criAtomRegion: {fileID: 0}
-    isPlayAddSE: 0
-    playAddSEQueName: 
+    isPlayAddSE: 1
+    playAddSEQueName: BUB_CandleGoingOut
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
 --- !u!65 &7864866364800435286
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -9954,6 +10036,8 @@ MonoBehaviour:
     criAtomRegion: {fileID: 0}
     isPlayAddSE: 0
     playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
 --- !u!65 &485401285473614599
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -10058,6 +10142,8 @@ MonoBehaviour:
     criAtomRegion: {fileID: 0}
     isPlayAddSE: 0
     playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
 --- !u!65 &9017289743534166297
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -10394,8 +10480,10 @@ MonoBehaviour:
       ghostVoiceType: 0
     isUseRegion: 0
     criAtomRegion: {fileID: 0}
-    isPlayAddSE: 0
-    playAddSEQueName: 
+    isPlayAddSE: 1
+    playAddSEQueName: BUB_LampSwitch
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
 --- !u!65 &2901002006167974566
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -10562,6 +10650,8 @@ MonoBehaviour:
     criAtomRegion: {fileID: 0}
     isPlayAddSE: 0
     playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
 --- !u!65 &7746989589036026303
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -10796,6 +10886,8 @@ MonoBehaviour:
     criAtomRegion: {fileID: 0}
     isPlayAddSE: 1
     playAddSEQueName: BUB_PlateBreaking
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
 --- !u!65 &5546013952451498083
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -10931,6 +11023,8 @@ MonoBehaviour:
     criAtomRegion: {fileID: 0}
     isPlayAddSE: 0
     playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
 --- !u!65 &3001532604036846070
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -11547,6 +11641,8 @@ MonoBehaviour:
     criAtomRegion: {fileID: 0}
     isPlayAddSE: 0
     playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
 --- !u!65 &4741169222958573555
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -12428,13 +12524,40 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 534a6b3d927e1fa4592c902746bba5d4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4261658642361693338}
   m_SourcePrefab: {fileID: 100100000, guid: 534a6b3d927e1fa4592c902746bba5d4, type: 3}
+--- !u!23 &82129147666053073 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: 534a6b3d927e1fa4592c902746bba5d4, type: 3}
+  m_PrefabInstance: {fileID: 1648983387609082709}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1254504125409316030 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 534a6b3d927e1fa4592c902746bba5d4, type: 3}
   m_PrefabInstance: {fileID: 1648983387609082709}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1883406752309351940 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 534a6b3d927e1fa4592c902746bba5d4, type: 3}
+  m_PrefabInstance: {fileID: 1648983387609082709}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4261658642361693338
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1883406752309351940}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b04304806c618234ca1a70f15b13c868, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  "\u30E1\u30A4\u30F3\u8A2D\u5B9A":
+    targetRenderer: {fileID: 82129147666053073}
 --- !u!1001 &1893105766116290777
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -15061,6 +15184,79 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 867f90b24bfb0de4bbec07df9102c6e8, type: 3}
   m_PrefabInstance: {fileID: 7920851661318773670}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &8421807989837034251
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 9001414383935216723}
+    m_Modifications:
+    - target: {fileID: 6948438679725112039, guid: 496f11b4bb4ba9d4ea1796c62e778710, type: 3}
+      propertyPath: m_Name
+      value: Add_02_10_fireplace_fbx
+      objectReference: {fileID: 0}
+    - target: {fileID: 7163193027664988233, guid: 496f11b4bb4ba9d4ea1796c62e778710, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 7.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 7163193027664988233, guid: 496f11b4bb4ba9d4ea1796c62e778710, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.23
+      objectReference: {fileID: 0}
+    - target: {fileID: 7163193027664988233, guid: 496f11b4bb4ba9d4ea1796c62e778710, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7163193027664988233, guid: 496f11b4bb4ba9d4ea1796c62e778710, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 7163193027664988233, guid: 496f11b4bb4ba9d4ea1796c62e778710, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7163193027664988233, guid: 496f11b4bb4ba9d4ea1796c62e778710, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 7163193027664988233, guid: 496f11b4bb4ba9d4ea1796c62e778710, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7163193027664988233, guid: 496f11b4bb4ba9d4ea1796c62e778710, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7163193027664988233, guid: 496f11b4bb4ba9d4ea1796c62e778710, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -90
+      objectReference: {fileID: 0}
+    - target: {fileID: 7163193027664988233, guid: 496f11b4bb4ba9d4ea1796c62e778710, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 496f11b4bb4ba9d4ea1796c62e778710, type: 3}
+--- !u!4 &1695750001164991298 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7163193027664988233, guid: 496f11b4bb4ba9d4ea1796c62e778710, type: 3}
+  m_PrefabInstance: {fileID: 8421807989837034251}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &5158767835055509364 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3708685415926578303, guid: 496f11b4bb4ba9d4ea1796c62e778710, type: 3}
+  m_PrefabInstance: {fileID: 8421807989837034251}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab3f5f2b55014864a84ec1bce65ec6cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &8515134151853092710
 PrefabInstance:
   m_ObjectHideFlags: 0

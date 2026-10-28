@@ -606,6 +606,8 @@ MonoBehaviour:
       ghostVoiceType: 0
     isUseRegion: 1
     criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &8012745961839469849
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1096,6 +1098,8 @@ MonoBehaviour:
       ghostVoiceType: 0
     isUseRegion: 1
     criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &1039895076831253155
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2047,6 +2051,8 @@ MonoBehaviour:
       ghostVoiceType: 0
     isUseRegion: 1
     criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &5294461173115112807
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2149,6 +2155,8 @@ MonoBehaviour:
       ghostVoiceType: 0
     isUseRegion: 1
     criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &7145795049341841178
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3230,6 +3238,8 @@ MonoBehaviour:
       ghostVoiceType: 0
     isUseRegion: 1
     criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &7788041558091624690
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3332,6 +3342,8 @@ MonoBehaviour:
       ghostVoiceType: 0
     isUseRegion: 1
     criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &3629290170944268447
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4591,6 +4603,8 @@ MonoBehaviour:
       ghostVoiceType: 0
     isUseRegion: 1
     criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &5757509698214548477
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4822,6 +4836,8 @@ MonoBehaviour:
       ghostVoiceType: 0
     isUseRegion: 1
     criAtomRegion: {fileID: 0}
+    isPlayAddSE: 1
+    playAddSEQueName: BUB_LampSwitch
 --- !u!65 &1565899884611887819
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5321,6 +5337,8 @@ MonoBehaviour:
       ghostVoiceType: 0
     isUseRegion: 1
     criAtomRegion: {fileID: 0}
+    isPlayAddSE: 1
+    playAddSEQueName: BUB_CandleGoingOut
 --- !u!65 &5423376296374541429
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5423,6 +5441,8 @@ MonoBehaviour:
       ghostVoiceType: 0
     isUseRegion: 1
     criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &4834217982255837214
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6460,6 +6480,8 @@ MonoBehaviour:
       ghostVoiceType: 0
     isUseRegion: 1
     criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &554950614618258643
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6637,6 +6659,8 @@ MonoBehaviour:
       ghostVoiceType: 0
     isUseRegion: 1
     criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &7697687583522768080
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6827,6 +6851,8 @@ MonoBehaviour:
       ghostVoiceType: 0
     isUseRegion: 1
     criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &549936081476039221
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -7005,6 +7031,8 @@ MonoBehaviour:
       ghostVoiceType: 0
     isUseRegion: 1
     criAtomRegion: {fileID: 0}
+    isPlayAddSE: 1
+    playAddSEQueName: BUB_GlobeSpinning
 --- !u!65 &4610081829009073897
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -7874,6 +7902,8 @@ MonoBehaviour:
       ghostVoiceType: 0
     isUseRegion: 1
     criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &3653883622640950950
 BoxCollider:
   m_ObjectHideFlags: 0

@@ -488,6 +488,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &9106380317634013448
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1507,6 +1511,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &4109020383048714909
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1715,6 +1723,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &2836489365027652123
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1912,6 +1924,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &6365621500122898596
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2013,6 +2029,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 1
+    playAddSEQueName: BUB_LampSwitch
 --- !u!65 &916647838461563245
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2874,6 +2894,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &7796037798689241928
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3874,6 +3898,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &2836971717393845496
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4080,6 +4108,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &8047118494833217824
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4211,6 +4243,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &6473228484454015638
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4935,6 +4971,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &4851261855111430285
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5169,6 +5209,10 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 0
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
 --- !u!65 &6166394569546629652
 BoxCollider:
   m_ObjectHideFlags: 0

@@ -75,6 +75,12 @@ namespace Mains.Views
         private float _rayLength;
         /// <summary>プレイヤーのテーブル</summary>
         public PlayerTable PlayerTable => settings.playerTable;
+        /// <summary>ヒット判定の再利用バッファ</summary>
+        private RaycastHit[] _hitBufferToPoltergeistAddSePlayer = new RaycastHit[32];
+        /// <summary>現在フレームにヒットしたオブジェクトのセット</summary>
+        private HashSet<Transform> _currentHitSetToPoltergeistAddSePlayer = new HashSet<Transform>();
+        /// <summary>シャウトチャンスレンジ検知</summary>
+        private List<Transform> _shoutChanceRangesToPoltergeistAddSePlayer = new List<Transform>();
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -959,6 +965,62 @@ namespace Mains.Views
                     hitTriggerTrans.position = followPlayerCameraView.transform.position;
                 })
                 .AddTo(ref _disposableBag);
+            // 追加SE再生のためシャウトチャンスレンジ検知
+            Observable.EveryUpdate()
+                .Subscribe(_ =>
+                {
+                    float rayLength = _rayLength;
+
+                    Vector3 origin = headTrans.position;
+                    Vector3 direction = headTrans.forward;
+
+                    Debug.DrawRay(origin, direction * rayLength, Color.red);
+
+                    // ヒット結果をクリアして今フレームのヒット集合を構築
+                    _currentHitSetToPoltergeistAddSePlayer.Clear();
+                    int hitCount = Physics.RaycastNonAlloc(origin, direction, _hitBufferToPoltergeistAddSePlayer, rayLength);
+                    for (int i = 0; i < hitCount; i++)
+                    {
+                        var hit = _hitBufferToPoltergeistAddSePlayer[i];
+                        if (hit.collider == null ||
+                            !hit.collider.name.StartsWith("ShoutChanceRange"))
+                            continue;
+
+                        Transform t = hit.collider.transform;
+                        if (!_currentHitSetToPoltergeistAddSePlayer.Add(t))
+                            // 同一フレームで既に処理済み
+                            continue;
+
+                        if (_shoutChanceRangesToPoltergeistAddSePlayer.Contains(t))
+                            // 一度再生した場合、レイ情報が変わらない限り連続再生はしない
+                            continue;
+
+                        // シャウトチャンスの範囲の親オブジェクトである静的コライダー群から家具が持つコンポーネントを取得
+                        var shoutChanceRangeView = t.GetComponent<ShoutChanceRangeView>();
+                        if (shoutChanceRangeView == null)
+                            continue;
+
+                        var poltergeistView = shoutChanceRangeView.PoltergeistView;
+                        if (poltergeistView == null)
+                            continue;
+
+                        poltergeistView.DoPlayAddSEOnce();
+                        _shoutChanceRangesToPoltergeistAddSePlayer.Add(t);
+                    }
+
+                    // 今フレームのヒット対象に該当しない要素をリストから削除
+                    // 後方からのRemoveAtでインデックスずれを回避
+                    for (int i = _shoutChanceRangesToPoltergeistAddSePlayer.Count - 1; i >= 0; i--)
+                    {
+                        Transform t = _shoutChanceRangesToPoltergeistAddSePlayer[i];
+                        // 破棄済み(Unityのnull)またはヒット対象外なら削除
+                        if (t == null || !_currentHitSetToPoltergeistAddSePlayer.Contains(t))
+                        {
+                            _shoutChanceRangesToPoltergeistAddSePlayer.RemoveAt(i);
+                        }
+                    }
+                })
+                .AddTo(ref _disposableBag);
             _playerViewModel.SetPlayerHead(headTrans);
             _playerViewModel.SetPlayerCharacterController(characterController);
             _didStartAsObservable.OnNext(Unit.Default);
@@ -1125,6 +1187,9 @@ namespace Mains.Views
             set.startDirectionSequencer.Dispose();
             var customizeTable = set.playerCustomizeTable;
             customizeTable.Dispose();
+
+            _currentHitSetToPoltergeistAddSePlayer.Clear();
+            _shoutChanceRangesToPoltergeistAddSePlayer.Clear();
         }
 
         /// <summary>
