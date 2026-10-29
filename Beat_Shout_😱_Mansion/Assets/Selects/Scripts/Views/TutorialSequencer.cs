@@ -22,10 +22,13 @@ namespace Selects.Views
         private readonly TutorialSequencerContext _ctx;
         /// <summary>ユーザー情報を保持するクラス</summary>
         private UserBean _userBean;
+        /// <summary>ストラテジID</summary>
+        private int _strategyId;
 
-        public TutorialSequencer(TutorialSequencerContext context)
+        public TutorialSequencer(TutorialSequencerContext context, int strategyId)
         {
             _ctx = context;
+            _strategyId = strategyId;
         }
 
         // =========================================================
@@ -116,6 +119,8 @@ namespace Selects.Views
             var side = _ctx.SideEffect;
             var vm = _ctx.ViewModel;
             var lvl = _ctx.LevelObjects;
+            // メッセージのスキップと画面右上のガイドUI表示をストラテジ制御
+            var strategyId = _strategyId;
 
             InitializeStep();
 
@@ -135,77 +140,98 @@ namespace Selects.Views
                 .Where(trans => trans != null)
                 .FirstAsync(token);
 
-            var headerPanel = vm.CommonHeaderPanelRectTrans;
-            headerPanel.gameObject.SetActive(false);
+            switch (strategyId)
+            {
+                case 1:
+                    // 右上のガイドUIは表示させたまま
+
+                    break;
+                default:
+                    var headerPanel = vm.CommonHeaderPanelRectTrans;
+                    headerPanel.gameObject.SetActive(false);
+
+                    break;
+            }
 
             // TODO: IsCompletedStartDirectionAndCharacterControllerEnabled は使わない IsCompletedStartDirectionReactive を監視する形でいい
             await vm.IsCompletedStartDirection.Where(x => x)
                 .FirstAsync(token);
 
-            // --- 前進 ---
-            ui.ApplyMessage("MSG0000");
+            switch (strategyId)
+            {
+                case 1:
+                    // 前進／後退／左移動／右移動 の工程はスキップ
 
-            await ui.FadeInAsync(0.5f, token);
+                    break;
 
-            input.EnableOnlyControllerMapCategory("CategoryTutorialForwardOnly");
-            // ここでキャラクターコントローラーを有効にする
-            playerCharacterController.enabled = true;
-            Vector3 startPos = playerTransform.position;
+                default:
+                    // --- 前進 ---
+                    ui.ApplyMessage("MSG0000");
 
-            await Observable.EveryUpdate()
-                .Where(_ => input.MoveVertical > 0.1f)
-                .Where(_ => Vector3.Distance(startPos, playerTransform.position) > 1.5f)
-                .FirstAsync(token);
+                    await ui.FadeInAsync(0.5f, token);
 
-            await FadeOutAndResetAsync(token);
+                    input.EnableOnlyControllerMapCategory("CategoryTutorialForwardOnly");
+                    // ここでキャラクターコントローラーを有効にする
+                    playerCharacterController.enabled = true;
+                    Vector3 startPos = playerTransform.position;
 
-            // --- 後退 ---
-            ui.ApplyMessage("MSG0001");
+                    await Observable.EveryUpdate()
+                        .Where(_ => input.MoveVertical > 0.1f)
+                        .Where(_ => Vector3.Distance(startPos, playerTransform.position) > 1.5f)
+                        .FirstAsync(token);
 
-            await ui.FadeInAsync(0.5f, token);
+                    await FadeOutAndResetAsync(token);
 
-            input.EnableOnlyControllerMapCategory("CategoryTutorialBackOnly");
+                    // --- 後退 ---
+                    ui.ApplyMessage("MSG0001");
 
-            startPos = playerTransform.position;
+                    await ui.FadeInAsync(0.5f, token);
 
-            await Observable.EveryUpdate()
-                .Where(_ => input.MoveVertical < -0.1f)
-                .Where(_ => Vector3.Distance(startPos, playerTransform.position) > 1.5f)
-                .FirstAsync(token);
+                    input.EnableOnlyControllerMapCategory("CategoryTutorialBackOnly");
 
-            await FadeOutAndResetAsync(token);
+                    startPos = playerTransform.position;
 
-            // --- 左移動 ---
-            ui.ApplyMessage("MSG0002");
+                    await Observable.EveryUpdate()
+                        .Where(_ => input.MoveVertical < -0.1f)
+                        .Where(_ => Vector3.Distance(startPos, playerTransform.position) > 1.5f)
+                        .FirstAsync(token);
 
-            await ui.FadeInAsync(0.5f, token);
+                    await FadeOutAndResetAsync(token);
 
-            input.EnableOnlyControllerMapCategory("CategoryTutorialLeftOnly");
+                    // --- 左移動 ---
+                    ui.ApplyMessage("MSG0002");
 
-            startPos = playerTransform.position;
+                    await ui.FadeInAsync(0.5f, token);
 
-            await Observable.EveryUpdate()
-                .Where(_ => input.MoveHorizontal < -0.1f)
-                .Where(_ => Vector3.Distance(startPos, playerTransform.position) > 1.5f)
-                .FirstAsync(token);
+                    input.EnableOnlyControllerMapCategory("CategoryTutorialLeftOnly");
 
-            await FadeOutAndResetAsync(token);
+                    startPos = playerTransform.position;
 
-            // --- 右移動 ---
-            ui.ApplyMessage("MSG0003");
+                    await Observable.EveryUpdate()
+                        .Where(_ => input.MoveHorizontal < -0.1f)
+                        .Where(_ => Vector3.Distance(startPos, playerTransform.position) > 1.5f)
+                        .FirstAsync(token);
 
-            await ui.FadeInAsync(0.5f, token);
+                    await FadeOutAndResetAsync(token);
 
-            input.EnableOnlyControllerMapCategory("CategoryTutorialRightOnly");
+                    // --- 右移動 ---
+                    ui.ApplyMessage("MSG0003");
 
-            startPos = playerTransform.position;
+                    await ui.FadeInAsync(0.5f, token);
 
-            await Observable.EveryUpdate()
-                .Where(_ => input.MoveHorizontal > 0.1f)
-                .Where(_ => Vector3.Distance(startPos, playerTransform.position) > 1.5f)
-                .FirstAsync(token);
+                    input.EnableOnlyControllerMapCategory("CategoryTutorialRightOnly");
 
-            await FadeOutAndResetAsync(token);
+                    startPos = playerTransform.position;
+
+                    await Observable.EveryUpdate()
+                        .Where(_ => input.MoveHorizontal > 0.1f)
+                        .Where(_ => Vector3.Distance(startPos, playerTransform.position) > 1.5f)
+                        .FirstAsync(token);
+
+                    await FadeOutAndResetAsync(token);
+
+                    break;
+            }
 
             // --- 懐中電灯の取得 ---
             ui.ApplyMessage("MSG0004");

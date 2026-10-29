@@ -9299,6 +9299,7 @@ MonoBehaviour:
   maxPlayers: 5
   IntroStage01: search-part_Aintro
   isNotStage: 0
+  startTimeSeconds: 2
 --- !u!1 &1619387339
 GameObject:
   m_ObjectHideFlags: 0
@@ -10724,6 +10725,7 @@ MonoBehaviour:
       missilePatternTable: {fileID: 11400000, guid: b0988ebb716a0ae49a085c52289535c2, type: 2}
       playerTeleporterStrategySOsLink: {fileID: 11400000, guid: 06a5cec8ef0d5ab46988b773b8577849, type: 2}
       playerShoutChanceTable: {fileID: 11400000, guid: 26cf0f7685ea1264693db1122256379b, type: 2}
+      tutorialPanelStrategyTable: {fileID: 11400000, guid: ab5ac310c1ac214429a1ac47d28e2afe, type: 2}
     directions:
       stage1GuideDirector: {fileID: 1690108204}
       stage3GuideDirector: {fileID: 658396729}

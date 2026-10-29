@@ -224,6 +224,10 @@ namespace Selects.Views
             var viewModel = set.viewModel;
             var levelObjects = set.levelObjects;
             var details = set.details;
+            // メッセージのスキップと画面右上のガイドUI表示をストラテジ制御
+            var tables = set.tables;
+            var strategyTable = tables.tutorialPanelStrategyTable;
+            var strategyId = strategyTable.strategyId;
 
             // 懐中電灯トリガーの接触監視
             var flashLightTrigger = levelObjects.flashLightItemTrigger;
@@ -378,7 +382,7 @@ namespace Selects.Views
                 tables:       set.tables
             );
 
-            var sequencer = new TutorialSequencer(context);
+            var sequencer = new TutorialSequencer(context, strategyId);
 
             ResourcesUtility utility = new ResourcesUtility();
             var userBean = utility.LoadSaveDatasJsonOfUserBean(ConstResorcesNames.USER_DATA);
@@ -712,6 +716,8 @@ namespace Selects.Views
             public PlayerTeleporterStrategySOsLink playerTeleporterStrategySOsLink;
             /// <summary>シャウトチャンスパートの共通パラメータ管理用テーブル</summary>
             public PlayerShoutChanceTable playerShoutChanceTable;
+            /// <summary>チュートリアルパネルストラテジテーブル</summary>
+            public TutorialPanelStrategyTable tutorialPanelStrategyTable;
         }
 
         /// <summary>
