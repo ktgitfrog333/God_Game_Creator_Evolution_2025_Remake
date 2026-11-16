@@ -59,7 +59,7 @@ namespace Selects.Views
             var msgData = settings.tables.messageTable.Get(messageId);
             if (msgData == null) return;
             SetMainMessage(msgData.mainMessage);
-            SetSubMessage(msgData.subMessage);
+            SetSubMessage(msgData.subMessage, msgData.isSubMessageCustomizePosition, msgData.subMessageCustomizePosition);
             SetGuideText(msgData.progressText);
             SetIsInteractIconVisible(msgData.hasInteract);
             DoSetBatteryDropType(msgData.batteryDropType);
@@ -224,6 +224,7 @@ namespace Selects.Views
             var viewModel = set.viewModel;
             var levelObjects = set.levelObjects;
             var details = set.details;
+            var ui = set.tutorialUIPanels;
             // メッセージのスキップと画面右上のガイドUI表示をストラテジ制御
             var tables = set.tables;
             var strategyTable = tables.tutorialPanelStrategyTable;
@@ -397,6 +398,9 @@ namespace Selects.Views
 
             // xyloApiのDisposeはOnDestroyで行う（Sequencer外で管理）
             // 必要であれば DisposableBag に追加する
+
+            var subMessageTextPositionOffset = (ui.subMessageText.transform as RectTransform).anchoredPosition;
+            viewModel.SubMessageTextPositionOffsetCommand.Execute(subMessageTextPositionOffset);
         }
 
         private void Update()
@@ -524,12 +528,24 @@ namespace Selects.Views
         /// サブメッセージを設定
         /// </summary>
         /// <param name="message">サブメッセージ</param>
-        private void SetSubMessage(string message)
+        private void SetSubMessage(string message, bool isSubMessageCustomizePosition = false, Vector2 subMessageCustomizePosition = new Vector2())
         {
-            var ui = settings.tutorialUIPanels;
+            var set = settings;
+            var ui = set.tutorialUIPanels;
+            var vm = set.viewModel;
+            var rectTrans = (ui.subMessageText.transform as RectTransform);
+
             if (ui.subMessageText != null) ui.subMessageText.text = message;
             if (ui.subMessageCanvasGroup != null)
                 ui.subMessageCanvasGroup.gameObject.SetActive(!string.IsNullOrEmpty(message));
+            if (!string.IsNullOrEmpty(message) && isSubMessageCustomizePosition)
+            {
+                rectTrans.anchoredPosition = subMessageCustomizePosition;
+            }
+            else
+            {
+                rectTrans.anchoredPosition = vm.SubMessageTextPositionOffset.CurrentValue;
+            }
         }
 
         /// <summary>

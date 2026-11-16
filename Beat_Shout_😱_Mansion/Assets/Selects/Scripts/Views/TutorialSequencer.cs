@@ -613,8 +613,13 @@ namespace Selects.Views
             side.SetMissileTempoSpawner(missileTempoSpawnerTrans);
             int firstHomingObjectTargetIndex = missilePatternTable.firstHomingObjectTargetIndex;
             side.WatchFirstHomingObjectSpawn(firstHomingObjectTargetIndex);
+            ReactiveProperty<HomingObjectCustomizeView> homingObjectCustomizeView = new ReactiveProperty<HomingObjectCustomizeView>();
 
-            await side.OnFirstHomingObjectSpawned.FirstAsync(token);
+            homingObjectCustomizeView.Value = await Observable.EveryUpdate()
+                .Select(_ => side.OnFirstHomingObjectSpawned.CurrentValue)
+                .Where(x => x != null)
+                .Select(x => x.GetComponent<HomingObjectCustomizeView>())
+                .FirstAsync(token);
 
             // 「ノーツクリック判定」を更新する場合は、モデル側の「強制的に背面扱いで返すかのフラグ」も更新する
             vm.SetIsBackReturnForce(true);
@@ -649,6 +654,9 @@ namespace Selects.Views
                 .FirstAsync(token);
 
             await FadeOutAndResetAsync(token);
+
+            // クリック短押しのテキストを出す
+            homingObjectCustomizeView.CurrentValue.DoShowGuideMessageShortNotes();
 
             // --- ステップ_2（ノーツクリックについて） ---
             ui.ApplyMessage("MSG0015");
@@ -729,6 +737,17 @@ namespace Selects.Views
                 .Where(_ => side.IsAnyLongNoteClickable(ghostHomingStartedTargetIndex))
                 .FirstAsync(token);
 
+            ReactiveProperty<HomingObjectCustomizeView> homingObjectCustomizeView1 = new ReactiveProperty<HomingObjectCustomizeView>();
+
+            homingObjectCustomizeView1.Value = await Observable.EveryUpdate()
+                .Select(_ => side.OnFirstHomingObjectSpawned.CurrentValue)
+                .Where(x => x != null)
+                .Select(x => x.GetComponent<HomingObjectCustomizeView>())
+                .FirstAsync(token);
+
+            // クリック長押しのテキストを出す
+            homingObjectCustomizeView1.CurrentValue.DoShowGuideMessageLongNotes(0);
+
             Time.timeScale = 0f;
             side.SetBgmPause(true);
 
@@ -744,6 +763,7 @@ namespace Selects.Views
             await FadeOutAndResetAsync(token);
 
             input.EnableOnlyControllerMapCategory("CategoryTutorialMoveAllAndSearchAndAimMoveAndSwitchPartInhaleAndTapLight");
+
             // --- ステップ_5（ロングノーツリリースについて） ---
             ui.ApplyMessage("MSG0018");
 
@@ -756,6 +776,9 @@ namespace Selects.Views
             await vm.OnNoteSuccessful
                 .Where(x => x)
                 .FirstAsync(token);
+
+            // 離すのテキストを出す
+            homingObjectCustomizeView1.CurrentValue.DoShowGuideMessageLongNotes(1);
 
             vm.SetIsBackReturnForce(false);
             side.SetAllNotesClickDetection(true);
@@ -1122,7 +1145,11 @@ namespace Selects.Views
             int firstHomingObjectTargetIndex = missilePatternTable.firstHomingObjectTargetIndex;
             side.WatchFirstHomingObjectSpawn(firstHomingObjectTargetIndex);
 
-            await side.OnFirstHomingObjectSpawned.FirstAsync(token);
+            await Observable.EveryUpdate()
+                .Select(_ => side.OnFirstHomingObjectSpawned.CurrentValue)
+                .Where(x => x != null)
+                .Select(x => x.GetComponent<HomingObjectCustomizeView>())
+                .FirstAsync(token);
 
             // 「ノーツクリック判定」を更新する場合は、モデル側の「強制的に背面扱いで返すかのフラグ」も更新する
             vm.SetIsBackReturnForce(true);

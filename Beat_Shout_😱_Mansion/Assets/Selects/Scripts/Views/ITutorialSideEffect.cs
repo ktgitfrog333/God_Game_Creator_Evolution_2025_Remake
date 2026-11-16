@@ -39,7 +39,7 @@ namespace Selects.Views
         void WatchFirstHomingObjectSpawn(int targetIndex);
 
         /// <summary>最初のHomingObjectスポーン通知</summary>
-        R3.Observable<R3.Unit> OnFirstHomingObjectSpawned { get; }
+        R3.ReadOnlyReactiveProperty<GameObject> OnFirstHomingObjectSpawned { get; }
 
         /// <summary>アクティブなショートノーツのクリック受付判定</summary>
         bool IsAnyShortNoteClickable(int targetIndex);

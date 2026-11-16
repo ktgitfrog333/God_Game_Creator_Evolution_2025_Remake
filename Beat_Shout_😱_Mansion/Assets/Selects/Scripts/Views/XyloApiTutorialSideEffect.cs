@@ -97,7 +97,7 @@ namespace Selects.Views
 
         public void SetMissileTempoSpawner(Transform transform) => _api.SetMissileTempoSpawner(transform);
         public void WatchFirstHomingObjectSpawn(int targetIndex) => _api.WatchFirstHomingObjectSpawn(targetIndex);
-        public Observable<Unit> OnFirstHomingObjectSpawned => _api.OnFirstHomingObjectSpawned;
+        public ReadOnlyReactiveProperty<GameObject> OnFirstHomingObjectSpawned => _api.OnFirstHomingObjectSpawned;
         public bool IsAnyShortNoteClickable(int targetIndex) => _api.IsAnyShortNoteClickable(targetIndex);
         public bool IsAnyLongNoteClickable(int targetIndex) => _api.IsAnyLongNoteClickable(targetIndex);
         public void ForceClickAnyClickableNote(int targetIndex) => _api.ForceClickAnyClickableNote(targetIndex);

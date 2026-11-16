@@ -13,3 +13,16 @@ MonoBehaviour:
   m_Name: HomingObjectCustomizeTable
   m_EditorClassIdentifier: 
   durabilityRatePanelPrefab: {fileID: 5583046658377095726, guid: 96a95de7b4b691d46be58c562875a7e3, type: 3}
+  guideMessageLongNotes:
+  - id: 0
+    targetSceneName: SelectScene
+    actionType: 0
+    message: " <sprite name=\"beatshout_select_guide_icons_1_mouse_left\"> <color=#00FF00>\u9577\u62BC\u3057</color>"
+  - id: 0
+    targetSceneName: SelectScene
+    actionType: 1
+    message: " <sprite name=\"beatshout_select_guide_icons_1_mouse\"> \u96E2\u3059"
+  guideMessageShortNotes:
+  - id: 0
+    targetSceneName: SelectScene
+    message: " <sprite name=\"beatshout_select_guide_icons_1_mouse_left\"> <color=#FF0000>\u77ED\u62BC\u3057</color>"

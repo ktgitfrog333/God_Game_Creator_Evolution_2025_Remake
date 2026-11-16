@@ -133,6 +133,17 @@ public class MissileDirectAnimManagerB : MonoBehaviour
     public float GetAimCircleAlpha() => aimCircleAlpha;
     public GameObject GetSpectrumCirclePrefab() => spectrumCirclePrefab;
     public float GetSpectrumCircleScale() => spectrumCircleScale;
+    // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects start
+    private bool _isLongPressStarted;
+    /// <summary><see cref="ProcessLongClickDown"/><see cref="ProcessLongClickDownObserver"/></summary>
+    public bool IsLongPressStarted => _isLongPressStarted;
+    private bool _isLongPressEnded;
+    /// <summary><see cref="MissileInputManager.InReleaseWindow"/></summary>
+    public bool IsLongPressEnded => _isLongPressEnded;
+    private bool _isShortPressStarted;
+    /// <summary><see cref="ProcessShortClick"/><see cref="ProcessShortClickObserver"/></summary>
+    public bool IsShortPressStarted => _isShortPressStarted;
+    // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects end
 
     public void UpdateAimCircleSize(float scale)
     {
@@ -314,6 +325,10 @@ public class MissileDirectAnimManagerB : MonoBehaviour
 
     private void Update()
     {
+        // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects start
+        _isLongPressEnded = inputManager != null && inputManager.InReleaseWindow;
+        // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects end
+
         if (isReturningToPool || isForceReturning) return;
 
         UpdateUIPosition();
@@ -346,6 +361,23 @@ public class MissileDirectAnimManagerB : MonoBehaviour
                 // Long2Beat_Micはクリック不要なので何もしない
             }
         }
+        // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects start
+        else
+        {
+            bool isOverUI = IsPointerOverUI();
+
+            if (isOverUI && enableClickDetection && !isFailed && !isSuccessful)
+            {
+                float elapsedTime = Time.time - objectCreationTime;
+
+                if (noteType != MissileNoteType.Long2Beat_Mic)
+                {
+                    ProcessClickObserver(elapsedTime);
+                }
+                // Long2Beat_Micはクリック不要なので何もしない
+            }
+        }
+        // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects end
 
         // リリース処理
         if (Input.GetMouseButtonUp(0))
@@ -367,6 +399,27 @@ public class MissileDirectAnimManagerB : MonoBehaviour
                 }
             }
         }
+        // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects start
+        else
+        {
+            bool isOverUI = IsPointerOverUI();
+
+            if (isOverUI && enableClickDetection && !isFailed && !isSuccessful)
+            {
+                float elapsedTime = Time.time - objectCreationTime;
+
+                if (noteType == MissileNoteType.Long1Beat ||
+                    noteType == MissileNoteType.Long2Beat ||
+                    noteType == MissileNoteType.Long3Beat)
+                {
+                    if (inputManager != null && inputManager.IsLongPressStarted())
+                    {
+                        inputManager.HandleLongPressReleaseObserver(elapsedTime);
+                    }
+                }
+            }
+        }
+        // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects end
         // [2026/07/28] Amagata Tutorial Implementation: Stage Select start
         var util = _instanceMissileDirectAnimManagerBUtility;
         if (util.ForceAutoMode && !util.AutoSuccessTriggered && !isSuccessful && !isFailed)
@@ -515,6 +568,25 @@ public class MissileDirectAnimManagerB : MonoBehaviour
             ProcessLongClickDown(elapsedTime, absoluteClickTargetTime);
         }
     }
+    // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects start
+    private void ProcessClickObserver(float elapsedTime)
+    {
+        if (isReturningToPool || isForceReturning) return;
+
+        float absoluteClickTargetTime = oneBeat * 4;
+
+        if (noteType == MissileNoteType.Short)
+        {
+            ProcessShortClickObserver(elapsedTime, absoluteClickTargetTime);
+        }
+        else if (noteType == MissileNoteType.Long1Beat ||
+                 noteType == MissileNoteType.Long2Beat ||
+                 noteType == MissileNoteType.Long3Beat)
+        {
+            ProcessLongClickDownObserver(elapsedTime, absoluteClickTargetTime);
+        }
+    }
+    // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects end
 
     private void ProcessShortClick(float elapsedTime, float targetTime)
     {
@@ -531,7 +603,21 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         {
             TriggerFailEvent();
         }
+        // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects start
+        _isShortPressStarted = inClickWindow;
+        // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects end
     }
+    // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects start
+    private void ProcessShortClickObserver(float elapsedTime, float targetTime)
+    {
+        if (isReturningToPool || isForceReturning) return;
+
+        float timingDifference = elapsedTime - targetTime;
+        bool inClickWindow = Mathf.Abs(timingDifference) <= clickGracePeriod;
+
+        _isShortPressStarted = inClickWindow;
+    }
+    // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects end
 
     private void ProcessLongClickDown(float elapsedTime, float targetTime)
     {
@@ -553,7 +639,21 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         {
             TriggerFailEvent();
         }
+        // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects start
+        _isLongPressStarted = inClickWindow;
+        // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects end
     }
+    // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects start
+    private void ProcessLongClickDownObserver(float elapsedTime, float targetTime)
+    {
+        if (isReturningToPool || isForceReturning) return;
+
+        float timingDifference = elapsedTime - targetTime;
+        bool inClickWindow = Mathf.Abs(timingDifference) <= clickGracePeriod;
+
+        _isLongPressStarted = inClickWindow;
+    }
+    // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects end
 
     private void OnDestroy()
     {

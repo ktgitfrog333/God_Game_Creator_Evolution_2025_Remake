@@ -1847,9 +1847,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "<sprite name=\"beatshout_select_tutorial_icons_notes_circle_long_green_1\">
-    \u304C1\u5468\u3059\u308B\u307E\u3067\u306B <sprite name=\"beatshout_select_tutorial_icons_audio_spectrum\">
-    \u306E\u8272\u304C\u5909\u308F\u308B\u307E\u3067\u53EB\u3073\u7D9A\u3051\u3088\u3046"
+  m_text: "\u30DE\u30A4\u30AF\u306B\u5411\u304B\u3063\u3066\u53EB\u3093\u3067\u307F\u3088\u3046"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 43f687172b134fb47a79197477811e7a, type: 2}
   m_sharedMaterial: {fileID: -6687969744924001651, guid: 43f687172b134fb47a79197477811e7a, type: 2}
@@ -5828,6 +5826,10 @@ PrefabInstance:
     - target: {fileID: 7213732705794613627, guid: 883b48c306f93354489adaf3287aee1c, type: 3}
       propertyPath: m_Name
       value: CommonPanel
+      objectReference: {fileID: 0}
+    - target: {fileID: 7213732705794613627, guid: 883b48c306f93354489adaf3287aee1c, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -10536,7 +10538,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1860156326
 RectTransform:
   m_ObjectHideFlags: 0
@@ -10836,7 +10838,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: "\u5207\u308A\u66FF\u3048\uFF1A <sprite name=\"beatshout_select_tutorial_icons_mouse_right\">"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 43f687172b134fb47a79197477811e7a, type: 2}
   m_sharedMaterial: {fileID: -6687969744924001651, guid: 43f687172b134fb47a79197477811e7a, type: 2}

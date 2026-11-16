@@ -1366,7 +1366,6 @@ namespace Mains.Views
             Sequence batterySeq = DOTween.Sequence();
             // ターゲットの向き（移動方向を向く）
             Vector3 direction = spawnPosition - spotLightLightTrans.position;
-            Quaternion targetRotation = Quaternion.LookRotation(direction.normalized);
             // 移動しながら回転（0.5秒程度で調整）
             batterySeq
                 .Append(battery.DOMove(spawnPosition, 0.5f).SetEase(Ease.OutQuad))
