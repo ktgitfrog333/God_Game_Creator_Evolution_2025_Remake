@@ -695,6 +695,7 @@ GameObject:
   - component: {fileID: 460326295}
   - component: {fileID: 460326294}
   - component: {fileID: 460326293}
+  - component: {fileID: 460326296}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -856,6 +857,20 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 460326290}
   m_Enabled: 1
+--- !u!114 &460326296
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 460326290}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce7d42e042e4c9c4db4bde98b863e167, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  regionOnStart: {fileID: 0}
+  activateListenerOnEnable: 0
 --- !u!1 &477783978
 GameObject:
   m_ObjectHideFlags: 0
@@ -908,7 +923,7 @@ MonoBehaviour:
     - 0
     - 0
     - 0
-  _cueName: search-part_A
+  _cueName: Stage5_search_BPM115_v3_loop
   _cueSheet: BGM
 --- !u!114 &477783980
 MonoBehaviour:
@@ -1009,7 +1024,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ThisStageNumber: 0
-  introDelayTime: 12.2
+  introDelayTime: 73.1
   atomSourceA: {fileID: 477783979}
   atomSourceB: {fileID: 477783981}
   atomSourceBOfBPM: 155
@@ -1437,8 +1452,9 @@ MonoBehaviour:
   CueSheetName: SE_Long
   AcbFilePath: SE_Long.acb
   maxPlayers: 5
-  IntroStage01: search-part_Aintro
+  IntroStage01: Stage5_search_BPM115_v3_1st
   isNotStage: 0
+  startTimeSeconds: 0
 --- !u!1001 &1298636467
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1660,7 +1676,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1675148927862385102, guid: a358affd96cb42140a5d17944515c1a4, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -102
+      value: -101.999985
       objectReference: {fileID: 0}
     - target: {fileID: 2147915098625610467, guid: a358affd96cb42140a5d17944515c1a4, type: 3}
       propertyPath: m_Pivot.x
@@ -1756,7 +1772,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3391392540936925260, guid: a358affd96cb42140a5d17944515c1a4, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -36
+      value: -35.999985
       objectReference: {fileID: 0}
     - target: {fileID: 5319130221711851135, guid: a358affd96cb42140a5d17944515c1a4, type: 3}
       propertyPath: gameOverPanel
@@ -3341,7 +3357,7 @@ MonoBehaviour:
     numberOfBinders: 8
     numberOfInstallers: 2
     installBufferSize: 32
-    maxPath: 256
+    maxPath: 1024
     userAgentString: 
     minimizeFileDescriptorUsage: 0
     enableCrcCheck: 0
@@ -3349,7 +3365,7 @@ MonoBehaviour:
   initializesAtom: 1
   atomConfig:
     acfFileName: 
-    maxVirtualVoices: 32
+    maxVirtualVoices: 160
     maxVoiceLimitGroups: 32
     maxCategories: 32
     maxAisacs: 8
@@ -3359,7 +3375,7 @@ MonoBehaviour:
     maxCueLinkCallbacksPerFrame: 1
     standardVoicePoolConfig:
       memoryVoices: 16
-      streamingVoices: 8
+      streamingVoices: 144
     hcaMxVoicePoolConfig:
       memoryVoices: 0
       streamingVoices: 0

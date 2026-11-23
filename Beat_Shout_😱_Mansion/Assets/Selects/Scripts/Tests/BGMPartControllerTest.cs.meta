@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 68cfcb13f06f9174c866014985bfe88c
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - stubSO: {fileID: 11400000, guid: 7267e8dce2be7414aa2ce0791a22d8f3, type: 2}
+  - bGMPartController: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

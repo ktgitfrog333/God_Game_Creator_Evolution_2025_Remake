@@ -20,7 +20,7 @@ TagManager:
   - DropItems
   - Ghost
   - GhostBullet
-  - 
+  - RegionSwitchTrigger
   - SearchRange
   - AimRange
   - TouchRange

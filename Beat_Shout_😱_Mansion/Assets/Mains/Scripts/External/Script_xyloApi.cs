@@ -474,6 +474,36 @@ namespace Mains.External
                         _durabilityRateTarget.OnCompleted();
                     })
                     .AddTo(ref _disposableBag);
+                Observable.EveryUpdate()
+                    .Select(_ => missileDirectAnimManagerB.IsLongPressStarted)
+                    .Pairwise()
+                    .Where(x => x.Previous != x.Current)
+                    .Select(x => x.Current)
+                    .Subscribe(x =>
+                    {
+                        _isLongNoteClickable.Value = x;
+                    })
+                    .AddTo(ref _disposableBag);
+                Observable.EveryUpdate()
+                    .Select(_ => missileDirectAnimManagerB.IsLongPressEnded)
+                    .Pairwise()
+                    .Where(x => x.Previous != x.Current)
+                    .Select(x => x.Current)
+                    .Subscribe(x =>
+                    {
+                        _isLongNoteRelease.Value = x;
+                    })
+                    .AddTo(ref _disposableBag);
+                Observable.EveryUpdate()
+                    .Select(_ => missileDirectAnimManagerB.IsShortPressStarted)
+                    .Pairwise()
+                    .Where(x => x.Previous != x.Current)
+                    .Select(x => x.Current)
+                    .Subscribe(x =>
+                    {
+                        _isShortNoteClickable.Value = x;
+                    })
+                    .AddTo(ref _disposableBag);
             }
         }
 
@@ -1049,7 +1079,33 @@ namespace Mains.External
                     seVolumeIndex = selectsManager.AudioOwner.GetSeVolumeIndex();
                 }
             }
-            sePicker.PlayBUB_Damage4(seVolumeIndex);
+            sePicker.PlayBUB_Damage5(seVolumeIndex);
+        }
+
+        public void PlayBUB_Gameover_v2()
+        {
+            var sePicker = SE_Picker.Instance;
+            if (sePicker == null)
+            {
+                return;
+            }
+            var mainsManager = Manager.GameManager.Instance;
+            var selectsManager = Selects.Manager.GameManager.Instance;
+            float seVolumeIndex = 0f;
+            if (mainsManager != null ||
+                selectsManager != null)
+            {
+                if (mainsManager != null &&
+                    selectsManager == null)
+                {
+                    seVolumeIndex = mainsManager.AudioOwner.GetSeVolumeIndex();
+                }
+                else
+                {
+                    seVolumeIndex = selectsManager.AudioOwner.GetSeVolumeIndex();
+                }
+            }
+            sePicker.PlayBUB_Gameover_v2(seVolumeIndex);
         }
 
         public void PlayGhostLaugh3()
@@ -1183,8 +1239,8 @@ namespace Mains.External
         private MissileTempoSpawner _missileTempoSpawner;
 
         /// <summary>最初のHomingObjectスポーン通知</summary>
-        private readonly ReactiveCommand<Unit> _onFirstHomingObjectSpawned = new ReactiveCommand<Unit>();
-        public ReactiveCommand<Unit> OnFirstHomingObjectSpawned => _onFirstHomingObjectSpawned;
+        private readonly ReactiveProperty<GameObject> _onFirstHomingObjectSpawned = new ReactiveProperty<GameObject>();
+        public ReadOnlyReactiveProperty<GameObject> OnFirstHomingObjectSpawned => _onFirstHomingObjectSpawned;
 
         /// <summary>currentBeatIndex監視のDisposable</summary>
         private System.IDisposable _firstSpawnWatcherDisposable;
@@ -1205,39 +1261,16 @@ namespace Mains.External
                 return;
             }
 
-            var spawnerType = _missileTempoSpawner.GetType();
-
-            var beatIndexField = spawnerType.GetField(
-                "currentBeatIndex", BindingFlags.NonPublic | BindingFlags.Instance);
-            var activeField = spawnerType.GetField(
-                "Active", BindingFlags.Public | BindingFlags.Instance);
-            if (activeField == null)
+            if (_onFirstHomingObjectSpawned.CurrentValue != null)
             {
-                activeField = spawnerType.GetField("Active", BindingFlags.NonPublic | BindingFlags.Instance);
-            }
-            var patternListField = spawnerType.GetField(
-                "patternList", BindingFlags.NonPublic | BindingFlags.Instance);
-
-            if (beatIndexField == null || activeField == null || patternListField == null)
-            {
-                Debug.LogWarning("MissileTempoSpawner のフィールドが見つかりませんでした。");
-                return;
+                _onFirstHomingObjectSpawned.Value = null;
             }
 
-            _firstSpawnWatcherDisposable = Observable.EveryUpdate()
-                .Select(_ =>
-                {
-                    var active = activeField.GetValue(_missileTempoSpawner);
-                    var beatIndex = beatIndexField.GetValue(_missileTempoSpawner);
-                    return active is true && beatIndex is int idx && idx >= targetIndex;
-                })
-                .DistinctUntilChanged()
-                .Where(x => x)   // false→true の瞬間だけ
-                .Take(1)
-                .Subscribe(_ =>
-                {
-                    _onFirstHomingObjectSpawned.Execute(Unit.Default);
-                })
+            // _missileTempoSpawner から WatchFirstHomingObject を呼び出してGameObject を取得する
+            _missileTempoSpawner.WatchFirstHomingObject(targetIndex).Subscribe(gameobject =>
+            {
+                _onFirstHomingObjectSpawned.Value = gameobject;
+            })
                 .AddTo(ref _disposableBag);
         }
 
@@ -1762,11 +1795,11 @@ namespace Mains.External
             }
         }
 
-        public void PlaySound(string SeName, float volume)
+        public void PlaySound(string SeName, float volume, int instanceId, Vector3 position, Vector3 front, CriAtomEx3dRegion regionHandle = null)
         {
             if (_se_3D_Picker != null)
             {
-                _se_3D_Picker.PlaySound(SeName, volume);
+                _se_3D_Picker.PlaySound(SeName, volume, instanceId, position, front, regionHandle);
             }
         }
 
@@ -1890,22 +1923,15 @@ namespace Mains.External
         /// <param name="isPause">trueで一時停止、falseで再開</param>
         public void SetBgmPause(bool isPause)
         {
-            var conductor = CRIWARE_conductor.Instance;
-            if (conductor == null)
+            var bGMPartController = _BGMPartController;
+
+            if (bGMPartController == null)
             {
-                Debug.LogWarning("CRIWARE_conductorのインスタンスが見つかりませんでした。");
+                Debug.LogWarning("BGMPartControllerのインスタンスが見つかりませんでした。");
                 return;
             }
 
-            // 既存コードで currentSource を参照しているのに倣い同じ経路でアクセス
-            var source = conductor.currentSource;
-            if (source == null)
-            {
-                Debug.LogWarning("conductor.currentSource が null です。");
-                return;
-            }
-
-            source.Pause(isPause);
+            bGMPartController.PauseBGM(isPause);
         }
 
         /// <summary>
@@ -1966,6 +1992,13 @@ namespace Mains.External
 
             return false;
         }
+
+        private ReactiveProperty<bool> _isLongNoteClickable = new ReactiveProperty<bool>();
+        public ReadOnlyReactiveProperty<bool> IsLongNoteClickable => _isLongNoteClickable;
+        private ReactiveProperty<bool> _isLongNoteRelease = new ReactiveProperty<bool>();
+        public ReadOnlyReactiveProperty<bool> IsLongNoteRelease => _isLongNoteRelease;
+        private ReactiveProperty<bool> _isShortNoteClickable = new ReactiveProperty<bool>();
+        public ReadOnlyReactiveProperty<bool> IsShortNoteClickable => _isShortNoteClickable;
 
         /// <summary>
         /// アクティブなロングノーツを監視して、クリック可能なタイミング、または長押し中であればtrueを返す
@@ -2246,6 +2279,47 @@ namespace Mains.External
             {
                 Debug.LogWarning("音声設定の保存に失敗しました。");
             }
+        }
+
+        public void StopBgmA()
+        {
+            var conductor = CRIWARE_conductor.Instance;
+            if (conductor != null)
+            {
+                conductor.StopBgmA();
+            }
+        }
+
+        private BGMPartController _BGMPartController;
+
+        public void SetBGMPartController()
+        {
+            var bGMPartController = GameObject.FindAnyObjectByType<BGMPartController>();
+
+            if (bGMPartController == null) return;
+
+            _BGMPartController = bGMPartController;
+        }
+
+        public void PlayBgmAOfTutorial()
+        {
+            var bGMPartController = _BGMPartController;
+
+            bGMPartController.PlayBgm(0);
+        }
+
+        public void ChangeBgmFromCurrentToOfTutorial(int toId)
+        {
+            var bGMPartController = _BGMPartController;
+
+            bGMPartController.ChangeBgmFromCurrentTo(toId);
+        }
+
+        public void StopBgmAnyOfTutorial()
+        {
+            var bGMPartController = _BGMPartController;
+
+            bGMPartController.StopBgmAny();
         }
 
         public void Dispose()

@@ -17,6 +17,10 @@ namespace Selects.Commons
         /// <summary>サブメッセージ</summary>
         [TextArea]
         public string subMessage;
+        /// <summary>サブメッセージ座標カスタマイズ有効フラグ</summary>
+        public bool isSubMessageCustomizePosition;
+        /// <summary>サブメッセージカスタマイズ座標</summary>
+        public Vector2 subMessageCustomizePosition;
         /// <summary>進捗テキスト</summary>
         [TextArea]
         public string progressText;

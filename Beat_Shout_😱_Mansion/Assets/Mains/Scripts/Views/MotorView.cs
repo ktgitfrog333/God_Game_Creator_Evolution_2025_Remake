@@ -76,8 +76,6 @@ namespace Mains.Views
         private Vector3 _initialLocalPosition;
         /// <summary>初期ローカルオイラー角度</summary>
         private Vector3 _initialLocalEulerAngles;
-        /// <summary>オブジェクトプールビュー</summary>
-        private ObjectsPoolView _objectsPoolView;
         [SerializeField] private PlayerShoutChanceTable シャウトチャンスパートの共通パラメータ管理用テーブル;
         /// <summary>驚くアニメーションを再生中</summary>
         private bool _isPlayingFreakout;
@@ -105,12 +103,6 @@ namespace Mains.Views
             _initialLocalEulerAngles = transform.localEulerAngles;
             Transform dustParticleInstance = null;
             _poltergeistViewModel = new PoltergeistViewModel(poltergeistTable);
-            // オブジェクトプールビュー
-            var objectsPoolView = GameObject.FindAnyObjectByType<ObjectsPoolView>();
-            if (objectsPoolView == null)
-                objectsPoolView = Instantiate(objectsPoolViewPrefab).GetComponent<ObjectsPoolView>();
-            Se_3D_PickerCustomizeView t3DSoundPlayer = objectsPoolView.Get3DSoundPlayer();
-            _objectsPoolView = objectsPoolView;
             CompositeDisposable disposables = null;
             var interactionPart = _poltergeistViewModel.InteractionPartReactive;
             interactionPart.DistinctUntilChanged()
@@ -124,8 +116,8 @@ namespace Mains.Views
 
                             break;
                         case InteractionPart.ShoutChance:
-                            // シャウトチャンスパートとリズムパートはタップを無効
-                            animator.SetBool("Tap", false);
+                            // シャウトチャンスパートとリズムパートはタップを有効
+                            animator.SetBool("Tap", true);
                             // デシベルレベルを取得してマイクアイコン切り替え表示する処理を追加
                             disposables = new();
                             Observable.EveryUpdate()
@@ -207,11 +199,6 @@ namespace Mains.Views
         /// <see cref="Assets/Mains/Animations/Poltergeists/Poltergeist.controller"/>
         public void OnAction()
         {
-            var objectsPoolView = _objectsPoolView;
-            if (objectsPoolView == null)
-                return;
-
-            Se_3D_PickerCustomizeView t3DSoundPlayer = objectsPoolView.Get3DSoundPlayer();
             Transform dustParticleInstance = null;
             DoInstanceDust(IsEnabledPoltergeist, dustParticlePrefab, _transform,
                 dustParticleInstance,

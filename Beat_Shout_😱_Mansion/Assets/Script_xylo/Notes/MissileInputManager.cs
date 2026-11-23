@@ -65,6 +65,11 @@ public class MissileInputManager
         return waitingForRelease && clickPressed;
     }
 
+    // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects start
+    // inReleaseWindow
+    private bool _inReleaseWindow;
+    public bool InReleaseWindow => _inReleaseWindow;
+    // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects end
 
     /// <summary>
     /// 長押しリリース処理（外部から呼び出し可能）
@@ -97,6 +102,20 @@ public class MissileInputManager
         waitingForRelease = false;
         clickPressed = false;
     }
+    // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects start
+    public void HandleLongPressReleaseObserver(float elapsedTime)
+    {
+        if (!waitingForRelease || !clickPressed) return;
+
+        // リリースタイミングを計算
+        absoluteReleaseTargetTime = CalculateReleaseTargetTime(currentNoteType);
+        float releaseGracePeriod = clickGracePeriod;
+        float releaseTimingDifference = elapsedTime - absoluteReleaseTargetTime;
+        bool inReleaseWindow = Mathf.Abs(releaseTimingDifference) <= releaseGracePeriod;
+
+        _inReleaseWindow = inReleaseWindow;
+    }
+    // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects end
 
     /// <summary>
     /// クリック可能状態を設定

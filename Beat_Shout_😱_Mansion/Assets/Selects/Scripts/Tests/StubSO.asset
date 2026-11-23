@@ -251,8 +251,6 @@ MonoBehaviour:
       userBean:
         sceneIdx: 0
         state: 0200000002000000020000000200000001000000
-        bgmVolumeIndex: 5
-        seVolumeIndex: 1
         vibrationEnableIndex: 1
         eventProgressList:
         - eventId: 0
@@ -289,3 +287,8 @@ MonoBehaviour:
       - 0.4
       postProcessCharacterControllerEnabled: 1
       postProcessPlayerEnabled: 2
+  other:
+    bGMPartControllerTest:
+      bgmA: 0
+      bgmB: 1
+      bgmC: 2

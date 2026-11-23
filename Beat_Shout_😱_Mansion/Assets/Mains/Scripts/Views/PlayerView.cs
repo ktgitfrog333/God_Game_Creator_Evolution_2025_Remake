@@ -1,3 +1,4 @@
+using CriWare;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Mains.Commons;
@@ -5,6 +6,7 @@ using Mains.External;
 using Mains.Manager;
 using Mains.ViewModels;
 using R3;
+using R3.Triggers;
 using Rewired;
 using Selects.Views;
 using System.Collections;
@@ -49,6 +51,10 @@ namespace Mains.Views
         [SerializeField] private Transform headTrans;
         /// <summary>カメラ視線用のトランスフォーム</summary>
         public Transform HeadTrans => headTrans;
+        /// <summary>リージョン切り替え用のトリガー</summary>
+        [SerializeField] private LayerMask regionSwitchTrigger;
+        /// <summary>リスナー検知用のトリガー</summary>
+        [SerializeField] private Collider hitTriggerListener;
         [Header("リズムパート")]
         [SerializeField] private PlayerRhythmStruct リズムパートで使用するプレイヤープロパティ;
         /// <summary>シロさんのコンポーネントへアクセスするAPI</summary>
@@ -69,6 +75,12 @@ namespace Mains.Views
         private float _rayLength;
         /// <summary>プレイヤーのテーブル</summary>
         public PlayerTable PlayerTable => settings.playerTable;
+        /// <summary>ヒット判定の再利用バッファ</summary>
+        private RaycastHit[] _hitBufferToPoltergeistAddSePlayer = new RaycastHit[32];
+        /// <summary>現在フレームにヒットしたオブジェクトのセット</summary>
+        private HashSet<Transform> _currentHitSetToPoltergeistAddSePlayer = new HashSet<Transform>();
+        /// <summary>シャウトチャンスレンジ検知</summary>
+        private List<Transform> _shoutChanceRangesToPoltergeistAddSePlayer = new List<Transform>();
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -111,6 +123,11 @@ namespace Mains.Views
                             }
                         }
                     }
+                }
+                if (child.name.Equals("HitTriggerListener"))
+                {
+                    if (hitTriggerListener == null)
+                        hitTriggerListener = child.GetComponent<Collider>();
                 }
             }
         }
@@ -858,6 +875,36 @@ namespace Mains.Views
                     .AddTo(ref _disposableBag);
                 })
                 .AddTo(ref _disposableBag);
+
+            // 拾ったRegionSwitchTriggerの親要素からRegionを取得する。カメラにあるリスナーにてRegion情報を更新する。
+            var tmpHitTriggerListener = hitTriggerListener;
+            // カメラのリスナー情報
+            ReactiveProperty<CriAtomListener> criAtomListener = new ReactiveProperty<CriAtomListener>();
+            tmpHitTriggerListener.OnTriggerStayAsObservable()
+                .Where(x => (regionSwitchTrigger.value & (1 << x.gameObject.layer)) != 0)
+                .DistinctUntilChanged()
+                .Subscribe(collider =>
+                {
+                    Camera mainCamera = Camera.main;
+                    if (mainCamera == null)
+                        return;
+
+                    if (criAtomListener.CurrentValue == null)
+                        criAtomListener.Value = mainCamera.GetComponent<CriAtomListener>();
+
+                    var tmpCriAtomListener = criAtomListener.CurrentValue;
+                    var trans = collider.transform;
+                    var criAtomRegion = trans.GetComponentInParent<CriAtomRegion>();
+                    // カメラのリスナーにてRegionが未設定または、異なる場合は更新する
+                    if (tmpCriAtomListener.region3d == null || criAtomRegion != tmpCriAtomListener.region3d)
+                    {
+                        tmpCriAtomListener = UpdateCurrentRegion(criAtomRegion, tmpCriAtomListener);
+
+                        criAtomListener.Value = tmpCriAtomListener;
+                    }
+                })
+                .AddTo(ref _disposableBag);
+
             // ブレイブシャウト用
             // 一定のレベルを超えた際に一定時間減少を止める
             dbLevel.Where(x => シャウトチャンスパートの共通パラメータ管理用テーブル.シャウト達成デシベル <= x &&
@@ -918,10 +965,81 @@ namespace Mains.Views
                     hitTriggerTrans.position = followPlayerCameraView.transform.position;
                 })
                 .AddTo(ref _disposableBag);
+            // 追加SE再生のためシャウトチャンスレンジ検知
+            Observable.EveryUpdate()
+                .Subscribe(_ =>
+                {
+                    float rayLength = _rayLength;
+
+                    Vector3 origin = headTrans.position;
+                    Vector3 direction = headTrans.forward;
+
+                    Debug.DrawRay(origin, direction * rayLength, Color.red);
+
+                    // ヒット結果をクリアして今フレームのヒット集合を構築
+                    _currentHitSetToPoltergeistAddSePlayer.Clear();
+                    int hitCount = Physics.RaycastNonAlloc(origin, direction, _hitBufferToPoltergeistAddSePlayer, rayLength);
+                    for (int i = 0; i < hitCount; i++)
+                    {
+                        var hit = _hitBufferToPoltergeistAddSePlayer[i];
+                        if (hit.collider == null ||
+                            !hit.collider.name.StartsWith("ShoutChanceRange"))
+                            continue;
+
+                        Transform t = hit.collider.transform;
+                        if (!_currentHitSetToPoltergeistAddSePlayer.Add(t))
+                            // 同一フレームで既に処理済み
+                            continue;
+
+                        if (_shoutChanceRangesToPoltergeistAddSePlayer.Contains(t))
+                            // 一度再生した場合、レイ情報が変わらない限り連続再生はしない
+                            continue;
+
+                        // シャウトチャンスの範囲の親オブジェクトである静的コライダー群から家具が持つコンポーネントを取得
+                        var shoutChanceRangeView = t.GetComponent<ShoutChanceRangeView>();
+                        if (shoutChanceRangeView == null)
+                            continue;
+
+                        var poltergeistView = shoutChanceRangeView.PoltergeistView;
+                        if (poltergeistView == null)
+                            continue;
+
+                        poltergeistView.DoPlayAddSEOnce();
+                        _shoutChanceRangesToPoltergeistAddSePlayer.Add(t);
+                    }
+
+                    // 今フレームのヒット対象に該当しない要素をリストから削除
+                    // 後方からのRemoveAtでインデックスずれを回避
+                    for (int i = _shoutChanceRangesToPoltergeistAddSePlayer.Count - 1; i >= 0; i--)
+                    {
+                        Transform t = _shoutChanceRangesToPoltergeistAddSePlayer[i];
+                        // 破棄済み(Unityのnull)またはヒット対象外なら削除
+                        if (t == null || !_currentHitSetToPoltergeistAddSePlayer.Contains(t))
+                        {
+                            _shoutChanceRangesToPoltergeistAddSePlayer.RemoveAt(i);
+                        }
+                    }
+                })
+                .AddTo(ref _disposableBag);
             _playerViewModel.SetPlayerHead(headTrans);
             _playerViewModel.SetPlayerCharacterController(characterController);
             _didStartAsObservable.OnNext(Unit.Default);
             _didStartAsObservable.OnCompleted();
+        }
+
+        /// <summary>
+        /// カメラのリスナーにてRegionを更新
+        /// </summary>
+        /// <param name="criAtomRegion">CRIのリージョン</param>
+        /// <param name="criAtomListener">カメラのリスナー</param>
+        /// <returns>カメラのリスナー</returns>
+        private CriAtomListener UpdateCurrentRegion(CriAtomRegion criAtomRegion, CriAtomListener criAtomListener)
+        {
+            var tmpCriAtomListener = criAtomListener;
+
+            tmpCriAtomListener.region3d = criAtomRegion;
+
+            return tmpCriAtomListener;
         }
 
         /// <summary>
@@ -1069,6 +1187,9 @@ namespace Mains.Views
             set.startDirectionSequencer.Dispose();
             var customizeTable = set.playerCustomizeTable;
             customizeTable.Dispose();
+
+            _currentHitSetToPoltergeistAddSePlayer.Clear();
+            _shoutChanceRangesToPoltergeistAddSePlayer.Clear();
         }
 
         /// <summary>
@@ -1245,7 +1366,6 @@ namespace Mains.Views
             Sequence batterySeq = DOTween.Sequence();
             // ターゲットの向き（移動方向を向く）
             Vector3 direction = spawnPosition - spotLightLightTrans.position;
-            Quaternion targetRotation = Quaternion.LookRotation(direction.normalized);
             // 移動しながら回転（0.5秒程度で調整）
             batterySeq
                 .Append(battery.DOMove(spawnPosition, 0.5f).SetEase(Ease.OutQuad))

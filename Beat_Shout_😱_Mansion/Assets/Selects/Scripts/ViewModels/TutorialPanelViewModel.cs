@@ -110,6 +110,12 @@ namespace Selects.ViewModels
         public ReactiveCommand<Unit> OnHpDecreasedTutorial => _onHpDecreasedTutorial;
         /// <summary>バッテリーのトランスフォーム</summary>
         public Transform BatteryTransform => _playerModel?.BatteryTransform ?? null;
+        /// <summary>サブメッセージテキスト</summary>
+        private ReactiveProperty<Vector2> _subMessageTextPositionOffset;
+        /// <summary>サブメッセージテキスト</summary>
+        public ReadOnlyReactiveProperty<Vector2> SubMessageTextPositionOffset => _subMessageTextPositionOffset;
+        /// <summary>サブメッセージテキスト</summary>
+        public ReactiveCommand<Vector2> SubMessageTextPositionOffsetCommand { get; set; }
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -119,6 +125,10 @@ namespace Selects.ViewModels
         public void Initialize()
         {
             var set = settings;
+
+            _subMessageTextPositionOffset = new ReactiveProperty<Vector2>();
+            SubMessageTextPositionOffsetCommand = new ReactiveCommand<Vector2>();
+
             Observable.EveryUpdate()
                 .Select(_ => GameObject.FindAnyObjectByType<PlayerModel>())
                 .Where(x => x != null)
@@ -215,6 +225,7 @@ namespace Selects.ViewModels
                         .AddTo(ref _disposableBag);
                 })
                 .AddTo(ref _disposableBag);
+            SubMessageTextPositionOffsetCommand.Subscribe(x => _subMessageTextPositionOffset.Value = x).AddTo(ref _disposableBag);
         }
 
         public void SetEnemyBattlePart(EnemyBattlePart enemyBattlePart)
@@ -341,6 +352,8 @@ namespace Selects.ViewModels
         public void Dispose()
         {
             _disposableBag.Dispose();
+            _subMessageTextPositionOffset = null;
+            SubMessageTextPositionOffsetCommand = null;
         }
     }
 

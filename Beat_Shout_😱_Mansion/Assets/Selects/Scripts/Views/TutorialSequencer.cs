@@ -22,10 +22,13 @@ namespace Selects.Views
         private readonly TutorialSequencerContext _ctx;
         /// <summary>ユーザー情報を保持するクラス</summary>
         private UserBean _userBean;
+        /// <summary>ストラテジID</summary>
+        private int _strategyId;
 
-        public TutorialSequencer(TutorialSequencerContext context)
+        public TutorialSequencer(TutorialSequencerContext context, int strategyId)
         {
             _ctx = context;
+            _strategyId = strategyId;
         }
 
         // =========================================================
@@ -116,6 +119,8 @@ namespace Selects.Views
             var side = _ctx.SideEffect;
             var vm = _ctx.ViewModel;
             var lvl = _ctx.LevelObjects;
+            // メッセージのスキップと画面右上のガイドUI表示をストラテジ制御
+            var strategyId = _strategyId;
 
             InitializeStep();
 
@@ -135,77 +140,98 @@ namespace Selects.Views
                 .Where(trans => trans != null)
                 .FirstAsync(token);
 
-            var headerPanel = vm.CommonHeaderPanelRectTrans;
-            headerPanel.gameObject.SetActive(false);
+            switch (strategyId)
+            {
+                case 1:
+                    // 右上のガイドUIは表示させたまま
+
+                    break;
+                default:
+                    var headerPanel = vm.CommonHeaderPanelRectTrans;
+                    headerPanel.gameObject.SetActive(false);
+
+                    break;
+            }
 
             // TODO: IsCompletedStartDirectionAndCharacterControllerEnabled は使わない IsCompletedStartDirectionReactive を監視する形でいい
             await vm.IsCompletedStartDirection.Where(x => x)
                 .FirstAsync(token);
 
-            // --- 前進 ---
-            ui.ApplyMessage("MSG0000");
+            switch (strategyId)
+            {
+                case 1:
+                    // 前進／後退／左移動／右移動 の工程はスキップ
 
-            await ui.FadeInAsync(0.5f, token);
+                    break;
 
-            input.EnableOnlyControllerMapCategory("CategoryTutorialForwardOnly");
-            // ここでキャラクターコントローラーを有効にする
-            playerCharacterController.enabled = true;
-            Vector3 startPos = playerTransform.position;
+                default:
+                    // --- 前進 ---
+                    ui.ApplyMessage("MSG0000");
 
-            await Observable.EveryUpdate()
-                .Where(_ => input.MoveVertical > 0.1f)
-                .Where(_ => Vector3.Distance(startPos, playerTransform.position) > 1.5f)
-                .FirstAsync(token);
+                    await ui.FadeInAsync(0.5f, token);
 
-            await FadeOutAndResetAsync(token);
+                    input.EnableOnlyControllerMapCategory("CategoryTutorialForwardOnly");
+                    // ここでキャラクターコントローラーを有効にする
+                    playerCharacterController.enabled = true;
+                    Vector3 startPos = playerTransform.position;
 
-            // --- 後退 ---
-            ui.ApplyMessage("MSG0001");
+                    await Observable.EveryUpdate()
+                        .Where(_ => input.MoveVertical > 0.1f)
+                        .Where(_ => Vector3.Distance(startPos, playerTransform.position) > 1.5f)
+                        .FirstAsync(token);
 
-            await ui.FadeInAsync(0.5f, token);
+                    await FadeOutAndResetAsync(token);
 
-            input.EnableOnlyControllerMapCategory("CategoryTutorialBackOnly");
+                    // --- 後退 ---
+                    ui.ApplyMessage("MSG0001");
 
-            startPos = playerTransform.position;
+                    await ui.FadeInAsync(0.5f, token);
 
-            await Observable.EveryUpdate()
-                .Where(_ => input.MoveVertical < -0.1f)
-                .Where(_ => Vector3.Distance(startPos, playerTransform.position) > 1.5f)
-                .FirstAsync(token);
+                    input.EnableOnlyControllerMapCategory("CategoryTutorialBackOnly");
 
-            await FadeOutAndResetAsync(token);
+                    startPos = playerTransform.position;
 
-            // --- 左移動 ---
-            ui.ApplyMessage("MSG0002");
+                    await Observable.EveryUpdate()
+                        .Where(_ => input.MoveVertical < -0.1f)
+                        .Where(_ => Vector3.Distance(startPos, playerTransform.position) > 1.5f)
+                        .FirstAsync(token);
 
-            await ui.FadeInAsync(0.5f, token);
+                    await FadeOutAndResetAsync(token);
 
-            input.EnableOnlyControllerMapCategory("CategoryTutorialLeftOnly");
+                    // --- 左移動 ---
+                    ui.ApplyMessage("MSG0002");
 
-            startPos = playerTransform.position;
+                    await ui.FadeInAsync(0.5f, token);
 
-            await Observable.EveryUpdate()
-                .Where(_ => input.MoveHorizontal < -0.1f)
-                .Where(_ => Vector3.Distance(startPos, playerTransform.position) > 1.5f)
-                .FirstAsync(token);
+                    input.EnableOnlyControllerMapCategory("CategoryTutorialLeftOnly");
 
-            await FadeOutAndResetAsync(token);
+                    startPos = playerTransform.position;
 
-            // --- 右移動 ---
-            ui.ApplyMessage("MSG0003");
+                    await Observable.EveryUpdate()
+                        .Where(_ => input.MoveHorizontal < -0.1f)
+                        .Where(_ => Vector3.Distance(startPos, playerTransform.position) > 1.5f)
+                        .FirstAsync(token);
 
-            await ui.FadeInAsync(0.5f, token);
+                    await FadeOutAndResetAsync(token);
 
-            input.EnableOnlyControllerMapCategory("CategoryTutorialRightOnly");
+                    // --- 右移動 ---
+                    ui.ApplyMessage("MSG0003");
 
-            startPos = playerTransform.position;
+                    await ui.FadeInAsync(0.5f, token);
 
-            await Observable.EveryUpdate()
-                .Where(_ => input.MoveHorizontal > 0.1f)
-                .Where(_ => Vector3.Distance(startPos, playerTransform.position) > 1.5f)
-                .FirstAsync(token);
+                    input.EnableOnlyControllerMapCategory("CategoryTutorialRightOnly");
 
-            await FadeOutAndResetAsync(token);
+                    startPos = playerTransform.position;
+
+                    await Observable.EveryUpdate()
+                        .Where(_ => input.MoveHorizontal > 0.1f)
+                        .Where(_ => Vector3.Distance(startPos, playerTransform.position) > 1.5f)
+                        .FirstAsync(token);
+
+                    await FadeOutAndResetAsync(token);
+
+                    break;
+            }
 
             // --- 懐中電灯の取得 ---
             ui.ApplyMessage("MSG0004");
@@ -579,6 +605,9 @@ namespace Selects.Views
 
             Transform missileTempoSpawnerTrans = null;
 
+            // パート切り替えのための初期処理
+            side.SetBGMPartController();
+
             await Observable.EveryUpdate()
                 .Where(_ => vm.MissileTempoSpawnerTrans.CurrentValue != null)
                 .FirstAsync(token);
@@ -587,8 +616,13 @@ namespace Selects.Views
             side.SetMissileTempoSpawner(missileTempoSpawnerTrans);
             int firstHomingObjectTargetIndex = missilePatternTable.firstHomingObjectTargetIndex;
             side.WatchFirstHomingObjectSpawn(firstHomingObjectTargetIndex);
+            ReactiveProperty<HomingObjectCustomizeView> homingObjectCustomizeView = new ReactiveProperty<HomingObjectCustomizeView>();
 
-            await side.OnFirstHomingObjectSpawned.FirstAsync(token);
+            homingObjectCustomizeView.Value = await Observable.EveryUpdate()
+                .Select(_ => side.OnFirstHomingObjectSpawned.CurrentValue)
+                .Where(x => x != null)
+                .Select(x => x.GetComponent<HomingObjectCustomizeView>())
+                .FirstAsync(token);
 
             // 「ノーツクリック判定」を更新する場合は、モデル側の「強制的に背面扱いで返すかのフラグ」も更新する
             vm.SetIsBackReturnForce(true);
@@ -624,6 +658,9 @@ namespace Selects.Views
 
             await FadeOutAndResetAsync(token);
 
+            // クリック短押しのテキストを出す
+            homingObjectCustomizeView.CurrentValue.DoShowGuideMessageShortNotes();
+
             // --- ステップ_2（ノーツクリックについて） ---
             ui.ApplyMessage("MSG0015");
             await ui.FadeInAsync(0.5f, token);
@@ -648,6 +685,9 @@ namespace Selects.Views
             side.SetBgmPause(false);
 
             await FadeOutAndResetAsync(token);
+
+            // パート切り替え（デフォルト⇒ショートノーツ）
+            side.ChangeBgmFromCurrentToOfTutorial(1);
 
             // --- ステップ_3（ノーツクリック本番） ---
             var patternData = tables.missilePatternTable.Get("SMP0000");
@@ -690,6 +730,9 @@ namespace Selects.Views
 
             await FadeOutAndResetAsync(token);
 
+            // パート切り替え（ショートノーツ⇒デフォルト）
+            side.ChangeBgmFromCurrentToOfTutorial(0);
+
             // --- ステップ_4（ロングノーツクリックについて） ---
             ui.ApplyMessage("MSG0017");
 
@@ -702,6 +745,18 @@ namespace Selects.Views
             await Observable.EveryUpdate()
                 .Where(_ => side.IsAnyLongNoteClickable(ghostHomingStartedTargetIndex))
                 .FirstAsync(token);
+
+            side.WatchFirstHomingObjectSpawn(firstHomingObjectTargetIndex);
+            ReactiveProperty<HomingObjectCustomizeView> homingObjectCustomizeView1 = new ReactiveProperty<HomingObjectCustomizeView>();
+
+            homingObjectCustomizeView1.Value = await Observable.EveryUpdate()
+                .Select(_ => side.OnFirstHomingObjectSpawned.CurrentValue)
+                .Where(x => x != null)
+                .Select(x => x.GetComponent<HomingObjectCustomizeView>())
+                .FirstAsync(token);
+
+            // クリック長押しのテキストを出す
+            homingObjectCustomizeView1.CurrentValue.DoShowGuideMessageLongNotes(0);
 
             Time.timeScale = 0f;
             side.SetBgmPause(true);
@@ -718,6 +773,7 @@ namespace Selects.Views
             await FadeOutAndResetAsync(token);
 
             input.EnableOnlyControllerMapCategory("CategoryTutorialMoveAllAndSearchAndAimMoveAndSwitchPartInhaleAndTapLight");
+
             // --- ステップ_5（ロングノーツリリースについて） ---
             ui.ApplyMessage("MSG0018");
 
@@ -731,11 +787,17 @@ namespace Selects.Views
                 .Where(x => x)
                 .FirstAsync(token);
 
+            // 離すのテキストを出す
+            homingObjectCustomizeView1.CurrentValue.DoShowGuideMessageLongNotes(1);
+
             vm.SetIsBackReturnForce(false);
             side.SetAllNotesClickDetection(true);
             side.ForceSetAutoMode(ghostHomingStartedTargetIndex, false);
 
             await FadeOutAndResetAsync(token);
+
+            // パート切り替え（デフォルト⇒ロングノーツ）
+            side.ChangeBgmFromCurrentToOfTutorial(2);
 
             // --- ステップ_6（ロングノーツクリック＆リリース本番） ---
             var patternData2 = tables.missilePatternTable.Get("SMP0002");
@@ -768,6 +830,9 @@ namespace Selects.Views
                 .FirstAsync(token);
 
             await FadeOutAndResetAsync(token);
+
+            // パート切り替え（ロングノーツ⇒デフォルト）
+            side.ChangeBgmFromCurrentToOfTutorial(0);
 
             // --- ステップ_7（ミスとリカバリについて） ---
             ui.ApplyMessage("MSG0020");
@@ -1076,6 +1141,9 @@ namespace Selects.Views
 
             InitializeStep();
 
+            // パート切り替えのための初期処理
+            side.SetBGMPartController();
+
             await Observable.EveryUpdate()
                 .Select(_ => vm.CommonHeaderPanelRectTrans)
                 .Where(trans => trans != null)
@@ -1096,7 +1164,11 @@ namespace Selects.Views
             int firstHomingObjectTargetIndex = missilePatternTable.firstHomingObjectTargetIndex;
             side.WatchFirstHomingObjectSpawn(firstHomingObjectTargetIndex);
 
-            await side.OnFirstHomingObjectSpawned.FirstAsync(token);
+            await Observable.EveryUpdate()
+                .Select(_ => side.OnFirstHomingObjectSpawned.CurrentValue)
+                .Where(x => x != null)
+                .Select(x => x.GetComponent<HomingObjectCustomizeView>())
+                .FirstAsync(token);
 
             // 「ノーツクリック判定」を更新する場合は、モデル側の「強制的に背面扱いで返すかのフラグ」も更新する
             vm.SetIsBackReturnForce(true);
@@ -1167,6 +1239,9 @@ namespace Selects.Views
             side.ForceStopSetMicButtonInput();
 
             await FadeOutAndResetAsync(token);
+
+            // パート切り替え（デフォルト⇒ロングノーツ）
+            side.ChangeBgmFromCurrentToOfTutorial(2);
 
             // --- ステップ_3（シャウトノーツシャウト＆ロングトーン本番） ---
             var patternData2 = tables.missilePatternTable.Get("SMP0004");

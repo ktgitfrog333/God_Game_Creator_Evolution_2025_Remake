@@ -1,3 +1,4 @@
+using CriWare;
 using DG.Tweening;
 using Mains.Commons;
 using Mains.External;
@@ -73,6 +74,8 @@ namespace Mains.Views
         private List<Collider> _noTriggerColliders;
         /// <summary>Rigidbody</summary>
         private Rigidbody _rigidbody;
+        /// <summary>追加SEの再生中かどうか</summary>
+        private bool _isPlayingAddSE;
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
         /// <summary>パトロール（引っ越し）タイマー</summary>
@@ -109,11 +112,6 @@ namespace Mains.Views
             /// <summary>最終：5秒間隔で無制限</summary>
             Final,
         }
-        /// <summary>笑い声再生間隔のタイプ</summary>
-        private LaughPhase _currentLaughPhase = LaughPhase.First;
-        /// <summary>現在のフェーズで残り何回まで連続再生するか（-1は無制限）</summary>
-        private int _remainingRepeatsInPhase;
-        /// <summary>現在のフェーズでの再生間隔（秒）</summary>
         private float _currentLaughInterval;
         /// <summary>静的コライダー群</summary>
         private Transform _staticColldersInstance;
@@ -310,6 +308,7 @@ namespace Mains.Views
                             StopSoundOutputBehavior();
                             if (x.NewValue.useStatus == UseStatus.Using)
                             {
+                                StartSoundOutputBehavior(soundOutputType);
                                 if (x.NewValue.moveType == MoveType.Patrol)
                                 {
                                     StartPatrolTimer();
@@ -386,9 +385,36 @@ namespace Mains.Views
                 }
                 else if (part == InteractionPart.Rhythm)
                 {
+                    var set = settings;
+                    var isPlayAddSE = set.isPlayAddSE;
+
                     // リズムパート時は一時停止
                     PausePatrolTimer();
                     StopSoundOutputBehavior();
+
+                    if (isPlayAddSE && _isPlayingAddSE)
+                    {
+                        var add_02_10_fireplace_fbxView = set.add_02_10_fireplace_fbxView;
+                        var add_03_19_model_airplane_fbxView = set.add_03_19_model_airplane_fbxView;
+
+                        if (add_02_10_fireplace_fbxView != null || add_03_19_model_airplane_fbxView != null)
+                        {
+                            if (add_02_10_fireplace_fbxView != null && add_03_19_model_airplane_fbxView == null)
+                            {
+                                add_02_10_fireplace_fbxView.StopDirection();
+                            }
+                            else if (add_03_19_model_airplane_fbxView != null)
+                            {
+                                add_03_19_model_airplane_fbxView.StopDirection();
+                            }
+                            else
+                            {
+                                Debug.LogWarning($"演出処理の複合は不適切な可能性があります。組み合わせが正しいか仕様を確認してください。" +
+                                    $" \n add_02_10_fireplace_fbxView: [{add_02_10_fireplace_fbxView}]" +
+                                    $" \n add_03_19_model_airplane_fbxView: [{add_03_19_model_airplane_fbxView}]");
+                            }
+                        }
+                    }
                 }
             }).AddTo(ref _disposableBag);
             _poltergeistViewModel.InteractionPartReactive.Pairwise()
@@ -491,10 +517,11 @@ namespace Mains.Views
             }
             // オバケの攻撃タイプの場合、攻撃開始状態を監視
             var ghostAttack = poltergeistTable.subSettings.ghostAttack;
-            _poltergeistViewModel.IsStartAttack
+            _poltergeistViewModel.IsStartAttack.Where(x => x != null)
                 .Subscribe(player =>
                 {
                     var type = ghostAttackType.Value;
+                    var api = _script_XyloApi;
                     switch (type)
                     {
                         case GhostAttackType.ThrowBookInstance:
@@ -506,6 +533,7 @@ namespace Mains.Views
                                     _poltergeistViewModel.SetIsStartAttack(null);
                                 })
                                 .AddTo(ref _disposableBag);
+                            PlayLaughSEAttack();
 
                             break;
                         case GhostAttackType.ThrowBookNotInstance:
@@ -519,6 +547,7 @@ namespace Mains.Views
                                         _poltergeistViewModel.SetIsStartAttack(null);
                                     })
                                     .AddTo(ref _disposableBag);
+                                PlayLaughSEAttack();
                             }
                             else
                             {
@@ -533,6 +562,7 @@ namespace Mains.Views
                                         _poltergeistViewModel.SetIsStartAttack(null);
                                     })
                                     .AddTo(ref _disposableBag);
+                                PlayLaughSEAttack();
                             }
 
                             break;
@@ -552,10 +582,25 @@ namespace Mains.Views
             })
                 .AddTo(ref _disposableBag);
             _script_XyloApi = new Script_xyloApi();
+            _script_XyloApi.SetBGMPartController();
             _fadeImageView = FindAnyObjectByType<FadeImageView>();
             _selectsFadeImageView = FindAnyObjectByType<Selects.Views.FadeImageView>();
             _homingObjectPoolerCustomizeView = FindAnyObjectByType<HomingObjectPoolerCustomizeView>();
             _objectPoolerXyloOtherCustomizeView = FindAnyObjectByType<ObjectPoolerXyloOtherCustomizeView>();
+        }
+
+        /// <summary>
+        /// 追加SEを再生（一度のみ）処理を呼び出す
+        /// </summary>
+        public void DoPlayAddSEOnce()
+        {
+            var set = settings;
+            var isPlayAddSE = set.isPlayAddSE;
+
+            if (isPlayAddSE)
+            {
+                StartCoroutine(PlayAddSEOnce());
+            }
         }
 
         /// <summary>
@@ -631,10 +676,14 @@ namespace Mains.Views
 
         private void OnDestroy()
         {
+            var set = settings;
+            var add_03_19_model_airplane_fbxView = set.add_03_19_model_airplane_fbxView;
+
             StopPatrolTimer();
             _disposableBag.Dispose();
             _script_XyloApi?.Dispose();
             _poltergeistViewModel?.Dispose();
+            add_03_19_model_airplane_fbxView?.Dispose();
         }
 
         /// <summary>
@@ -772,6 +821,7 @@ namespace Mains.Views
         public void BeginTransactionGhostInStaticObjectStruct()
         {
             var viewModel = _poltergeistViewModel;
+            var api = _script_XyloApi;
             switch (viewModel.EnemyBattlePart)
             {
                 case EnemyBattlePart.Normal:
@@ -783,7 +833,8 @@ namespace Mains.Views
 
                     break;
                 case EnemyBattlePart.Tutorial:
-                    _script_XyloApi.ChangeBgmB();
+                    api.StopBgmA();
+                    api.PlayBgmAOfTutorial();
 
                     break;
             }
@@ -794,6 +845,7 @@ namespace Mains.Views
                     .Take(1)
                     .Subscribe(_ =>
                     {
+                        var api = _script_XyloApi;
                         _script_XyloApi.ChangeBgmA();
                         CommitTransactionGhostInStaticObjectStruct(_poltergeistViewModel);
                         // 後処理
@@ -910,6 +962,7 @@ namespace Mains.Views
                                 break;
                             case EnemyBattlePart.Tutorial:
                                 // チュートリアルパートでは人数・HPに関わらず常にフェードアウト→浮遊停止→リセットを実行
+                                api.StopBgmAnyOfTutorial();
                                 completionObservables.Add(
                                     Observable.Create<bool>(observer =>
                                     {
@@ -1422,8 +1475,6 @@ namespace Mains.Views
                 // ★ 状態を初期化（範囲外リセット用）
                 void ResetLaughSequence()
                 {
-                    _currentLaughPhase = LaughPhase.First;
-                    _remainingRepeatsInPhase = laughSettings.firstStartCount;               // 初回フェーズ：1回のみ
                     _currentLaughInterval = laughSettings.firstInterval;
                 }
                 ResetLaughSequence();
@@ -1434,64 +1485,29 @@ namespace Mains.Views
                 Observable.EveryUpdate()
                     .Subscribe(_ =>
                     {
+                        var set = settings;
+
                         if (_motorView == null || _poltergeistViewModel?.PlayerTransform == null || !_motorView.IsEnabledPoltergeist)
                             return;
 
                         var playerPos = _poltergeistViewModel.PlayerTransform.position;
-                        float dist = Vector3.Distance(_motorView.transform.position, playerPos);
-
-                        if (dist <= shoutRadius)
+                        // 静止時のみカウントダウンするか（ReactiveStatic 用）
+                        bool canCountDown = true;
+                        if (soundOutputType == SoundOutputType.ReactiveStatic)
                         {
-                            // 静止時のみカウントダウンするか（ReactiveStatic 用）
-                            bool canCountDown = true;
-                            if (soundOutputType == SoundOutputType.ReactiveStatic)
-                            {
-                                if (Vector3.Distance(playerPos, lastPos) >= 0.01f)
-                                    canCountDown = false; // 動いているとタイマー停止
-                            }
-
-                            if (canCountDown)
-                            {
-                                timer -= Time.deltaTime;
-                                if (timer <= 0f)
-                                {
-                                    // SEを再生
-                                    PlayLaughSE(laughSettings);
-
-                                    // 次の再生までの時間と回数を設定
-                                    if (_remainingRepeatsInPhase > 0)
-                                        _remainingRepeatsInPhase--;
-
-                                    // フェーズ遷移
-                                    if (_remainingRepeatsInPhase == 0)
-                                    {
-                                        switch (_currentLaughPhase)
-                                        {
-                                            case LaughPhase.First:
-                                                _currentLaughPhase = LaughPhase.Second;
-                                                _remainingRepeatsInPhase = laughSettings.secondStartCount;      // 第二フェーズ：3回連続
-                                                _currentLaughInterval = laughSettings.secondInterval;
-                                                break;
-                                            case LaughPhase.Second:
-                                                _currentLaughPhase = LaughPhase.Final;
-                                                _remainingRepeatsInPhase = -1;     // 最終フェーズ：無制限
-                                                _currentLaughInterval = laughSettings.maxInterval;
-                                                break;
-                                            case LaughPhase.Final:
-                                                // 最終フェーズは回数無制限なのでそのまま
-                                                break;
-                                        }
-                                    }
-
-                                    timer = _currentLaughInterval;
-                                }
-                            }
+                            if (Vector3.Distance(playerPos, lastPos) >= 0.01f)
+                                canCountDown = false; // 動いているとタイマー停止
                         }
-                        else
+
+                        if (canCountDown)
                         {
-                            // 範囲外に出たら状態をリセット（次に近づいたとき初回から）
-                            ResetLaughSequence();
-                            timer = _currentLaughInterval;
+                            timer -= Time.deltaTime;
+                            if (timer <= 0f)
+                            {
+                                // SEを再生
+                                PlayLaughSE(laughSettings);
+                                timer = _currentLaughInterval;
+                            }
                         }
 
                         lastPos = playerPos;
@@ -1534,19 +1550,204 @@ namespace Mains.Views
         /// <param name="laughSettings">オバケ笑い声の再生間隔・エコー設定</param>
         private void PlayLaughSE(PoltergeistTableSubSettings.PoltergeistLaughSettings laughSettings)
         {
+            var set = settings;
             ObjectsPoolView objectsPoolView = ObjectsPoolView;
             Se_3D_PickerCustomizeView t3DSoundPlayer = objectsPoolView?.Get3DSoundPlayer();
 
             if (t3DSoundPlayer != null && _motorView != null && _motorView.IsEnabledPoltergeist && _poltergeistViewModel?.PlayerTransform != null)
             {
-                Vector3 motorPos = _motorView.transform.position;
-                float dist = Vector3.Distance(motorPos, _poltergeistViewModel.PlayerTransform.position);
-                if (dist <= _motorView.MaxDistance)
+                t3DSoundPlayer.transform.position = _transform.position;
+                string seName = Script_xyloApi.GetGhostLaughSEName(ghostInStaticObjectStruct.ghostVoiceType);
+                var instanceId = GetInstanceID();
+                var trans = _transform;
+                var isUseRegion = set.isUseRegion;
+                var criAtomRegion = set.criAtomRegion;
+                CriAtomEx3dRegion regionHandle = null;
+                if (isUseRegion)
                 {
-                    float intensity = Mathf.Clamp01(1f - (dist / _motorView.MaxDistance));
-                    string seName = Script_xyloApi.GetGhostLaughSEName(ghostInStaticObjectStruct.ghostVoiceType);
-                    t3DSoundPlayer.PlaySound(seName, intensity);
+                    regionHandle = criAtomRegion.region3dHn;
                 }
+                t3DSoundPlayer.PlaySound(seName, 1f, instanceId, trans.position, trans.forward, regionHandle);
+            }
+        }
+        /// <summary>
+        /// 本が空中に浮く音４SEを再生（簡易3Dサウンド）
+        /// </summary>
+        private void PlayLaughSEAttack()
+        {
+            var set = settings;
+            ObjectsPoolView objectsPoolView = ObjectsPoolView;
+            Se_3D_PickerCustomizeView t3DSoundPlayer = objectsPoolView?.Get3DSoundPlayer();
+
+            if (t3DSoundPlayer != null)
+            {
+                string seName = UniqueSeName.BUB_FloatingBook4.ToString();
+                var instanceId = GetInstanceID();
+                var trans = _transform;
+                var isUseRegion = set.isUseRegion;
+                var criAtomRegion = set.criAtomRegion;
+                CriAtomEx3dRegion regionHandle = null;
+                if (isUseRegion)
+                {
+                    regionHandle = criAtomRegion.region3dHn;
+                }
+                t3DSoundPlayer.PlaySound(seName, 1f, instanceId, trans.position, trans.forward, regionHandle);
+            }
+        }
+
+        /// <summary>
+        /// 追加SEを再生（一度のみ）
+        /// </summary>
+        /// <returns>コルーチン</returns>
+        private IEnumerator PlayAddSEOnce()
+        {
+            if (_isPlayingAddSE)
+                yield break;
+
+            _isPlayingAddSE = true;
+
+            var set = settings;
+            var add_02_10_fireplace_fbxView = set.add_02_10_fireplace_fbxView;
+            var add_03_19_model_airplane_fbxView = set.add_03_19_model_airplane_fbxView;
+            var intervalMaxAddSE = poltergeistTable.subSettings.laughSettings.intervalMaxAddSE;
+
+            if (add_02_10_fireplace_fbxView != null || add_03_19_model_airplane_fbxView != null)
+            {
+                if (add_02_10_fireplace_fbxView != null && add_03_19_model_airplane_fbxView == null)
+                {
+                    // 暖炉専用のSE再生処理
+                    add_02_10_fireplace_fbxView.OnStoppedDirection.Subscribe(_ =>
+                    {
+                        _isPlayingAddSE = false;
+                    })
+                        .AddTo(ref _disposableBag);
+
+                    add_02_10_fireplace_fbxView.OnBUB_FireGoingOut.Subscribe(_ =>
+                    {
+                        PlayAddSEs(2);
+                    })
+                        .AddTo(ref _disposableBag);
+
+                    add_02_10_fireplace_fbxView.OnBUB_FireBurningFireplace.Subscribe(_ =>
+                    {
+                        PlayAddSEs(1);
+                    })
+                        .AddTo(ref _disposableBag);
+
+                    add_02_10_fireplace_fbxView.OnBUB_FireFireplace.Subscribe(_ =>
+                    {
+                        PlayAddSEs(0);
+                    })
+                        .AddTo(ref _disposableBag);
+
+                    add_02_10_fireplace_fbxView.PlayDirection();
+                }
+                else if (add_03_19_model_airplane_fbxView != null)
+                {
+                    var airplaneRenderer = set.airplaneRenderer;
+
+                    // 初期化処理は一度のみ行う
+                    add_03_19_model_airplane_fbxView.Initialize(airplaneRenderer);
+
+                    add_03_19_model_airplane_fbxView.OnStoppedDirection.Subscribe(_ =>
+                    {
+                        _isPlayingAddSE = false;
+                    })
+                        .AddTo(ref _disposableBag);
+
+                    add_03_19_model_airplane_fbxView.PlayDirection();
+                    PlayAddSE();
+                }
+                else
+                {
+                    Debug.LogWarning($"演出処理の複合は不適切な可能性があります。組み合わせが正しいか仕様を確認してください。" +
+                        $" \n add_02_10_fireplace_fbxView: [{add_02_10_fireplace_fbxView}]" +
+                        $" \n add_03_19_model_airplane_fbxView: [{add_03_19_model_airplane_fbxView}]");
+                }
+
+                yield return null;
+            }
+            else
+            {
+                // デフォルトSE再生処理
+                PlayAddSE();
+
+                yield return new WaitForSeconds(intervalMaxAddSE);
+
+                _isPlayingAddSE = false;
+            }
+        }
+
+        /// <summary>
+        /// 追加SEを再生
+        /// </summary>
+        private void PlayAddSE()
+        {
+            var set = settings;
+            var playAddSEQueName = set.playAddSEQueName;
+            var api = _script_XyloApi;
+
+            if (string.IsNullOrEmpty(playAddSEQueName))
+            {
+                Debug.LogWarning($"追加SE再生キュー名が空です。: [{playAddSEQueName}] 再生処理を中断しました");
+
+                return;
+            }
+
+            ObjectsPoolView objectsPoolView = ObjectsPoolView;
+            Se_3D_PickerCustomizeView t3DSoundPlayer = objectsPoolView?.Get3DSoundPlayer();
+
+            if (t3DSoundPlayer != null)
+            {
+                string seName = playAddSEQueName;
+                var instanceId = GetInstanceID();
+                var trans = _transform;
+                var isUseRegion = set.isUseRegion;
+                var criAtomRegion = set.criAtomRegion;
+                CriAtomEx3dRegion regionHandle = null;
+                if (isUseRegion)
+                {
+                    regionHandle = criAtomRegion.region3dHn;
+                }
+                t3DSoundPlayer.PlaySound(seName, 1f, instanceId, trans.position, trans.forward, regionHandle);
+            }
+        }
+
+        /// <summary>
+        /// 追加複数SEを再生
+        /// </summary>
+        /// <param name="index">インデックス</param>
+        private void PlayAddSEs(int index)
+        {
+            var set = settings;
+            var playAddSEQueNames = set.playAddSEQueNames;
+            var api = _script_XyloApi;
+
+            if (playAddSEQueNames == null || index < 0 || index >= playAddSEQueNames.Length || string.IsNullOrEmpty(playAddSEQueNames[index]))
+            {
+                Debug.LogWarning($"追加SE再生キュー名配列が空です。: [{playAddSEQueNames}] 再生処理を中断しました");
+
+                return;
+            }
+
+            var playAddSEQueName = playAddSEQueNames[index];
+
+            ObjectsPoolView objectsPoolView = ObjectsPoolView;
+            Se_3D_PickerCustomizeView t3DSoundPlayer = objectsPoolView?.Get3DSoundPlayer();
+
+            if (t3DSoundPlayer != null)
+            {
+                string seName = playAddSEQueName;
+                var instanceId = GetInstanceID();
+                var trans = _transform;
+                var isUseRegion = set.isUseRegion;
+                var criAtomRegion = set.criAtomRegion;
+                CriAtomEx3dRegion regionHandle = null;
+                if (isUseRegion)
+                {
+                    regionHandle = criAtomRegion.region3dHn;
+                }
+                t3DSoundPlayer.PlaySound(seName, 1f, instanceId, trans.position, trans.forward, regionHandle);
             }
         }
 
@@ -1574,6 +1775,23 @@ namespace Mains.Views
         public PoltergeistAnimationSO poltergeistAnimationSO;
         /// <summary>中ボスオバケの家具入居管理のデータクラス</summary>
         public GhostInStaticObjectStruct midBossGhostInStaticObjectStruct;
+        /// <summary>リージョンを使用するか</summary>
+        public bool isUseRegion;
+        /// <summary>CRIの3Dリージョン</summary>
+        public CriAtomRegion criAtomRegion;
+        /// <summary>追加SE再生を有効にするか</summary>
+        public bool isPlayAddSE;
+        /// <summary>追加SE再生キュー名</summary>
+        public string playAddSEQueName;
+        /// <summary>追加SE再生キュー名（複数版）</summary>
+        /// <remarks>複数のSEを使用する場合はインデックスが若い数字から再生される想定で設定する</remarks>
+        public string[] playAddSEQueNames;
+        /// <summary>暖炉FBXモデルの追加処理のビュー</summary>
+        public Add_02_10_fireplace_fbxView add_02_10_fireplace_fbxView;
+        /// <summary>木製の飛行機FBXモデルの追加処理のビュー</summary>
+        public Add_03_19_model_airplane_fbxView add_03_19_model_airplane_fbxView;
+        /// <summary>木製の飛行機FBXモデルのスキンメッシュレンダラー</summary>
+        public SkinnedMeshRenderer airplaneRenderer;
 
         /// <summary>
         /// オバケの攻撃タイプの設定
@@ -1585,5 +1803,16 @@ namespace Mains.Views
             /// <see cref="GhostAttackType.ThrowBookNotInstance"/>
             public Transform ghostBulletBookInstance;
         }
+    }
+
+    /// <summary>
+    /// 家具専用SE名
+    /// </summary>
+    public enum UniqueSeName
+    {
+        /// <summary>未設定</summary>
+        Unknown,
+        /// <summary>本が空中に浮く音４</summary>
+        BUB_FloatingBook4,
     }
 }

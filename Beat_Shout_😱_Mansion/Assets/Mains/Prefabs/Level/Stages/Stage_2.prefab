@@ -273,6 +273,14 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 1
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
+    add_03_19_model_airplane_fbxView: {fileID: 0}
+    airplaneRenderer: {fileID: 0}
 --- !u!65 &588632965742643510
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -481,6 +489,14 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 1
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
+    add_03_19_model_airplane_fbxView: {fileID: 0}
+    airplaneRenderer: {fileID: 0}
 --- !u!65 &6628495772089800774
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -656,6 +672,14 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 1
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
+    add_03_19_model_airplane_fbxView: {fileID: 0}
+    airplaneRenderer: {fileID: 0}
 --- !u!65 &2148223387525611153
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -924,6 +948,14 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 1
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
+    add_03_19_model_airplane_fbxView: {fileID: 0}
+    airplaneRenderer: {fileID: 0}
 --- !u!65 &4942742522863159276
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1243,6 +1275,14 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 1
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 1
+    playAddSEQueName: BUB_WoodenAirplaneRocking2
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
+    add_03_19_model_airplane_fbxView: {fileID: 11400000, guid: 1b97f4f9020c34a4880698d2d3703206, type: 2}
+    airplaneRenderer: {fileID: 2868543319236914035}
 --- !u!65 &6058639067587776822
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2088,6 +2128,14 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 1
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
+    add_03_19_model_airplane_fbxView: {fileID: 0}
+    airplaneRenderer: {fileID: 0}
 --- !u!65 &4073243182640853075
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2188,6 +2236,14 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 1
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
+    add_03_19_model_airplane_fbxView: {fileID: 0}
+    airplaneRenderer: {fileID: 0}
 --- !u!65 &7747579518179849065
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2394,6 +2450,14 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 1
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
+    add_03_19_model_airplane_fbxView: {fileID: 0}
+    airplaneRenderer: {fileID: 0}
 --- !u!65 &3614679900399710313
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2786,6 +2850,14 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 1
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
+    add_03_19_model_airplane_fbxView: {fileID: 0}
+    airplaneRenderer: {fileID: 0}
 --- !u!65 &8420131354783766232
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3520,6 +3592,14 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 1
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 1
+    playAddSEQueName: BUB_LampSwitch
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
+    add_03_19_model_airplane_fbxView: {fileID: 0}
+    airplaneRenderer: {fileID: 0}
 --- !u!65 &544060483153107438
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3757,6 +3837,14 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 1
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
+    add_03_19_model_airplane_fbxView: {fileID: 0}
+    airplaneRenderer: {fileID: 0}
 --- !u!65 &8289956596331338850
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4012,6 +4100,14 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 1
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 1
+    playAddSEQueName: BUB_CuckooClockPoppingOut
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
+    add_03_19_model_airplane_fbxView: {fileID: 0}
+    airplaneRenderer: {fileID: 0}
 --- !u!65 &3999192718606984302
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4231,6 +4327,14 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 1
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 1
+    playAddSEQueName: BUB_WoodenAirplaneRocking2
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
+    add_03_19_model_airplane_fbxView: {fileID: 11400000, guid: efd35947d9db4f64da839fe4c458429c, type: 2}
+    airplaneRenderer: {fileID: 4471760462821118886}
 --- !u!65 &154952826466256710
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5031,6 +5135,14 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 1
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
+    add_03_19_model_airplane_fbxView: {fileID: 0}
+    airplaneRenderer: {fileID: 0}
 --- !u!65 &2782495473820817998
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5603,6 +5715,14 @@ MonoBehaviour:
       role: 1
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 1
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
+    add_03_19_model_airplane_fbxView: {fileID: 0}
+    airplaneRenderer: {fileID: 0}
 --- !u!65 &7032716239292055653
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5844,6 +5964,14 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 1
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 1
+    playAddSEQueName: BUB_WoodenAirplaneRocking2
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
+    add_03_19_model_airplane_fbxView: {fileID: 11400000, guid: 1332291eb945a3b479bfddc247bbea8a, type: 2}
+    airplaneRenderer: {fileID: 2617511703315258120}
 --- !u!65 &8104239494081666842
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6189,6 +6317,14 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 1
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
+    add_03_19_model_airplane_fbxView: {fileID: 0}
+    airplaneRenderer: {fileID: 0}
 --- !u!65 &6891268625920832027
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6496,6 +6632,14 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 1
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
+    add_03_19_model_airplane_fbxView: {fileID: 0}
+    airplaneRenderer: {fileID: 0}
 --- !u!65 &3493342589309471623
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -7722,6 +7866,14 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 1
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 1
+    playAddSEQueName: BUB_CuckooClockPoppingOut
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
+    add_03_19_model_airplane_fbxView: {fileID: 0}
+    airplaneRenderer: {fileID: 0}
 --- !u!65 &5611559423849172912
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -8081,6 +8233,14 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 1
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 1
+    playAddSEQueName: BUB_LampSwitch
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
+    add_03_19_model_airplane_fbxView: {fileID: 0}
+    airplaneRenderer: {fileID: 0}
 --- !u!65 &7161478731814884707
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -8305,6 +8465,14 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 1
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
+    add_03_19_model_airplane_fbxView: {fileID: 0}
+    airplaneRenderer: {fileID: 0}
 --- !u!65 &726689780633518613
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -8991,6 +9159,14 @@ MonoBehaviour:
       role: 0
       ghostModelType: 0
       ghostVoiceType: 0
+    isUseRegion: 1
+    criAtomRegion: {fileID: 0}
+    isPlayAddSE: 0
+    playAddSEQueName: 
+    playAddSEQueNames: []
+    add_02_10_fireplace_fbxView: {fileID: 0}
+    add_03_19_model_airplane_fbxView: {fileID: 0}
+    airplaneRenderer: {fileID: 0}
 --- !u!65 &3386232761600743916
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -9834,6 +10010,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 368829516576503853}
     m_Modifications:
+    - target: {fileID: 4255177220735014657, guid: 259af204b3185e9409d5246516be137d, type: 3}
+      propertyPath: "\u30EA\u30BA\u30E0\u30D1\u30FC\u30C8\u3067\u4F7F\u7528\u3059\u308B\u30D7\u30EC\u30A4\u30E4\u30FC\u30D7\u30ED\u30D1\u30C6\u30A3.hitTrigger"
+      value: 
+      objectReference: {fileID: 6010328747812309787}
     - target: {fileID: 7022833718681058839, guid: 259af204b3185e9409d5246516be137d, type: 3}
       propertyPath: m_Name
       value: Player
@@ -9882,11 +10062,41 @@ PrefabInstance:
       propertyPath: m_StepOffset
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 4176574053611664939, guid: 259af204b3185e9409d5246516be137d, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4309387580497885573, guid: 259af204b3185e9409d5246516be137d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6010328747812309787}
   m_SourcePrefab: {fileID: 100100000, guid: 259af204b3185e9409d5246516be137d, type: 3}
+--- !u!1 &1907767641335601282 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4309387580497885573, guid: 259af204b3185e9409d5246516be137d, type: 3}
+  m_PrefabInstance: {fileID: 2429627831094173959}
+  m_PrefabAsset: {fileID: 0}
+--- !u!135 &6010328747812309787
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1907767641335601282}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 1.25
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &6080342947128943815 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8491099568097281472, guid: 259af204b3185e9409d5246516be137d, type: 3}
@@ -11907,6 +12117,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
+--- !u!137 &2868543319236914035 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -3887185075125053422, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
+  m_PrefabInstance: {fileID: 7909144718931866465}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7658463846766105738 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
@@ -12075,6 +12290,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
+--- !u!137 &2617511703315258120 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -3887185075125053422, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
+  m_PrefabInstance: {fileID: 7952992738699379482}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7625735183803442417 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
@@ -12317,6 +12537,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
+--- !u!137 &4471760462821118886 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -3887185075125053422, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}
+  m_PrefabInstance: {fileID: 8359547006404676532}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &8325373176524778591 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0d333d3fa28547540ba94d71284f9eb6, type: 3}

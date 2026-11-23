@@ -10,6 +10,7 @@ namespace Selects.Tests
     {
         public Commons commons;
         public Views views;
+        public Other other;
     }
 
     [System.Serializable]
@@ -240,6 +241,20 @@ namespace Selects.Tests
             public Selects.Views.PlayerTeleporterStrategySOsLink playerTeleporterStrategySOsLinkTween;
             public Selects.Views.PlayerTeleporterStrategySOsLink playerTeleporterStrategySOsLinkFadeAndTeleport;
             public Selects.Views.PlayerTeleporterStrategySOsLink playerTeleporterStrategySOsLinkTeleport;
+        }
+    }
+
+    [System.Serializable]
+    public class Other
+    {
+        public BGMPartControllerTest bGMPartControllerTest;
+
+        [System.Serializable]
+        public class BGMPartControllerTest
+        {
+            public int bgmA;
+            public int bgmB;
+            public int bgmC;
         }
     }
 }

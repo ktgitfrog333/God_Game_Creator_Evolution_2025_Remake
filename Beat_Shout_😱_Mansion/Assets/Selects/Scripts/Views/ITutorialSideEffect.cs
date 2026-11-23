@@ -12,6 +12,12 @@ namespace Selects.Views
     /// </summary>
     public interface ITutorialSideEffect : System.IDisposable
     {
+        /// <summary>BGMクロスフェーダーをセット</summary>
+        void SetBGMPartController();
+
+        /// <summary>BGMを切り替え</summary>
+        void ChangeBgmFromCurrentToOfTutorial(int toId);
+
         /// <summary>マイクの有効／無効を切り替える</summary>
         void SetMicrophoneActive(bool active);
 
@@ -39,7 +45,7 @@ namespace Selects.Views
         void WatchFirstHomingObjectSpawn(int targetIndex);
 
         /// <summary>最初のHomingObjectスポーン通知</summary>
-        R3.Observable<R3.Unit> OnFirstHomingObjectSpawned { get; }
+        R3.ReadOnlyReactiveProperty<GameObject> OnFirstHomingObjectSpawned { get; }
 
         /// <summary>アクティブなショートノーツのクリック受付判定</summary>
         bool IsAnyShortNoteClickable(int targetIndex);

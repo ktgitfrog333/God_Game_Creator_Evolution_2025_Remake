@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 215bd1cbc57e3d945975d8ea7aacb956
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - bGMPartConfingTable: {fileID: 11400000, guid: 3dfc64c327d73a34b868b6cadf23b0d0, type: 2}
+  - bGMPartControllerPresenter: {fileID: 11400000, guid: 0cbf9c54b9f06174e936ba1927cc2a3d, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

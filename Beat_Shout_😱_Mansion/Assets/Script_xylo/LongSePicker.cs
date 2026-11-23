@@ -26,6 +26,9 @@ public class LongSePicker : MonoBehaviour
     // マスター音量の設定（AudioSettingsControllerから設定される）
     private float masterSEVolume = 1.0f;
     // [2026/08/13] Amagata Implementation of the Save Feature end
+    // [2026/10/06] Amagata issue bgm merge start
+    [SerializeField] private float startTimeSeconds = 2f; // 再生開始位置（秒）
+    // [2026/10/06] Amagata issue bgm merge end
     private void OnEnable()
     {
         Invoke("Delay", 1.2f);
@@ -62,7 +65,10 @@ public class LongSePicker : MonoBehaviour
             // [2026/08/13] Amagata Implementation of the Save Feature start
             LoadMasterSEVolume();
             //PlayIntroStage01(1, 2f);
-            PlayIntroStage01(masterSEVolume, 2f);
+            // [2026/10/06] Amagata issue bgm merge start
+            //PlayIntroStage01(masterSEVolume, 2f);
+            PlayIntroStage01(masterSEVolume, startTimeSeconds);
+            // [2026/10/06] Amagata issue bgm merge end
             // [2026/08/13] Amagata Implementation of the Save Feature end
         }
     }

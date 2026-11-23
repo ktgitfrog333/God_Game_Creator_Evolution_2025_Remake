@@ -403,8 +403,10 @@ MonoBehaviour:
   badPanelPrefab: {fileID: 6422276594484730783, guid: cd28cda1a4be09d4392a6101c263fe71, type: 3}
   badParticleSysPrefab: {fileID: 1394655228571085345, guid: 0a0cdc51eb3927540a6329db734f0458, type: 3}
   modelRenderer: {fileID: 4183510242059367917}
+  guideMessageLongNotesPanelPrefab: {fileID: 4579842168580416802, guid: 5ef7392466f666a45a3defe278535871, type: 3}
+  guideMessageShortNotesPanelPrefab: {fileID: 4579842168580416802, guid: 28807726b8bc37b4abc73dbef4b4097c, type: 3}
   settins:
-    homingObjectCustomizeTable: {fileID: 0}
+    homingObjectCustomizeTable: {fileID: 11400000, guid: ca418d9e4a9e5654c91c371c7a4c9ab4, type: 2}
     notesType: 1
 --- !u!114 &7640449447851752139
 MonoBehaviour:

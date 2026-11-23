@@ -1,2 +1,21 @@
 fileFormatVersion: 2
 guid: fa2f8d25e9c8cc34ab695583f27c3d06
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - commonHeaderPanelRectTrans: {instanceID: 0}
+  - controlGuidePanelPC: {instanceID: 0}
+  - controlGuidePanelXbox360Con: {instanceID: 0}
+  - enterRoomPanel: {instanceID: 0}
+  - returnTitleScenePanel: {instanceID: 0}
+  - confirmPanel: {instanceID: 0}
+  - cursorIconImage: {instanceID: 0}
+  - objectsPoolViewPrefab: {fileID: 9047147154769791731, guid: 0fcd19e76e96f9b46add68c72347b690, type: 3}
+  - interactPanelPC: {instanceID: 0}
+  - interactPanelXbox360Con: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

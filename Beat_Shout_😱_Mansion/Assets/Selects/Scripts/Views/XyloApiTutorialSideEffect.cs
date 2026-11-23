@@ -30,6 +30,15 @@ namespace Selects.Views
         }
 
         /// <summary>
+        /// BGMクロスフェーダーをセット
+        /// </summary>
+        public void SetBGMPartController() => _api.SetBGMPartController();
+        /// <summary>
+        /// BGMを切り替え
+        /// </summary>
+        /// <param name="toId">再生先ID</param>
+        public void ChangeBgmFromCurrentToOfTutorial(int toId) => _api.ChangeBgmFromCurrentToOfTutorial(toId);
+        /// <summary>
         /// マイク入力の有効／無効切り替え
         /// </summary>
         /// <remarks>ゲームオブジェクトを無効にするのではなく、<br/>
@@ -97,7 +106,7 @@ namespace Selects.Views
 
         public void SetMissileTempoSpawner(Transform transform) => _api.SetMissileTempoSpawner(transform);
         public void WatchFirstHomingObjectSpawn(int targetIndex) => _api.WatchFirstHomingObjectSpawn(targetIndex);
-        public Observable<Unit> OnFirstHomingObjectSpawned => _api.OnFirstHomingObjectSpawned;
+        public ReadOnlyReactiveProperty<GameObject> OnFirstHomingObjectSpawned => _api.OnFirstHomingObjectSpawned;
         public bool IsAnyShortNoteClickable(int targetIndex) => _api.IsAnyShortNoteClickable(targetIndex);
         public bool IsAnyLongNoteClickable(int targetIndex) => _api.IsAnyLongNoteClickable(targetIndex);
         public void ForceClickAnyClickableNote(int targetIndex) => _api.ForceClickAnyClickableNote(targetIndex);

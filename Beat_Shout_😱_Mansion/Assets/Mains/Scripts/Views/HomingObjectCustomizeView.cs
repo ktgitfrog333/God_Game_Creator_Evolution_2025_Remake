@@ -4,6 +4,7 @@ using Mains.ViewModels;
 using R3;
 using R3.Triggers;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Mains.Views
 {
@@ -22,12 +23,24 @@ namespace Mains.Views
         [SerializeField] private Transform badParticleSysPrefab;
         [Tooltip("オバケの3Dモデルレンダラー GhostBodyModel/ghost_normal")]
         [SerializeField] private Renderer modelRenderer;
+        [Tooltip("Assets/Mains/Prefabs/UIs/GuideMessageLongNotesPanel.prefabをセットしておく。")]
+        [SerializeField] private Transform guideMessageLongNotesPanelPrefab;
+        [Tooltip("Assets/Mains/Prefabs/UIs/GuideMessageShortNotesPanel.prefabをセットしておく。")]
+        [SerializeField] private Transform guideMessageShortNotesPanelPrefab;
         /// <summary>オブジェクトをホーミングする処理のカスタマイズ設定</summary>
         [SerializeField] private HomingObjectCustomizeSettins settins;
         /// <summary>シロさんのコンポーネントへアクセスするAPI</summary>
         private Script_xyloApi _script_XyloApi;
         /// <summary>オブジェクトをホーミングする処理のカスタマイズビューモデル</summary>
         private HomingObjectCustomizeViewModel _viewModel;
+        private string _guideMessageShortNote;
+        private Transform _canvasTransform;
+        /// <summary>生成されたショートノーツのメッセージ</summary>
+        private readonly ReactiveProperty<Transform> _guideMessageShortNotesPanelInstance = new ReactiveProperty<Transform>();
+        /// <summary>生成されたロングノーツのメッセージ</summary>
+        private readonly ReactiveProperty<Transform> _guideMessageLongNotesPanelInstance = new ReactiveProperty<Transform>();
+        /// <summary>初期処理の完了フラグ</summary>
+        private ReactiveProperty<bool> _isCompletedStart = new ReactiveProperty<bool>();
         /// <summary>R3のリソース管理</summary>
         private DisposableBag _disposableBag = new DisposableBag();
 
@@ -62,11 +75,18 @@ namespace Mains.Views
             var set = settins;
             Transform trans = transform;
             var canvasTransform = GameObject.Find("OverlayCanvas").transform;
+            var api = _script_XyloApi;
             _script_XyloApi.SetMissileDirectAnimManagerB(trans);
             // goodPanelPrefabとgoodParticleSysPrefabのインスタンス情報
             (GoodPanelView, ParticleSystem) instancesGoodContents = (null, null);
             // ノーツタイプ管理
             int notesType = set.notesType;
+            var homingObjectCustomizeTable = set.homingObjectCustomizeTable;
+            var currentScneName = SceneManager.GetActiveScene().name;
+            var guideMessageLongNotes = homingObjectCustomizeTable.GetGuideMessageLongNote(currentScneName);
+            var guideMessageShortNote = homingObjectCustomizeTable.GetGuideMessageShortNote(currentScneName);
+            ReactiveProperty<Transform> guideMessageLongNotesPanelInstance = _guideMessageLongNotesPanelInstance;
+            ReactiveProperty<Transform> guideMessageShortNotesPanelInstance = _guideMessageShortNotesPanelInstance;
             _script_XyloApi.IsSuccessfulReactive.Where(x => x)
                 .Subscribe(_ =>
                 {
@@ -161,6 +181,53 @@ namespace Mains.Views
                     .AddTo(ref _disposableBag);
             })
                 .AddTo(ref _disposableBag);
+            // ロングノーツの押下開始、離すのテキスト表示（シーンごとに表示、非表示を制御）
+            if (guideMessageLongNotes.Item1 != null && guideMessageLongNotes.Item2 != null)
+            {
+                // クリック開始メッセージ
+                ReactiveProperty<string> clickStartMessage = new ReactiveProperty<string>(guideMessageLongNotes.Item1);
+                // 離すメッセージ
+                ReactiveProperty<string> releaseMessage = new ReactiveProperty<string>(guideMessageLongNotes.Item2);
+                ReactiveProperty<int> clickStartDirectionMode = new ReactiveProperty<int>(0);
+                ReactiveProperty<int> releaseDirectionMode = new ReactiveProperty<int>(1);
+                ReactiveProperty<Transform> guideMessageLongNotesPanelPrefab = new ReactiveProperty<Transform>(this.guideMessageLongNotesPanelPrefab);
+                var noteTransform = _script_XyloApi.NoteTransform as RectTransform;
+
+                api.IsLongNoteClickable.Where(x => x)
+                    .Subscribe(_ =>
+                    {
+                        ShowGuideMessageLongNotes(true, guideMessageLongNotesPanelPrefab.CurrentValue, canvasTransform, noteTransform,
+                            clickStartMessage.CurrentValue, clickStartDirectionMode.CurrentValue, guideMessageLongNotesPanelInstance);
+                    })
+                    .AddTo(ref _disposableBag);
+
+                api.IsLongNoteRelease.Where(x => x)
+                    .Subscribe(_ =>
+                    {
+                        ShowGuideMessageLongNotes(true, guideMessageLongNotesPanelPrefab.CurrentValue, canvasTransform, noteTransform,
+                            releaseMessage.CurrentValue, releaseDirectionMode.CurrentValue, guideMessageLongNotesPanelInstance);
+                    })
+                    .AddTo(ref _disposableBag);
+            }
+            // ショートノーツのガイドメッセージ表示
+            if (!string.IsNullOrEmpty(guideMessageShortNote))
+            {
+                ReactiveProperty<string> shortNoteMessage = new ReactiveProperty<string>(guideMessageShortNote);
+                ReactiveProperty<Transform> guideMessageShortNotesPanelPrefab = new ReactiveProperty<Transform>(this.guideMessageShortNotesPanelPrefab);
+                var noteTransform = _script_XyloApi.NoteTransform as RectTransform;
+
+                api.IsShortNoteClickable.Where(x => x)
+                    .Subscribe(_ =>
+                    {
+                        ShowGuideMessageShortNotes(true, guideMessageShortNotesPanelPrefab.CurrentValue, canvasTransform, noteTransform,
+                            shortNoteMessage.CurrentValue, guideMessageShortNotesPanelInstance);
+                    })
+                    .AddTo(ref _disposableBag);
+            }
+
+            _guideMessageShortNote = guideMessageShortNote;
+            _canvasTransform = canvasTransform;
+            _isCompletedStart.Value = true;
         }
 
         private void OnDestroy()
@@ -168,6 +235,100 @@ namespace Mains.Views
             _disposableBag.Dispose();
             _script_XyloApi?.Dispose();
             _viewModel?.Dispose();
+        }
+
+        /// <summary>
+        /// ショートノーツのメッセージを表示する処理を呼び出す
+        /// </summary>
+        public void DoShowGuideMessageShortNotes()
+        {
+            var isCompletedStart = _isCompletedStart;
+
+            void DoShow()
+            {
+                var tmpGuideMessageShortNotesPanelPrefab = guideMessageShortNotesPanelPrefab;
+                string shortNoteMessage = _guideMessageShortNote;
+                var canvasTransform = _canvasTransform;
+                var noteTransform = _script_XyloApi.NoteTransform as RectTransform;
+                ReactiveProperty<Transform> guideMessageShortNotesPanelInstance = _guideMessageShortNotesPanelInstance;
+
+                // 外部呼び出しの場合はアニメーションが停止しても表示されたまま。2回目以降の呼び出し時に前回の状態が完了状態にされる想定。
+                ShowGuideMessageShortNotes(true, tmpGuideMessageShortNotesPanelPrefab, canvasTransform, noteTransform, shortNoteMessage, guideMessageShortNotesPanelInstance,
+                    false);
+            }
+
+            if (isCompletedStart.Value)
+            {
+                DoShow();
+            }
+            else
+            {
+                isCompletedStart.Where(x => x)
+                    .Take(1)
+                    .Subscribe(_ =>
+                    {
+                        DoShow();
+                    })
+                    .AddTo(ref _disposableBag);
+            }
+        }
+
+        /// <summary>
+        /// ロングノーツのメッセージを表示する処理を呼び出す
+        /// </summary>
+        /// <param name="directionMode">向きモード</param>
+        public void DoShowGuideMessageLongNotes(int directionMode)
+        {
+            var isCompletedStart = _isCompletedStart;
+
+            void DoShow()
+            {
+                var set = settins;
+                var homingObjectCustomizeTable = set.homingObjectCustomizeTable;
+                var currentScneName = SceneManager.GetActiveScene().name;
+                var guideMessageLongNotes = homingObjectCustomizeTable.GetGuideMessageLongNote(currentScneName);
+                var tmpGuideMessageLongNotesPanelPrefab = guideMessageLongNotesPanelPrefab;
+                string shortNoteMessage = _guideMessageShortNote;
+                var canvasTransform = _canvasTransform;
+                var noteTransform = _script_XyloApi.NoteTransform as RectTransform;
+                // クリック開始メッセージ
+                ReactiveProperty<string> clickStartMessage = new ReactiveProperty<string>(guideMessageLongNotes.Item1);
+                // 離すメッセージ
+                ReactiveProperty<string> releaseMessage = new ReactiveProperty<string>(guideMessageLongNotes.Item2);
+                ReactiveProperty<int> clickStartDirectionMode = new ReactiveProperty<int>(0);
+                ReactiveProperty<int> releaseDirectionMode = new ReactiveProperty<int>(1);
+                ReactiveProperty<Transform> guideMessageLongNotesPanelInstance = _guideMessageLongNotesPanelInstance;
+
+                switch (directionMode)
+                {
+                    case 1:
+                        ShowGuideMessageLongNotes(true, tmpGuideMessageLongNotesPanelPrefab, canvasTransform, noteTransform,
+                            releaseMessage.CurrentValue, releaseDirectionMode.CurrentValue, guideMessageLongNotesPanelInstance);
+
+                        break;
+                    default:
+                        ShowGuideMessageLongNotes(true, tmpGuideMessageLongNotesPanelPrefab, canvasTransform, noteTransform,
+                            clickStartMessage.CurrentValue, clickStartDirectionMode.CurrentValue, guideMessageLongNotesPanelInstance,
+                            false);
+
+                        break;
+                }
+            }
+
+            if (isCompletedStart.Value)
+            {
+                DoShow();
+            }
+            else
+            {
+                isCompletedStart.Where(x => x)
+                    .Take(1)
+                    .Subscribe(_ =>
+                    {
+                        DoShow();
+                    })
+                    .AddTo(ref _disposableBag);
+            }
         }
 
         /// <summary>
@@ -219,6 +380,85 @@ namespace Mains.Views
             rectTransform.anchoredPosition = noteAnchoredPosition;
 
             return rectTransform;
+        }
+
+        /// <summary>
+        /// ロングノーツのメッセージを表示する
+        /// </summary>
+        /// <param name="isShow">表示／非表示</param>
+        /// <param name="uiPrefab">UIプレハブ</param>
+        /// <param name="canvasTransform">キャンバストランスフォーム</param>
+        /// <param name="noteTransform">UIトランスフォーム</param>
+        /// <param name="message">表示するメッセージ</param>
+        /// <param name="directionMode">向きモード</param>
+        /// <param name="uiInstance">UIインスタンス</param>
+        /// <param name="isDisableOnCompleted">完了後に無効にするか</param>
+        private void ShowGuideMessageLongNotes(bool isShow, Transform uiPrefab, Transform canvasTransform, Transform noteTransform, string message, int directionMode, ReactiveProperty<Transform> uiInstance, bool isDisableOnCompleted = true)
+        {
+            Transform instance = uiInstance.CurrentValue;
+
+            if (instance == null)
+            {
+                // メッセージ非表示の場合は新規生成せずに終了
+                if (!isShow) return;
+
+                // UIを生成
+                instance = Instantiate(uiPrefab, canvasTransform);
+            }
+
+            RectTransform rectTransform = instance.GetComponent<RectTransform>();
+            var noteAnchoredPosition = (noteTransform as RectTransform).anchoredPosition;
+            rectTransform.anchoredPosition = noteAnchoredPosition;
+            var guideMessageLongNotesPanelView = instance.GetComponent<GuideMessageLongNotesPanelView>();
+            guideMessageLongNotesPanelView.SetRectTransTo(noteTransform as RectTransform);
+            guideMessageLongNotesPanelView.SetMessage(message);
+            if (instance.gameObject.activeSelf != isShow)
+            {
+                instance.gameObject.SetActive(isShow);
+            }
+            guideMessageLongNotesPanelView.PlayAnimation(isDisableOnCompleted, directionMode);
+
+            uiInstance.Value = instance;
+            _guideMessageLongNotesPanelInstance.Value = instance;
+        }
+
+        /// <summary>
+        /// ショートノーツのメッセージを表示する
+        /// </summary>
+        /// <param name="isShow">表示／非表示</param>
+        /// <param name="uiPrefab">UIプレハブ</param>
+        /// <param name="canvasTransform">キャンバストランスフォーム</param>
+        /// <param name="noteTransform">UIトランスフォーム</param>
+        /// <param name="message">表示するメッセージ</param>
+        /// <param name="uiInstance">UIインスタンス</param>
+        /// <param name="isDisableOnCompleted">完了後に無効にするか</param>
+        private void ShowGuideMessageShortNotes(bool isShow, Transform uiPrefab, Transform canvasTransform, Transform noteTransform, string message, ReactiveProperty<Transform> uiInstance, bool isDisableOnCompleted = true)
+        {
+            Transform instance = uiInstance.CurrentValue;
+
+            if (instance == null)
+            {
+                // メッセージ非表示の場合は新規生成せずに終了
+                if (!isShow) return;
+
+                // UIを生成
+                instance = Instantiate(uiPrefab, canvasTransform);
+            }
+
+            RectTransform rectTransform = instance.GetComponent<RectTransform>();
+            var noteAnchoredPosition = (noteTransform as RectTransform).anchoredPosition;
+            rectTransform.anchoredPosition = noteAnchoredPosition;
+            var guideMessageShortNotesPanelView = instance.GetComponent<GuideMessageShortNotesPanelView>();
+            guideMessageShortNotesPanelView.SetRectTransTo(noteTransform as RectTransform);
+            guideMessageShortNotesPanelView.SetMessage(message);
+            if (instance.gameObject.activeSelf != isShow)
+            {
+                instance.gameObject.SetActive(isShow);
+            }
+            guideMessageShortNotesPanelView.PlayAnimation(isDisableOnCompleted);
+
+            uiInstance.Value = instance;
+            _guideMessageShortNotesPanelInstance.Value = instance;
         }
 
         /// <summary>

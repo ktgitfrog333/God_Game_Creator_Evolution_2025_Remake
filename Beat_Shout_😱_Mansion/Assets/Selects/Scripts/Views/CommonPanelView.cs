@@ -1,5 +1,6 @@
 using DG.Tweening;
 using Mains.External;
+using Mains.Views;
 using ObservableCollections;
 using R3;
 using Rewired;
@@ -37,6 +38,8 @@ namespace Selects.Views
         [SerializeField] private RectTransform cursorIconImage;
         [SerializeField] private float cursorIconImageのマージン;
         [SerializeField] private CommonPanelTemplateStruct 共通UIのテンプレート;
+        [Tooltip("Assets/Mains/Prefabs/Level/ObjectsPoolView.prefabをセットしておく。")]
+        [SerializeField] private GameObject objectsPoolViewPrefab;
         [SerializeField] private LevelStruct[] レベル構造体リスト;
         [Tooltip("CommonPanel > CenterPanel > InteractPanelPC をセット")]
         [SerializeField] private RectTransform interactPanelPC;
@@ -273,6 +276,11 @@ namespace Selects.Views
                 .AddTo(ref _disposableBag);
             _viewModel.IsOnTriggerEnterSearchRangeIndex.Execute(-1);
             _viewModel.SetCommonHeaderPanelRectTrans(commonHeaderPanelRectTrans);
+            // オブジェクトプールビュー
+            var objectsPoolView = GameObject.FindAnyObjectByType<ObjectsPoolView>();
+            if (objectsPoolView == null)
+                objectsPoolView = Instantiate(objectsPoolViewPrefab).GetComponent<ObjectsPoolView>();
+            Se_3D_PickerCustomizeView t3DSoundPlayer = objectsPoolView.Get3DSoundPlayer();
         }
 
         private void OnDestroy()

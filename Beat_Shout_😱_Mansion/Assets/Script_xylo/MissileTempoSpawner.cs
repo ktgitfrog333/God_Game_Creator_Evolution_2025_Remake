@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Text.RegularExpressions;
+// [2026/11/02] Amagata Tutorial: Adding Text UI and Effects start
+using R3;
+// [2026/11/02] Amagata Tutorial: Adding Text UI and Effects end
 
 /// <summary>
 /// テンポに合わせてミサイルを順番に生成するスポナー
@@ -68,6 +71,11 @@ public class MissileTempoSpawner : MonoBehaviour
     private List<HomingObject> _instancedHomingObjects = new List<HomingObject>();
     public List<HomingObject> InstancedHomingObjects => _instancedHomingObjects;
     // [2026/07/28] Amagata Tutorial Implementation: Stage Select end
+    // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects start
+    private GameObject _currentHomingObject;
+    private System.IDisposable _firstSpawnWatcherDisposable;
+    private DisposableBag _disposableBag = new DisposableBag();
+    // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects end
 
     private void Start()
     {
@@ -133,6 +141,12 @@ public class MissileTempoSpawner : MonoBehaviour
         _instancedHomingObjects.Clear();
         // [2026/07/28] Amagata Tutorial Implementation: Stage Select end
     }
+    // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects start
+    private void OnDestroy()
+    {
+        _disposableBag.Dispose();
+    }
+    // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects end
 
     /// <summary>
     /// 角度マッピングを初期化
@@ -226,6 +240,9 @@ public class MissileTempoSpawner : MonoBehaviour
     /// </summary>
     private void TempoMethod()
     {
+        // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects start
+        GameObject spawnedMissile = null;
+        // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects end
         if (Active)
         {
             // プーラーが見つからない場合は何もしない
@@ -242,8 +259,17 @@ public class MissileTempoSpawner : MonoBehaviour
             // ミサイルIDが有効（1-9）なら生成、0ならスキップ
             if (missileId >= 1 && missileId <= 9)
             {
-                SpawnMissile(missileId, angleChar);
+                // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects start
+                //SpawnMissile(missileId, angleChar);
+                spawnedMissile = SpawnMissile(missileId, angleChar);
+                // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects end
             }
+            // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects start
+            if (spawnedMissile != null)
+            {
+                _currentHomingObject = spawnedMissile;
+            }
+            // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects end
 
 
             // [2026/06/26] Amagata issue #80 start
@@ -400,11 +426,14 @@ public class MissileTempoSpawner : MonoBehaviour
         return rotation;
     }
 
+    // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects start
     /// <summary>
     /// 指定したミサイルIDと角度でミサイルを生成
     /// </summary>
-    private void SpawnMissile(int missileId, char angleChar)
+    private GameObject SpawnMissile(int missileId, char angleChar)
     {
+        //private void SpawnMissile(int missileId, char angleChar)
+        // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects end
         // 生成位置を決定
         Vector3 spawnPosition;
 
@@ -440,8 +469,11 @@ public class MissileTempoSpawner : MonoBehaviour
             // 生成に成功
             string missileName = missilePooler.GetMissileNameById(missileId);
         }
-       
-        
+
+
+        // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects start
+        return missile;
+        // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects end
     }
 
     /// <summary>
@@ -511,4 +543,40 @@ public class MissileTempoSpawner : MonoBehaviour
         _oneShot = oneShot;
     }
     // [2026/06/26] Amagata issue #80 end
+    // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects start
+    public Observable<GameObject> WatchFirstHomingObject(int targetIndex)
+    {
+        return Observable.Create<GameObject>(observer =>
+        {
+            _firstSpawnWatcherDisposable?.Dispose();
+
+            _firstSpawnWatcherDisposable = Observable.EveryUpdate()
+                .Select(_ =>
+                {
+                    var active = Active;
+                    var beatIndex = currentBeatIndex;
+                    return active is true && beatIndex is int idx && idx >= targetIndex;
+                })
+                .DistinctUntilChanged()
+                .Where(x => x)   // false→true の瞬間だけ
+                .Take(1)
+                .Subscribe(_ =>
+                {
+                    Observable.EveryUpdate()
+                        .Select(_ => _currentHomingObject)
+                        .Where(currentHomingObject => currentHomingObject != null)
+                        .Take(1)
+                        .Subscribe(currentHomingObject =>
+                        {
+                            observer.OnNext(currentHomingObject);
+                            observer.OnCompleted();
+                        })
+                        .AddTo(ref _disposableBag);
+                })
+                .AddTo(ref _disposableBag);
+
+            return Disposable.Empty;
+        });
+    }
+    // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects end
 }
