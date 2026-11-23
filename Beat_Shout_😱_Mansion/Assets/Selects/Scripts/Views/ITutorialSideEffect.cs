@@ -12,6 +12,12 @@ namespace Selects.Views
     /// </summary>
     public interface ITutorialSideEffect : System.IDisposable
     {
+        /// <summary>BGMクロスフェーダーをセット</summary>
+        void SetBGMPartController();
+
+        /// <summary>BGMを切り替え</summary>
+        void ChangeBgmFromCurrentToOfTutorial(int toId);
+
         /// <summary>マイクの有効／無効を切り替える</summary>
         void SetMicrophoneActive(bool active);
 

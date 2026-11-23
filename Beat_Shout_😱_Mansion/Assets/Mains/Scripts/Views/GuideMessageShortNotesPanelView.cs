@@ -12,6 +12,12 @@ namespace Mains.Views
 	{
 		/// <summary>GOODテキスト</summary>
 	    [SerializeField] private TextMeshProUGUI guideMessageShortNotesText;
+        /// <summary>レクトトランスフォーム（追尾元）</summary>
+        private RectTransform _rectTransFrom;
+        /// <summary>レクトトランスフォーム（追尾先）</summary>
+        private RectTransform _rectTransTo;
+        /// <summary>追尾先（ノーツ）の位置に対してホーミングする</summary>
+        private System.IDisposable _homingTargetNoteDisposable;
         /// <summary>再生中アニメーションID</summary>
         private const string GuideMessageShortNotesTweenId = "GuideMessageShortNotesPanelTween";
         /// <summary>再生中アニメーション情報</summary>
@@ -32,7 +38,23 @@ namespace Mains.Views
 
         private void Start()
         {
+            var rectTrans = transform as RectTransform;
+
             _originLocalPosition = guideMessageShortNotesText.rectTransform.localPosition;
+            _rectTransFrom = rectTrans;
+
+            // 追尾先（ノーツ）の位置に対してホーミングする
+            _homingTargetNoteDisposable?.Dispose();
+            _homingTargetNoteDisposable = Observable.EveryUpdate()
+                .Select(_ => _rectTransTo)
+                .Where(x => x != null)
+                .Subscribe(rectTransTo =>
+                {
+                    var rectTransFrom = _rectTransFrom;
+
+                    rectTransFrom.anchoredPosition = rectTransTo.anchoredPosition;
+                })
+                .AddTo(ref _disposableBag);
 
             _isCompletedStart.Value = true;
         }
@@ -40,6 +62,16 @@ namespace Mains.Views
         private void OnDestroy()
         {
             _disposableBag.Dispose();
+            _homingTargetNoteDisposable?.Dispose();
+        }
+
+        /// <summary>
+        /// レクトトランスフォーム（追尾先）をセット
+        /// </summary>
+        /// <param name="rectTransTo">レクトトランスフォーム（追尾先）</param>
+        public void SetRectTransTo(RectTransform rectTransTo)
+        {
+            _rectTransTo = rectTransTo;
         }
 
         /// <summary>

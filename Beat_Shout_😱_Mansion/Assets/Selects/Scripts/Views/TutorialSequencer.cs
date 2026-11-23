@@ -605,6 +605,9 @@ namespace Selects.Views
 
             Transform missileTempoSpawnerTrans = null;
 
+            // パート切り替えのための初期処理
+            side.SetBGMPartController();
+
             await Observable.EveryUpdate()
                 .Where(_ => vm.MissileTempoSpawnerTrans.CurrentValue != null)
                 .FirstAsync(token);
@@ -683,6 +686,9 @@ namespace Selects.Views
 
             await FadeOutAndResetAsync(token);
 
+            // パート切り替え（デフォルト⇒ショートノーツ）
+            side.ChangeBgmFromCurrentToOfTutorial(1);
+
             // --- ステップ_3（ノーツクリック本番） ---
             var patternData = tables.missilePatternTable.Get("SMP0000");
             if (patternData != null) side.SetMissilePattern(patternData.pattern);
@@ -724,6 +730,9 @@ namespace Selects.Views
 
             await FadeOutAndResetAsync(token);
 
+            // パート切り替え（ショートノーツ⇒デフォルト）
+            side.ChangeBgmFromCurrentToOfTutorial(0);
+
             // --- ステップ_4（ロングノーツクリックについて） ---
             ui.ApplyMessage("MSG0017");
 
@@ -737,6 +746,7 @@ namespace Selects.Views
                 .Where(_ => side.IsAnyLongNoteClickable(ghostHomingStartedTargetIndex))
                 .FirstAsync(token);
 
+            side.WatchFirstHomingObjectSpawn(firstHomingObjectTargetIndex);
             ReactiveProperty<HomingObjectCustomizeView> homingObjectCustomizeView1 = new ReactiveProperty<HomingObjectCustomizeView>();
 
             homingObjectCustomizeView1.Value = await Observable.EveryUpdate()
@@ -786,6 +796,9 @@ namespace Selects.Views
 
             await FadeOutAndResetAsync(token);
 
+            // パート切り替え（デフォルト⇒ロングノーツ）
+            side.ChangeBgmFromCurrentToOfTutorial(2);
+
             // --- ステップ_6（ロングノーツクリック＆リリース本番） ---
             var patternData2 = tables.missilePatternTable.Get("SMP0002");
             if (patternData2 != null) side.SetMissilePattern(patternData2.pattern);
@@ -817,6 +830,9 @@ namespace Selects.Views
                 .FirstAsync(token);
 
             await FadeOutAndResetAsync(token);
+
+            // パート切り替え（ロングノーツ⇒デフォルト）
+            side.ChangeBgmFromCurrentToOfTutorial(0);
 
             // --- ステップ_7（ミスとリカバリについて） ---
             ui.ApplyMessage("MSG0020");
@@ -1125,6 +1141,9 @@ namespace Selects.Views
 
             InitializeStep();
 
+            // パート切り替えのための初期処理
+            side.SetBGMPartController();
+
             await Observable.EveryUpdate()
                 .Select(_ => vm.CommonHeaderPanelRectTrans)
                 .Where(trans => trans != null)
@@ -1220,6 +1239,9 @@ namespace Selects.Views
             side.ForceStopSetMicButtonInput();
 
             await FadeOutAndResetAsync(token);
+
+            // パート切り替え（デフォルト⇒ロングノーツ）
+            side.ChangeBgmFromCurrentToOfTutorial(2);
 
             // --- ステップ_3（シャウトノーツシャウト＆ロングトーン本番） ---
             var patternData2 = tables.missilePatternTable.Get("SMP0004");

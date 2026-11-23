@@ -30,6 +30,15 @@ namespace Selects.Views
         }
 
         /// <summary>
+        /// BGMクロスフェーダーをセット
+        /// </summary>
+        public void SetBGMPartController() => _api.SetBGMPartController();
+        /// <summary>
+        /// BGMを切り替え
+        /// </summary>
+        /// <param name="toId">再生先ID</param>
+        public void ChangeBgmFromCurrentToOfTutorial(int toId) => _api.ChangeBgmFromCurrentToOfTutorial(toId);
+        /// <summary>
         /// マイク入力の有効／無効切り替え
         /// </summary>
         /// <remarks>ゲームオブジェクトを無効にするのではなく、<br/>

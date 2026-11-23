@@ -364,10 +364,14 @@ public class MissileDirectAnimManagerB : MonoBehaviour
         // [2026/11/02] Amagata Tutorial: Adding Text UI and Effects start
         else
         {
-            bool isOverUI = IsPointerOverUI();
+            // [2026/11/16] Amagata issue #88 start
+            // Because there was an issue where the message would stop appearing after consecutive failures,
+            //bool isOverUI = IsPointerOverUI();
 
-            if (isOverUI && enableClickDetection && !isFailed && !isSuccessful)
+            //if (isOverUI && enableClickDetection && !isFailed && !isSuccessful)
+            if (enableClickDetection && !isFailed && !isSuccessful)
             {
+                // [2026/11/16] Amagata issue #88 end
                 float elapsedTime = Time.time - objectCreationTime;
 
                 if (noteType != MissileNoteType.Long2Beat_Mic)

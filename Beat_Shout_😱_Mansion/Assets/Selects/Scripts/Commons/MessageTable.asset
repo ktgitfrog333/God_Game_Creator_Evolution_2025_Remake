@@ -137,7 +137,7 @@ MonoBehaviour:
     mainMessage: "\u8972\u3044\u639B\u304B\u308B\u30AA\u30D0\u30B1\u3092\u30DE\u30A6\u30B9\u3067\u7167\u6E96\u3092\u5408\u308F\u305B\u3088\u3046"
     subMessage: ' <sprite name="beatshout_select_tutorial_icons_cursor">'
     isSubMessageCustomizePosition: 1
-    subMessageCustomizePosition: {x: -239, y: -29}
+    subMessageCustomizePosition: {x: -140.3, y: -29}
     progressText: 
     hasInteract: 0
     batteryDropType: 0

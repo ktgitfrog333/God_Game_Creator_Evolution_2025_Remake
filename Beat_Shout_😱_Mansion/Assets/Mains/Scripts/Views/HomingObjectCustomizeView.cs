@@ -410,6 +410,7 @@ namespace Mains.Views
             var noteAnchoredPosition = (noteTransform as RectTransform).anchoredPosition;
             rectTransform.anchoredPosition = noteAnchoredPosition;
             var guideMessageLongNotesPanelView = instance.GetComponent<GuideMessageLongNotesPanelView>();
+            guideMessageLongNotesPanelView.SetRectTransTo(noteTransform as RectTransform);
             guideMessageLongNotesPanelView.SetMessage(message);
             if (instance.gameObject.activeSelf != isShow)
             {
@@ -448,6 +449,7 @@ namespace Mains.Views
             var noteAnchoredPosition = (noteTransform as RectTransform).anchoredPosition;
             rectTransform.anchoredPosition = noteAnchoredPosition;
             var guideMessageShortNotesPanelView = instance.GetComponent<GuideMessageShortNotesPanelView>();
+            guideMessageShortNotesPanelView.SetRectTransTo(noteTransform as RectTransform);
             guideMessageShortNotesPanelView.SetMessage(message);
             if (instance.gameObject.activeSelf != isShow)
             {

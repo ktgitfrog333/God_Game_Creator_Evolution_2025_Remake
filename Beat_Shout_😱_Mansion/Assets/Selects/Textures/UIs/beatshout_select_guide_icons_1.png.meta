@@ -100,10 +100,10 @@ TextureImporter:
       name: beatshout_select_guide_icons_1_0
       rect:
         serializedVersion: 2
-        x: 252
-        y: 970
-        width: 70
-        height: 90
+        x: 246
+        y: 962
+        width: 82
+        height: 106
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -122,12 +122,12 @@ TextureImporter:
       name: beatshout_select_guide_icons_1_1
       rect:
         serializedVersion: 2
-        x: 346
-        y: 971
-        width: 70
-        height: 90
+        x: 340
+        y: 962
+        width: 82
+        height: 108
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []

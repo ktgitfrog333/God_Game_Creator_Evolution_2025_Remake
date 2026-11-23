@@ -1261,6 +1261,11 @@ namespace Mains.External
                 return;
             }
 
+            if (_onFirstHomingObjectSpawned.CurrentValue != null)
+            {
+                _onFirstHomingObjectSpawned.Value = null;
+            }
+
             // _missileTempoSpawner から WatchFirstHomingObject を呼び出してGameObject を取得する
             _missileTempoSpawner.WatchFirstHomingObject(targetIndex).Subscribe(gameobject =>
             {
@@ -1918,22 +1923,15 @@ namespace Mains.External
         /// <param name="isPause">trueで一時停止、falseで再開</param>
         public void SetBgmPause(bool isPause)
         {
-            var conductor = CRIWARE_conductor.Instance;
-            if (conductor == null)
+            var bGMPartController = _BGMPartController;
+
+            if (bGMPartController == null)
             {
-                Debug.LogWarning("CRIWARE_conductorのインスタンスが見つかりませんでした。");
+                Debug.LogWarning("BGMPartControllerのインスタンスが見つかりませんでした。");
                 return;
             }
 
-            // 既存コードで currentSource を参照しているのに倣い同じ経路でアクセス
-            var source = conductor.currentSource;
-            if (source == null)
-            {
-                Debug.LogWarning("conductor.currentSource が null です。");
-                return;
-            }
-
-            source.Pause(isPause);
+            bGMPartController.PauseBGM(isPause);
         }
 
         /// <summary>
@@ -2290,6 +2288,38 @@ namespace Mains.External
             {
                 conductor.StopBgmA();
             }
+        }
+
+        private BGMPartController _BGMPartController;
+
+        public void SetBGMPartController()
+        {
+            var bGMPartController = GameObject.FindAnyObjectByType<BGMPartController>();
+
+            if (bGMPartController == null) return;
+
+            _BGMPartController = bGMPartController;
+        }
+
+        public void PlayBgmAOfTutorial()
+        {
+            var bGMPartController = _BGMPartController;
+
+            bGMPartController.PlayBgm(0);
+        }
+
+        public void ChangeBgmFromCurrentToOfTutorial(int toId)
+        {
+            var bGMPartController = _BGMPartController;
+
+            bGMPartController.ChangeBgmFromCurrentTo(toId);
+        }
+
+        public void StopBgmAnyOfTutorial()
+        {
+            var bGMPartController = _BGMPartController;
+
+            bGMPartController.StopBgmAny();
         }
 
         public void Dispose()

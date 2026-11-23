@@ -2,6 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using CriWare;
+// [2026/11/16] Amagata issue #88 start
+using R3;
+// [2026/11/16] Amagata issue #88 end
 using UnityEngine;
 using static CriWare.CriAtomExBeatSync;
 
@@ -92,6 +95,10 @@ public class CRIWARE_conductor : MonoBehaviour
     [HideInInspector] public bool BGM_A_Sw = false;
     [HideInInspector] public bool BGM_B_Sw = false;
     [HideInInspector] public bool BGM_C_Sw = false;
+    // [2026/11/16] Amagata issue #88 start
+    [SerializeField] private BGMPartControllerPresenter bGMPartControllerPresenter;
+    private DisposableBag _disposableBag = new DisposableBag();
+    // [2026/11/16] Amagata issue #88 end
 
     public enum BeatResult
     {
@@ -104,6 +111,24 @@ public class CRIWARE_conductor : MonoBehaviour
 
     void OnEnable()
     {
+        // [2026/11/16] Amagata issue #88 start
+        var presenter = bGMPartControllerPresenter;
+
+        if (presenter != null)
+        {
+            presenter.Initialize();
+
+            Observable.EveryUpdate()
+                .Select(_ => Instance)
+                .Where(x => x != null)
+                .Take(1)
+                .Subscribe(instance =>
+                {
+                    presenter.CRIWARE_conductorCommand.Execute(instance);
+                })
+                .AddTo(ref _disposableBag);
+        }
+        // [2026/11/16] Amagata issue #88 end
         StartCoroutine(InitializeWhenReady());
     }
 
@@ -215,6 +240,15 @@ public class CRIWARE_conductor : MonoBehaviour
             invoke16BeatCoroutine = null; // 参照をクリア
         }
     }
+    // [2026/11/16] Amagata issue #88 start
+    private void OnDestroy()
+    {
+        var presenter = bGMPartControllerPresenter;
+
+        _disposableBag.Dispose();
+        presenter?.Dispose();
+    }
+    // [2026/11/16] Amagata issue #88 end
 
     /// <summary>
     /// 通常BGM(A)に切り替える
@@ -222,15 +256,22 @@ public class CRIWARE_conductor : MonoBehaviour
     /// <param name="TickNumber">開始ティック位置</param>
     public void ChangeBgmA(int TickNumber) // 通常BGM切り替え専用メソッド
     {
-        if (currentSource == atomSourceA)
+        // [2026/11/16] Amagata issue #88 start
+        // In the case of the tutorial, the state transitions from “BGM Off” to “BGM On,” so
+        //if (currentSource == atomSourceA)
+        if (currentSource != null && currentSource == atomSourceA)
         {
+            // [2026/11/16] Amagata issue #88 end
             return; // 同じBGMの場合は何もしない
         }
         BGM_A_Sw = true;
         BGM_B_Sw = false;
         BGM_C_Sw = false;
 
-        currentSource.Stop(); // 現在のBGMを停止
+        // [2026/11/16] Amagata issue #88 start
+        //currentSource.Stop(); // 現在のBGMを停止
+        currentSource?.Stop(); // 現在のBGMを停止
+        // [2026/11/16] Amagata issue #88 end
 
         // 新しいBGMを設定
         currentSource = atomSourceA; // 新しい音源を設定
@@ -670,4 +711,14 @@ public class CRIWARE_conductor : MonoBehaviour
             return BeatFuzzy / frameRate;
         }
     }
+    // [2026/11/16] Amagata issue #88 start
+    public void DoOnBeatSync(ref CriAtomExBeatSync.Info info)
+    {
+        OnBeatSync(ref info);
+    }
+    public void DoForceSetTempo(float bpm)
+    {
+        ForceSetTempo(bpm);
+    }
+    // [2026/11/16] Amagata issue #88 end
 }

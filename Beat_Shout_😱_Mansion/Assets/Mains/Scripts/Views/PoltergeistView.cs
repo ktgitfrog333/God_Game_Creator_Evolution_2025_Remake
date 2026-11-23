@@ -582,6 +582,7 @@ namespace Mains.Views
             })
                 .AddTo(ref _disposableBag);
             _script_XyloApi = new Script_xyloApi();
+            _script_XyloApi.SetBGMPartController();
             _fadeImageView = FindAnyObjectByType<FadeImageView>();
             _selectsFadeImageView = FindAnyObjectByType<Selects.Views.FadeImageView>();
             _homingObjectPoolerCustomizeView = FindAnyObjectByType<HomingObjectPoolerCustomizeView>();
@@ -820,6 +821,7 @@ namespace Mains.Views
         public void BeginTransactionGhostInStaticObjectStruct()
         {
             var viewModel = _poltergeistViewModel;
+            var api = _script_XyloApi;
             switch (viewModel.EnemyBattlePart)
             {
                 case EnemyBattlePart.Normal:
@@ -831,7 +833,8 @@ namespace Mains.Views
 
                     break;
                 case EnemyBattlePart.Tutorial:
-                    _script_XyloApi.ChangeBgmB();
+                    api.StopBgmA();
+                    api.PlayBgmAOfTutorial();
 
                     break;
             }
@@ -842,6 +845,7 @@ namespace Mains.Views
                     .Take(1)
                     .Subscribe(_ =>
                     {
+                        var api = _script_XyloApi;
                         _script_XyloApi.ChangeBgmA();
                         CommitTransactionGhostInStaticObjectStruct(_poltergeistViewModel);
                         // 後処理
@@ -958,6 +962,7 @@ namespace Mains.Views
                                 break;
                             case EnemyBattlePart.Tutorial:
                                 // チュートリアルパートでは人数・HPに関わらず常にフェードアウト→浮遊停止→リセットを実行
+                                api.StopBgmAnyOfTutorial();
                                 completionObservables.Add(
                                     Observable.Create<bool>(observer =>
                                     {
