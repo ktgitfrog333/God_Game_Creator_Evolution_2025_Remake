@@ -81,7 +81,6 @@ namespace Selects.Views
                 await RunStage3GuideTutorialAsync(token);
 
             vm.SetIsLockUserBean(false);
-            vm.SetEnemyBattlePart(EnemyBattlePart.Normal);
         }
 
         // =========================================================

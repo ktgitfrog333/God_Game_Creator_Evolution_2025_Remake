@@ -52,6 +52,8 @@ namespace Selects.Views
         private CommonPanelViewModel _viewModel;
         /// <summary>シロさんのコンポーネントへアクセスするAPI</summary>
         private Script_xyloApi _script_XyloApi;
+        /// <summary>ユーザー情報を保持するクラス</summary>
+        private UserBean _userBean;
         /// <summary>R3のリソース管理</summary>
         private readonly SerialDisposable _currentInputTypeDisposable = new SerialDisposable();
         /// <summary>R3のリソース管理</summary>
@@ -141,6 +143,9 @@ namespace Selects.Views
                 {
                     selectedStageIndexReactive.Subscribe(selectedStageIndex =>
                     {
+                        var viewModel = _viewModel;
+                        var enemyBattlePart = viewModel.EnemyBattlePart.CurrentValue;
+
                         switch (selectedStageIndex)
                         {
                             case -1:
@@ -167,7 +172,17 @@ namespace Selects.Views
 
                                 break;
                             default:
-                                RenderEnterRoomText(enterRoomText, selectedStageIndex, 共通UIのテンプレート.enterRoomText, レベル構造体リスト);
+                                switch (enemyBattlePart)
+                                {
+                                    case Mains.Commons.EnemyBattlePart.Tutorial:
+                                        RenderEnterRoomText(enterRoomText, selectedStageIndex, 共通UIのテンプレート.enterRoomTextPlayingTutorial, レベル構造体リスト);
+
+                                        break;
+                                    default:
+                                        RenderEnterRoomText(enterRoomText, selectedStageIndex, 共通UIのテンプレート.enterRoomText, レベル構造体リスト);
+
+                                        break;
+                                }
                                 if (!enterRoomPanel.gameObject.activeSelf)
                                     enterRoomPanel.gameObject.SetActive(true);
                                 if (returnTitleScenePanel.gameObject.activeSelf)
@@ -350,6 +365,8 @@ namespace Selects.Views
             switch (index)
             {
                 case 0:
+                    var enemyBattlePart = viewModel.EnemyBattlePart.CurrentValue;
+
                     foreach (var yesNoTextView in yesNoTextViews)
                     {
                         yesNoTextView.SetEnabled(false);
@@ -410,6 +427,47 @@ namespace Selects.Views
                         })
                         .AddTo(ref _disposableBag);
                     script_XyloApi.PlayBUB_Submit3();
+
+                    switch (enemyBattlePart)
+                    {
+                        case Mains.Commons.EnemyBattlePart.Tutorial:
+                            switch (targetStageIndex)
+                            {
+                                case 5:
+                                    viewModel.IsLockUserBeanCommand.Execute(false);
+
+                                    break;
+                                default:
+                                    ResourcesUtility utility = new ResourcesUtility();
+                                    _userBean = utility.LoadSaveDatasJsonOfUserBean(ConstResorcesNames.USER_DATA);
+
+                                    if (TutorialConditionEvaluator.ShouldRunMove(_userBean) ||
+                                        TutorialConditionEvaluator.ShouldRunAimMove(_userBean) ||
+                                        TutorialConditionEvaluator.ShouldRunShout(_userBean) ||
+                                        TutorialConditionEvaluator.ShouldRunStage1Guide(_userBean))
+                                    {
+                                        SaveEventProgress((int)TutorialEventId.ETB0000);
+                                        SaveEventProgress((int)TutorialEventId.ETB0001);
+                                        SaveEventProgress((int)TutorialEventId.ETB0002);
+                                        SaveEventProgress((int)TutorialEventId.ETB0003);
+                                        SaveEventProgress((int)TutorialEventId.ETB0004);
+                                    }
+                                    if (TutorialConditionEvaluator.ShouldRunShoutNoteGuide(_userBean) ||
+                                        TutorialConditionEvaluator.ShouldRunStage3Guide(_userBean))
+                                    {
+                                        SaveEventProgress((int)TutorialEventId.ETS0000);
+                                        SaveEventProgress((int)TutorialEventId.ETS0001);
+                                        SaveEventProgress((int)TutorialEventId.ETS0002);
+                                    }
+
+                                    utility.SaveDatasJsonOfUserBean(ConstResorcesNames.USER_DATA, _userBean);
+                                    viewModel.IsLockUserBeanCommand.Execute(false);
+
+                                    break;
+                            }
+
+                            break;
+                    }
 
                     break;
                 case 1:
@@ -488,6 +546,27 @@ namespace Selects.Views
                 if (interactPanelXbox360Con.gameObject.activeSelf)
                     interactPanelXbox360Con.gameObject.SetActive(false);
             }
+        }
+
+        /// <summary>
+        /// イベント進捗を完了にしてセーブする
+        /// </summary>
+        /// <param name="eventId">イベントID</param>
+        private void SaveEventProgress(int eventId)
+        {
+            if (_userBean.eventProgressList == null)
+                _userBean.eventProgressList = new System.Collections.Generic.List<EventProgress>();
+
+            var progress = _userBean.eventProgressList
+                .Find(p => p.eventId == eventId);
+
+            if (progress == null)
+                _userBean.eventProgressList.Add(new EventProgress(eventId, 1));
+            else
+                progress.status = 1;
+
+            var utility = new ResourcesUtility();
+            utility.SaveDatasJsonOfUserBean(ConstResorcesNames.USER_DATA, _userBean);
         }
     }
 }
