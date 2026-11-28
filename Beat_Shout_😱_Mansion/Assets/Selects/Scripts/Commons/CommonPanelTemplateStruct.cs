@@ -9,6 +9,8 @@ namespace Selects.Commons
     public struct CommonPanelTemplateStruct
     {
         [Tooltip("CommonPanel > CenterPanel > ReturnTitleScenePanel > EnterRoomText のテンプレートをセット")]
-        public string enterRoomText;
+        [TextArea] public string enterRoomText;
+        [Tooltip("CommonPanel > CenterPanel > ReturnTitleScenePanel > EnterRoomText のテンプレートをセット\nチュートリアル用")]
+        [TextArea] public string enterRoomTextPlayingTutorial;
     }
 }
