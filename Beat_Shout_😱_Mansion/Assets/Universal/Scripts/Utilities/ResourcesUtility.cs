@@ -125,11 +125,11 @@ namespace Universal.Utilities
                 if (sceneIdx < 4)
                 {
                     // ステージ1～4
-                    if (state[sceneIdx] != 2)
+                    if (state[sceneIdx] < 2)
                         state[sceneIdx] = 2;
 
                     var nextSceneIdx = sceneIdx + 1;
-                    if (state[nextSceneIdx] != 1)
+                    if (state[nextSceneIdx] < 1)
                         state[nextSceneIdx] = 1;
                 }
                 else
